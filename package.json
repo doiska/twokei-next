@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"npm run build\" \"npm run twokei\"",
-    "twokei": "nodemon --watch \"out\" --exec \"node out/index.js\"",
-    "build": "tsc --watch",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "swc src -d dist --source-maps",
+    "build-dev": "\"pnpm run build\" && SET NODE_ENV=development && node --inspect dist/index.js",
+    "dev": "nodemon --ext ts --exec \"pnpm run build-dev\"",
+    "prod": "pnpm run build && NODE_ENV=production node dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +16,8 @@
     "discord-hybrid-sharding": "github:meister03/discord-hybrid-sharding",
     "discord.js": "^14.6.0",
     "dotenv": "^16.0.3",
+    "fast-glob": "^3.2.12",
+    "kleur": "^4.1.5",
     "shoukaku": "^3.2.2"
   },
   "devDependencies": {
@@ -23,7 +25,6 @@
     "@swc/cli": "^0.1.57",
     "@swc/core": "^1.3.11",
     "chokidar": "^3.5.3",
-    "concurrently": "^7.5.0",
     "nodemon": "^2.0.20",
     "typescript": "^4.8.4"
   }
