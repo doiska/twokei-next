@@ -1,4 +1,5 @@
-import { EmbedData, GuildMember, PermissionResolvable, User, LocalizationMap } from "discord.js";
+import { EmbedData, GuildMember, PermissionResolvable, User } from "discord.js";
+import type { LocalizationMap } from 'discord-api-types/v10';
 
 export enum CommandExceptionType {
   CommandNotFound = "Command not found.",

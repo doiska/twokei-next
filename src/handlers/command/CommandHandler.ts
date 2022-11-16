@@ -4,9 +4,9 @@ import {
   Interaction,
   Message,
   InteractionType,
-  APIEmbed
+  APIEmbed, EmbedData
 } from "discord.js";
-import { CommandContext, CommandExceptionType } from "./command.types";
+import { CommandContext, CommandExceptionType, CommandResponse } from "./command.types";
 import { Twokei } from "../../app/Twokei";
 
 function prepareInteraction(interaction: CommandInteraction): CommandContext {
@@ -30,7 +30,7 @@ function prepareMessage(message: Message): CommandContext {
   }
 }
 
-export async function handleCommand(interaction: Message | Interaction): Promise<void> {
+export async function handleCommand(interaction: Message | Interaction): Promise<CommandResponse> {
   const isMessage = interaction instanceof Message;
 
   if (!isMessage && interaction.type !== InteractionType.ApplicationCommand) {
@@ -41,26 +41,14 @@ export async function handleCommand(interaction: Message | Interaction): Promise
   const command = Twokei.commands.get(context.command);
 
   if (!command) {
-    throw new CommandException(CommandExceptionType.CommandNotFound);
+    throw new Error(CommandExceptionType.CommandNotFound);
   }
 
-  const permissions = command.permissions || [];
+  // const permissions = command.permissions || [];
+  //
+  // if (context.member && permissions && context.member.permissions.has(permissions)) {
+  //   throw new Error(CommandExceptionType.MissingPermissions);
+  // }
 
-  if (context.member && context.member.permissions.has(permissions)) {
-    throw new CommandException(CommandExceptionType.MissingPermissions);
-  }
-
-  const response = await command.execute(context);
-
-  if (!response) {
-    return;
-  }
-
-  const isEmbed = typeof response === "object";
-
-  if (isEmbed) {
-    await interaction.reply({ embeds: [response as APIEmbed] });
-  } else {
-    await interaction.reply(response as string);
-  }
+  return command.execute(context);
 }

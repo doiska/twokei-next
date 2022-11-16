@@ -1,0 +1,10 @@
+{
+  "pt_BR": {
+    "name": "ping",
+    "description": "Comando de ping."
+  },
+  "en_US": {
+    "name": "ping",
+    "description": "Ping command."
+  }
+}
