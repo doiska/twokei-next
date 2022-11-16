@@ -31,14 +31,11 @@ export class ExtendedClient extends Client {
   }
 
   private async register(): Promise<void> {
-    console.log(yellow("Registering events..."));
-
     const files = await glob(this._paths, { cwd: __dirname, onlyFiles: true });
-    files.map((file) => import(file));
+    const { length } = files.map((file) => import(file));
 
-    console.log(green("Registering events... Done!"));
+    console.log(green(`Loaded ${length} files.`));
   }
-
 
   private async registerSlashCommands() {
 
