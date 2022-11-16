@@ -20,6 +20,7 @@ registerEvent("interactionCreate", async (interaction) => {
       await interaction.deleteReply();
     }
   } catch (e) {
+    console.log(e);
     await interaction.editReply(`An error occurred. Please try again later.`);
   }
 });

@@ -3,16 +3,24 @@ import {
   GuildMember,
   Interaction,
   Message,
-  InteractionType,
-  APIEmbed, EmbedData
 } from "discord.js";
 import { CommandContext, CommandExceptionType, CommandResponse } from "./command.types";
 import { Twokei } from "../../app/Twokei";
 
 function prepareInteraction(interaction: CommandInteraction): CommandContext {
+
+  const optionsAsKV = interaction.options.data.reduce(
+    (acc, option) => (
+      {
+        ...acc,
+        [option.name]: option.value
+      }
+    ), {} as Record<string, any>
+  );
+
   return {
     command: interaction.commandName,
-    args: interaction.options.data.map((arg) => arg.value) || [],
+    args: optionsAsKV,
     user: interaction.user,
     member: interaction.member as GuildMember,
   }
@@ -33,7 +41,7 @@ function prepareMessage(message: Message): CommandContext {
 export async function handleCommand(interaction: Message | Interaction): Promise<CommandResponse> {
   const isMessage = interaction instanceof Message;
 
-  if (!isMessage && interaction.type !== InteractionType.ApplicationCommand) {
+  if (!isMessage && !interaction.isChatInputCommand()) {
     return;
   }
 

@@ -1,4 +1,4 @@
-import { EmbedData, GuildMember, PermissionResolvable, User } from "discord.js";
+import { EmbedData, GuildMember, PermissionResolvable, SlashCommandBuilder, User } from "discord.js";
 import type { LocalizationMap } from 'discord-api-types/v10';
 
 export enum CommandExceptionType {
@@ -16,21 +16,20 @@ export type Command = {
   ownerOnly?: boolean;
   guildOnly?: boolean;
   nsfw?: boolean;
-  args?: boolean;
   permissions?: PermissionResolvable;
   examples?: string[];
   active?: boolean;
   nameLocales?: LocalizationMap;
   descriptionLocales?: LocalizationMap;
+  slash?: (builder: SlashCommandBuilder) => Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">,
   execute: (context: CommandContext) => CommandResponse | Promise<CommandResponse>;
 }
 
-export type CommandContext = {
+export type CommandContext<T = any> = {
   command: string;
   user: User;
   member?: GuildMember;
-  args?: (string | boolean | number | undefined)[];
-
+  args: T;
 }
 
 export type CommandResponse = void | string | EmbedData;

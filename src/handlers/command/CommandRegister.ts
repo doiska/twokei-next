@@ -1,6 +1,6 @@
 import { Command, CommandContext, CommandResponse } from "./command.types";
 import { Twokei } from "../../app/Twokei";
-import { Locale, SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder } from "discord.js";
 import glob from "fast-glob";
 import fs from 'node:fs';
 import { LocaleString } from "discord-api-types/rest/common";
@@ -9,10 +9,9 @@ import { bgRed } from "kleur";
 
 type OmitCommandParams = 'execute' | 'nameLocales' | 'descriptionLocales';
 
-
 export const registerCommand = (
   command: Omit<Command, OmitCommandParams>,
-  execute: (context: CommandContext) => CommandResponse | Promise<CommandResponse>
+  execute: (context: CommandContext) => (CommandResponse | Promise<CommandResponse>)
 ) => {
 
   const { name: commandName } = command;
@@ -41,6 +40,8 @@ export const registerCommand = (
   }
 
   Twokei.commands.set(commandName, newCommand);
+
+  return newCommand;
 }
 
 type Translation = Record<LocaleString, { name: string, description: string }>
@@ -53,7 +54,6 @@ export const getCommandTranslation = (name: string) => {
   }
 
   const fileContent = fs.readFileSync(file[0], 'utf-8');
-
   return JSON.parse(fileContent) as Translation;
 }
 
@@ -85,11 +85,14 @@ export const parseCommandToSlashJSON = (command: Command) => {
     throw new Error(`Command ${command.name} is missing a name or description for en-US locale.`);
   }
 
-  return new SlashCommandBuilder()
+  const previewSlash = new SlashCommandBuilder()
     .setName(name)
     .setDescription(description ?? 'No description provided.')
     .setDefaultMemberPermissions(command.permissions as bigint)
     .setNameLocalizations(command.nameLocales || {})
-    .setDescriptionLocalizations(command.descriptionLocales || {})
-    .toJSON();
+    .setDescriptionLocalizations(command.descriptionLocales || {});
+
+  const slash = command.slash?.(previewSlash) ?? previewSlash;
+
+  return slash.toJSON();
 }
