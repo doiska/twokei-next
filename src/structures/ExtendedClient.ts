@@ -6,12 +6,15 @@ import glob from "fast-glob";
 import { green, red, yellow } from "kleur";
 import { Command } from "../handlers/command/command.types";
 import { parseCommandToSlashJSON } from "../handlers/command/CommandRegister";
-import { Twokei } from "./Twokei";
+import { Twokei } from "../app/Twokei";
+import { ExtendedPlayer } from "./ExtendedPlayer";
+import { MusicApp } from "../music/MusicApp";
 
 export class ExtendedClient extends Client {
 
   public shoukaku: Shoukaku;
   public cluster: ShardClient;
+  public music: MusicApp;
 
   public commands: Map<string, Command> = new Map();
 
@@ -19,8 +22,24 @@ export class ExtendedClient extends Client {
 
   constructor(options: ClientOptions) {
     super(options);
-    this.shoukaku = new Shoukaku(new Connectors.DiscordJS(this), Nodes, {});
+
+
+    this.shoukaku = new Shoukaku(
+      new Connectors.DiscordJS(this),
+      Nodes,
+      {
+        resume: true,
+        structures: {
+          player: ExtendedPlayer
+        }
+      });
+
+    this.music = new MusicApp(this);
     this.cluster = new ShardClient(this as unknown as DjsClient);
+
+    this.shoukaku.on('ready', (name, info) => console.log(yellow(`[Shoukaku] [${name}] ${info}`)));
+    this.shoukaku.on('error', (name, info) => console.log(yellow(`[Shoukaku] [${name}] ${info}`)));
+    this.shoukaku.on('debug', (name, info) => console.log(yellow(`[Shoukaku] [${name}] ${info}`)));
   }
 
   public async start(): Promise<void> {
