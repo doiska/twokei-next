@@ -1,4 +1,4 @@
-import { ExtendedClient } from "./ExtendedClient";
+import { ExtendedClient } from "../structures/ExtendedClient";
 import { ClusterClient as ShardClient } from 'discord-hybrid-sharding';
 
 const { SHARD_LIST, TOTAL_SHARDS } = ShardClient.getInfo();
@@ -6,7 +6,7 @@ const { SHARD_LIST, TOTAL_SHARDS } = ShardClient.getInfo();
 export const Twokei = new ExtendedClient({
   shards: SHARD_LIST,
   shardCount: TOTAL_SHARDS,
-  intents: ['GuildMessages', 'Guilds']
+  intents: ['GuildMessages', 'Guilds', 'GuildVoiceStates']
 });
 
 Twokei.cluster.on('ready', () => console.log('Shard ready!'));
