@@ -1,10 +1,10 @@
 {
   "pt_BR": {
-    "name": "ping",
+    "name": "play",
     "description": "Comando de ping."
   },
   "en_US": {
-    "name": "ping",
+    "name": "play",
     "description": "Ping command."
   }
 }
