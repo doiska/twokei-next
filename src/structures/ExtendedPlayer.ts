@@ -1,34 +1,43 @@
 import { Node, Player, Track, VoiceChannelOptions } from "shoukaku";
+import { logger } from "../utils/Logger";
 
 export class ExtendedPlayer extends Player {
 
   private _queue: Array<Track> = [];
+  private readonly _voiceChannelOptions: VoiceChannelOptions;
 
   constructor(node: Node, options: VoiceChannelOptions) {
     super(node, options);
+
+    this._voiceChannelOptions = options;
   }
 
   public async play(track: Track | string, skipCurrent = false): Promise<ExtendedPlayer> {
 
     const [playableTrack, ...rest] = typeof track === 'string' ? await this.resolveTrack(track) : [track];
 
-    if(!playableTrack) {
+    if (!playableTrack) {
       throw new Error('No track found');
     }
 
     if (this.playing && !skipCurrent) {
-      console.log(`Adding track ${playableTrack} to queue`);
+      logger.verbose(`Adding track ${playableTrack} to queue`);
       this._queue.push(playableTrack, ...rest);
       return this;
     }
 
-    if(rest.length) {
+    if (rest.length) {
       this._queue = [...this._queue, ...rest];
     }
 
     if (this.playing) {
       await super.stopTrack();
     }
+
+    logger.info(`Playing track ${playableTrack.info.uri}`);
+
+    //TODO: make add on queue and remove after music ends
+    this.queue.push(playableTrack);
 
     this.playTrack(playableTrack);
     return this;
@@ -46,10 +55,10 @@ export class ExtendedPlayer extends Player {
     if (nextTrack) {
       this._queue = this._queue.slice(amount);
 
-      console.log(`Playing next track ${nextTrack}`);
+      logger.verbose(`Playing next track ${nextTrack}`);
       return this.play(nextTrack, true);
     } else {
-      console.log("stopping");
+      logger.verbose(`Queue is empty, stopping player`);
       return this.stop();
     }
   }
@@ -74,14 +83,21 @@ export class ExtendedPlayer extends Player {
     return this.track;
   }
 
-  public get queue(): Array<Track | string> {
+  public get voiceChannelOptions(): VoiceChannelOptions {
+    return this._voiceChannelOptions;
+  }
+
+  public get queue(): Array<Track> {
     return this._queue;
   }
 
-  private async resolveTrack(track: string): Promise<(Track)[]> {
-    console.log(`Resolving track ${track}`);
+  private async resolveTrack(_track: string): Promise<(Track)[]> {
+
+    const track = _track.startsWith('http') ? _track : `ytsearch:${_track}`;
 
     const { tracks, loadType } = await this.node.rest.resolve(track) || {};
+
+    logger.verbose(`Resolving track ${track} with loadType ${loadType}`);
 
     if (!loadType || !tracks || !tracks.length) {
       return [];

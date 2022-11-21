@@ -9,6 +9,7 @@ import { parseCommandToSlashJSON } from "../handlers/command/CommandRegister";
 import { Twokei } from "../app/Twokei";
 import { ExtendedPlayer } from "./ExtendedPlayer";
 import { MusicApp } from "../music/MusicApp";
+import { logger } from "../utils/Logger";
 
 export class ExtendedClient extends Client {
 
@@ -37,9 +38,9 @@ export class ExtendedClient extends Client {
     this.music = new MusicApp(this);
     this.cluster = new ShardClient(this as unknown as DjsClient);
 
-    this.shoukaku.on('ready', (name, info) => console.log(yellow(`[Shoukaku] [${name}] ${info}`)));
-    this.shoukaku.on('error', (name, info) => console.log(yellow(`[Shoukaku] [${name}] ${info}`)));
-    this.shoukaku.on('debug', (name, info) => console.log(yellow(`[Shoukaku] [${name}] ${info}`)));
+    this.shoukaku.on('ready', (name, info) => logger.info(`Shoukaku -> ${name} ${info}`));
+    this.shoukaku.on('error', (name, info) => logger.error(`Shoukaku -> ${name} ${info}`));
+    this.shoukaku.on('debug', (name, info) => logger.verbose(`Shoukaku -> ${name} ${info}`));
   }
 
   public async start(): Promise<void> {
@@ -51,15 +52,14 @@ export class ExtendedClient extends Client {
 
   private async register(): Promise<void> {
     const files = await glob(this._paths, { cwd: __dirname, onlyFiles: true });
-    const { length } = files.map((file) => import(file));
-
-    console.log(green(`Loaded ${length} files.`));
+    files.forEach((file) => import(file));
   }
 
   private async registerSlashCommands() {
 
-    if (!process.env.CLIENT_ID || typeof Twokei.token !== "string")
+    if (!process.env.CLIENT_ID || typeof Twokei.token !== "string") {
       return;
+    }
 
     const parsed = Array.from(this.commands.values()).map(parseCommandToSlashJSON);
 
@@ -68,9 +68,8 @@ export class ExtendedClient extends Client {
       .put(Routes.applicationGuildCommands(process.env.CLIENT_ID, "926643164201234533"), { body: parsed });
   }
 
-
   private async registerLoggers(): Promise<void> {
-    process.on('uncaughtException', (err) => console.error(red(`Uncaught Exception: ${err.stack}`)));
-    process.on('unhandledRejection', (reason: string, err) => console.error(red(`Unhandled Rejection: ${reason}`), err));
+    process.on('uncaughtException', (err) => logger.error(`Uncaught Exception: ${err.stack}`));
+    process.on('unhandledRejection', (reason: string, err) => logger.error(`Unhandled Rejection: ${reason}`, err));
   }
 }
