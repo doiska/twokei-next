@@ -14,7 +14,9 @@ export const registerCommand = (
   execute: (context: CommandContext) => (CommandResponse | Promise<CommandResponse>)
 ) => {
 
+
   const { name: commandName } = command;
+  console.log(`Registering command ${commandName}`);
 
   if (!commandName) {
     throw new Error(`Command name is required.`);
@@ -79,7 +81,7 @@ const splitTranslations = (command: string, translation: Translation) => {
 
 export const parseCommandToSlashJSON = (command: Command) => {
   const name = command.nameLocales?.['en-US'] ?? command.name;
-  const description = command.descriptionLocales?.['en-US'] ?? command.description;
+  const description = command.descriptionLocales?.['en-US'] ?? command.description ?? 'No description provided.';
 
   if (!name || !description) {
     throw new Error(`Command ${command.name} is missing a name or description for en-US locale.`);
@@ -87,7 +89,7 @@ export const parseCommandToSlashJSON = (command: Command) => {
 
   const previewSlash = new SlashCommandBuilder()
     .setName(name)
-    .setDescription(description ?? 'No description provided.')
+    .setDescription(description)
     .setDefaultMemberPermissions(command.permissions as bigint)
     .setNameLocalizations(command.nameLocales || {})
     .setDescriptionLocalizations(command.descriptionLocales || {});
