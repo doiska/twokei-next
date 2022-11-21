@@ -1,17 +1,31 @@
 import { GuildMember, Interaction } from "discord.js";
 import { ExtendedClient } from "../structures/ExtendedClient";
 import { ExtendedPlayer } from "../structures/ExtendedPlayer";
+import { Twokei } from "../app/Twokei";
 
 type Connect = {
   member: GuildMember;
   guild: GuildMember["guild"];
 }
 
-export class MusicApp {
+export class MusicApp extends Map<string, ExtendedPlayer> {
 
-  constructor(private readonly client: ExtendedClient) {}
+  constructor(private readonly client: ExtendedClient) {
+    super();
+  }
 
   async connect({ member, guild }: Connect): Promise<ExtendedPlayer> {
+
+    if(!member || !guild) {
+      throw new Error("No member or guild");
+    }
+
+    const currentPlayer = this.get(guild.id);
+
+    if(currentPlayer && currentPlayer.voiceChannelOptions.channelId === member.voice.channelId) {
+      return currentPlayer;
+    }
+
     const node = this.client.shoukaku.getNode();
 
     if (!node) {
@@ -29,6 +43,8 @@ export class MusicApp {
       guildId: guild.id,
       shardId: guild.shardId,
     });
+
+    this.set(guild.id, player as ExtendedPlayer);
 
     return player as ExtendedPlayer;
   }
