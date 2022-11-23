@@ -1,4 +1,5 @@
 import { NodeOption, ShoukakuOptions } from "shoukaku";
+import { ExtendedPlayer } from "../structures/ExtendedPlayer";
 
 export const Nodes: NodeOption[] = [
   {
@@ -6,9 +7,19 @@ export const Nodes: NodeOption[] = [
     url: 'node1.kartadharta.xyz:443',
     secure: true,
     auth: "kdlavalink",
+  },
+  {
+    name: "lavalink.oops.wtf",
+    url: 'lavalink.oops.wtf',
+    secure: true,
+    auth: "www.freelavalink.ga"
   }
 ];
 
 export const shoukakuOptions: ShoukakuOptions = {
-  resume: true
+  resume: true,
+  resumeByLibrary: true,
+  structures: {
+    player: ExtendedPlayer
+  }
 }
