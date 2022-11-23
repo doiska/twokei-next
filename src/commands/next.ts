@@ -13,7 +13,7 @@ const execute = async (context: CommandContext<{ amount: number }>): Promise<Com
     return;
   }
 
-  const player = await Twokei.music.get(member.guild.id);
+  const player = await Twokei.music.getPlayer(member.guild.id);
 
   if(!player) {
     logger.error("No player found");
