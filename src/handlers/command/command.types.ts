@@ -1,5 +1,14 @@
-import { EmbedData, GuildMember, PermissionResolvable, SlashCommandBuilder, User } from "discord.js";
+import {
+  EmbedBuilder,
+  EmbedData,
+  Guild,
+  GuildMember,
+  PermissionResolvable,
+  SlashCommandBuilder,
+  User
+} from "discord.js";
 import type { LocalizationMap } from 'discord-api-types/v10';
+import { ExtendedClient } from "../../structures/ExtendedClient";
 
 export enum CommandExceptionType {
   CommandNotFound = "Command not found.",
@@ -26,10 +35,12 @@ export type Command = {
 }
 
 export type CommandContext<T = any> = {
+  client: ExtendedClient,
   command: string;
   user: User;
+  guild?: Guild | null;
   member?: GuildMember;
   args: T;
 }
 
-export type CommandResponse = void | string | EmbedData;
+export type CommandResponse = void | string | EmbedData | EmbedBuilder;

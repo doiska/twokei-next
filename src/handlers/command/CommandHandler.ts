@@ -7,7 +7,7 @@ import {
 import { CommandContext, CommandExceptionType, CommandResponse } from "./command.types";
 import { Twokei } from "../../app/Twokei";
 
-function prepareInteraction(interaction: CommandInteraction): CommandContext {
+function prepareInteraction(interaction: CommandInteraction): Omit<CommandContext, 'client'>  {
 
   const optionsAsKV = interaction.options.data.reduce(
     (acc, option) => (
@@ -19,20 +19,22 @@ function prepareInteraction(interaction: CommandInteraction): CommandContext {
   );
 
   return {
-    command: interaction.commandName,
     args: optionsAsKV,
+    command: interaction.commandName,
+    guild: interaction.guild,
     user: interaction.user,
     member: interaction.member as GuildMember,
   }
 }
 
-function prepareMessage(message: Message): CommandContext {
+function prepareMessage(message: Message): Omit<CommandContext, 'client'> {
   const args = message.content.split(/ +/);
   const command = args.shift()?.toLowerCase() as string;
 
   return {
     command,
     args: args || [],
+    guild: message.guild,
     user: message.author,
     member: message.member as GuildMember,
   }
@@ -58,5 +60,5 @@ export async function handleCommand(interaction: Message | Interaction): Promise
   //   throw new Error(CommandExceptionType.MissingPermissions);
   // }
 
-  return command.execute(context);
+  return command.execute({ client: Twokei,  ...context });
 }
