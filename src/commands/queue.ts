@@ -2,6 +2,7 @@ import { registerCommand } from "../handlers/command/CommandRegister";
 import { CommandContext, CommandResponse } from "../handlers/command/command.types";
 import { Twokei } from "../app/Twokei";
 import { logger } from "../utils/Logger";
+import { EmbedBuilder } from "discord.js";
 
 
 const execute = async (context: CommandContext): Promise<CommandResponse> => {
@@ -13,16 +14,23 @@ const execute = async (context: CommandContext): Promise<CommandResponse> => {
     return;
   }
 
-  const player = await Twokei.music.get(member.guild.id);
+  const player = await Twokei.music.getPlayer(member.guild.id);
 
-  if(!player) {
+  if (!player) {
     logger.error("No player found");
     return "No player found";
   }
 
-  const map = player.queue.map((track, index) => `${index + 1}. ${track.info.title}`);
+  const _queue = [player.current, ...player.queue];
 
-  return map.join("\n");
+  const map = _queue
+    .filter(Boolean)
+    .map((track, index) => `${index + 1}. ${track?.info.title}`);
+
+  return new EmbedBuilder()
+    .setTitle(`Queue of ${member.guild.name}!`)
+    .setURL(player.current?.info.uri || "")
+    .setDescription(map.join("\n") || "No tracks in queue");
 }
 
 registerCommand({
