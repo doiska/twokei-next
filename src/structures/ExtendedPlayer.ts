@@ -4,6 +4,8 @@ import { logger } from "../utils/Logger";
 export class ExtendedPlayer extends Player {
 
   private _queue: Array<Track> = [];
+  private _current: Track | null = null;
+
   private readonly _voiceChannelOptions: VoiceChannelOptions;
 
   constructor(node: Node, options: VoiceChannelOptions) {
@@ -27,17 +29,17 @@ export class ExtendedPlayer extends Player {
     }
 
     if (rest.length) {
+      logger.verbose(`Adding rest of ${rest.length} tracks to queue.`);
       this._queue = [...this._queue, ...rest];
     }
 
     if (this.playing) {
-      await super.stopTrack();
+      await this.stopTrack();
     }
 
     logger.info(`Playing track ${playableTrack.info.uri}`);
 
-    //TODO: make add on queue and remove after music ends
-    this.queue.push(playableTrack);
+    this._current = playableTrack;
 
     this.playTrack(playableTrack);
     return this;
@@ -66,21 +68,21 @@ export class ExtendedPlayer extends Player {
   public async stop(): Promise<ExtendedPlayer> {
     this._queue = [];
 
-    await super.stopTrack();
+    await this.node.leaveChannel(this.connection.guildId);
     return this;
   }
 
   public async pause(): Promise<ExtendedPlayer> {
-    await super.setPaused(!this.paused);
+    await this.setPaused(!this.paused);
     return this;
   }
 
   public get playing(): boolean {
-    return this.track !== null;
+    return this._current !== null;
   }
 
-  public get current(): string | null {
-    return this.track;
+  public get current(): Track | null {
+    return this._current;
   }
 
   public get voiceChannelOptions(): VoiceChannelOptions {

@@ -1,13 +1,11 @@
 import { Client, ClientOptions, REST, Routes } from "discord.js";
 import { Connectors, Shoukaku } from "shoukaku";
 import { ClusterClient as ShardClient, DjsClient } from "discord-hybrid-sharding";
-import { Nodes } from "../shoukaku/options";
+import { Nodes, shoukakuOptions } from "../shoukaku/options";
 import glob from "fast-glob";
-import { green, red, yellow } from "kleur";
 import { Command } from "../handlers/command/command.types";
 import { parseCommandToSlashJSON } from "../handlers/command/CommandRegister";
 import { Twokei } from "../app/Twokei";
-import { ExtendedPlayer } from "./ExtendedPlayer";
 import { MusicApp } from "../music/MusicApp";
 import { logger } from "../utils/Logger";
 
@@ -24,16 +22,7 @@ export class ExtendedClient extends Client {
   constructor(options: ClientOptions) {
     super(options);
 
-
-    this.shoukaku = new Shoukaku(
-      new Connectors.DiscordJS(this),
-      Nodes,
-      {
-        resume: true,
-        structures: {
-          player: ExtendedPlayer
-        }
-      });
+    this.shoukaku = new Shoukaku(new Connectors.DiscordJS(this), Nodes, shoukakuOptions);
 
     this.music = new MusicApp(this);
     this.cluster = new ShardClient(this as unknown as DjsClient);
