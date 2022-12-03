@@ -19,6 +19,8 @@ export class ExtendedClient extends Client {
 
   private _paths = ["../events/**/*.{js,ts}", "../commands/**/*.{js,ts}"];
 
+  private _exiting = false;
+
   constructor(options: ClientOptions) {
     super(options);
 
@@ -30,6 +32,8 @@ export class ExtendedClient extends Client {
     this.shoukaku.on('ready', (name, info) => logger.info(`Shoukaku -> ${name} ${info}`));
     this.shoukaku.on('error', (name, info) => logger.error(`Shoukaku -> ${name} ${info}`));
     this.shoukaku.on('debug', (name, info) => logger.verbose(`Shoukaku -> ${name} ${info}`));
+
+    ['beforeExit', 'SIGUSR1', 'SIGUSR2', 'SIGINT', 'SIGTERM'].forEach(event => process.once(event, this.exit.bind(this)));
   }
 
   public async start(): Promise<void> {
@@ -60,5 +64,15 @@ export class ExtendedClient extends Client {
   private async registerLoggers(): Promise<void> {
     process.on('uncaughtException', (err) => logger.error(`Uncaught Exception: ${err.stack}`));
     process.on('unhandledRejection', (reason: string, err) => logger.error(`Unhandled Rejection: ${reason}`, err));
+  }
+
+  private exit() {
+    if (this._exiting)
+      return;
+
+    this._exiting = true;
+
+    this.destroy();
+    process.exit(0);
   }
 }
