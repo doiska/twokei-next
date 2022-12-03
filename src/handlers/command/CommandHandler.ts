@@ -2,7 +2,7 @@ import {
   CommandInteraction,
   GuildMember,
   Interaction,
-  Message,
+  Message, TextBasedChannel,
 } from "discord.js";
 import { CommandContext, CommandExceptionType, CommandResponse } from "./command.types";
 import { Twokei } from "../../app/Twokei";
@@ -23,6 +23,7 @@ function prepareInteraction(interaction: CommandInteraction): Omit<CommandContex
     command: interaction.commandName,
     guild: interaction.guild,
     user: interaction.user,
+    channel: interaction.channel as TextBasedChannel,
     member: interaction.member as GuildMember,
   }
 }
@@ -36,6 +37,7 @@ function prepareMessage(message: Message): Omit<CommandContext, 'client'> {
     args: args || [],
     guild: message.guild,
     user: message.author,
+    channel: message.channel as TextBasedChannel,
     member: message.member as GuildMember,
   }
 }
