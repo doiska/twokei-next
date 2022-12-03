@@ -14,7 +14,7 @@ const stopCommand = async (context: CommandContext) => {
     return;
   }
 
-  await player.stop();
+  await player.leave();
 
   return `Stopped playing`;
 }

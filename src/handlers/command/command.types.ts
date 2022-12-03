@@ -4,7 +4,7 @@ import {
   Guild,
   GuildMember,
   PermissionResolvable,
-  SlashCommandBuilder,
+  SlashCommandBuilder, TextBasedChannel, TextChannel,
   User
 } from "discord.js";
 import type { LocalizationMap } from 'discord-api-types/v10';
@@ -40,6 +40,7 @@ export type CommandContext<T = any> = {
   user: User;
   guild?: Guild | null;
   member?: GuildMember;
+  channel?: TextBasedChannel
   args: T;
 }
 

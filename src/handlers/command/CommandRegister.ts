@@ -16,7 +16,7 @@ export const registerCommand = (
 
 
   const { name: commandName } = command;
-  console.log(`Registering command ${commandName}`);
+  // console.log(`Registering command ${commandName}`);
 
   if (!commandName) {
     throw new Error(`Command name is required.`);

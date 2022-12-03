@@ -25,12 +25,32 @@ const execute = async (context: CommandContext): Promise<CommandResponse> => {
 
   const map = _queue
     .filter(Boolean)
-    .map((track, index) => `${index + 1}. ${track?.info.title}`);
+    .map((track, index) => `${index + 1}. [${track?.info.title}](${player.current?.info.uri || ""})`);
 
-  return new EmbedBuilder()
+  const embed = new EmbedBuilder()
     .setTitle(`Queue of ${member.guild.name}!`)
-    .setURL(player.current?.info.uri || "")
-    .setDescription(map.join("\n") || "No tracks in queue");
+    .setDescription(map.join("\n") || "No tracks in queue")
+    .setFields([
+      {
+        name: "Paused",
+        value: `${player.paused}`
+      },
+      {
+        name: "Connection state",
+        value: `${player.connection.state}`
+      },
+      {
+        name: "Q Time",
+        value: `${player.queueTime}`
+      },
+      {
+        name: "Status",
+        value: `${player.playing}`
+      }
+    ]);
+
+  return embed;
+
 }
 
 registerCommand({
