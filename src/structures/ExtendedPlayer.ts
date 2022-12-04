@@ -1,79 +1,79 @@
-import { Node, Player, Track, VoiceChannelOptions } from "shoukaku";
+import { Player, Track } from "shoukaku";
 import { logger } from "../utils/Logger";
+import { ExtendedQueue } from "./ExtendedQueue";
+
+export enum AddSongResponse {
+  SONG_ADDED,
+  PLAYLIST_ADDED,
+}
+
+export enum PlaySongResponse {
+  PLAYING,
+  ALREADY_PLAYING,
+  EMPTY_QUEUE
+}
 
 export class ExtendedPlayer extends Player {
 
-  private _queue: Array<Track> = [];
+  private _queue: ExtendedQueue<Track> = new ExtendedQueue();
   private _current: Track | null = null;
 
-  private readonly _voiceChannelOptions: VoiceChannelOptions;
+  public queueTime: number = 0;
 
-  constructor(node: Node, options: VoiceChannelOptions) {
-    super(node, options);
+  public async add(track: Track | string): Promise<AddSongResponse> {
+    const songs = typeof track === 'string' ? await this.resolveTrack(track) : [track];
 
-    this._voiceChannelOptions = options;
-  }
-
-  public async play(track: Track | string, skipCurrent = false): Promise<ExtendedPlayer> {
-
-    const [playableTrack, ...rest] = typeof track === 'string' ? await this.resolveTrack(track) : [track];
-
-    if (!playableTrack) {
+    if (!songs) {
       throw new Error('No track found');
     }
 
-    if (this.playing && !skipCurrent) {
-      logger.verbose(`Adding track ${playableTrack} to queue`);
-      this._queue.push(playableTrack, ...rest);
-      return this;
+    this._queue.add(...songs);
+
+    await this.play();
+
+    return songs.length > 1 ? AddSongResponse.PLAYLIST_ADDED : AddSongResponse.SONG_ADDED;
+  }
+
+  public async play(skipCurrent = false): Promise<PlaySongResponse> {
+
+    if(this.playing && !skipCurrent) {
+      return PlaySongResponse.ALREADY_PLAYING;
     }
 
-    if (rest.length) {
-      logger.verbose(`Adding rest of ${rest.length} tracks to queue.`);
-      this._queue = [...this._queue, ...rest];
+    const track = this._queue.first();
+
+    if(!track) {
+      return PlaySongResponse.EMPTY_QUEUE;
     }
 
-    if (this.playing) {
-      await this.stopTrack();
+    this._current = track;
+
+    return PlaySongResponse.PLAYING;
+  }
+
+  public async next(): Promise<PlaySongResponse> {
+    if (this._queue.isEmpty()) {
+      throw PlaySongResponse.EMPTY_QUEUE;
     }
 
-    logger.info(`Playing track ${playableTrack.info.uri}`);
+    return await this.play(true);
+  }
 
-    this._current = playableTrack;
+  public stop(): Promise<ExtendedPlayer> {
+    return new Promise(resolve => {
+      this.leave();
+      setTimeout(() => resolve(this), 1000);
+    });
+  }
 
-    this.playTrack(playableTrack);
+  public leave(): ExtendedPlayer {
+    this._queue.clear();
+    this.node.leaveChannel(this.connection.guildId);
     return this;
   }
 
-  public async next(amount?: number): Promise<ExtendedPlayer> {
-    amount = amount || 1;
-
-    if (amount > this._queue.length) {
-      throw new Error("Queue is too short");
-    }
-
-    const nextTrack = this._queue[amount - 1];
-
-    if (nextTrack) {
-      this._queue = this._queue.slice(amount);
-
-      logger.verbose(`Playing next track ${nextTrack}`);
-      return this.play(nextTrack, true);
-    } else {
-      logger.verbose(`Queue is empty, stopping player`);
-      return this.stop();
-    }
-  }
-
-  public async stop(): Promise<ExtendedPlayer> {
-    this._queue = [];
-
-    await this.node.leaveChannel(this.connection.guildId);
-    return this;
-  }
-
-  public async pause(): Promise<ExtendedPlayer> {
-    await this.setPaused(!this.paused);
+  public pause(): ExtendedPlayer {
+    this.setPaused(!this.paused);
     return this;
   }
 
@@ -85,12 +85,8 @@ export class ExtendedPlayer extends Player {
     return this._current;
   }
 
-  public get voiceChannelOptions(): VoiceChannelOptions {
-    return this._voiceChannelOptions;
-  }
-
   public get queue(): Array<Track> {
-    return this._queue;
+    return this._queue.entries();
   }
 
   private async resolveTrack(_track: string): Promise<(Track)[]> {

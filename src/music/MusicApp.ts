@@ -28,26 +28,26 @@ export class MusicApp {
       throw new PlayerException("No member or guild");
     }
 
-    const currentPlayer = this.getPlayer(guild.id);
+    const voice = member?.voice?.channel;
 
-    if (currentPlayer && currentPlayer.connection.channelId === member.voice.channelId) {
-      return currentPlayer as ExtendedPlayer;
+    if (!guild || !guild.id || !voice) {
+      throw new PlayerException('You must be in a voice channel to use this command.');
+    }
+
+    const player = this.getPlayer(guild.id);
+
+    if (player && player.connection.channelId === member.voice.channelId) {
+      return player;
     }
 
     const node = this.client.shoukaku.getNode();
 
     if (!node) {
-      throw new PlayerException('No node available');
+      throw new PlayerException('No node available.');
     }
 
-    const voice = (member as GuildMember)?.voice?.channel;
-
-    if (!guild || !guild.id || !voice) {
-      throw new PlayerException('You must be in a voice channel to use this command');
-    }
-
-    if (currentPlayer) {
-      node.leaveChannel(guild.id);
+    if (player) {
+      throw new PlayerException('Already connected to a voice channel.');
     }
 
     return await node?.joinChannel({
