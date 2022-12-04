@@ -6,14 +6,14 @@ import glob from "fast-glob";
 import { Command } from "../handlers/command/command.types";
 import { parseCommandToSlashJSON } from "../handlers/command/CommandRegister";
 import { Twokei } from "../app/Twokei";
-import { MusicApp } from "../music/MusicApp";
 import { logger } from "../utils/Logger";
+import { Xiao } from "../xiao/Xiao";
 
 export class ExtendedClient extends Client {
 
   public shoukaku: Shoukaku;
   public cluster: ShardClient;
-  public music: MusicApp;
+  public xiao: Xiao;
 
   public commands: Map<string, Command> = new Map();
 
@@ -26,12 +26,19 @@ export class ExtendedClient extends Client {
 
     this.shoukaku = new Shoukaku(new Connectors.DiscordJS(this), Nodes, shoukakuOptions);
 
-    this.music = new MusicApp(this);
+    this.xiao = new Xiao({
+      send: (guildId, payload) => {
+        const guild = Twokei.guilds.cache.get(guildId);
+        if (guild) guild.shard.send(payload);
+      },
+      defaultSearchEngine: "youtube",
+    }, new Connectors.DiscordJS(this), Nodes, shoukakuOptions);
+
     this.cluster = new ShardClient(this as unknown as DjsClient);
 
     this.shoukaku.on('ready', (name, info) => logger.info(`Shoukaku -> ${name} ${info}`));
     this.shoukaku.on('error', (name, info) => logger.error(`Shoukaku -> ${name} ${info}`));
-    this.shoukaku.on('debug', (name, info) => logger.verbose(`Shoukaku -> ${name} ${info}`));
+    // this.shoukaku.on('debug', (name, info) => logger.verbose(`Shoukaku -> ${name} ${info}`));
 
     ['beforeExit', 'SIGUSR1', 'SIGUSR2', 'SIGINT', 'SIGTERM'].forEach(event => process.once(event, this.exit.bind(this)));
   }
@@ -67,8 +74,9 @@ export class ExtendedClient extends Client {
   }
 
   private exit() {
-    if (this._exiting)
+    if (this._exiting) {
       return;
+    }
 
     this._exiting = true;
 

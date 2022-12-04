@@ -1,5 +1,4 @@
 import { NodeOption, ShoukakuOptions } from "shoukaku";
-import { ExtendedPlayer } from "../structures/ExtendedPlayer";
 
 export const Nodes: NodeOption[] = [
   {
@@ -19,7 +18,4 @@ export const Nodes: NodeOption[] = [
 export const shoukakuOptions: ShoukakuOptions = {
   resume: true,
   resumeByLibrary: true,
-  structures: {
-    player: ExtendedPlayer
-  }
 }
