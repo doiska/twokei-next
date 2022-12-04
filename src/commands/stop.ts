@@ -8,13 +8,13 @@ const stopCommand = async (context: CommandContext) => {
     return;
   }
 
-  const player = context.client.music.getPlayer(guild.id);
+  const player = await context.client.xiao.getPlayer(guild.id);
 
   if (!player) {
-    return;
+    return "No player found";
   }
 
-  await player.leave();
+  player.destroy();
 
   return `Stopped playing`;
 }

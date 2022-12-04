@@ -3,8 +3,8 @@ import { CommandContext, CommandResponse } from "../handlers/command/command.typ
 import { Twokei } from "../app/Twokei";
 import { logger } from "../utils/Logger";
 import { PlayerException } from "../structures/PlayerException";
-import { ResponseType } from "../structures/ExtendedPlayer";
-
+import { PlayerState } from "../xiao/interfaces/player.types";
+import { clear } from "winston";
 
 const execute = async (context: CommandContext<{ input: string, input2: string }>): Promise<CommandResponse> => {
 
@@ -16,30 +16,44 @@ const execute = async (context: CommandContext<{ input: string, input2: string }
   }
 
   try {
-    const player = await Twokei.music.connect({ guild: member.guild, member });
-
-    if (!player) {
-      logger.error("No player found");
-      return;
-    }
-
     const { input } = context.args;
 
-    if(!input) {
+    if (!input) {
       logger.error("No input provided");
       return;
     }
 
-    logger.verbose(`Playing ${input} in ${member.guild.name}`);
+    if (!member.voice.channel?.id) {
+      return;
+    }
 
-    const response = await player.play(input);
+    const player = await Twokei.xiao.createPlayer({
+      guild: member.guild.id,
+      channel: member.voice.channel.id,
+    })
 
-    const trackAmount = player.queue.length + 1;
-    const title = ResponseType.NEW_TRACK_ADDED_TO_QUEUE === response ? input : `(${player.current?.info.title}[${player.current?.info.uri}]`;
+    const result = await Twokei.xiao.search(input);
 
-    const markdown = '``';
+    if (!result.tracks.length) {
+      return "No tracks found";
+    }
 
-    return `Playing ${markdown}${title}${markdown} in **${member.guild.name}** with **${trackAmount} tracks** in queue.`;
+    player.queue.add(...result.tracks);
+
+    if (!player.playing) {
+      console.log("Not playing, playing now");
+      player.play();
+    }
+
+    const i = setInterval(() => {
+      if(player.state === PlayerState.DESTROYED) {
+        clearInterval(i);
+        return;
+      }
+      console.log(player.queue.current?.info.title);
+    }, 5000);
+
+    return `Added ${result.tracks.length} songs to the queue`;
   } catch (e) {
     if (e instanceof PlayerException) {
       return e.message;

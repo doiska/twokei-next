@@ -14,42 +14,36 @@ const execute = async (context: CommandContext): Promise<CommandResponse> => {
     return;
   }
 
-  const player = await Twokei.music.getPlayer(member.guild.id);
+  const player = await Twokei.xiao.getPlayer(member.guild.id);
 
   if (!player) {
     logger.error("No player found");
     return "No player found";
   }
 
-  const _queue = [player.current, ...player.queue];
+  const _queue = [player.queue.current, ...player.queue];
 
   const map = _queue
     .filter(Boolean)
-    .map((track, index) => `${index + 1}. [${track?.info.title}](${player.current?.info.uri || ""})`);
+    .map((track, index) => `${index + 1}. [${track?.info.title}](${player.queue.current?.info.uri || ""})`);
 
-  const embed = new EmbedBuilder()
+  return new EmbedBuilder()
     .setTitle(`Queue of ${member.guild.name}!`)
     .setDescription(map.join("\n") || "No tracks in queue")
     .setFields([
       {
-        name: "Paused",
-        value: `${player.paused}`
-      },
-      {
         name: "Connection state",
-        value: `${player.connection.state}`
+        value: `${player.state}`
       },
       {
-        name: "Q Time",
-        value: `${player.queueTime}`
-      },
-      {
-        name: "Status",
+        name: "Playing status",
         value: `${player.playing}`
+      },
+      {
+        name: "Queue length",
+        value: `${player.queue.length}`
       }
     ]);
-
-  return embed;
 
 }
 

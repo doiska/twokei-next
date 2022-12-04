@@ -13,17 +13,14 @@ const execute = async (context: CommandContext<{ amount: number }>): Promise<Com
     return;
   }
 
-  const player = await Twokei.music.getPlayer(member.guild.id);
+  const player = Twokei.xiao.getPlayer(member.guild.id);
 
   if(!player) {
     logger.error("No player found");
     return "No player found";
   }
 
-  const { amount } = context.args;
-
-  await player.next(amount || 1);
-
+  player.skip(context.args.amount);
   return `Playing next track`;
 }
 
