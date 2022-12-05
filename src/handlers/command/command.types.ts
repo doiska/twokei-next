@@ -1,10 +1,11 @@
 import {
+  CommandInteraction,
   EmbedBuilder,
   EmbedData,
   Guild,
   GuildMember,
   PermissionResolvable,
-  SlashCommandBuilder, TextBasedChannel, TextChannel,
+  SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder, TextBasedChannel, TextChannel,
   User
 } from "discord.js";
 import type { LocalizationMap } from 'discord-api-types/v10';
@@ -30,7 +31,7 @@ export type Command = {
   active?: boolean;
   nameLocales?: LocalizationMap;
   descriptionLocales?: LocalizationMap;
-  slash?: (builder: SlashCommandBuilder) => Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">,
+  slash?: (builder: SlashCommandBuilder) => SlashCommandBuilder | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">,
   execute: (context: CommandContext) => CommandResponse | Promise<CommandResponse>;
 }
 
@@ -41,7 +42,9 @@ export type CommandContext<T = any> = {
   guild?: Guild | null;
   member?: GuildMember;
   channel?: TextBasedChannel
-  args: T;
+  options: T;
+  interaction: CommandInteraction,
+  t: (key: string, ...args: any[]) => string;
 }
 
 export type CommandResponse = void | string | EmbedData | EmbedBuilder;

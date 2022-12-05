@@ -2,12 +2,12 @@ import {
   CommandInteraction,
   GuildMember,
   Interaction,
-  Message, TextBasedChannel,
+  TextBasedChannel,
 } from "discord.js";
 import { CommandContext, CommandExceptionType, CommandResponse } from "./command.types";
 import { Twokei } from "../../app/Twokei";
 
-function prepareInteraction(interaction: CommandInteraction): Omit<CommandContext, 'client'>  {
+function prepareInteraction(interaction: CommandInteraction): Omit<CommandContext, 'client' | 't'>  {
 
   const optionsAsKV = interaction.options.data.reduce(
     (acc, option) => (
@@ -19,48 +19,34 @@ function prepareInteraction(interaction: CommandInteraction): Omit<CommandContex
   );
 
   return {
-    args: optionsAsKV,
+    options: optionsAsKV,
     command: interaction.commandName,
     guild: interaction.guild,
     user: interaction.user,
     channel: interaction.channel as TextBasedChannel,
     member: interaction.member as GuildMember,
+    interaction: interaction
   }
 }
 
-function prepareMessage(message: Message): Omit<CommandContext, 'client'> {
-  const args = message.content.split(/ +/);
-  const command = args.shift()?.toLowerCase() as string;
-
-  return {
-    command,
-    args: args || [],
-    guild: message.guild,
-    user: message.author,
-    channel: message.channel as TextBasedChannel,
-    member: message.member as GuildMember,
-  }
-}
-
-export async function handleCommand(interaction: Message | Interaction): Promise<CommandResponse> {
-  const isMessage = interaction instanceof Message;
-
-  if (!isMessage && !interaction.isChatInputCommand()) {
+export async function handleCommand(interaction: Interaction): Promise<CommandResponse> {
+  if (!interaction.isChatInputCommand()) {
     return;
   }
 
-  const context = isMessage ? await prepareMessage(interaction) : await prepareInteraction(interaction);
+  const context = prepareInteraction(interaction);
   const command = Twokei.commands.get(context.command);
 
   if (!command) {
     throw new Error(CommandExceptionType.CommandNotFound);
   }
 
-  // const permissions = command.permissions || [];
-  //
-  // if (context.member && permissions && context.member.permissions.has(permissions)) {
-  //   throw new Error(CommandExceptionType.MissingPermissions);
-  // }
+  const locale = context.interaction.locale;
 
-  return command.execute({ client: Twokei,  ...context });
+  const translate = (key: string, ...args: string[]) => {
+    console.log(`Translating ${key} for ${locale}`);
+    return key;
+  }
+
+  return command.execute({ client: Twokei,  t: translate, ...context });
 }
