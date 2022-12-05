@@ -21,6 +21,7 @@ export interface XiaoSearchOptions {
   requester: unknown;
   engine?: SearchEngines;
   nodeName?: string;
+  searchType?: 'track' | 'playlist';
 }
 
 export interface XiaoSearchResult {

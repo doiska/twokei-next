@@ -5,7 +5,7 @@ import { Snowflake } from "discord.js";
 import { Maybe } from "../../utils/utils.types";
 import { ExtendedQueue } from "../../structures/ExtendedQueue";
 
-enum LoopStates {
+export enum LoopStates {
   NONE,
   TRACK,
   QUEUE
@@ -44,7 +44,7 @@ export class Kazu {
   /**
    * Loop state of the player.
    */
-  public loop: LoopStates = LoopStates.NONE;
+  private loop: LoopStates = LoopStates.NONE;
 
   /**
    * If the player is connected to a voice channel and playing.
@@ -172,7 +172,7 @@ export class Kazu {
    * Skip the current track (or more) and play the next one.
    * @param amount
    */
-  public skip(amount = 1): Kazu {
+  public async skip(amount = 1): Promise<Kazu> {
     if (this.state === PlayerState.DESTROYED) {
       throw new Error('Player is destroyed');
     }
@@ -235,13 +235,10 @@ export class Kazu {
       [LoopStates.TRACK]: LoopStates.NONE
     }
 
-    if (!loop) {
-      this.loop = relatedLoop[this.loop];
-      return this;
-    }
+    const newLoopState = loop || relatedLoop[this.loop];
 
-    this.loop = loop;
-    return this;
+    this.loop = newLoopState;
+    return newLoopState;
   }
 
   /**

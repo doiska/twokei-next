@@ -7,7 +7,7 @@ import { EmbedBuilder } from "discord.js";
 
 const execute = async (context: CommandContext): Promise<CommandResponse> => {
 
-  const { member } = context;
+  const { member, guild } = context;
 
   if (!member || !member?.guild) {
     logger.error("No member or guild");
@@ -27,24 +27,12 @@ const execute = async (context: CommandContext): Promise<CommandResponse> => {
     .filter(Boolean)
     .map((track, index) => `${index + 1}. [${track?.info.title}](${player.queue.current?.info.uri || ""})`);
 
-  return new EmbedBuilder()
-    .setTitle(`Queue of ${member.guild.name}!`)
-    .setDescription(map.join("\n") || "No tracks in queue")
-    .setFields([
-      {
-        name: "Connection state",
-        value: `${player.state}`
-      },
-      {
-        name: "Playing status",
-        value: `${player.playing}`
-      },
-      {
-        name: "Queue length",
-        value: `${player.queue.length}`
-      }
-    ]);
+  const isPlaying = player.playing;
 
+  return new EmbedBuilder()
+    .setTitle(isPlaying ? `Now playing ${player.queue.current?.info.title}` : `Paused ${player.queue.current?.info.title}`)
+    .setURL(player.queue.current?.info.uri || "")
+    .setDescription(map.join("\n") || "No tracks in queue")
 }
 
 registerCommand({

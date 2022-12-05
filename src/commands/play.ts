@@ -3,12 +3,10 @@ import { CommandContext, CommandResponse } from "../handlers/command/command.typ
 import { Twokei } from "../app/Twokei";
 import { logger } from "../utils/Logger";
 import { PlayerException } from "../structures/PlayerException";
-import { PlayerState } from "../xiao/interfaces/player.types";
-import { clear } from "winston";
 
 const execute = async (context: CommandContext<{ input: string, input2: string }>): Promise<CommandResponse> => {
 
-  const { member } = context;
+  const { member, t } = context;
 
   if (!member || !member?.guild) {
     logger.error("No member or guild");
@@ -16,7 +14,7 @@ const execute = async (context: CommandContext<{ input: string, input2: string }
   }
 
   try {
-    const { input } = context.args;
+    const { input } = context.options;
 
     if (!input) {
       logger.error("No input provided");
@@ -35,7 +33,7 @@ const execute = async (context: CommandContext<{ input: string, input2: string }
     const result = await Twokei.xiao.search(input);
 
     if (!result.tracks.length) {
-      return "No tracks found";
+      return t("No tracks found");
     }
 
     player.queue.add(...result.tracks);
@@ -45,15 +43,9 @@ const execute = async (context: CommandContext<{ input: string, input2: string }
       player.play();
     }
 
-    const i = setInterval(() => {
-      if(player.state === PlayerState.DESTROYED) {
-        clearInterval(i);
-        return;
-      }
-      console.log(player.queue.current?.info.title);
-    }, 5000);
+    const [track, ...rest] = result.tracks;
 
-    return `Added ${result.tracks.length} songs to the queue`;
+    return t(`Added **${track.info.title}** ${rest.length > 1 ? `with other ${rest.length} songs to the queue` : ''}`);
   } catch (e) {
     if (e instanceof PlayerException) {
       return e.message;

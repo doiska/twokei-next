@@ -20,8 +20,8 @@ const execute = async (context: CommandContext<{ amount: number }>): Promise<Com
     return "No player found";
   }
 
-  player.skip(context.args.amount);
-  return `Playing next track`;
+
+  return player.skip(context.options.amount).then(() => 'Skipped').catch(e => e.message);
 }
 
 registerCommand({

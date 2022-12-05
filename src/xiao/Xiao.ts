@@ -170,6 +170,7 @@ export class Xiao extends EventEmitter {
     }
 
     const engine = options?.engine || 'yt';
+    const searchType = options?.searchType || 'track';
 
     if (!['yt', 'youtube_music', 'soundcloud'].includes(engine)) {
       throw new Error('Invalid engine');
@@ -180,8 +181,16 @@ export class Xiao extends EventEmitter {
 
     const result = await node.rest.resolve(search);
 
-    if (!result) {
+    if (!result || result.loadType === 'NO_MATCHES') {
       throw new Error('No result');
+    }
+
+    if(result.loadType === 'SEARCH_RESULT' && searchType === 'track') {
+      return {
+        type: result.loadType,
+        tracks: [result.tracks[0]],
+        playlistName: result.playlistInfo?.name,
+      }
     }
 
     return this.buildSearch(result.loadType, result.tracks, result?.playlistInfo.name);
