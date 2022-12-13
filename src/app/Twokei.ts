@@ -6,9 +6,9 @@ const { SHARD_LIST, TOTAL_SHARDS } = ShardClient.getInfo();
 
 
 export const Twokei = new ExtendedClient({
-  shards: SHARD_LIST,
-  shardCount: TOTAL_SHARDS,
-  intents: ['GuildMessages', 'Guilds', 'GuildVoiceStates']
+	shards: SHARD_LIST,
+	shardCount: TOTAL_SHARDS,
+	intents: ['GuildMessages', 'Guilds', 'GuildVoiceStates']
 });
 
 Twokei.cluster.on('ready', () => logger.info('Shard ready!'));

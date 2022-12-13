@@ -1,25 +1,25 @@
-import { CommandContext } from "../handlers/command/command.types";
-import { registerCommand } from "../handlers/command/CommandRegister";
+import { CommandContext, createCommand } from "twokei-framework";
 
-const stopCommand = async (context: CommandContext) => {
-  const { guild } = context;
+const execute = async (context: CommandContext) => {
+	const { guild } = context;
 
-  if (!guild) {
-    return;
-  }
+	if (!guild) {
+		return;
+	}
 
-  const player = await context.client.xiao.getPlayer(guild.id);
+	const player = context.client.xiao.getPlayer(guild.id);
 
-  if (!player) {
-    return "No player found";
-  }
+	if (!player) {
+		return "No player found";
+	}
 
-  player.destroy();
+	player.destroy();
 
-  return `Stopped playing`;
+	return `Stopped playing`;
 }
 
-registerCommand({
-  name: 'stop',
-  description: 'Stop the current song',
-}, stopCommand);
+export const stopCommand = createCommand({
+	name: "stop",
+	description: "Stop playing",
+	execute
+})
