@@ -1,9 +1,10 @@
+import 'reflect-metadata';
+
 import { ExtendedClient } from "../structures/ExtendedClient";
 import { ClusterClient as ShardClient } from 'discord-hybrid-sharding';
 import { logger } from "../utils/Logger";
 
 const { SHARD_LIST, TOTAL_SHARDS } = ShardClient.getInfo();
-
 
 export const Twokei = new ExtendedClient({
 	shards: SHARD_LIST,
