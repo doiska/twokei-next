@@ -19,6 +19,7 @@
     "fast-glob": "^3.2.12",
     "kleur": "^4.1.5",
     "shoukaku": "^3.2.2",
+    "twokei-framework": "link:../twokei-framework",
     "winston": "^3.8.2"
   },
   "devDependencies": {

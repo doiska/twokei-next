@@ -29,7 +29,7 @@ export class ExtendedClient extends TwokeiClient {
 			...options,
 			currentWorkingDirectory: __dirname,
 			commandsPath: `../commands/**/*.{ts,js}`,
-			// eventsPath: `../events/**/*.{ts,js}`,
+			eventsPath: `../events/**/*.{ts,js}`,
 			autoload: true
 		});
 
@@ -45,12 +45,7 @@ export class ExtendedClient extends TwokeiClient {
 
 		this.cluster = new ShardClient(this as unknown as DjsClient);
 
-		// this.shoukaku.on('ready', (name, info) => logger.info(`Shoukaku -> ${name} ${info}`));
-		// this.shoukaku.on('error', (name, info) => logger.error(`Shoukaku -> ${name} ${info}`));
-		// this.shoukaku.on('debug', (name, info) => logger.verbose(`Shoukaku -> ${name} ${info}`));
-
 		['beforeExit', 'SIGUSR1', 'SIGUSR2', 'SIGINT', 'SIGTERM'].forEach(event => process.once(event, this.exit.bind(this)));
-		// this.eventHandler.loadEvents();
 	}
 
 	public async start(): Promise<void> {

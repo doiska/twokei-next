@@ -1,9 +1,9 @@
-import { Xiao, XiaoEvents } from "../Xiao";
+import { Xiao, XiaoEvents } from "./Xiao";
 import { Player, PlayerUpdate, Track, TrackStuckEvent, WebSocketClosedEvent } from "shoukaku";
-import { Events, KazuInitOptions, PlayerState, PlayOptions } from "../interfaces/player.types";
+import { Events, KazuInitOptions, PlayerState, PlayOptions } from "./interfaces/player.types";
 import { Snowflake } from "discord.js";
-import { Maybe } from "../../utils/utils.types";
-import { ExtendedQueue } from "../../structures/ExtendedQueue";
+import { Maybe } from "../utils/utils.types";
+import { ExtendedQueue } from "../structures/ExtendedQueue";
 
 export enum LoopStates {
   NONE,
