@@ -14,5 +14,11 @@ Create .env and setup with:
 TOKEN= // Bot token (https://discord.com/developers/applications/)
 CLIENT_ID= // Bot ClientId (https://discord.com/developers/applications/) 
 GUILD_ID= // Owner guild id (right click guild icon and copy id)
+POSTGRES_HOST= // Postgres info
+POSTGRES_PORT= // Postgres info
+POSTGRES_USER= // Postgres info
+POSTGRES_PASSWORD= // Postgres info
+POSTGRES_DATABASE= // Postgres info
+POSTGRES_SCHEMA= // Postgres info
 ```
 
