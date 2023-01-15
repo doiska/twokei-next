@@ -1,71 +1,100 @@
-import { ClientOptions } from "discord.js";
-import { Connectors, Shoukaku } from "shoukaku";
-import { ClusterClient as ShardClient, DjsClient } from "discord-hybrid-sharding";
-import { Nodes, shoukakuOptions } from "../shoukaku/options";
-import { Twokei } from "../app/Twokei";
-import { logger } from "../utils/Logger";
-import { Xiao } from "../xiao/Xiao";
+import { ClientOptions } from 'discord.js';
+import { Connectors, Shoukaku } from 'shoukaku';
+import { ClusterClient as ShardClient, DjsClient } from 'discord-hybrid-sharding';
+import { Nodes, shoukakuOptions } from '../shoukaku/options';
+import { Twokei } from '../app/Twokei';
+import { logger } from '../utils/Logger';
+import { Xiao } from '../xiao/Xiao';
 
-import { TwokeiClient } from "twokei-framework";
+import { TwokeiClient } from 'twokei-framework';
+import { DataSource } from 'typeorm';
+import { GuildEntity } from '../entities/GuildEntity';
+import { SongChannelEntity } from '../entities/SongChannelEntity';
+import { UserEntity } from '../entities/UserEntity';
+import { SongEntity } from '../entities/SongEntity';
 
-declare module "discord.js" {
-	interface Client {
-		shoukaku: Shoukaku;
-		cluster: ShardClient;
-		xiao: Xiao;
-	}
+declare module 'discord.js' {
+  interface Client {
+    shoukaku: Shoukaku;
+    cluster: ShardClient;
+    xiao: Xiao;
+  }
 }
 
 export class ExtendedClient extends TwokeiClient {
 
-	public shoukaku: Shoukaku;
-	public cluster: ShardClient;
-	public xiao: Xiao;
+  public shoukaku: Shoukaku;
+  public cluster: ShardClient;
+  public xiao: Xiao;
 
-	private _exiting = false;
+  public dataSource: DataSource;
 
-	constructor(options: ClientOptions) {
-		super({
-			...options,
-			currentWorkingDirectory: __dirname,
-			commandsPath: `../commands/**/*.{ts,js}`,
-			eventsPath: `../events/**/*.{ts,js}`,
-			autoload: true
-		});
+  private _exiting = false;
 
-		this.shoukaku = new Shoukaku(new Connectors.DiscordJS(this), Nodes, shoukakuOptions);
+  constructor(options: ClientOptions) {
+    super({
+      ...options,
+      currentWorkingDirectory: __dirname,
+      commandsPath: `../commands/**/*.{ts,js}`,
+      eventsPath: `../events/**/*.{ts,js}`,
+      autoload: true
+    });
 
-		this.xiao = new Xiao({
-			send: (guildId, payload) => {
-				const guild = Twokei.guilds.cache.get(guildId);
-				if (guild) guild.shard.send(payload);
-			},
-			defaultSearchEngine: "youtube",
-		}, new Connectors.DiscordJS(this), Nodes, shoukakuOptions);
+    this.shoukaku = new Shoukaku(new Connectors.DiscordJS(this), Nodes, shoukakuOptions);
 
-		this.cluster = new ShardClient(this as unknown as DjsClient);
+    this.xiao = new Xiao({
+      send: (guildId, payload) => {
+        const guild = Twokei.guilds.cache.get(guildId);
+        if (guild) guild.shard.send(payload);
+      },
+      defaultSearchEngine: 'youtube'
+    }, new Connectors.DiscordJS(this), Nodes, shoukakuOptions);
 
-		['beforeExit', 'SIGUSR1', 'SIGUSR2', 'SIGINT', 'SIGTERM'].forEach(event => process.once(event, this.exit.bind(this)));
-	}
+    this.cluster = new ShardClient(this as unknown as DjsClient);
 
-	public async start(): Promise<void> {
-		await this.registerLoggers();
-		await this.login(process.env.TOKEN);
-	}
+    this.dataSource = new DataSource({
+      type: 'postgres',
+      synchronize: true,
+      host: process.env.POSTGRES_HOST,
+      port: Number(process.env.POSTGRES_PORT),
+      username: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASSWORD,
+      database: process.env.POSTGRES_DATABASE,
+      schema: process.env.POSTGRES_SCHEMA,
+      entities: [
+        UserEntity,
+        GuildEntity,
+        SongEntity,
+        SongChannelEntity,
+      ]
+    });
 
-	private async registerLoggers(): Promise<void> {
-		process.on('uncaughtException', (err) => logger.error(`Uncaught Exception: ${err.stack}`));
-		process.on('unhandledRejection', (reason: string, err) => logger.error(`Unhandled Rejection: ${reason}`, err));
-	}
+    ['beforeExit', 'SIGUSR1', 'SIGUSR2', 'SIGINT', 'SIGTERM'].forEach(event => process.once(event, this.exit.bind(this)));
+  }
 
-	private exit() {
-		if (this._exiting) {
-			return;
-		}
+  public async start(): Promise<void> {
+    this.dataSource.initialize()
+      .then(async () => {
+        logger.info('Database connected!');
+        await this.registerLoggers();
+        await this.login(process.env.TOKEN);
+      })
+      .catch((error) => logger.error('Database failed to connect', error));
+  }
 
-		this._exiting = true;
+  private async registerLoggers(): Promise<void> {
+    process.on('uncaughtException', (err) => logger.error(`Uncaught Exception: ${err.stack}`));
+    process.on('unhandledRejection', (reason: string, err) => logger.error(`Unhandled Rejection: ${reason}`, err));
+  }
 
-		this.destroy();
-		process.exit(0);
-	}
+  private exit() {
+    if (this._exiting) {
+      return;
+    }
+
+    this._exiting = true;
+
+    this.destroy();
+    process.exit(0);
+  }
 }
