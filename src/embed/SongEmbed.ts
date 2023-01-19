@@ -1,4 +1,4 @@
-import { Colors, Embed, EmbedBuilder, TextChannel } from 'discord.js';
+import { Colors, EmbedBuilder, TextChannel } from 'discord.js';
 
 const SongEmbedPlaceHolder = new EmbedBuilder()
   .setTitle(`No song playing`)

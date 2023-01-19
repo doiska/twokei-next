@@ -1,21 +1,34 @@
 import { createEvent } from 'twokei-framework';
-import { Message } from 'discord.js';
+import { Colors, EmbedBuilder, Message } from 'discord.js';
 import { Twokei } from '../app/Twokei';
 
-export const onMessage = createEvent('messageCreate', async (client, message: Message) => {
+export const onMessage = createEvent('messageCreate', async (message: Message) => {
 
   if(message.author.bot) {
     return;
   }
 
-  const channelId = '1063635066762309772';
+  const channelId = '1063639091498991656';
 
   if(message.channel.id !== channelId) {
     return;
   }
 
   if(!message.content) {
-    await message.reply('Use `@Twokei <song>` to play a song');
+    const reply = [
+      `**Due a \`Discord\` limitation, to use this channel you need to send a message mentioning the bot.**`,
+      `Please mention the bot and the song.`,
+      '',
+      `**Example:** <@${Twokei.user?.id}> https://music.youtube.com/watch?v=Ni5_Wrmh0f8`,
+      `Or click here </play:1052294614503137374>.`
+    ]
+
+    const embed = new EmbedBuilder()
+      .setTitle(`🥲 Sorry!`)
+      .setDescription(reply.join('\n'))
+      .setColor(Colors.DarkButNotBlack)
+
+    await message.reply({ embeds: [embed] });
     return;
   }
 
@@ -49,5 +62,5 @@ export const onMessage = createEvent('messageCreate', async (client, message: Me
 
   const [track, ...rest] = result.tracks;
 
-  message.channel.send(`Added **${track.info.title}** ${rest.length > 1 ? `with other ${rest.length} songs to the queue` : ''}`);
+  message.channel.send(`Added **${track.info.title}** ${rest.length >= 1 ? `with other ${rest.length} song(s)` : ''} to the queue.`);
 })

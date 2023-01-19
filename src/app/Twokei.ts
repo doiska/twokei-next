@@ -11,8 +11,8 @@ export const Twokei = new ExtendedClient({
 	shardCount: TOTAL_SHARDS,
 	intents: [
 		'Guilds',
+		'GuildVoiceStates',
 		'GuildMessages',
-		'GuildVoiceStates'
 	]
 });
 
