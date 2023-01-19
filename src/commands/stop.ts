@@ -8,15 +8,12 @@ const execute = async (context: CommandContext) => {
 		return;
 	}
 
-	const player = Twokei.xiao.getPlayer(guild.id);
-
-	if (!player) {
-		return "No player found";
+	try {
+		await Twokei.xiao.destroyPlayer(guild.id);
+		return 'Player stopped.';
+	} catch (error) {
+		return `No player found.`;
 	}
-
-	player.destroy();
-
-	return `Stopped playing`;
 }
 
 export const stopCommand = createCommand({

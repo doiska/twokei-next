@@ -1,9 +1,10 @@
 import { Xiao, XiaoEvents } from "./Xiao";
 import { Player, PlayerUpdate, Track, TrackStuckEvent, WebSocketClosedEvent } from "shoukaku";
-import { Events, KazuInitOptions, PlayerState, PlayOptions } from "./interfaces/player.types";
+import { Events, VentiInitOptions, PlayerState, PlayOptions } from "./interfaces/player.types";
 import { Snowflake } from "discord.js";
 import { Maybe } from "../utils/utils.types";
 import { ExtendedQueue } from "../structures/ExtendedQueue";
+import { Scara } from './Scara';
 
 export enum LoopStates {
   NONE,
@@ -12,7 +13,7 @@ export enum LoopStates {
 }
 
 // Player
-export class Kazu {
+export class Venti {
 
   /**
    * The Xiao instance.
@@ -24,7 +25,7 @@ export class Kazu {
    * The player's options.
    * @private
    */
-  private options: KazuInitOptions;
+  private options: VentiInitOptions;
 
   /**
    * The Shoukaku Player instance.
@@ -56,16 +57,28 @@ export class Kazu {
    */
   public state: PlayerState = PlayerState.CONNECTING;
 
+  /**
+   * Song queue.
+   */
   public queue: ExtendedQueue<Track>;
 
-  constructor(xiao: Xiao, player: Player, options: KazuInitOptions) {
+  /**
+   * Venti message sender
+   */
+  public scara?: Scara;
+
+  constructor(xiao: Xiao, player: Player, options: VentiInitOptions) {
     this.xiao = xiao;
     this.options = options;
     this.instance = player;
     this.guildId = options.guild;
     this.voiceId = options.channel;
 
-    this.queue = new ExtendedQueue<Track>();
+    if(options.message) {
+      this.scara = new Scara(this, options.message);
+    }
+
+    this.queue = new ExtendedQueue<Track>(this);
 
     this.instance.on('start', () => {
       this.playing = true
@@ -172,7 +185,7 @@ export class Kazu {
    * Skip the current track (or more) and play the next one.
    * @param amount
    */
-  public async skip(amount = 1): Promise<Kazu> {
+  public async skip(amount = 1): Promise<Venti> {
     if (this.state === PlayerState.DESTROYED) {
       throw new Error('Player is destroyed');
     }
@@ -188,35 +201,6 @@ export class Kazu {
     }
 
     this.instance.stopTrack();
-    return this;
-  }
-
-
-  public connect() {
-    if (this.state === PlayerState.DESTROYED) {
-      throw new Error('Player is destroyed');
-    }
-
-    if (this.state === PlayerState.CONNECTED || !!this.voiceId) {
-      throw new Error('Player is already connected');
-    }
-
-    this.state = PlayerState.CONNECTING;
-
-    this.xiao.options.send(this.guildId, {
-      op: 4,
-      d: {
-        guild_id: this.guildId,
-        channel_id: this.voiceId,
-        self_mute: this.options.mute || false,
-        self_deaf: this.options.deaf || true,
-      }
-    });
-
-    this.state = PlayerState.CONNECTED;
-
-    this.emit(Events.Debug, `Player connected for guild ${this.guildId}`);
-
     return this;
   }
 
@@ -272,7 +256,7 @@ export class Kazu {
   /**
    * Destroy the player and remove it from the cache.
    */
-  public destroy(): Kazu {
+  public destroy(): Venti {
     if (this.state === PlayerState.DESTROYING || this.state === PlayerState.DESTROYED) {
       throw new Error('Player is already destroyed');
     }
@@ -283,7 +267,6 @@ export class Kazu {
     this.instance.connection.disconnect();
     this.instance.removeAllListeners();
 
-    this.xiao.players.delete(this.guildId);
     this.state = PlayerState.DESTROYED;
 
     this.emit(Events.PlayerDestroy, this);
@@ -295,9 +278,9 @@ export class Kazu {
   /**
    * Set voice channel and move the player to the voice channel
    * @param voiceId Voice channel Id
-   * @returns Kazu
+   * @returns Venti
    */
-  public setVoiceChannel(voiceId: Snowflake): Kazu {
+  public setVoiceChannel(voiceId: Snowflake): Venti {
     if (this.state === PlayerState.DESTROYED) {
       throw new Error('Player is already destroyed');
     }
