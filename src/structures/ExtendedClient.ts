@@ -1,10 +1,10 @@
 import { ClientOptions } from 'discord.js';
 import { Connectors, Shoukaku } from 'shoukaku';
-import { ClusterClient as ShardClient, DjsClient } from 'discord-hybrid-sharding';
+import { ClusterClient as ShardClient } from 'discord-hybrid-sharding';
 import { Nodes, shoukakuOptions } from '../shoukaku/options';
 import { Twokei } from '../app/Twokei';
 import { logger } from '../utils/Logger';
-import { Xiao } from '../xiao/Xiao';
+import { Xiao } from '../music/Xiao';
 
 import { TwokeiClient } from 'twokei-framework';
 import { DataSource } from 'typeorm';
@@ -16,7 +16,7 @@ import { SongEntity } from '../entities/SongEntity';
 declare module 'discord.js' {
   interface Client {
     shoukaku: Shoukaku;
-    cluster: ShardClient;
+    cluster: ShardClient<TwokeiClient>;
     xiao: Xiao;
   }
 }
@@ -24,7 +24,7 @@ declare module 'discord.js' {
 export class ExtendedClient extends TwokeiClient {
 
   public shoukaku: Shoukaku;
-  public cluster: ShardClient;
+  public cluster: ShardClient<this>;
   public xiao: Xiao;
 
   public dataSource: DataSource;
@@ -50,7 +50,7 @@ export class ExtendedClient extends TwokeiClient {
       defaultSearchEngine: 'youtube'
     }, new Connectors.DiscordJS(this), Nodes, shoukakuOptions);
 
-    this.cluster = new ShardClient(this as unknown as DjsClient);
+    this.cluster = new ShardClient(this);
 
     this.dataSource = new DataSource({
       type: 'postgres',
@@ -84,7 +84,7 @@ export class ExtendedClient extends TwokeiClient {
 
   private async registerLoggers(): Promise<void> {
     process.on('uncaughtException', (err) => logger.error(`Uncaught Exception: ${err.stack}`));
-    process.on('unhandledRejection', (reason: string, err) => logger.error(`Unhandled Rejection: ${reason}`, err));
+    process.on('unhandledRejection', (err) => logger.error(`Unhandled Rejection`, err));
   }
 
   private exit() {

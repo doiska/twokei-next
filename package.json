@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "build": "swc src -d dist --source-maps",
-    "build-dev": "\"pnpm run build\" && SET NODE_ENV=development && node --inspect dist/index.js",
+    "build-dev": "swc src -d dist --source-maps && node --inspect dist/index.js",
     "dev": "nodemon --ext ts --exec \"pnpm run build-dev\"",
-    "prod": "pnpm run build && NODE_ENV=production node dist/index.js"
+    "prod": "yarn run build && NODE_ENV=production node dist/index.js"
   },
   "keywords": [],
   "author": "",

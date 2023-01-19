@@ -1,6 +1,7 @@
-import { Snowflake } from "discord.js";
+import { Message, Snowflake } from 'discord.js';
 import { Track, LoadType } from "shoukaku";
 import { Maybe } from "../../utils/utils.types";
+import { Scara } from '../Scara';
 
 export type SearchEngines = 'youtube' | 'soundcloud' | 'youtube_music' | string;
 
@@ -30,7 +31,7 @@ export interface XiaoSearchResult {
   tracks: Track[];
 }
 
-export interface KazuInitOptions {
+export interface VentiInitOptions {
   guild: Snowflake;
   channel: Snowflake;
   deaf?: boolean;
@@ -38,6 +39,8 @@ export interface KazuInitOptions {
   shardId?: number;
   balancer?: boolean;
   nodeName?: string;
+  message?: Message;
+  scara?: Scara;
 }
 
 export interface PlayOptions {
@@ -77,6 +80,8 @@ export enum Events {
   PlayerMoved = 'playerMoved',
 
   Debug = 'debug',
+  TrackAdd = 'trackAdd',
+  TrackRemove = 'trackRemove',
 }
 
 export enum PlayerState {

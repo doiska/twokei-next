@@ -2,7 +2,7 @@ import { Twokei } from "../app/Twokei";
 import {
 	APIApplicationCommandOptionChoice,
 } from "discord.js";
-import { LoopStates } from "../xiao/Kazu";
+import { LoopStates } from "../music/Venti";
 import { CommandContext, createCommand } from "twokei-framework";
 
 const execute = async (context: CommandContext<{ loop?: 'None' | 'Track' | 'Queue' }>) => {

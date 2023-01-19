@@ -2,7 +2,7 @@ import { createEvent } from 'twokei-framework';
 import { Colors, EmbedBuilder, Message } from 'discord.js';
 import { Twokei } from '../app/Twokei';
 
-export const onMessage = createEvent('messageCreate', async (message: Message) => {
+export const onMessage = createEvent('messageCreate', async (message) => {
 
   if(message.author.bot) {
     return;

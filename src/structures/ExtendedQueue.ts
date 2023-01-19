@@ -1,12 +1,27 @@
 import { Maybe } from "../utils/utils.types";
+import { Venti } from '../music/Venti';
+import { Events } from '../music/interfaces/player.types';
+import { Track } from 'shoukaku';
 
 export class ExtendedQueue<T> extends Array<T> {
+
+  private readonly venti: Venti;
 
   public current: Maybe<T>;
   public previous: Maybe<T>;
 
+  constructor(venti: Venti, ...items: T[]) {
+    super(...items);
+
+    this.venti = venti;
+  }
+
   add(...item: T[]): void {
     this.push(...item);
+
+    if(this.length !== 1) {
+      this.venti.emit(Events.TrackAdd, this.venti, item as Track[]);
+    }
   }
 
   remove(item: T | number): void {
