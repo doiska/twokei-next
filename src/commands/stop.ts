@@ -1,4 +1,5 @@
 import { CommandContext, createCommand } from "twokei-framework";
+import { Twokei } from '../app/Twokei';
 
 const execute = async (context: CommandContext) => {
 	const { guild } = context;
@@ -7,7 +8,7 @@ const execute = async (context: CommandContext) => {
 		return;
 	}
 
-	const player = context.client.xiao.getPlayer(guild.id);
+	const player = Twokei.xiao.getPlayer(guild.id);
 
 	if (!player) {
 		return "No player found";
