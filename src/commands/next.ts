@@ -1,6 +1,6 @@
 
 import { Twokei } from "../app/Twokei";
-import { logger } from "../utils/Logger";
+import { logger } from "../modules/Logger";
 import { CommandContext, CommandResponse, createCommand } from "twokei-framework";
 
 
