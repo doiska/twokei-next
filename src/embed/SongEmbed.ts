@@ -1,6 +1,13 @@
-import { Colors, EmbedBuilder, TextChannel } from 'discord.js';
+import {
+  APIEmbed,
+  Colors,
+  EmbedBuilder,
+  Guild,
+  TextChannel,
+  userMention
+} from 'discord.js';
 
-const SongEmbedPlaceHolder = new EmbedBuilder()
+export const songEmbedPlaceHolder = (guild: Guild) => new EmbedBuilder()
   .setTitle(`No song playing`)
   .setDescription(`Use \`@Twokei <song>\` to play a song`)
   .setColor(Colors.DarkButNotBlack)
@@ -8,16 +15,40 @@ const SongEmbedPlaceHolder = new EmbedBuilder()
     name: 'Created by doiská#0001 ⚡',
     url: 'https://twitter.com/two2kei'
   })
-  .setImage('https://cdn.discordapp.com/attachments/1063635066762309772/1063635066762309772/unknown.png')
+  .setImage('https://media.tenor.com/XAS0z1xPCIcAAAAd/cyberpunk-vaporwave.gif')
   .setFooter({
     text: 'Twokei',
   });
 
-export const createEmbedIfNotExists = async (channel: TextChannel) => {
+export const createSongEmbed = (guild: Guild): APIEmbed => {
 
-  const messages = await channel.messages.fetch({ limit: 1 });
+  const mention = guild.members.me ? userMention(guild.members.me.id) : 'Twokei';
 
-  if(messages.size === 0) {
-    return channel.send({ embeds: [SongEmbedPlaceHolder] });
+  const description = [
+    '',
+    '**:shrug: How to use? It\'s easy!**',
+    '',
+    `- Easiest way: **${mention} <song>**.`,
+    `- Or click here </play:1067082391975362654>.`,
+    '- If you have **any questions**, click here </setup:1067082391975362656>.',
+    '',
+  ];
+
+  return {
+    description: description.join('\n'),
+    color: Colors.DarkButNotBlack,
+    author: {
+      name: 'Created by doiská#0001 ⚡',
+      url: 'https://twitter.com/two2kei'
+    },
+    image: {
+      url: 'https://media.tenor.com/XAS0z1xPCIcAAAAd/cyberpunk-vaporwave.gif',
+      height: 200,
+      width: 200,
+      proxy_url: 'https://media.tenor.com/XAS0z1xPCIcAAAAd/cyberpunk-vaporwave.gif',
+    },
+    footer: {
+      text: 'Twokei'
+    },
   }
 }
