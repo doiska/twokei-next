@@ -16,10 +16,12 @@ import {
   XiaoInitOptions,
   XiaoSearchOptions,
   XiaoSearchResult
-} from './interfaces/player.types';
+} from '../interfaces/player.types';
 import { EmbedBuilder, Snowflake, TextChannel } from 'discord.js';
-import { Scara } from './Scara';
-import { Twokei } from '../app/Twokei';
+import { Twokei } from '../../app/Twokei';
+import { trackStart } from '../events/track-start';
+import { playerDestroy } from '../events/player-destroy';
+import { trackAdd } from '../events/track-add';
 
 
 export interface XiaoEvents {
@@ -143,15 +145,9 @@ export class Xiao extends EventEmitter {
       throw new Error('No available nodes');
     }
 
-    const message = await Twokei.channels.fetch('1063639091498991656').then(channel => (channel as TextChannel).send({
-      embeds: [
-        new EmbedBuilder().setTitle('Player Created').setDescription(`Guild: ${options.guild}`)
-      ]
-    }));
-
     const player = await node.joinChannel({
       guildId: options.guild,
-      channelId: options.channel,
+      channelId: options.voiceChannel,
       deaf: options.deaf,
       mute: options.mute,
       shardId: options.shardId || 0
@@ -159,21 +155,12 @@ export class Xiao extends EventEmitter {
 
     const venti = new Venti(this, player, {
       ...options,
-      message
+      message: options.message,
     });
 
-    this.on(Events.TrackStart, (venti, track) => {
-      console.log(`Track started: ${track.info.title}`);
-      venti.scara?.refreshEmbed({
-        title: `Now Playing: ${track.info.title}`,
-      })
-
-      venti.scara?.refreshComponents();
-    });
-
-    this.on(Events.TrackAdd, (venti, tracks) => {
-      venti.scara?.refreshComponents();
-    });
+    this.on(Events.TrackStart, trackStart);
+    this.on(Events.TrackAdd, trackAdd);
+    this.on(Events.PlayerDestroy, playerDestroy);
 
     this.players.set(options.guild, venti);
     this.emit(Events.PlayerCreate, venti);

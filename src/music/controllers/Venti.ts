@@ -1,9 +1,9 @@
 import { Xiao, XiaoEvents } from "./Xiao";
 import { Player, PlayerUpdate, Track, TrackStuckEvent, WebSocketClosedEvent } from "shoukaku";
-import { Events, VentiInitOptions, PlayerState, PlayOptions } from "./interfaces/player.types";
+import { Events, VentiInitOptions, PlayerState, PlayOptions } from "../interfaces/player.types";
 import { Snowflake } from "discord.js";
-import { Maybe } from "../utils/utils.types";
-import { ExtendedQueue } from "../structures/ExtendedQueue";
+import { Maybe } from "../../utils/utility-types";
+import { ExtendedQueue } from "../../structures/ExtendedQueue";
 import { Scara } from './Scara';
 
 export enum LoopStates {
@@ -72,7 +72,7 @@ export class Venti {
     this.options = options;
     this.instance = player;
     this.guildId = options.guild;
-    this.voiceId = options.channel;
+    this.voiceId = options.voiceChannel;
 
     if(options.message) {
       this.scara = new Scara(this, options.message);

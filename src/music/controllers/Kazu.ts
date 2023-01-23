@@ -1,5 +1,6 @@
 import { Venti } from './Venti';
 import { SelectMenuComponentOptionData, StringSelectMenuComponentData } from 'discord.js';
+import { assertMenuSize } from '../../utils/embed-utils';
 
 export class Kazu {
 
@@ -44,6 +45,6 @@ export class Kazu {
       description: song.info.author,
     })));
 
-    return items;
+    return assertMenuSize(items);
   }
 }
