@@ -1,7 +1,7 @@
 import { Message, Snowflake } from 'discord.js';
 import { Track, LoadType } from "shoukaku";
-import { Maybe } from "../../utils/utils.types";
-import { Scara } from '../Scara';
+import { Maybe } from "../../utils/utility-types";
+import { Scara } from '../controllers/Scara';
 
 export type SearchEngines = 'youtube' | 'soundcloud' | 'youtube_music' | string;
 
@@ -33,7 +33,7 @@ export interface XiaoSearchResult {
 
 export interface VentiInitOptions {
   guild: Snowflake;
-  channel: Snowflake;
+  voiceChannel: Snowflake;
   deaf?: boolean;
   mute?: boolean;
   shardId?: number;
