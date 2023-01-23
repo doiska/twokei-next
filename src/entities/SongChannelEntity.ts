@@ -4,11 +4,8 @@ import { GuildEntity } from './GuildEntity';
 @Entity({ name: 'song_channels' })
 export class SongChannelEntity {
 
-  @PrimaryGeneratedColumn()
-  public id!: string;
-
-  @JoinColumn()
-  @OneToOne(() => GuildEntity)
+  @PrimaryColumn()
+  @OneToOne(() => GuildEntity, guild => guild.id)
   public guild!: string;
 
   @Column()

@@ -22,3 +22,19 @@ POSTGRES_DATABASE= // Postgres info
 POSTGRES_SCHEMA= // Postgres info
 ```
 
+
+```
+Xiao: Player manager.
+Venti: The player - handle lavaplayer responses.
+Kazu: Message manager - handle embed.
+Scara: Used by Kazu to generate message content.
+```
+
+
+```
+Xiao: Player manager.
+Venti: The player - handle lavaplayer responses.
+Kazu: Message manager - handle embed.
+Scara: Used by Kazu to generate message content.
+```
+

@@ -4,15 +4,9 @@ import { SongChannelEntity } from './SongChannelEntity';
 @Entity({ name: 'guilds' })
 export class GuildEntity {
 
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn({ name: 'guild_id' })
   public id!: string;
 
-  @PrimaryColumn({ name: 'guild_id' })
-  public guildId!: string;
-
-  @Column()
+  @Column({ default: 'pt-BR' })
   public language!: string;
-
-  @Column()
-  public prefix!: string;
 }
