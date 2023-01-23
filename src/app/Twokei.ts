@@ -2,7 +2,8 @@ import 'reflect-metadata';
 
 import { ExtendedClient } from "../structures/ExtendedClient";
 import { ClusterClient as ShardClient } from 'discord-hybrid-sharding';
-import { logger } from "../utils/Logger";
+import { logger } from "../modules/Logger";
+import * as process from 'process';
 
 const { SHARD_LIST, TOTAL_SHARDS } = ShardClient.getInfo();
 
@@ -16,10 +17,13 @@ export const Twokei = new ExtendedClient({
 	]
 });
 
-Twokei.cluster.on('ready', () => logger.info('Shard ready!'));
+Twokei.cluster.on('ready', (client) => {
+	logger.info(`Cluster ${client.id} is ready!`);
+});
+
 Twokei.cluster.on('message', (message) => logger.debug(`Received a message`, message));
 
-process.title = `Twokei Shard ${Twokei.cluster.id}`;
+// process.title = `Twokei Shard ${Twokei.cluster.id}`;
 
 Twokei.shoukaku.on('ready', (name) => logger.info(`Lavalink node ${name} is now connected`));
 Twokei.shoukaku.on('error', (name, error) => logger.error(`Lavalink node ${name} has had an error`, error));
