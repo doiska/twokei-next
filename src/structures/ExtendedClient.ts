@@ -1,10 +1,10 @@
-import { ClientOptions } from 'discord.js';
+import { ClientEvents, ClientOptions } from 'discord.js';
 import { Connectors, Shoukaku } from 'shoukaku';
 import { ClusterClient as ShardClient } from 'discord-hybrid-sharding';
 import { Nodes, shoukakuOptions } from '../shoukaku/options';
 import { Twokei } from '../app/Twokei';
-import { logger } from '../utils/Logger';
-import { Xiao } from '../music/Xiao';
+import { logger } from '../modules/Logger';
+import { Xiao } from '../music/controllers/Xiao';
 
 import { TwokeiClient } from 'twokei-framework';
 import { DataSource } from 'typeorm';
@@ -37,7 +37,8 @@ export class ExtendedClient extends TwokeiClient {
       currentWorkingDirectory: __dirname,
       commandsPath: `../commands/**/*.{ts,js}`,
       eventsPath: `../events/**/*.{ts,js}`,
-      autoload: true
+      autoload: true,
+
     });
 
     this.shoukaku = new Shoukaku(new Connectors.DiscordJS(this), Nodes, shoukakuOptions);
@@ -45,7 +46,9 @@ export class ExtendedClient extends TwokeiClient {
     this.xiao = new Xiao({
       send: (guildId, payload) => {
         const guild = Twokei.guilds.cache.get(guildId);
-        if (guild) guild.shard.send(payload);
+        if (guild) {
+          guild.shard.send(payload);
+        }
       },
       defaultSearchEngine: 'youtube'
     }, new Connectors.DiscordJS(this), Nodes, shoukakuOptions);
@@ -65,8 +68,20 @@ export class ExtendedClient extends TwokeiClient {
         UserEntity,
         GuildEntity,
         SongEntity,
-        SongChannelEntity,
+        SongChannelEntity
       ]
+    });
+
+    this.on('error', (error) => {
+      logger.error(error)
+    });
+
+    this.on('warn', (warning) => {
+      logger.warn(warning)
+    });
+
+    this.on('debug', (debug) => {
+      logger.debug('Client debug', debug)
     });
 
     ['beforeExit', 'SIGUSR1', 'SIGUSR2', 'SIGINT', 'SIGTERM'].forEach(event => process.once(event, this.exit.bind(this)));
@@ -83,8 +98,8 @@ export class ExtendedClient extends TwokeiClient {
   }
 
   private async registerLoggers(): Promise<void> {
-    process.on('uncaughtException', (err) => logger.error(`Uncaught Exception: ${err.stack}`));
-    process.on('unhandledRejection', (err) => logger.error(`Unhandled Rejection`, err));
+    process.on('uncaughtException', (err) => logger.error(`Uncaught Exception`, { err }));
+    process.on('unhandledRejection', (err) => logger.error(`Unhandled Rejection`, { err }));
   }
 
   private exit() {
