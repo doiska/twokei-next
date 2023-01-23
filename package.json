@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "swc src -d dist --source-maps",
-    "build-dev": "swc src -d dist --source-maps && node --inspect dist/index.js",
+    "build-dev": "rm -rf dist && swc src -d dist --source-maps && node --inspect dist/index.js",
     "dev": "nodemon --ext ts --exec \"pnpm run build-dev\"",
     "prod": "yarn run build && NODE_ENV=production node dist/index.js"
   },
@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sapphire/discord.js-utilities": "^6.0.1",
     "discord-hybrid-sharding": "github:meister03/discord-hybrid-sharding",
     "discord.js": "^14.6.0",
     "dotenv": "^16.0.3",
@@ -21,7 +22,7 @@
     "pg": "^8.8.0",
     "reflect-metadata": "^0.1.13",
     "shoukaku": "^3.2.2",
-    "twokei-framework": "../twokei-framework",
+    "twokei-framework": "link:../twokei-framework",
     "typeorm": "^0.3.11",
     "winston": "^3.8.2"
   },

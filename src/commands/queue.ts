@@ -1,6 +1,6 @@
 
 import { Twokei } from "../app/Twokei";
-import { logger } from "../utils/Logger";
+import { logger } from "../modules/Logger";
 import { EmbedBuilder } from "discord.js";
 import { CommandContext, createCommand } from "twokei-framework";
 
