@@ -1,66 +1,70 @@
 import { createEvent } from 'twokei-framework';
-import { Colors, EmbedBuilder, Message } from 'discord.js';
+import { ChannelType, Colors, EmbedBuilder, userMention } from 'discord.js';
 import { Twokei } from '../app/Twokei';
+import { play } from '../modules/heizou/play';
+import { SongChannelEntity } from '../entities/SongChannelEntity';
+import { PlayerException } from '../structures/PlayerException';
+import { logger } from '../modules/Logger';
 
 export const onMessage = createEvent('messageCreate', async (message) => {
 
-  if(message.author.bot) {
+  const selfId = Twokei.user?.id;
+
+  if (!selfId || message.author.bot) {
     return;
   }
 
-  const channelId = '1063639091498991656';
-
-  if(message.channel.id !== channelId) {
+  if (!message.member || !message.guild?.id || message.channel.type !== ChannelType.GuildText) {
     return;
   }
 
-  if(!message.content) {
+  const usableChannel = await Twokei.dataSource
+    .getRepository(SongChannelEntity)
+    .findOne({
+      where: {
+        guild: message.guild.id
+      }
+    });
+
+  const contentOnly = message.content.replace(/<@!?\d+>/g, '').trim();
+  const hasMention = message.mentions.users.has(selfId);
+  const hasContent = contentOnly.length > 0;
+  const isUsableChannel = usableChannel?.channel === message.channel.id;
+
+  if(!hasMention && !isUsableChannel) {
+    return;
+  }
+
+  if(!hasMention && isUsableChannel) {
     const reply = [
       `**Due a \`Discord\` limitation, to use this channel you need to send a message mentioning the bot.**`,
       `Please mention the bot and the song.`,
       '',
-      `**Example:** <@${Twokei.user?.id}> https://music.youtube.com/watch?v=Ni5_Wrmh0f8`,
+      `**Example:** <@${userMention(selfId)}> https://music.youtube.com/watch?v=Ni5_Wrmh0f8`,
       `Or click here </play:1052294614503137374>.`
     ]
 
     const embed = new EmbedBuilder()
-      .setTitle(`🥲 Sorry!`)
+      .setTitle(`🥲`)
       .setDescription(reply.join('\n'))
-      .setColor(Colors.DarkButNotBlack)
 
-    await message.reply({ embeds: [embed] });
-    return;
+    return message.reply({ embeds: [embed] });
   }
 
-  const contentOnly = message.content.replace(/<@!?\d+>/g, '').trim();
-
-  if(!contentOnly) {
-    return;
+  if(!hasContent) {
+    return message.reply('Please provide a song to play.');
   }
 
-  if(!message.guild?.id || !message.member?.voice.channel?.id) {
-    return;
+  try {
+    const [track, ...rest] = await play(contentOnly, message.member)
+
+    message.reply(`Added **${track.info.title}** ${rest.length >= 1 ? `with other ${rest.length} song(s)` : ''} to the queue.`);
+  } catch (e) {
+    if(e instanceof PlayerException) {
+      return message.reply(e.message);
+    }
+
+    logger.error(e);
+    message.reply(`An error occurred while trying to play the track.`);
   }
-
-
-  const result = await Twokei.xiao.search(contentOnly);
-
-  if(!result.tracks.length) {
-    return;
-  }
-
-  const player = await Twokei.xiao.createPlayer({
-    guild: message.guild?.id,
-    channel: message.member?.voice.channel?.id,
-  });
-
-  player.queue.add(...result.tracks);
-
-  if(!player.playing) {
-    player.play();
-  }
-
-  const [track, ...rest] = result.tracks;
-
-  message.channel.send(`Added **${track.info.title}** ${rest.length >= 1 ? `with other ${rest.length} song(s)` : ''} to the queue.`);
 })
