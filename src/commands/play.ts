@@ -1,54 +1,24 @@
-import { Twokei } from "../app/Twokei";
-import { logger } from "../utils/Logger";
-import { PlayerException } from "../structures/PlayerException";
-
 import { CommandContext, CommandResponse, createCommand } from "twokei-framework";
 
-const execute = async (context: CommandContext<{ input: string, input2: string }>): Promise<CommandResponse> => {
+import { PlayerException } from "../structures/PlayerException";
+import { play } from '../modules/heizou/play';
 
-	const { member, t } = context;
+const execute = async (context: CommandContext<{ search: string }>): Promise<CommandResponse> => {
 
-	if (!member || !member?.guild) {
-		logger.error("No member or guild");
+	const { t } = context;
+
+
+	if(!context.member) {
 		return;
 	}
 
 	try {
-		const { input } = context.input;
-
-		if (!input) {
-			logger.error("No input provided");
-			return;
-		}
-
-		if (!member.voice.channel?.id) {
-			return;
-		}
-
-		const player = await Twokei.xiao.createPlayer({
-			guild: member.guild.id,
-			channel: member.voice.channel.id,
-		})
-
-		const result = await Twokei.xiao.search(input);
-
-		if (!result.tracks.length) {
-			return t("No tracks found");
-		}
-
-		player.queue.add(...result.tracks);
-
-		if (!player.playing) {
-			console.log("Not playing, playing now");
-			player.play();
-		}
-
-		const [track, ...rest] = result.tracks;
+		const [track, ...rest] = await play(context.input.search, context.member);
 
 		return t(`Added **${track.info.title}** ${rest.length > 1 ? `with other ${rest.length} songs to the queue` : ''}`);
 	} catch (e) {
 		if (e instanceof PlayerException) {
-			return e.message;
+			return t(e.message);
 		}
 
 		return "An error occurred while trying to play the track.";
@@ -62,7 +32,7 @@ export const playCommand = createCommand({
 		return builder
 				.addStringOption((option) =>
 						option
-								.setName("input")
+								.setName("search")
 								.setDescription("Input")
 								.setRequired(true)
 				)
