@@ -1,5 +1,5 @@
-import { Maybe } from "../utils/utils.types";
-import { Venti } from '../music/Venti';
+import { Maybe } from "../utils/utility-types";
+import { Venti } from '../music/controllers/Venti';
 import { Events } from '../music/interfaces/player.types';
 import { Track } from 'shoukaku';
 
@@ -18,10 +18,7 @@ export class ExtendedQueue<T> extends Array<T> {
 
   add(...item: T[]): void {
     this.push(...item);
-
-    if(this.length !== 1) {
-      this.venti.emit(Events.TrackAdd, this.venti, item as Track[]);
-    }
+    this.venti.emit(Events.TrackAdd, this.venti, item as Track[]);
   }
 
   remove(item: T | number): void {
