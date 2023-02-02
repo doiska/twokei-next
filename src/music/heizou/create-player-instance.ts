@@ -26,16 +26,12 @@ export async function createPlayerInstance({ guild, voiceChannel }: InitOptions)
     const message = await channel.messages.fetch(songChannel.message);
 
     if (channel && message) {
-      return Twokei.xiao.createPlayer({
-        guild: guild.id,
-        voiceChannel: voiceChannel,
-        message: message
-      });
+      await Twokei.xiao.embedManager.create(guild.id, message);
     }
   }
 
   return Twokei.xiao.createPlayer({
     guild: guild.id,
-    voiceChannel: voiceChannel
+    voiceChannel: voiceChannel,
   });
 }

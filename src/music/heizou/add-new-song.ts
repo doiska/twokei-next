@@ -1,11 +1,12 @@
 import { isVoiceChannel } from '../../utils/discord-type-guards';
 import { canJoinVoiceChannel } from '../../utils/discord-utilities';
 import { Twokei } from '../../app/Twokei';
-import { createPlayerInstance } from './createInstance';
+import { createPlayerInstance } from './create-player-instance';
 import { PlayerException } from '../../structures/PlayerException';
 import { GuildMember } from 'discord.js';
+import { Events } from '../interfaces/player.types';
 
-export async function play(input: string, member: GuildMember) {
+export async function addNewSong(input: string, member: GuildMember) {
   const guild = member.guild;
 
   if (!guild || !member || !member?.guild) {
@@ -43,6 +44,8 @@ export async function play(input: string, member: GuildMember) {
 
   if(!player.playing) {
     player.play();
+  } else {
+    player.emit(Events.TrackAdd, player, result.tracks);
   }
 
   return result.tracks;
