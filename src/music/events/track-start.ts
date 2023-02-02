@@ -1,21 +1,12 @@
 import { Events } from '../interfaces/player.types';
 import { XiaoEvents } from '../controllers/Xiao';
+import { Twokei } from '../../app/Twokei';
 
 export const trackStart: XiaoEvents[Events.TrackStart] = (venti, track) => {
+  console.log(`[Xiao] Track started. Refreshing components...`)
 
-  if (venti.scara) {
-    venti.scara
-      .setEmbed({
-        author: {
-          name: `${track.info.isStream ? '(**LIVE**) | ' : ''}${track.info.title}`,
-          url: track.info.uri,
-        },
-        url: track.info.uri,
-        video: {
-          url: track.info.uri
-        },
-      })
-      .refreshComponents()
-      .refresh();
-  }
+  Twokei.xiao.embedManager.get(venti.guildId)?.from(venti)
+    .refreshEmbed()
+    .refreshComponents()
+    .refresh();
 }
