@@ -1,0 +1,10 @@
+-- PRIO
+--- fix play function from venti, its not updating previous song correctly
+
+- Translation everywhere (maybe a custom exception with translation?)
+- Maybe release then add translation later?
+
+-- Select menu to select song
+-- Buttons to control the player
+
+-- add option to return MessageBuilder to createCommand and it send automatically
