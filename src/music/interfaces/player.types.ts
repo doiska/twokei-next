@@ -1,7 +1,6 @@
 import { Message, Snowflake } from 'discord.js';
 import { Track, LoadType } from "shoukaku";
 import { Maybe } from "../../utils/utility-types";
-import { Scara } from '../controllers/Scara';
 
 export type SearchEngines = 'youtube' | 'soundcloud' | 'youtube_music' | string;
 
@@ -39,8 +38,6 @@ export interface VentiInitOptions {
   shardId?: number;
   balancer?: boolean;
   nodeName?: string;
-  message?: Message;
-  scara?: Scara;
 }
 
 export interface PlayOptions {
