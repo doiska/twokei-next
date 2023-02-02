@@ -2,8 +2,7 @@ import 'reflect-metadata';
 
 import { ExtendedClient } from "../structures/ExtendedClient";
 import { ClusterClient as ShardClient } from 'discord-hybrid-sharding';
-import { logger } from "../modules/Logger";
-import * as process from 'process';
+import { logger } from "../modules/logger-transport";
 
 const { SHARD_LIST, TOTAL_SHARDS } = ShardClient.getInfo();
 
