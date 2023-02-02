@@ -12,13 +12,34 @@ type VoiceChannelUpdateTypes = 'voiceChannelJoin'
   | 'voiceUpdate';
 
 export const voiceChannelUpdate = createEvent('voiceStateUpdate', async (oldState, newState) => {
-  if(!Twokei.user?.id) {
-    return;
-  }
+
+  const guild = newState.guild || oldState.guild;
+  const self = guild.members.me;
+  const selfVoice = self?.voice;
+
+  const channel = newState.channel || oldState.channel;
+  const isConnected = channel?.id === selfVoice?.channel?.id;
 
   const updateType = getUpdateType(oldState, newState);
 
-  console.log(`Voice channel update: ${updateType}`);
+  if(updateType === 'voiceChannelLeave') {
+
+    if(!selfVoice || !isConnected) {
+      return;
+    }
+
+    const isEmpty = oldState.channel?.members.filter((member) => !member.user.bot).size === 0;
+
+    if(!isEmpty) {
+      return;
+    }
+
+    try {
+      await Twokei.xiao.destroyPlayer(newState.guild.id);
+    } catch (e) {
+      newState.guild.members.me?.voice?.disconnect();
+    }
+  }
 });
 
 function getUpdateType(oldState: VoiceState, newState: VoiceState): VoiceChannelUpdateTypes {
