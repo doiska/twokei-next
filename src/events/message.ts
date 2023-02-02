@@ -1,10 +1,15 @@
 import { createEvent } from 'twokei-framework';
-import { ChannelType, Colors, EmbedBuilder, userMention } from 'discord.js';
+import {
+  ChannelType,
+  Colors,
+  EmbedBuilder,
+  userMention
+} from 'discord.js';
 import { Twokei } from '../app/Twokei';
-import { play } from '../modules/heizou/play';
+import { addNewSong } from '../music/heizou/add-new-song';
 import { SongChannelEntity } from '../entities/SongChannelEntity';
 import { PlayerException } from '../structures/PlayerException';
-import { logger } from '../modules/Logger';
+import { MessageBuilder } from '../structures/MessageBuilder';
 
 export const onMessage = createEvent('messageCreate', async (message) => {
 
@@ -26,45 +31,67 @@ export const onMessage = createEvent('messageCreate', async (message) => {
       }
     });
 
+  const channel = message.channel;
   const contentOnly = message.content.replace(/<@!?\d+>/g, '').trim();
   const hasMention = message.mentions.users.has(selfId);
+  const isUsableChannel = usableChannel?.channel === channel.id;
   const hasContent = contentOnly.length > 0;
-  const isUsableChannel = usableChannel?.channel === message.channel.id;
 
-  if(!hasMention && !isUsableChannel) {
+
+  if (!hasMention && !isUsableChannel) {
     return;
   }
 
-  if(!hasMention && isUsableChannel) {
+  if(isUsableChannel) {
+    message.delete();
+  }
+
+  if (!hasMention && isUsableChannel) {
     const reply = [
       `**Due a \`Discord\` limitation, to use this channel you need to send a message mentioning the bot.**`,
       `Please mention the bot and the song.`,
       '',
-      `**Example:** <@${userMention(selfId)}> https://music.youtube.com/watch?v=Ni5_Wrmh0f8`,
+      `**Example:** ${userMention(selfId)} https://music.youtube.com/watch?v=Ni5_Wrmh0f8`,
       `Or click here </play:1052294614503137374>.`
     ]
 
     const embed = new EmbedBuilder()
-      .setTitle(`🥲`)
+      .setTitle(`🥲 Sorry!`)
       .setDescription(reply.join('\n'))
 
-    return message.reply({ embeds: [embed] });
+    return new MessageBuilder()
+      .setEmbeds(embed)
+      .send(channel);
   }
 
-  if(!hasContent) {
-    return message.reply('Please provide a song to play.');
+  if (!hasContent) {
+    return new MessageBuilder()
+      .setContent(`Please provide a song to play.`)
+      .send(channel);
   }
 
   try {
-    const [track, ...rest] = await play(contentOnly, message.member)
+    const tracks = await addNewSong(contentOnly, message.member);
 
-    message.reply(`Added **${track.info.title}** ${rest.length >= 1 ? `with other ${rest.length} song(s)` : ''} to the queue.`);
+    const songs = tracks.map((song) => `**${song.info.title}**`);
+
+    const embed = new EmbedBuilder()
+      .setTitle(`🎶 New song added to the queue!`)
+      .setDescription(songs.join('\n'))
+      .setColor(Colors.DarkButNotBlack);
+
+    return new MessageBuilder()
+      .setEmbeds([embed])
+      .send(channel);
   } catch (e) {
-    if(e instanceof PlayerException) {
-      return message.reply(e.message);
+    if (e instanceof PlayerException) {
+      return new MessageBuilder()
+        .setContent(e.message)
+        .send(channel);
     }
 
-    logger.error(e);
-    message.reply(`An error occurred while trying to play the track.`);
+    return new MessageBuilder()
+      .setContent(`An error occurred while trying to play the song.`)
+      .send(channel);
   }
 })
