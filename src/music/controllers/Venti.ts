@@ -1,10 +1,9 @@
-import { Xiao, XiaoEvents } from "./Xiao";
-import { Player, PlayerUpdate, Track, TrackStuckEvent, WebSocketClosedEvent } from "shoukaku";
-import { Events, VentiInitOptions, PlayerState, PlayOptions } from "../interfaces/player.types";
-import { Snowflake } from "discord.js";
-import { Maybe } from "../../utils/utility-types";
-import { ExtendedQueue } from "../../structures/ExtendedQueue";
-import { Scara } from './Scara';
+import { Xiao, XiaoEvents } from './Xiao';
+import { Player, PlayerUpdate, Track, TrackStuckEvent, WebSocketClosedEvent } from 'shoukaku';
+import { Events, VentiInitOptions, PlayerState, PlayOptions } from '../interfaces/player.types';
+import { Snowflake } from 'discord.js';
+import { Maybe } from '../../utils/utility-types';
+import { TrackQueue } from '../managers/TrackQueue';
 
 export enum LoopStates {
   NONE,
@@ -58,14 +57,14 @@ export class Venti {
   public state: PlayerState = PlayerState.CONNECTING;
 
   /**
-   * Song queue.
+   * Pause state of the player.
    */
-  public queue: ExtendedQueue<Track>;
+  public paused: boolean = false;
 
   /**
-   * Venti message sender
+   * Song queue.
    */
-  public scara?: Scara;
+  public queue: TrackQueue<Track>;
 
   constructor(xiao: Xiao, player: Player, options: VentiInitOptions) {
     this.xiao = xiao;
@@ -74,11 +73,7 @@ export class Venti {
     this.guildId = options.guild;
     this.voiceId = options.voiceChannel;
 
-    if(options.message) {
-      this.scara = new Scara(this, options.message);
-    }
-
-    this.queue = new ExtendedQueue<Track>(this);
+    this.queue = new TrackQueue<Track>(this);
 
     this.instance.on('start', () => {
       this.playing = true
@@ -93,7 +88,10 @@ export class Venti {
         return;
       }
 
+      console.log(`TrackEnd event for guild ${this.guildId} - ${data.reason} - ${data.reason === 'REPLACED' ? 'skipping' : 'continuing'}`)
+
       if (data.reason === 'REPLACED') {
+        console.log(`Track replaced for guild ${this.guildId} - skipping end event`);
         this.emit(Events.TrackEnd, this, this.queue.current!);
         return;
       }
@@ -123,6 +121,8 @@ export class Venti {
 
       this.queue.previous = currentSong;
       this.queue.current = null;
+
+      console.log(`Track ended for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`);
 
       if (this.queue.totalSize && currentSong) {
         this.emit(Events.TrackEnd, this, currentSong);
@@ -167,6 +167,8 @@ export class Venti {
     if (track) {
       if (!playOptions.replaceCurrent && this.queue.current) {
         this.queue.unshift(track);
+      } else if (playOptions.replaceCurrent) {
+        this.queue.current = track;
       }
     } else if (!this.queue.current) {
       this.queue.current = this.queue.shift();
@@ -177,7 +179,15 @@ export class Venti {
       throw new Error('No track found');
     }
 
-    this.instance.playTrack(this.queue.current);
+    this.instance.playTrack({
+      track: this.queue.current.track,
+      options: {
+        noReplace: !playOptions.replaceCurrent,
+        startTime: playOptions.startTime,
+        endTime: playOptions.endTime,
+        pause: this.paused
+      }
+    });
     return this;
   }
 
@@ -202,6 +212,20 @@ export class Venti {
 
     this.instance.stopTrack();
     return this;
+  }
+
+  public pause(state?: boolean) {
+    if (typeof state !== 'boolean') {
+      state = !this.paused;
+    }
+
+    if (this.paused === state || this.queue.totalSize === 0) {
+      return;
+    }
+
+    this.paused = state;
+    this.instance.setPaused(state);
+    this.playing = !state;
   }
 
   /**
@@ -295,8 +319,8 @@ export class Venti {
         guild_id: this.guildId,
         channel_id: this.voiceId,
         self_mute: false,
-        self_deaf: this.options.deaf,
-      },
+        self_deaf: this.options.deaf
+      }
     });
 
     this.emit(Events.Debug, `Player ${this.guildId} moved to voice channel ${voiceId}`);
