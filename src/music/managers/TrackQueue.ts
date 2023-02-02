@@ -1,9 +1,9 @@
-import { Maybe } from "../utils/utility-types";
-import { Venti } from '../music/controllers/Venti';
-import { Events } from '../music/interfaces/player.types';
+import { Maybe } from "../../utils/utility-types";
+import { Venti } from '../controllers/Venti';
+import { Events } from '../interfaces/player.types';
 import { Track } from 'shoukaku';
 
-export class ExtendedQueue<T> extends Array<T> {
+export class TrackQueue<T> extends Array<T> {
 
   private readonly venti: Venti;
 
@@ -18,7 +18,6 @@ export class ExtendedQueue<T> extends Array<T> {
 
   add(...item: T[]): void {
     this.push(...item);
-    this.venti.emit(Events.TrackAdd, this.venti, item as Track[]);
   }
 
   remove(item: T | number): void {
