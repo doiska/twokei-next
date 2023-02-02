@@ -217,5 +217,5 @@ export function isAnyInteractableInteraction(
 export function isGuildMember(
   member: GuildMember | APIGuildMember | APIInteractionGuildMember | APIInteractionDataResolvedGuildMember | Nullish
 ): member is GuildMember {
-  return member instanceof GuildMember;
+  return Object.getPrototypeOf(member).constructor.name === 'GuildMember'
 }

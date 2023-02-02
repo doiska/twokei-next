@@ -7,7 +7,7 @@ export const assertEmbedSize = (embed: APIEmbed): APIEmbed => {
     title: embed.title?.substring(0, EmbedLimits.MaximumTitleLength),
     author: {
       ...embed.author,
-      name: `${embed.author?.name?.substring(0, 70)}` ?? '',
+      name: embed.author?.name?.substring(0, 70) ?? '',
     },
     description: embed.description?.substring(0, EmbedLimits.MaximumDescriptionLength),
     fields: embed.fields?.map((field) => ({

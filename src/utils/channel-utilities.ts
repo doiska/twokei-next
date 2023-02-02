@@ -1,27 +1,24 @@
-import { Guild } from 'discord.js';
-import { isGuildMember } from './discord-type-guards';
+import { ChannelType, Guild, GuildTextBasedChannel } from 'discord.js';
 
-export const findUsableAdminChannel = (guild: Guild) => {
+export const finyAnyUsableChannel = async (guild: Guild) => {
 
-  if(!guild.members.me) {
+  if (!guild.members.me) {
     return;
   }
 
   const self = guild.members.me;
   const systemChannel = guild.systemChannel;
-  const widgetChannel = guild.widgetChannel;
 
   if (systemChannel) {
     return systemChannel;
   }
 
-  if (widgetChannel) {
-    return widgetChannel;
-  }
+  const channels = await guild.channels.fetch();
 
-  if (!isGuildMember(self)) {
-    return;
-  }
-
-  return guild.channels.cache.find(channel => channel.permissionsFor(self).has('SendMessages'));
+  return channels.find(channel =>
+    channel &&
+    channel.type === ChannelType.GuildText &&
+    channel.isTextBased() &&
+    channel.permissionsFor(self).has('SendMessages')
+  ) as GuildTextBasedChannel
 }
