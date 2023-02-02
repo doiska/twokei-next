@@ -1,11 +1,12 @@
 import { Events } from '../interfaces/player.types';
 import { XiaoEvents } from '../controllers/Xiao';
+import { Twokei } from '../../app/Twokei';
 
 export const trackAdd: XiaoEvents[Events.TrackAdd] = (venti) => {
-  if(venti.scara) {
-    console.log(`[Xiao] Track added to queue. Refreshing components...`);
-    venti.scara
-      .refreshComponents()
-      .refresh();
-  }
+  console.log(`[Xiao] Track added to queue. Refreshing components...`);
+
+  Twokei.xiao.embedManager.get(venti.guildId)?.from(venti)
+    .refreshEmbed()
+    .refreshComponents()
+    .refresh();
 }
