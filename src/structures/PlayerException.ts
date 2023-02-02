@@ -1,4 +1,4 @@
-import { logger } from "../modules/Logger";
+import { logger } from "../modules/logger-transport";
 
 export class PlayerException extends Error {
     constructor(message: string) {
