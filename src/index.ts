@@ -1,7 +1,7 @@
 import { ClusterManager, ReClusterManager, HeartbeatManager } from 'discord-hybrid-sharding';
 import { config } from 'dotenv';
 import { green, red } from "kleur";
-import { logger } from "./modules/Logger";
+import { logger } from "./modules/logger-transport";
 
 config();
 

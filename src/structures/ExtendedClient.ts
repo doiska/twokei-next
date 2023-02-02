@@ -1,9 +1,9 @@
-import { ClientEvents, ClientOptions } from 'discord.js';
+import { ClientOptions } from 'discord.js';
 import { Connectors, Shoukaku } from 'shoukaku';
 import { ClusterClient as ShardClient } from 'discord-hybrid-sharding';
 import { Nodes, shoukakuOptions } from '../shoukaku/options';
 import { Twokei } from '../app/Twokei';
-import { logger } from '../modules/Logger';
+import { logger } from '../modules/logger-transport';
 import { Xiao } from '../music/controllers/Xiao';
 
 import { TwokeiClient } from 'twokei-framework';
@@ -12,6 +12,9 @@ import { GuildEntity } from '../entities/GuildEntity';
 import { SongChannelEntity } from '../entities/SongChannelEntity';
 import { UserEntity } from '../entities/UserEntity';
 import { SongEntity } from '../entities/SongEntity';
+
+import { init as init18n } from '../translation/i18n';
+import * as process from 'process';
 
 declare module 'discord.js' {
   interface Client {
@@ -37,7 +40,7 @@ export class ExtendedClient extends TwokeiClient {
       currentWorkingDirectory: __dirname,
       commandsPath: `../commands/**/*.{ts,js}`,
       eventsPath: `../events/**/*.{ts,js}`,
-      autoload: true,
+      autoload: true
 
     });
 
@@ -84,22 +87,23 @@ export class ExtendedClient extends TwokeiClient {
       logger.debug('Client debug', debug)
     });
 
-    ['beforeExit', 'SIGUSR1', 'SIGUSR2', 'SIGINT', 'SIGTERM'].forEach(event => process.once(event, this.exit.bind(this)));
+    //TODO: ['beforeExit', 'SIGUSR1', 'SIGUSR2', 'SIGINT', 'SIGTERM'].forEach(event => process.on(event,
+    // this.exit.bind(this)));
   }
 
   public async start(): Promise<void> {
     this.dataSource.initialize()
       .then(async () => {
         logger.info('Database connected!');
-        await this.registerLoggers();
+        await init18n()
+          .then(() => logger.info('i18n initialized!'))
+          .catch((error) => logger.error('i18n failed to initialize', error));
+
         await this.login(process.env.TOKEN);
       })
-      .catch((error) => logger.error('Database failed to connect', error));
-  }
-
-  private async registerLoggers(): Promise<void> {
-    process.on('uncaughtException', (err) => logger.error(`Uncaught Exception`, { err }));
-    process.on('unhandledRejection', (err) => logger.error(`Unhandled Rejection`, { err }));
+      .catch((error) => {
+        logger.error('Database failed to connect', error)
+      });
   }
 
   private exit() {
