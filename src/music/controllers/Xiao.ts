@@ -1,11 +1,12 @@
 import { EventEmitter } from 'events';
 import {
   Connector,
-  LoadType,
-  NodeOption, PlayerUpdate,
+  NodeOption,
+  PlayerUpdate,
   Shoukaku,
   ShoukakuOptions,
-  Track, TrackExceptionEvent,
+  Track,
+  TrackExceptionEvent,
   TrackStuckEvent,
   WebSocketClosedEvent
 } from 'shoukaku';
@@ -17,11 +18,11 @@ import {
   XiaoSearchOptions,
   XiaoSearchResult
 } from '../interfaces/player.types';
-import { EmbedBuilder, Snowflake, TextChannel } from 'discord.js';
-import { Twokei } from '../../app/Twokei';
+import { Snowflake } from 'discord.js';
 import { trackStart } from '../events/track-start';
 import { playerDestroy } from '../events/player-destroy';
 import { trackAdd } from '../events/track-add';
+import { GuildEmbedManager } from '../embed/guild-embed-manager';
 
 
 export interface XiaoEvents {
@@ -115,6 +116,8 @@ export class Xiao extends EventEmitter {
    */
   public readonly players: Map<string, Venti> = new Map();
 
+  public embedManager: GuildEmbedManager;
+
   /**
    * @param options Xiao options
    * @param nodes Shoukaku nodes
@@ -131,6 +134,7 @@ export class Xiao extends EventEmitter {
 
     this.shoukaku = new Shoukaku(connector, nodes, optionsShoukaku);
     this.players = new Map<string, Venti>();
+    this.embedManager = new GuildEmbedManager();
   }
 
   public async createPlayer<T extends Venti>(options: VentiInitOptions): Promise<T | Venti> {
@@ -153,10 +157,7 @@ export class Xiao extends EventEmitter {
       shardId: options.shardId || 0
     });
 
-    const venti = new Venti(this, player, {
-      ...options,
-      message: options.message,
-    });
+    const venti = new Venti(this, player, options);
 
     this.on(Events.TrackStart, trackStart);
     this.on(Events.TrackAdd, trackAdd);
@@ -213,14 +214,10 @@ export class Xiao extends EventEmitter {
       }
     }
 
-    return this.buildSearch(result.loadType, result.tracks, result?.playlistInfo.name);
-  }
-
-  private buildSearch(loadType: LoadType, tracks: Track[], playlistName?: string): XiaoSearchResult {
     return {
-      playlistName,
-      tracks,
-      type: loadType
-    };
+      type: result.loadType,
+      tracks: result.tracks,
+      playlistName: result.playlistInfo?.name
+    }
   }
 }
