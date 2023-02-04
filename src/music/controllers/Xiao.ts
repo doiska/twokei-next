@@ -18,11 +18,13 @@ import {
   XiaoSearchOptions,
   XiaoSearchResult
 } from '../interfaces/player.types';
-import { Snowflake } from 'discord.js';
+import { GuildManager, GuildResolvable, Snowflake } from 'discord.js';
 import { trackStart } from '../events/track-start';
 import { playerDestroy } from '../events/player-destroy';
 import { trackAdd } from '../events/track-add';
 import { GuildEmbedManager } from '../embed/guild-embed-manager';
+import { Twokei } from '../../app/Twokei';
+import { PlayerException } from '../../exceptions/PlayerException';
 
 
 export interface XiaoEvents {
@@ -169,18 +171,31 @@ export class Xiao extends EventEmitter {
     return venti;
   }
 
-  public getPlayer(guildId: Snowflake): Venti | undefined {
-    return this.players.get(guildId);
+  public getPlayer(guildId: GuildResolvable): Venti | undefined {
+
+    const resolvedGuildId = Twokei.guilds.resolveId(guildId);
+
+    if (!resolvedGuildId) {
+      return;
+    }
+
+    return this.players.get(resolvedGuildId);
   }
 
-  public async destroyPlayer(guildId: Snowflake): Promise<void> {
-    const player = this.players.get(guildId);
+  public async destroyPlayer(guildId: GuildResolvable): Promise<void> {
+    const resolvedGuildId = Twokei.guilds.resolveId(guildId);
+
+    if(!resolvedGuildId) {
+      throw new PlayerException('Guild not found');
+    }
+
+    const player = this.players.get(resolvedGuildId);
     if (!player) {
-      throw new Error('Player not found');
+      throw new PlayerException('Player not found');
     }
 
     player.destroy();
-    this.players.delete(guildId);
+    this.players.delete(resolvedGuildId);
   }
 
   public async search(query: string, options?: XiaoSearchOptions): Promise<XiaoSearchResult> {
