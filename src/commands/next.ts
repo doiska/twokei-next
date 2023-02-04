@@ -1,39 +1,31 @@
-
-import { Twokei } from "../app/Twokei";
-import { logger } from "../modules/logger-transport";
-import { CommandContext, CommandResponse, createCommand } from "twokei-framework";
+import { MessageBuilder, CommandContext, CommandResponse, createCommand } from 'twokei-framework';
+import { skipSong } from '../music/heizou/skip-song';
+import { getReadableException } from '../exceptions/utils/get-readable-exception';
 
 
 const execute = async (context: CommandContext<{ amount: number }>): Promise<CommandResponse> => {
 
-  const { member } = context;
+  const { guild, input: { amount } } = context;
 
-  if (!member || !member?.guild) {
-    logger.error("No member or guild");
+  if (!guild) {
     return;
   }
 
-  const player = Twokei.xiao.getPlayer(member.guild.id);
-
-  if(!player) {
-    logger.error("No player found");
-    return "No player found";
-  }
-
-
-  return player.skip(context.input.amount).then(() => 'Skipped').catch(e => e.message);
+  return skipSong(guild.id, amount ?? 1)
+    .then(() => new MessageBuilder({ content: 'Skipped' }))
+    .catch(getReadableException);
 }
 
 export const nextCommand = createCommand({
-  name: "skip",
-  description: "Skip a track",
-  aliases: ["next"],
+  name: 'skip',
+  description: 'Skip a track',
+  aliases: ['next'],
   slash: (builder) => {
     return builder
       .addIntegerOption((option) =>
         option
-          .setName("amount")
-          .setDescription("Skip amount")
+          .setName('amount')
+          .setDescription('Skip amount')
           .setRequired(false)
       )
   },
