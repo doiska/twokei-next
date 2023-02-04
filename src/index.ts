@@ -1,7 +1,9 @@
 import { ClusterManager, ReClusterManager, HeartbeatManager } from 'discord-hybrid-sharding';
 import { config } from 'dotenv';
-import { green, red } from "kleur";
+import { bold, green, red } from 'kleur';
 import { logger } from "./modules/logger-transport";
+import { ChildProcess } from 'child_process';
+import { Worker as Worker_Thread } from 'worker_threads';
 
 config();
 
@@ -17,9 +19,36 @@ shardingManager.extend(
   new ReClusterManager({ restartMode: "gracefulSwitch" })
 );
 
-shardingManager.on('clusterCreate', (cluster) => logger.info(`[Cluster] ID: ${green(cluster.id)} has been created.`));
+const isChildProcess = (process: any): process is ChildProcess => process.send !== undefined;
+const getPid = (thread: Worker_Thread | ChildProcess) => (isChildProcess(thread) ? thread.pid : thread.threadId) ?? 'unknown';
+
+shardingManager.on('clusterCreate', (cluster) => {
+  logger.info(`[Cluster] Cluster Id: ${bold(cluster.id)} has been created and is now starting...`);
+
+  cluster.on('spawn', (thread) => {
+    if(!thread) {
+      logger.error(`[Cluster] Cluster ${red(cluster.id)} has spawned, but the thread is undefined.`);
+      return;
+    }
+
+    logger.info(`[Cluster] Cluster Id: ${bold(cluster.id)} has spawned. PID: ${bold(getPid(thread))}`);
+  });
+
+  cluster.on('message', (message) => logger.debug(`[Cluster] Cluster ${cluster.id} has received a message: ${message}`));
+
+  cluster.on('error', (error) => logger.error(`[Cluster] Cluster ${red(cluster.id)} has had an error: ${red(error.message)}`, error));
+
+  cluster.on('death', (cluster, thread) => {
+    if(!thread) {
+      logger.error(`[Cluster] Cluster ${red(cluster.id)} has died, but the thread is undefined.`);
+      return;
+    }
+
+    logger.error(`[Cluster] Cluster ${red(cluster.id)} has died. PID: ${red(getPid(thread))}`);
+  });
+});
 
 shardingManager
-  .spawn({ timeout: -1, delay: 7000 })
-  .then(() => logger.info(`[Cluster] All clusters have been spawned.`))
-  .catch(e => logger.error(`[Cluster] Failed to spawn clusters: ${red(e)}`));
+  .spawn()
+  .then(() => logger.info(bold(`[Cluster] All clusters have been spawned.`)))
+  .catch(e => logger.error(bold(`[Cluster] Failed to spawn clusters: ${red(e)}`)));

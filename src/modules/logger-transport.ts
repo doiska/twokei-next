@@ -6,18 +6,19 @@ const colors: Record<keyof CliConfigSetLevels, Color> = {
   error: red,
   info: blue,
   warn: yellow,
-  debug: grey,
+  debug: cyan,
   verbose: green,
 }
 
 const consoleTransportInstance = new transports.Console({
   format: format.combine(
-    format.uncolorize(),
     format.printf((info) => {
-      const { timestamp, level, message, stack } = info;
+      const { timestamp, level, message, stack, ...rest } = info;
       const color = colors[info.level] || blue;
 
-      return color(`(${timestamp}) [${level.toUpperCase()}]: ${stack || message}`);
+      const content = Object.keys(rest).length ? `\n${JSON.stringify(rest, null, 2)}` : "";
+
+      return color(`(${timestamp}) [${level.toUpperCase()}]: ${stack || message} ${content}`);
     }),
   ),
 });
@@ -27,14 +28,14 @@ const fileTransportInstance = new transports.File({
   format: format.combine(
     format.timestamp(),
     format.printf((info) => {
-      const { timestamp, level, message, stack } = info;
-      return `${timestamp} [${level}]: ${stack || message}`;
+      const { timestamp, level, message, stack, ...rest } = info;
+      return `${timestamp} [${level}]: ${stack || message} (${JSON.stringify(rest, null, 2)})`;
     }),
   ),
 });
 
 export const logger = createLogger({
-  level: "verbose",
+  level: "debug",
   format: format.combine(
     format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
     format.errors({ stack: true }),
