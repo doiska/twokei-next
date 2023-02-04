@@ -4,11 +4,13 @@ import { Events, VentiInitOptions, PlayerState, PlayOptions } from '../interface
 import { Snowflake } from 'discord.js';
 import { Maybe } from '../../utils/utility-types';
 import { TrackQueue } from '../managers/TrackQueue';
+import { PlayOptions as ShoukakuPlayOptions } from 'shoukaku';
+import { logger } from '../../modules/logger-transport';
 
 export enum LoopStates {
-  NONE,
-  TRACK,
-  QUEUE
+  NONE = 'none',
+  TRACK = 'track',
+  QUEUE = 'queue'
 }
 
 // Player
@@ -84,11 +86,8 @@ export class Venti {
 
     this.instance.on('end', (data) => {
       if (this.state === PlayerState.DESTROYING || this.state === PlayerState.DESTROYED) {
-        this.emit(Events.Debug, `Player destroyed for guild ${this.guildId} - skipping end event`);
-        return;
+        return this.emit(Events.Debug, `Player destroyed for guild ${this.guildId} - skipping end event`);
       }
-
-      console.log(`TrackEnd event for guild ${this.guildId} - ${data.reason} - ${data.reason === 'REPLACED' ? 'skipping' : 'continuing'}`)
 
       if (data.reason === 'REPLACED') {
         console.log(`Track replaced for guild ${this.guildId} - skipping end event`);
@@ -97,6 +96,8 @@ export class Venti {
       }
 
       if (['LOAD_FAILED', 'CLEAN_UP'].includes(data.reason)) {
+
+        this.queue.previous = this.queue.current;
         this.playing = false;
 
         if (!this.queue.totalSize) {
@@ -107,26 +108,32 @@ export class Venti {
           this.emit(Events.TrackEnd, this, this.queue.current);
         }
 
-        this.queue.current = null;
+        this.queue.current = undefined;
+
         return this.play();
       }
 
+      const currentSong = this.queue.current;
+
       if (this.queue.current) {
-        if (this.loop === LoopStates.TRACK || this.loop === LoopStates.QUEUE) {
-          this.queue.add(this.queue.current);
+        if (this.loop === LoopStates.TRACK) {
+          this.queue.unshift(this.queue.current);
+        } else if (this.loop === LoopStates.QUEUE) {
+          this.queue.push(this.queue.current);
         }
       }
-
-      const currentSong = this.queue.current;
 
       this.queue.previous = currentSong;
       this.queue.current = null;
 
       console.log(`Track ended for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`);
+      console.log(`Current is null and previous is ${this.queue.previous?.info?.title}`)
 
-      if (this.queue.totalSize && currentSong) {
-        this.emit(Events.TrackEnd, this, currentSong);
-      } else if (!this.queue.totalSize) {
+      if (this.queue.length) {
+        if (currentSong) {
+          this.emit(Events.TrackEnd, this, currentSong);
+        }
+      } else {
         this.playing = false;
         return this.emit(Events.QueueEmpty, this);
       }
@@ -152,7 +159,7 @@ export class Venti {
   public play(track?: Track, playOptions?: PlayOptions) {
 
     playOptions = {
-      replaceCurrent: false,
+      replace: false,
       ...playOptions
     }
 
@@ -164,30 +171,35 @@ export class Venti {
       throw new Error('No track provided and queue is empty');
     }
 
-    if (track) {
-      if (!playOptions.replaceCurrent && this.queue.current) {
-        this.queue.unshift(track);
-      } else if (playOptions.replaceCurrent) {
-        this.queue.current = track;
-      }
-    } else if (!this.queue.current) {
-      this.queue.current = this.queue.shift();
+    if (track && !playOptions.replace && this.queue.current) {
+      logger.debug(`Queueing track ${track.info.title} for guild ${this.guildId}`);
+      this.queue.unshift(this.queue.current);
     }
 
+    if(this.queue.current) {
+      this.queue.previous = { ...this.queue.current };
+    }
+
+    this.queue.current = track ?? this.queue.current ?? this.queue.shift();
+
     if (!this.queue.current) {
+      logger.debug(`No current track for guild ${this.guildId} - skipping play`);
+
       this.emit(Events.Debug, `No current track for guild ${this.guildId} - skipping play`);
       throw new Error('No track found');
     }
 
-    this.instance.playTrack({
+    const shoukakuPlayOptions: ShoukakuPlayOptions = {
       track: this.queue.current.track,
       options: {
-        noReplace: !playOptions.replaceCurrent,
-        startTime: playOptions.startTime,
-        endTime: playOptions.endTime,
-        pause: this.paused
+        ...playOptions,
+        noReplace: !playOptions.replace
       }
-    });
+    }
+
+    logger.debug(`Playing track ${this.queue.current.info.title} for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`);
+
+    this.instance.playTrack(shoukakuPlayOptions);
     return this;
   }
 
@@ -200,19 +212,28 @@ export class Venti {
       throw new Error('Player is destroyed');
     }
 
+    if (this.queue.totalSize === 0) {
+      throw new Error('Queue is empty');
+    }
+
+    if (amount < 1) {
+      throw new Error('Invalid amount');
+    }
+
     if (amount > this.queue.totalSize) {
-      throw new Error('Cannot skip more than the queue size');
+      amount = this.queue.totalSize;
     }
 
-    console.log(`Total size: ${this.queue.totalSize} - Amount: ${amount}`);
+    this.queue.removeAt(0, amount - 1);
 
-    if (amount > 1) {
-      this.queue.removeAt(0, amount - 1);
-    }
+    logger.info(`Skipping ${amount} tracks for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`);
+    logger.info(`Current track is ${this.queue.current?.info?.title}`);
+    logger.info(`Next track will be ${this.queue[0]?.info?.title}`);
 
     this.instance.stopTrack();
     return this;
   }
+
 
   public pause(state?: boolean) {
     if (typeof state !== 'boolean') {
@@ -237,13 +258,13 @@ export class Venti {
       throw new Error('Player is destroyed');
     }
 
-    const relatedLoop = {
+    const nextState = {
       [LoopStates.NONE]: LoopStates.QUEUE,
       [LoopStates.QUEUE]: LoopStates.TRACK,
       [LoopStates.TRACK]: LoopStates.NONE
     }
 
-    const newLoopState = loop || relatedLoop[this.loop];
+    const newLoopState = loop || nextState[this.loop];
 
     this.loop = newLoopState;
     return newLoopState;
