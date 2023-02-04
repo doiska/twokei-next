@@ -1,13 +1,12 @@
-import { CommandContext, CommandResponse, createCommand } from 'twokei-framework';
+import { CommandContext, CommandResponse, createCommand, MessageBuilder } from 'twokei-framework';
 
-import { PlayerException } from '../structures/PlayerException';
+import { PlayerException } from '../exceptions/PlayerException';
 import { addNewSong } from '../music/heizou/add-new-song';
 import { i18nGuild } from '../translation/guild-i18n';
-import { MessageBuilder } from '../structures/MessageBuilder';
-import { EmbedBuilder, TextChannel } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
+import { getReadableException } from '../exceptions/utils/get-readable-exception';
 
 const execute = async (context: CommandContext<{ search: string }>): Promise<CommandResponse> => {
-
   if (!context.member || !context.channel) {
     return;
   }
@@ -21,13 +20,9 @@ const execute = async (context: CommandContext<{ search: string }>): Promise<Com
       ns: 'player'
     });
 
-    await new MessageBuilder().setEmbeds(new EmbedBuilder().setDescription(trackTranslation)).send(context.channel as TextChannel);
+    return new MessageBuilder({ embeds: [{ description: trackTranslation }] });
   } catch (e) {
-    if (e instanceof PlayerException) {
-      return e.message;
-    }
-
-    return i18nGuild(context.guild!.id, 'unknown', { ns: 'error' });
+    return getReadableException(e);
   }
 }
 

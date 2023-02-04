@@ -1,23 +1,21 @@
-import { CommandContext, createCommand } from "twokei-framework";
-import { Twokei } from '../app/Twokei';
+import { CommandContext, createCommand } from 'twokei-framework';
+import { destroyPlayerInstance } from '../music/heizou/destroy-player-instance';
+import { getReadableException } from '../exceptions/utils/get-readable-exception';
 
 const execute = async (context: CommandContext) => {
-	const { guild } = context;
+  const { guild } = context;
 
-	if (!guild) {
-		return;
-	}
+  if (!guild) {
+    return;
+  }
 
-	try {
-		await Twokei.xiao.destroyPlayer(guild.id);
-		return 'Player stopped.';
-	} catch (error) {
-		return `No player found.`;
-	}
+  return destroyPlayerInstance(guild.id)
+    .then(() => 'Stopped')
+    .catch(getReadableException);
 }
 
 export const stopCommand = createCommand({
-	name: "stop",
-	description: "Stop playing",
-	execute
+  name: 'stop',
+  description: 'Stop playing',
+  execute
 })

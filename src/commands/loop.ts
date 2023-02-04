@@ -1,62 +1,49 @@
-import { Twokei } from "../app/Twokei";
-import {
-	APIApplicationCommandOptionChoice,
-} from "discord.js";
-import { LoopStates } from "../music/controllers/Venti";
-import { CommandContext, createCommand } from "twokei-framework";
+import i18next from 'i18next';
+import { APIApplicationCommandOptionChoice } from 'discord.js';
+import { LoopStates } from '../music/controllers/Venti';
+import { CommandContext, createCommand } from 'twokei-framework';
+import { setLoopState } from '../music/heizou/set-loop-state';
+import { getReadableException } from '../exceptions/utils/get-readable-exception';
 
-const execute = async (context: CommandContext<{ loop?: 'None' | 'Track' | 'Queue' }>) => {
-	const { guild } = context;
+const execute = async (context: CommandContext<{ state?: keyof typeof LoopStates }>) => {
+  const { guild, input: { state } } = context;
 
-	if (!guild) {
-		return;
-	}
+  if (!guild) {
+    return i18next.t('player.commands.loop.no-guild', { ns: 'player' });
+  }
 
-	const player = await Twokei.xiao.getPlayer(guild.id);
-
-	if (!player) {
-		return;
-	}
-
-	const relationLoopStates = {
-		"None": LoopStates.NONE,
-		"Track": LoopStates.TRACK,
-		"Queue": LoopStates.QUEUE
-	}
-
-	const loop = context.input.loop;
-	const newLoopState = player.setLoop(loop ? relationLoopStates[loop] : undefined);
-
-	return `Loop state: ${newLoopState}`;
+  return setLoopState(guild, state ? LoopStates[state] : undefined)
+    .then((newState) => i18next.t('player.commands.loop.success', { ns: 'player', loop: newState }))
+    .catch(getReadableException);
 }
 
 export const loopCommand = createCommand({
-	name: 'loop',
-	description: 'Loop the current song or the queue',
-	slash: (builder) => {
+  name: 'loop',
+  description: 'Loop the current song or the queue',
+  slash: (builder) => {
 
-		const choices: APIApplicationCommandOptionChoice<string>[] = [
-			{
-				name: 'None',
-				value: 'none'
-			},
-			{
-				name: 'Track',
-				value: 'track'
-			},
-			{
-				name: 'Queue',
-				value: 'queue'
-			}
-		]
+    const choices: APIApplicationCommandOptionChoice<string>[] = [
+      {
+        name: 'None',
+        value: 'none'
+      },
+      {
+        name: 'Track',
+        value: 'track'
+      },
+      {
+        name: 'Queue',
+        value: 'queue'
+      }
+    ]
 
-		return builder
-			.addStringOption(option => (
-					option.setName('state')
-						.setDescription('The type of loop')
-						.setRequired(false)
-						.addChoices(...choices)
-				)
-			)
-	},
+    return builder
+      .addStringOption(option => (
+          option.setName('state')
+            .setDescription('The type of loop')
+            .setRequired(false)
+            .addChoices(...choices)
+        )
+      )
+  }
 }, execute);
