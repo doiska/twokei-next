@@ -3,20 +3,17 @@ import { finyAnyUsableChannel } from '../utils/channel-utilities';
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder } from 'discord.js';
 import { setupNewChannel } from '../modules/setup-new-channel';
 import { i18nGuild } from '../translation/guild-i18n';
+import { logger } from '../modules/logger-transport';
 
 export const guildJoin = createEvent('guildCreate', async guild => {
   const { id, name: guildName, memberCount } = guild;
 
-  console.log(`Joined guild ${guildName} (${id}) with ${memberCount} members`);
-
   const adminUsableChannel = await finyAnyUsableChannel(guild);
 
   if (!adminUsableChannel) {
-    console.log(`No usable admin channel found for guild ${guildName} (${id})`);
+    logger.warn(`Guild ${guildName} (${id}) has no usable channel for me :(`);
     return;
   }
-
-  console.log(`Using channel ${adminUsableChannel.name} (${adminUsableChannel.id}) for guild ${guildName} (${id})`);
 
   const description = [
     'So you invited me to your server, thats great!',

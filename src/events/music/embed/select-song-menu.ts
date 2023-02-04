@@ -33,21 +33,16 @@ export const selectMenuEvent = createEvent('interactionCreate', (interaction: In
   player.pause(false);
 
   if(value === 'previous') {
-    console.log('Previous');
     if(!player.queue.previous) {
-      console.log('No previous')
       return;
     }
 
-    console.log('Previous', player.queue.previous.info);
-
-    player.play(player.queue.previous, { noReplace: false, replaceCurrent: true });
-    return;
+    player.play(player.queue.previous, { replace: true });
+    return interaction.reply({ content: 'Previous track', ephemeral: true });
   }
 
   if(value === 'current') {
-    console.log('Current');
-    return;
+    return interaction.reply({ content: 'Current track', ephemeral: true });
   }
 
   const id = Number(value);
@@ -63,5 +58,6 @@ export const selectMenuEvent = createEvent('interactionCreate', (interaction: In
   }
 
   player.skip(id + 1);
-  console.log('Skip', id)
+
+  interaction.reply({ content: `Skipped ${id} tracks`, ephemeral: true });
 })

@@ -1,4 +1,4 @@
-import { createEvent } from 'twokei-framework';
+import { createEvent, MessageBuilder } from 'twokei-framework';
 import {
   ChannelType,
   Colors,
@@ -8,8 +8,7 @@ import {
 import { Twokei } from '../app/Twokei';
 import { addNewSong } from '../music/heizou/add-new-song';
 import { SongChannelEntity } from '../entities/SongChannelEntity';
-import { PlayerException } from '../structures/PlayerException';
-import { MessageBuilder } from '../structures/MessageBuilder';
+import { PlayerException } from '../exceptions/PlayerException';
 
 export const onMessage = createEvent('messageCreate', async (message) => {
 
