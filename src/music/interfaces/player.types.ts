@@ -41,12 +41,10 @@ export interface VentiInitOptions {
 }
 
 export interface PlayOptions {
-  noReplace?: boolean;
   pause?: boolean;
   startTime?: number;
   endTime?: number;
-
-  replaceCurrent?: boolean;
+  replace?: boolean;
 }
 
 export interface Payload {

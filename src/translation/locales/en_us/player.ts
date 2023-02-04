@@ -5,5 +5,10 @@ export default {
   'playlist_added': '**{{track}}** added to the queue with {{rest}} tracks.',
   'player': {
     'now_playing': 'Now playing 🎶',
-  }
+    'commands': {
+      'loop': {
+        'success': 'Loop state set to **{{loop}}**'
+      }
+    }
+  },
 }

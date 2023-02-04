@@ -76,15 +76,11 @@ export class ExtendedClient extends TwokeiClient {
     });
 
     this.on('error', (error) => {
-      logger.error(error)
+      logger.error(error);
     });
 
     this.on('warn', (warning) => {
-      logger.warn(warning)
-    });
-
-    this.on('debug', (debug) => {
-      logger.debug('Client debug', debug)
+      logger.warn(warning);
     });
 
     //TODO: ['beforeExit', 'SIGUSR1', 'SIGUSR2', 'SIGINT', 'SIGTERM'].forEach(event => process.on(event,
