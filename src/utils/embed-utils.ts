@@ -1,5 +1,5 @@
 import { APIEmbed, EmbedData, SelectMenuComponentOptionData, StringSelectMenuComponentData } from 'discord.js';
-import { EmbedLimits, SelectMenuLimits } from '@sapphire/discord.js-utilities';
+import { EmbedLimits, SelectMenuLimits } from './limits';
 
 export const assertEmbedSize = (embed: APIEmbed): APIEmbed => {
   return {

@@ -1,6 +1,7 @@
 import i18next, { Resource, ResourceLanguage } from 'i18next';
 import * as fs from 'fs';
 import * as path from 'path';
+import { logger } from '../modules/logger-transport';
 
 export const VALID_LOCALES = ['pt_br', 'en_us'] as const;
 export type Locale = typeof VALID_LOCALES[number];
@@ -19,8 +20,7 @@ const resources = VALID_LOCALES.reduce((acc, locale) => {
     acc[locale][key] = require(path.join(folderPath, file)).default;
   });
 
-  console.log(`Loaded ${locale} locale with ${files.length} namespaces!`)
-
+  logger.debug(`Loaded ${files.length} namespaces for locale ${locale}.`);
   return acc;
 }, {} as Resource);
 
@@ -29,7 +29,7 @@ export const init = async () => {
     resources,
     ns: ['common'],
     defaultNS: 'common',
-    debug: true,
+    debug: false,
     fallbackLng: DEFAULT_LOCALE,
     supportedLngs: VALID_LOCALES,
     saveMissing: true
