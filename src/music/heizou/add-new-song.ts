@@ -2,7 +2,7 @@ import { isVoiceChannel } from '../../utils/discord-type-guards';
 import { canJoinVoiceChannel } from '../../utils/discord-utilities';
 import { Twokei } from '../../app/Twokei';
 import { createPlayerInstance } from './create-player-instance';
-import { PlayerException } from '../../structures/PlayerException';
+import { PlayerException } from '../../exceptions/PlayerException';
 import { GuildMember } from 'discord.js';
 import { Events } from '../interfaces/player.types';
 
