@@ -5,35 +5,35 @@ import { Menus } from '../../../constants/music';
 
 export const selectMenuEvent = createEvent('interactionCreate', (interaction: Interaction) => {
 
-  if(!interaction.isStringSelectMenu()) {
+  if (!interaction.isStringSelectMenu()) {
     return;
   }
 
-  if(interaction.customId !== Menus.SelectSongMenu) {
+  if (interaction.customId !== Menus.SelectSongMenu) {
     return;
   }
 
-  if(!interaction.guild) {
+  if (!interaction.guild) {
     return;
   }
 
   const player = Twokei.xiao.getPlayer(interaction.guild.id);
 
-  if(!player) {
+  if (!player) {
     return;
   }
 
   const [value] = interaction.values;
 
-  if(!value) {
+  if (!value) {
     player.pause(true);
     return;
   }
 
   player.pause(false);
 
-  if(value === 'previous') {
-    if(!player.queue.previous) {
+  if (value === 'previous') {
+    if (!player.queue.previous) {
       return;
     }
 
@@ -41,18 +41,18 @@ export const selectMenuEvent = createEvent('interactionCreate', (interaction: In
     return interaction.reply({ content: 'Previous track', ephemeral: true });
   }
 
-  if(value === 'current') {
+  if (value === 'current') {
     return interaction.reply({ content: 'Current track', ephemeral: true });
   }
 
   const id = Number(value);
 
-  if(Number.isNaN(id)) {
+  if (Number.isNaN(id)) {
     console.log('NaN');
     return;
   }
 
-  if(id < 0 || id > player.queue.length) {
+  if (id < 0 || id > player.queue.length) {
     console.log('Out of range');
     return;
   }
