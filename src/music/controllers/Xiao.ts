@@ -25,6 +25,7 @@ import { trackAdd } from '../events/track-add';
 import { GuildEmbedManager } from '../embed/guild-embed-manager';
 import { Twokei } from '../../app/Twokei';
 import { PlayerException } from '../../exceptions/PlayerException';
+import { trackPause } from '../events/track-pause';
 
 
 export interface XiaoEvents {
@@ -47,6 +48,11 @@ export interface XiaoEvents {
    * Emitted when a track starts playing.
    */
   [Events.TrackStart]: (venti: Venti, track: Track) => void;
+
+  /**
+   * Emitted when a track pauses.
+   */
+  [Events.TrackPause]: (venti: Venti) => void;
 
   /**
    * Emitted when a track ends.
@@ -164,6 +170,7 @@ export class Xiao extends EventEmitter {
     this.on(Events.TrackStart, trackStart);
     this.on(Events.TrackAdd, trackAdd);
     this.on(Events.PlayerDestroy, playerDestroy);
+    this.on(Events.TrackPause, trackPause);
 
     this.players.set(options.guild, venti);
     this.emit(Events.PlayerCreate, venti);
