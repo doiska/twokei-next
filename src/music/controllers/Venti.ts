@@ -240,13 +240,19 @@ export class Venti {
       state = !this.paused;
     }
 
-    if (this.paused === state || this.queue.totalSize === 0) {
+    if (this.paused === state) {
       return;
     }
 
     this.paused = state;
     this.instance.setPaused(state);
     this.playing = !state;
+
+    logger.info(`Player for guild ${this.guildId} is now ${state ? 'paused' : 'playing'}`);
+    this.emit(Events.TrackPause, this);
+
+
+    return this.paused;
   }
 
   /**
