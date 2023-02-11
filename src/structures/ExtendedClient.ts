@@ -13,8 +13,9 @@ import { SongChannelEntity } from '../entities/SongChannelEntity';
 import { UserEntity } from '../entities/UserEntity';
 import { SongEntity } from '../entities/SongEntity';
 
-import { init as init18n } from '../translation/i18n';
-import * as process from 'process';
+import process from 'node:process';
+
+import { init as initI18n } from '../translation/i18n';
 
 declare module 'discord.js' {
   interface Client {
@@ -83,29 +84,33 @@ export class ExtendedClient extends TwokeiClient {
       logger.warn(warning);
     });
 
-    //TODO: ['beforeExit', 'SIGUSR1', 'SIGUSR2', 'SIGINT', 'SIGTERM'].forEach(event => process.on(event,
-    // this.exit.bind(this)));
+    ['beforeExit',
+      'SIGUSR1',
+      'SIGUSR2',
+      'SIGINT',
+      'SIGTERM',
+    ].map((event) => process.on(event, () => this.exit()));
   }
 
   public async start(): Promise<void> {
     this.dataSource.initialize()
       .then(async () => {
         logger.info('Database connected!');
-        await init18n()
+        await initI18n()
           .then(() => logger.info('i18n initialized!'))
           .catch((error) => logger.error('i18n failed to initialize', error));
 
         await this.login(process.env.TOKEN);
       })
-      .catch((error) => {
-        logger.error('Database failed to connect', error)
-      });
+      .catch((error) => logger.error('Database failed to connect', error));
   }
 
   private exit() {
     if (this._exiting) {
       return;
     }
+
+    console.log('Exiting...')
 
     this._exiting = true;
 
