@@ -62,6 +62,7 @@ export enum Events {
   PlayerCreate = 'playerCreate',
 
   TrackStart = 'trackStart',
+  TrackPause = 'trackPause',
   TrackEnd = 'trackEnd',
   QueueEmpty = 'queueEmpty',
 

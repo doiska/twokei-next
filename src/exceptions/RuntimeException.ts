@@ -6,5 +6,6 @@ export class RuntimeException extends Error {
     this.name = "PlayerException";
 
     logger.error(`[RuntimeException] ${message}`, { stack: this.stack });
+
   }
 }

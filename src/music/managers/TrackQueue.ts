@@ -5,15 +5,11 @@ import { Track } from 'shoukaku';
 
 export class TrackQueue<T> extends Array<T> {
 
-  private readonly venti: Venti;
-
   public current: Maybe<T>;
   public previous: Maybe<T>;
 
   constructor(venti: Venti, ...items: T[]) {
     super(...items);
-
-    this.venti = venti;
   }
 
   add(...item: T[]): void {
