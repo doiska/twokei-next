@@ -1,15 +1,17 @@
 import {
-  ActionRowBuilder,
-  APIEmbed,
+  ActionRowBuilder, APIButtonComponent,
+  APIEmbed, APIMessageComponentEmoji,
+  ButtonBuilder,
+  ButtonStyle,
   Colors,
-  EmbedBuilder, formatEmoji,
-  Guild, resolvePartialEmoji, StringSelectMenuBuilder,
-  TextChannel,
+  formatEmoji,
+  StringSelectMenuBuilder,
   userMention
 } from 'discord.js';
 import { Locale } from '../../translation/i18n';
 import { Twokei } from '../../app/Twokei';
-import { Menus } from '../../constants/music';
+import { PlayerPrimaryButtons, SecondaryButtons, Menus, Button, DefaultButtons } from '../../constants/music';
+import { t } from 'i18next';
 
 export const createDefaultSongEmbed = (lang: Locale): APIEmbed => {
 
@@ -17,18 +19,14 @@ export const createDefaultSongEmbed = (lang: Locale): APIEmbed => {
 
   const lightEmoji = formatEmoji('1069597636950249523');
 
-  const description = [
-    '',
-    lightEmoji + '** How to use? It\'s easy!**',
-    '',
-    `- Easiest way: **${mention} <song>**.`,
-    `- Or click here </play:1067082391975362654>.`,
-    '- If you have **any questions**, click here </setup:1067082391975362656>.',
-    '',
-  ];
+  const description = t('player:embed.description', {
+    mention: mention,
+    emoji: lightEmoji,
+    returnObjects: true,
+    lng: lang,
+  }) as string[];
 
   return {
-    title: lightEmoji + ' Twokei',
     description: description.join('\n'),
     color: Colors.DarkButNotBlack,
     author: {
@@ -38,17 +36,17 @@ export const createDefaultSongEmbed = (lang: Locale): APIEmbed => {
     },
     image: {
       url: 'https://media.tenor.com/XAS0z1xPCIcAAAAd/cyberpunk-vaporwave.gif',
-      height: 200,
-      width: 200,
-      proxy_url: 'https://media.tenor.com/XAS0z1xPCIcAAAAd/cyberpunk-vaporwave.gif',
+      height: 300,
+      width: 300,
+      proxy_url: 'https://media.tenor.com/XAS0z1xPCIcAAAAd/cyberpunk-vaporwave.gif'
     },
     footer: {
-      text: `Twokei by doiská#0001 | v1.0.0 (early-alpha)`,
+      text: `Twokei by doiská#0001 | v1.0.0 (early-alpha)`
     }
   }
 }
 
-export const createDefaultSongComponents = (lang: Locale) => {
+export const createDefaultMenu = (lang: Locale) => {
   const menu = new StringSelectMenuBuilder();
 
   menu.setCustomId(Menus.SelectSongMenu);
@@ -71,3 +69,21 @@ export const createDefaultSongComponents = (lang: Locale) => {
 
   return new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(menu);
 }
+
+function createButtonRow(buttons: Record<string, Button>, lang: Locale) {
+  const components = Object.entries(buttons).map(([key, button]) => ({
+    custom_id: key,
+    label: t(`embed.buttons.${key.toLowerCase()}`, { ns: 'player', lng: lang }) as string,
+    style: button.style || ButtonStyle.Primary,
+    emoji: button.emoji as APIMessageComponentEmoji,
+    type: 2
+  }) satisfies APIButtonComponent);
+
+  return new ActionRowBuilder<ButtonBuilder>({
+    components
+  });
+}
+
+export const createDefaultButtons = (lang: Locale) => createButtonRow(DefaultButtons, lang);
+export const createPrimaryRow = (lang: Locale) => createButtonRow(PlayerPrimaryButtons, lang);
+export const createSecondaryRow = (lang: Locale) => createButtonRow(SecondaryButtons, lang);

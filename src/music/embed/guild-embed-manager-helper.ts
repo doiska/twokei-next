@@ -1,6 +1,8 @@
 import { APISelectMenuOption } from 'discord.js';
 import { Track } from 'shoukaku';
 import { TrackQueue } from '../managers/TrackQueue';
+import { assertMenuSize } from '../../utils/embed-utils';
+import { logger } from '../../modules/logger-transport';
 
 export const parseTracksToMenuItem = (tracks: TrackQueue<Track>) => {
 
@@ -16,7 +18,7 @@ export const parseTracksToMenuItem = (tracks: TrackQueue<Track>) => {
   const previous = tracks.previous;
 
   if (current) {
-    console.log(current.info.title)
+    logger.debug('Current track found, adding to menu items.');
     items.unshift({
       default: true,
       label: `Current: ${current.info.title}`,
@@ -26,6 +28,7 @@ export const parseTracksToMenuItem = (tracks: TrackQueue<Track>) => {
   }
 
   if (previous) {
+    logger.debug('Previous track found, adding to menu items.');
     items.unshift({
       label: previous.info.title,
       value: 'previous',
@@ -33,5 +36,5 @@ export const parseTracksToMenuItem = (tracks: TrackQueue<Track>) => {
     });
   }
 
-  return items;
+  return assertMenuSize(items);
 }
