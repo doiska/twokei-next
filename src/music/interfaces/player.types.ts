@@ -1,6 +1,15 @@
-import { Message, Snowflake } from 'discord.js';
-import { Track, LoadType } from "shoukaku";
-import { Maybe } from "../../utils/utility-types";
+import { Snowflake } from 'discord.js';
+import { Maybe } from '../../utils/type-guards';
+import { ResolvableTrack } from '../managers/ResolvableTrack';
+import { Locale } from '../../translation/i18n';
+
+export enum LoadType {
+  TRACK_LOADED = 'TRACK_LOADED',
+  PLAYLIST_LOADED = 'PLAYLIST_LOADED',
+  SEARCH_RESULT = 'SEARCH_RESULT',
+  NO_MATCHES = 'NO_MATCHES',
+  LOAD_FAILED = 'LOAD_FAILED'
+}
 
 export type SearchEngines = 'youtube' | 'soundcloud' | 'youtube_music' | string;
 
@@ -22,17 +31,19 @@ export interface XiaoSearchOptions {
   engine?: SearchEngines;
   nodeName?: string;
   searchType?: 'track' | 'playlist';
+  resolve?: boolean;
 }
 
 export interface XiaoSearchResult {
   type: LoadType;
   playlistName?: string;
-  tracks: Track[];
+  tracks: ResolvableTrack[];
 }
 
 export interface VentiInitOptions {
   guild: Snowflake;
   voiceChannel: Snowflake;
+  lang: Locale;
   deaf?: boolean;
   mute?: boolean;
   shardId?: number;
@@ -78,6 +89,8 @@ export enum Events {
   Debug = 'debug',
   TrackAdd = 'trackAdd',
   TrackRemove = 'trackRemove',
+
+  ManualUpdate = 'manualUpdate',
 }
 
 export enum PlayerState {
