@@ -1,7 +1,7 @@
 const BASE_URL = 'https://api.spotify.com/v1';
 const AUTH_URL = 'https://accounts.spotify.com/api/token?grant_type=client_credentials';
 
-export class SpotifyTokenManager {
+export class SpotifyRequest {
 
   private token: string = '';
   private expiresAt: number = 0;
@@ -45,7 +45,13 @@ export class SpotifyTokenManager {
 
     this.currentApiStatus.requests++;
 
-    return (await request.json()) as T;
+    const data = (await request.json());
+
+    if(data.error) {
+      throw new Error(data.error.message);
+    }
+
+    return data as T;
   }
 
   private async refresh() {
