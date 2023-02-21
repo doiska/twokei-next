@@ -1,4 +1,4 @@
-import { isVoiceChannel } from '../../utils/discord-type-guards';
+import { isVoiceChannel } from '@sapphire/discord.js-utilities';
 import { canJoinVoiceChannel } from '../../utils/discord-utilities';
 import { Twokei } from '../../app/Twokei';
 import { createPlayerInstance } from './create-player-instance';
