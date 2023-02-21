@@ -15,7 +15,7 @@ const execute = async (context: CommandContext<{ search: string }>): Promise<Com
     const [track, ...rest] = await addNewSong(context.input.search, context.member);
 
     const trackTranslation = await i18nGuild(context.guild!.id, rest.length === 0 ? 'song_added' : 'playlist_added', {
-      track: track.info.title,
+      track: track.title,
       rest: rest.length,
       ns: 'player'
     });

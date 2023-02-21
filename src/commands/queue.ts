@@ -24,15 +24,15 @@ const execute = async (context: CommandContext) => {
 
   const map = _queue
     .filter(Boolean)
-    .map((track, index) => `${index + 1}. [${track?.info.title}](${player.queue.current?.info.uri || ''})`);
+    .map((track, index) => `${index + 1}. [${track?.title}](${player.queue.current?.uri || ''})`);
 
   const isPlaying = player.playing;
 
   return new MessageBuilder({
     embeds: [
       {
-        title: isPlaying ? `Now playing ${player.queue.current?.info.title}` : `Paused ${player.queue.current?.info.title}`,
-        url: player.queue.current?.info.uri || '',
+        title: isPlaying ? `Now playing ${player.queue.current?.title}` : `Paused ${player.queue.current?.title}`,
+        url: player.queue.current?.uri || '',
         description: map.join('\n') || 'No tracks in queue'
       }
     ]
