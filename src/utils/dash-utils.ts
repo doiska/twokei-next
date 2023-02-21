@@ -4,3 +4,5 @@ const hasSameKeys = (obj1: Record<string, unknown>, obj2: Record<string, unknown
 
   return keys1.length === keys2.length && keys1.every(key => keys2.includes(key));
 }
+
+export const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
