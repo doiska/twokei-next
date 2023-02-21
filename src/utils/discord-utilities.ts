@@ -5,8 +5,7 @@ import {
   PermissionFlagsBits, PermissionResolvable,
   PermissionsBitField
 } from 'discord.js';
-import { ChannelTypes } from './utility-types';
-import { isGuildMember, isGuildBasedChannel } from './discord-type-guards';
+import { ChannelTypes, isGuildBasedChannel } from '@sapphire/discord.js-utilities';
 
 export const canCreateChannels = (guild: Guild) =>
   canDoGuildUtility(guild, [
@@ -49,3 +48,4 @@ function canDoChannelUtility(channel: ChannelTypes, permissionsToPass: Permissio
 
   return permissionsFor.has(permissionsToPass);
 }
+

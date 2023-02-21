@@ -1,4 +1,5 @@
-import { ChannelType, Guild, GuildTextBasedChannel } from 'discord.js';
+import { ChannelType, Guild, GuildTextBasedChannel, TextChannel } from 'discord.js';
+import { isGuildBasedChannel, isStageChannel, isTextChannel } from '@sapphire/discord.js-utilities';
 
 export const finyAnyUsableChannel = async (guild: Guild) => {
 
@@ -15,10 +16,12 @@ export const finyAnyUsableChannel = async (guild: Guild) => {
 
   const channels = await guild.channels.fetch();
 
+
   return channels.find(channel =>
     channel &&
-    channel.type === ChannelType.GuildText &&
-    channel.isTextBased() &&
-    channel.permissionsFor(self).has('SendMessages')
-  ) as GuildTextBasedChannel
+    channel.permissionsFor(self).has('SendMessages') &&
+    !isStageChannel(channel) &&
+    isGuildBasedChannel(channel) &&
+    isTextChannel(channel)
+  ) as TextChannel;
 }
