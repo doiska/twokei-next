@@ -8,17 +8,6 @@ import * as Sentry from '@sentry/node';
 
 config();
 
-
-Sentry.init({
-  dsn: "https://1beab5ba95be46ef9721289f5d25f04e@o1166650.ingest.sentry.io/4504623968616448",
-
-  // Set tracesSampleRate to 1.0 to capture 100%
-  // of transactions for performance monitoring.
-  // We recommend adjusting this value in production
-  tracesSampleRate: 1.0,
-  debug: true,
-});
-
 const shardingManager = new ClusterManager(`${__dirname}/app/Twokei.js`, {
   token: process.env.TOKEN,
   mode: 'process',
@@ -53,9 +42,7 @@ shardingManager.on('clusterCreate', (cluster) => {
   cluster.on('message', (message) => logger.debug(`[Cluster] Cluster ${cluster.id} has received a message: ${message}`));
 
   cluster.on('error', (error) => {
-    const eventId = Sentry.captureException(error);
     logger.error(`[Cluster] Cluster ${red(cluster.id)} has had an error: ${red(error.message)}`, error)
-    logger.error(`[Cluster] Error has been reported to Sentry. Event ID: ${red(eventId)}`);
   });
 
   cluster.on('death', (cluster, thread) => {

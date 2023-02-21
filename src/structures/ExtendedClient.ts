@@ -45,6 +45,14 @@ export class ExtendedClient extends TwokeiClient {
 
     });
 
+    process.on('uncaughtException', (error) => {
+      logger.error(error);
+    });
+
+    process.on('unhandledRejection', (error) => {
+      logger.error(error);
+    });
+
     this.shoukaku = new Shoukaku(new Connectors.DiscordJS(this), Nodes, shoukakuOptions);
 
     this.xiao = new Xiao({

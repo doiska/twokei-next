@@ -7,15 +7,16 @@ export default {
     'description': [
       '',
       '',
-      '**How to use**',
-      '- Mention the bot with a song name or a link to play a song.',
-      '-- Example: {{mention}} {{song}}',
-      '- You can also use commands to /play songs.',
+      '**Ways to use:**',
+      '- {{- mention}} <link>',
+      '- You can also use /play <link>.',
+      '- Or directly import your Spotify playlist with /sync',
+      '',
+      'Tips!',
       'Select tracks by clicking in the select-menu.',
-      'You can also use the buttons to control the player.',
+      'You can use the buttons to control the player.',
       '',
-      '',
-      '**Support the development**'
+      'WIP - More features coming soon!'
     ],
     'buttons': {
       'stop': 'Stop',
@@ -26,7 +27,15 @@ export default {
       'skip': 'Skip',
       'shuffle': 'Shuffle',
       'loop': 'Loop',
-      'auto_play': 'Autoplay'
+      'loop_none': 'Loop',
+      'loop_track': 'Loop: Track',
+      'loop_queue': 'Loop: Queue',
+      'auto_play': 'Autoplay',
+      'select_language': 'Select language',
+      'sync_playlist': '(Soon) Import Spotify playlist',
+      'save_this_playlist': 'Save current queue',
+      'your_playlists': '(Soon) Saved playlists',
+      'donate': 'Contribute with the development',
     }
   },
   'player': {
