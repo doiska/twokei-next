@@ -1,5 +1,5 @@
 import {
-  ChannelType,
+  ChannelType, DiscordAPIError,
   GuildChannel,
   GuildMember, GuildTextBasedChannel,
   PermissionFlagsBits, TextBasedChannel
@@ -7,7 +7,7 @@ import {
 import { canCreateChannels, canSendMessages } from '../utils/discord-utilities';
 import { SongChannelEntity } from '../entities/SongChannelEntity';
 import { Twokei } from '../app/Twokei';
-import { createDefaultSongEmbed } from '../music/embed/create-song-embed';
+import { createDefaultButtons, createDefaultSongEmbed } from '../music/embed/create-song-embed';
 import { getGuidLocale } from '../translation/guild-i18n';
 
 export const setupNewChannel = async (channel: TextBasedChannel, member: GuildMember) => {
@@ -34,11 +34,15 @@ export const setupNewChannel = async (channel: TextBasedChannel, member: GuildMe
       throw new Error(`You can't use the command in this channel, please use another channel.`);
     }
 
+    console.log(`Deleting old channel ${currentChannel.channel}...`)
+
     guild.channels.fetch(currentChannel.channel)
       .then(channel => {
         channel?.delete();
       })
-      .catch(() => console.log('Failed to delete channel.'));
+      .catch((e) => {
+        console.log(`Error deleting old channel: ${e.message} (${e.code})`);
+      });
   }
 
   const newChannel = await guild.channels.create({
@@ -51,12 +55,15 @@ export const setupNewChannel = async (channel: TextBasedChannel, member: GuildMe
   });
 
   if (!canSendMessages(newChannel)) {
+    console.log(`I can't send messages in the new channel, deleting it...`);
     throw new Error(`I can't send messages in the new channel.`);
   }
 
   const locale = await getGuidLocale(guild.id);
   const embed = await createDefaultSongEmbed(locale);
-  const newMessage = await newChannel.send({ embeds: [embed] });
+  const newMessage = await newChannel.send({ embeds: [embed], components: createDefaultButtons(locale) });
+
+  console.log(`Created new channel ${newChannel.id} and message ${newMessage.id}...`)
 
   await Twokei.dataSource.getRepository(SongChannelEntity).upsert({
     guild: guild.id,

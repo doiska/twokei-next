@@ -87,6 +87,10 @@ export const guildJoin = createEvent('guildCreate', async guild => {
       await setupNewChannel(adminUsableChannel, interaction.member);
       interaction.reply({ embeds: [embed] })
     })
-    .catch(() => adminUsableChannel.send('Something went wrong, please try again or ask for support: https://discord.gg/twokei'))
+    .catch((e) => {
+      logger.error('Error while waiting for interaction', e);
+      adminUsableChannel.send('Something went wrong, please try again or ask for support:' +
+        ' https://discord.gg/twokei')
+    })
     .finally(() => introduction.delete());
 });

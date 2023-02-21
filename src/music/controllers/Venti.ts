@@ -2,10 +2,12 @@ import { Xiao, XiaoEvents } from './Xiao';
 import { Player, PlayerUpdate, Track, TrackStuckEvent, WebSocketClosedEvent } from 'shoukaku';
 import { Events, VentiInitOptions, PlayerState, PlayOptions } from '../interfaces/player.types';
 import { Snowflake } from 'discord.js';
-import { Maybe } from '../../utils/utility-types';
+import { Maybe } from '../../utils/type-guards';
 import { TrackQueue } from '../managers/TrackQueue';
 import { PlayOptions as ShoukakuPlayOptions } from 'shoukaku';
 import { logger } from '../../modules/logger-transport';
+import { ResolvableTrack } from '../managers/ResolvableTrack';
+import { Locale } from '../../translation/i18n';
 
 export enum LoopStates {
   NONE = 'none',
@@ -46,7 +48,7 @@ export class Venti {
   /**
    * Loop state of the player.
    */
-  private loop: LoopStates = LoopStates.NONE;
+  public loop: LoopStates = LoopStates.NONE;
 
   /**
    * If the player is connected to a voice channel and playing.
@@ -66,7 +68,12 @@ export class Venti {
   /**
    * Song queue.
    */
-  public queue: TrackQueue<Track>;
+  public queue: TrackQueue;
+
+  /**
+   * The locale of the player.
+   */
+  public locale: Locale;
 
   constructor(xiao: Xiao, player: Player, options: VentiInitOptions) {
     this.xiao = xiao;
@@ -74,8 +81,9 @@ export class Venti {
     this.instance = player;
     this.guildId = options.guild;
     this.voiceId = options.voiceChannel;
+    this.locale = options.lang;
 
-    this.queue = new TrackQueue<Track>(this);
+    this.queue = new TrackQueue();
 
     this.instance.on('start', () => {
       this.playing = true
@@ -127,7 +135,7 @@ export class Venti {
       this.queue.current = null;
 
       console.log(`Track ended for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`);
-      console.log(`Current is null and previous is ${this.queue.previous?.info?.title}`)
+      console.log(`Current is null and previous is ${this.queue.previous?.title}`)
 
       if (this.queue.length) {
         if (currentSong) {
@@ -156,7 +164,7 @@ export class Venti {
     this.instance.on('resumed', () => this.emit(Events.PlayerResumed, this));
   }
 
-  public play(track?: Track, playOptions?: PlayOptions) {
+  public async play(track?: ResolvableTrack, playOptions?: PlayOptions) {
 
     playOptions = {
       replace: false,
@@ -172,34 +180,43 @@ export class Venti {
     }
 
     if (track && !playOptions.replace && this.queue.current) {
-      logger.debug(`Queueing track ${track.info.title} for guild ${this.guildId}`);
+      logger.debug(`Queueing track ${track.title} for guild ${this.guildId}`);
       this.queue.unshift(this.queue.current);
     }
 
-    if(this.queue.current) {
-      this.queue.previous = { ...this.queue.current };
+    if (this.queue.current) {
+      this.queue.previous = new ResolvableTrack(this.queue.current.getRaw());
     }
 
-    this.queue.current = track ?? this.queue.current ?? this.queue.shift();
+    const nextTrack = track ?? this.queue.current ?? this.queue.shift();
 
-    if (!this.queue.current) {
+    if (!nextTrack) {
       logger.debug(`No current track for guild ${this.guildId} - skipping play`);
 
       this.emit(Events.Debug, `No current track for guild ${this.guildId} - skipping play`);
       throw new Error('No track found');
     }
 
-    const shoukakuPlayOptions: ShoukakuPlayOptions = {
-      track: this.queue.current.track,
-      options: {
-        ...playOptions,
-        noReplace: !playOptions.replace
+    nextTrack.resolve(this.xiao.search).then(resolvedTrack => {
+      this.queue.current = resolvedTrack;
+
+      const shoukakuPlayOptions: ShoukakuPlayOptions = {
+        track: resolvedTrack.track,
+        options: {
+          ...playOptions,
+          noReplace: !playOptions?.replace
+        }
       }
-    }
 
-    logger.debug(`Playing track ${this.queue.current.info.title} for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`);
+      logger.debug(`Playing track ${this.queue.current.title} for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`);
 
-    this.instance.playTrack(shoukakuPlayOptions);
+      this.instance.playTrack(shoukakuPlayOptions);
+    }).catch(err => {
+      this.emit(Events.Debug, `Error while resolving track for guild ${this.guildId} - ${err}`);
+      logger.error(`Error while resolving track for guild ${this.guildId} - ${err}`);
+      this.queue.length ? this.play() : this.emit(Events.QueueEmpty, this);
+    })
+
     return this;
   }
 
@@ -227,8 +244,8 @@ export class Venti {
     this.queue.removeAt(0, amount - 1);
 
     logger.info(`Skipping ${amount} tracks for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`);
-    logger.info(`Current track is ${this.queue.current?.info?.title}`);
-    logger.info(`Next track will be ${this.queue[0]?.info?.title}`);
+    logger.info(`Current track is ${this.queue.current?.title}`);
+    logger.info(`Next track will be ${this.queue[0]?.title}`);
 
     this.instance.stopTrack();
     return this;
@@ -273,6 +290,8 @@ export class Venti {
     const newLoopState = loop || nextState[this.loop];
 
     this.loop = newLoopState;
+
+    this.emit(Events.ManualUpdate, this, { components: true });
     return newLoopState;
   }
 
