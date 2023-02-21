@@ -12,12 +12,12 @@ const resources = VALID_LOCALES.reduce((acc, locale) => {
   const folderPath = path.join(__dirname, 'locales', locale);
   const files = fs.readdirSync(folderPath).filter(file => file.endsWith('.ts') || file.endsWith('.js'));
 
-  files.forEach(file => {
+  files.forEach(async file => {
     const key = file.split('.')[0];
     if (!acc[locale]) {
       acc[locale] = {} as ResourceLanguage;
     }
-    acc[locale][key] = require(path.join(folderPath, file)).default;
+    acc[locale][key] = await import(path.join(folderPath, file)).then(m => m.default)
   });
 
   logger.debug(`Loaded ${files.length} namespaces for locale ${locale}.`);
@@ -25,14 +25,13 @@ const resources = VALID_LOCALES.reduce((acc, locale) => {
 }, {} as Resource);
 
 export const init = async () => {
+
   return i18next.init({
     resources,
-    ns: ['common'],
-    defaultNS: 'common',
-    debug: false,
+    debug: true,
     fallbackLng: DEFAULT_LOCALE,
     supportedLngs: VALID_LOCALES,
-    saveMissing: true
+    saveMissing: true,
   });
 }
 

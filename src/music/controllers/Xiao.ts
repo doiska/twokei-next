@@ -5,7 +5,6 @@ import {
   PlayerUpdate,
   Shoukaku,
   ShoukakuOptions,
-  Track,
   TrackExceptionEvent,
   TrackStuckEvent,
   WebSocketClosedEvent
@@ -13,12 +12,13 @@ import {
 import { Venti } from './Venti';
 import {
   Events,
+  LoadType,
   VentiInitOptions,
   XiaoInitOptions,
   XiaoSearchOptions,
   XiaoSearchResult
 } from '../interfaces/player.types';
-import { GuildManager, GuildResolvable, Snowflake } from 'discord.js';
+import { GuildResolvable } from 'discord.js';
 import { trackStart } from '../events/track-start';
 import { playerDestroy } from '../events/player-destroy';
 import { trackAdd } from '../events/track-add';
@@ -26,6 +26,11 @@ import { GuildEmbedManager } from '../embed/guild-embed-manager';
 import { Twokei } from '../../app/Twokei';
 import { PlayerException } from '../../exceptions/PlayerException';
 import { trackPause } from '../events/track-pause';
+import { ResolvableTrack } from '../managers/ResolvableTrack';
+import { SpotifyResolver } from '../resolvers/spotify/spotify-resolver';
+import { TrackResolver } from '../resolvers/resolver';
+import { logger } from '../../modules/logger-transport';
+import { manualUpdate } from '../events/manual-update';
 
 
 export interface XiaoEvents {
@@ -42,12 +47,12 @@ export interface XiaoEvents {
   /**
    * Emitted when a track is added to the queue.
    */
-  [Events.TrackAdd]: (venti: Venti, track: Track[]) => void;
+  [Events.TrackAdd]: (venti: Venti, track: ResolvableTrack[]) => void;
 
   /**
    * Emitted when a track starts playing.
    */
-  [Events.TrackStart]: (venti: Venti, track: Track) => void;
+  [Events.TrackStart]: (venti: Venti, track: ResolvableTrack) => void;
 
   /**
    * Emitted when a track pauses.
@@ -57,7 +62,7 @@ export interface XiaoEvents {
   /**
    * Emitted when a track ends.
    */
-  [Events.TrackEnd]: (venti: Venti, track: Track) => void;
+  [Events.TrackEnd]: (venti: Venti, track: ResolvableTrack) => void;
 
   /**
    * Emitted when a player got empty.
@@ -92,7 +97,13 @@ export interface XiaoEvents {
   /**
    * Emitted when a player got an error while resolving a track.
    */
-  [Events.PlayerResolveError]: (venti: Venti, track: Track, message?: string) => void;
+  [Events.PlayerResolveError]: (venti: Venti, track: ResolvableTrack, message?: string) => void;
+
+
+  /**
+   * Emitted when user interact and causes manual update
+   */
+  [Events.ManualUpdate]: (venti?: Venti, update?: { embed?: boolean, components?: boolean }) => void;
 
   /**
    * Emitted for debugging purposes.
@@ -125,6 +136,10 @@ export class Xiao extends EventEmitter {
   public readonly players: Map<string, Venti> = new Map();
 
   public embedManager: GuildEmbedManager;
+
+  private resolvers: TrackResolver[] = [
+    new SpotifyResolver()
+  ];
 
   /**
    * @param options Xiao options
@@ -171,6 +186,8 @@ export class Xiao extends EventEmitter {
     this.on(Events.TrackAdd, trackAdd);
     this.on(Events.PlayerDestroy, playerDestroy);
     this.on(Events.TrackPause, trackPause);
+    this.on(Events.ManualUpdate, manualUpdate);
+
 
     this.players.set(options.guild, venti);
     this.emit(Events.PlayerCreate, venti);
@@ -192,7 +209,7 @@ export class Xiao extends EventEmitter {
   public async destroyPlayer(guildId: GuildResolvable): Promise<void> {
     const resolvedGuildId = Twokei.guilds.resolveId(guildId);
 
-    if(!resolvedGuildId) {
+    if (!resolvedGuildId) {
       throw new PlayerException('Guild not found');
     }
 
@@ -210,6 +227,16 @@ export class Xiao extends EventEmitter {
 
     if (!node) {
       throw new Error('No available nodes');
+    }
+
+    if(options?.resolve ?? true) {
+      const resolver = this.resolvers.find(resolver => resolver.matches(query));
+
+      logger.debug(`Resolving ${query} with ${resolver?.name ?? 'default resolver'}`);
+
+      if (resolver) {
+        return resolver.resolve(query);
+      }
     }
 
     const engine = options?.engine || 'yt';
@@ -230,15 +257,15 @@ export class Xiao extends EventEmitter {
 
     if (result.loadType === 'SEARCH_RESULT' && searchType === 'track') {
       return {
-        type: result.loadType,
-        tracks: [result.tracks[0]],
+        type: LoadType.SEARCH_RESULT,
+        tracks: [new ResolvableTrack(result.tracks[0])],
         playlistName: result.playlistInfo?.name
       }
     }
 
     return {
-      type: result.loadType,
-      tracks: result.tracks,
+      type: LoadType.PLAYLIST_LOADED,
+      tracks: result.tracks.map(track => new ResolvableTrack(track)),
       playlistName: result.playlistInfo?.name
     }
   }
