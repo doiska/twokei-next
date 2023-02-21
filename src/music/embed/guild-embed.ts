@@ -1,8 +1,6 @@
 import {
-  ActionRowBuilder, APIButtonComponentWithCustomId,
+  ActionRowBuilder,
   APIEmbed,
-  ButtonBuilder,
-  ButtonStyle,
   Message,
   MessageActionRowComponentBuilder,
   SelectMenuBuilder,
@@ -11,45 +9,37 @@ import {
 import {
   createDefaultButtons,
   createDefaultMenu,
-  createDefaultSongEmbed,
-  createPrimaryRow,
-  createSecondaryRow
+  createDefaultSongEmbed, createPlaylistButtons,
+  createPrimaryButtons,
+  createSecondaryButtons
 } from './create-song-embed';
 import { Locale } from '../../translation/i18n';
 import { Venti } from '../controllers/Venti';
 import { TrackQueue } from '../managers/TrackQueue';
-import { Track } from 'shoukaku';
 import { parseTracksToMenuItem } from './guild-embed-manager-helper';
 import { logger } from '../../modules/logger-transport';
+import { DynamicPlaylistButtons } from '../../constants/music';
 
 export class GuildEmbed {
 
-  private guildId: Snowflake;
-  private message: Message;
+  private readonly guildId: Snowflake;
+  private readonly message: Message;
 
   private embed: APIEmbed;
   private components: ActionRowBuilder<MessageActionRowComponentBuilder>[];
-  private player?: Venti;
 
+  private readonly player: Venti;
   private readonly locale: Locale;
 
-  constructor(guildId: Snowflake, message: Message, locale: Locale = 'pt_br') {
+  constructor(venti: Venti, guildId: Snowflake, message: Message, locale: Locale = 'pt_br') {
+    this.player = venti;
     this.guildId = guildId;
     this.message = message;
 
     this.embed = createDefaultSongEmbed(locale);
-    this.components = [
-      createDefaultMenu(locale),
-      createDefaultButtons(locale)
-    ];
+    this.components = createDefaultButtons(locale);
 
     this.locale = locale;
-  }
-
-  public from(player: Venti) {
-    this.player = player;
-
-    return this;
   }
 
   public refreshEmbed() {
@@ -60,8 +50,8 @@ export class GuildEmbed {
     }
 
     const queue = this.player.queue;
-    const title = queue.current?.info.title || 'Nenhuma música tocando';
-    const url = queue.current?.info.uri || '';
+    const title = queue.current?.title || 'Nenhuma música tocando';
+    const url = queue.current?.uri || '';
 
     this.setEmbed({
       title,
@@ -77,7 +67,7 @@ export class GuildEmbed {
       return this;
     }
 
-    this.components = [this.createSelectMenu(this.player.queue), ...this.createButtons(this.player.paused)];
+    this.components = [this.createSelectMenu(this.player.queue), ...this.createButtons()];
 
     return this;
   }
@@ -91,31 +81,15 @@ export class GuildEmbed {
     return this;
   }
 
-  private createButtons(paused = false) {
-
-    const primaryRow = createPrimaryRow(this.locale);
-    const secondaryRow = createSecondaryRow(this.locale);
-
-    const primaryButtons = primaryRow.components as ButtonBuilder[];
-
-    primaryRow.setComponents(primaryButtons.map((button) => {
-      const { custom_id } = button.data as APIButtonComponentWithCustomId;
-
-
-      if(custom_id.toLowerCase() === 'pause') {
-        button.setLabel(paused ? 'Continuar' : 'Pausar');
-      }
-
-      return button;
-    }));
-
+  private createButtons() {
     return [
-      primaryRow,
-      secondaryRow
-    ]
+      createPlaylistButtons(this.player.locale),
+      createPrimaryButtons(this.player),
+      createSecondaryButtons(this.player)
+    ];
   }
 
-  private createSelectMenu(queue: TrackQueue<Track>) {
+  private createSelectMenu(queue: TrackQueue) {
     const row = createDefaultMenu(this.locale);
     const menu = row.components[0] as SelectMenuBuilder;
 
@@ -126,11 +100,10 @@ export class GuildEmbed {
   }
 
   public reset() {
-    this.player = undefined;
     this.embed = createDefaultSongEmbed(this.locale);
     this.components = [
       createDefaultMenu(this.locale),
-      createDefaultButtons(this.locale)
+      ...createDefaultButtons(this.locale)
     ];
     return this;
   }
