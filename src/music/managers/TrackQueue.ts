@@ -1,16 +1,10 @@
-import { Maybe } from "../../utils/utility-types";
-import { Venti } from '../controllers/Venti';
-import { Events } from '../interfaces/player.types';
-import { Track } from 'shoukaku';
+import { Maybe } from '../../utils/type-guards';
+import { ResolvableTrack } from './ResolvableTrack';
 
-export class TrackQueue<T> extends Array<T> {
+export class TrackQueue<T = ResolvableTrack> extends Array<T> {
 
   public current: Maybe<T>;
   public previous: Maybe<T>;
-
-  constructor(venti: Venti, ...items: T[]) {
-    super(...items);
-  }
 
   add(...item: T[]): void {
     this.push(...item);
