@@ -14,7 +14,7 @@ const consoleTransportInstance = new transports.Console({
   format: format.combine(
     format.printf((info) => {
       const { timestamp, level, message, stack, pid, ...rest } = info;
-      const color = colors[info.level] || blue;
+      const color = colors[info.level] ?? blue;
       const content = message || stack || "Profiler";
 
       const details = Object.keys(rest).length ? `\n${JSON.stringify(rest, null, 2)}` : "";

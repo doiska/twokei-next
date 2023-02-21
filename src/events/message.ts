@@ -9,6 +9,7 @@ import { Twokei } from '../app/Twokei';
 import { addNewSong } from '../music/heizou/add-new-song';
 import { SongChannelEntity } from '../entities/SongChannelEntity';
 import { PlayerException } from '../exceptions/PlayerException';
+import { logger } from '../modules/logger-transport';
 
 export const onMessage = createEvent('messageCreate', async (message) => {
 
@@ -72,7 +73,7 @@ export const onMessage = createEvent('messageCreate', async (message) => {
   try {
     const tracks = await addNewSong(contentOnly, message.member);
 
-    const songs = tracks.map((song) => `**${song.info.title}**`);
+    const songs = tracks.map((song) => `**${song.title}**`);
 
     const embed = new EmbedBuilder()
       .setTitle(`🎶 New song added to the queue!`)
@@ -88,6 +89,8 @@ export const onMessage = createEvent('messageCreate', async (message) => {
         .setContent(e.message)
         .send(channel);
     }
+
+    logger.error(e)
 
     return new MessageBuilder()
       .setContent(`An error occurred while trying to play the song.`)
