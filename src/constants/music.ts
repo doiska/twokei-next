@@ -37,7 +37,7 @@ export const DynamicDefaultButtons = (locale?: Locale): Record<string, Button> =
       label: t('embed.buttons.donate') || 'Donate',
       emoji: '<:pray:1077449609447751791>',
       style: ButtonStyle.Link,
-      url: 'https://www.paypal.com/paypalme/doiska',
+      url: 'https://ko-fi.com/doiska',
       execute: async () => {
 
       }
@@ -53,6 +53,7 @@ export const DynamicPlaylistButtons = (locale?: Locale): Record<string, Button> 
       label: t('embed.buttons.your_playlists') || 'View playlists',
       emoji: ':playlist_icon:1077444078234521700',
       style: ButtonStyle.Secondary,
+      disabled: true,
       execute: async () => {
 
       }
@@ -69,6 +70,7 @@ export const DynamicPlaylistButtons = (locale?: Locale): Record<string, Button> 
       label: t('embed.buttons.sync_playlist') || 'Sync Playlist',
       emoji: ':spotify_dark:1077441343456018463',
       style: ButtonStyle.Success,
+      disabled: true,
       execute: async () => {
 
       }
@@ -94,8 +96,8 @@ export const DynamicPrimaryButtons = (player?: Venti): Record<string, Button> =>
     },
     PAUSE: {
       label: t(player?.paused ? 'embed.buttons.resume' : 'embed.buttons.pause') || 'Pause',
-      emoji: '⏸️',
-      style: ButtonStyle.Secondary,
+      emoji: player?.paused ? '▶️' : '⏸️',
+      style: player?.paused ? ButtonStyle.Primary : ButtonStyle.Secondary,
       execute: pauseSong
     },
     SKIP: {

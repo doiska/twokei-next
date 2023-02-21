@@ -1,6 +1,7 @@
 import { Track } from 'shoukaku';
 import { escapeRegExp } from '../../utils/dash-utils';
 import { XiaoSearchOptions, XiaoSearchResult } from '../interfaces/player.types';
+import { Twokei } from '../../app/Twokei';
 
 interface ResolvableTrackOptions {
   requester: unknown;
@@ -80,13 +81,13 @@ export class ResolvableTrack {
   }
 
 
-  public async resolve(search: TrackSearch, overwrite = false): Promise<ResolvableTrack> {
+  public async resolve(overwrite = false): Promise<ResolvableTrack> {
 
     if (this.isReadyToPlay) {
       return this;
     }
 
-    const resolvedTrack = await this.getTrack(search);
+    const resolvedTrack = await this.getTrack();
 
     if (!resolvedTrack) {
       throw new Error('Track not found');
@@ -109,11 +110,11 @@ export class ResolvableTrack {
     return this;
   }
 
-  private async getTrack(search: TrackSearch) {
+  private async getTrack() {
     const source = 'yt';
     const query = [this.title, this.author].filter(Boolean).join(' - ');
 
-    const response = await search(query, { requester: this.requester, engine: source });
+    const response = await Twokei.xiao.search(query, { requester: this.requester, engine: source });
 
     if (!response || !response.tracks.length) {
       return;

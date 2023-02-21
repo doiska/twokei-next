@@ -197,7 +197,11 @@ export class Venti {
       throw new Error('No track found');
     }
 
-    nextTrack.resolve(this.xiao.search).then(resolvedTrack => {
+    if(!this.xiao.search) {
+      throw new Error('No search provider found');
+    }
+
+    nextTrack.resolve().then(resolvedTrack => {
       this.queue.current = resolvedTrack;
 
       const shoukakuPlayOptions: ShoukakuPlayOptions = {
@@ -212,8 +216,9 @@ export class Venti {
 
       this.instance.playTrack(shoukakuPlayOptions);
     }).catch(err => {
+      console.error(err)
       this.emit(Events.Debug, `Error while resolving track for guild ${this.guildId} - ${err}`);
-      logger.error(`Error while resolving track for guild ${this.guildId} - ${err}`);
+      logger.error(`Error while resolving track for guild ${this.guildId} - ${err}`, err.stack);
       this.queue.length ? this.play() : this.emit(Events.QueueEmpty, this);
     })
 

@@ -19,7 +19,6 @@ import { init as initI18n } from '../translation/i18n';
 
 declare module 'discord.js' {
   interface Client {
-    shoukaku: Shoukaku;
     cluster: ShardClient<TwokeiClient>;
     xiao: Xiao;
   }
@@ -27,7 +26,6 @@ declare module 'discord.js' {
 
 export class ExtendedClient extends TwokeiClient {
 
-  public shoukaku: Shoukaku;
   public cluster: ShardClient<this>;
   public xiao: Xiao;
 
@@ -42,19 +40,9 @@ export class ExtendedClient extends TwokeiClient {
       commandsPath: `../commands/**/*.{ts,js}`,
       eventsPath: `../events/**/*.{ts,js}`,
       autoload: true
-
     });
 
-    process.on('uncaughtException', (error) => {
-      logger.error(error);
-    });
-
-    process.on('unhandledRejection', (error) => {
-      logger.error(error);
-    });
-
-    this.shoukaku = new Shoukaku(new Connectors.DiscordJS(this), Nodes, shoukakuOptions);
-
+    //TODO: isolate this to a separate file
     this.xiao = new Xiao({
       send: (guildId, payload) => {
         const guild = Twokei.guilds.cache.get(guildId);
