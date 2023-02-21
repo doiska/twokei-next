@@ -1,7 +1,8 @@
 import {
-  ActionRowBuilder, APIButtonComponent,
-  APIEmbed, APIMessageComponentEmoji,
-  ButtonBuilder,
+  ActionRowBuilder,
+  APIButtonComponent,
+  APIEmbed,
+  APIMessageComponentEmoji, ButtonBuilder,
   ButtonStyle,
   Colors,
   formatEmoji,
@@ -10,8 +11,15 @@ import {
 } from 'discord.js';
 import { Locale } from '../../translation/i18n';
 import { Twokei } from '../../app/Twokei';
-import { PlayerPrimaryButtons, SecondaryButtons, Menus, Button, DefaultButtons } from '../../constants/music';
+import {
+  Button,
+  DynamicDefaultButtons, DynamicPlaylistButtons,
+  DynamicPrimaryButtons,
+  DynamicSecondaryButtons,
+  Menus
+} from '../../constants/music';
 import { t } from 'i18next';
+import { Venti } from '../controllers/Venti';
 
 export const createDefaultSongEmbed = (lang: Locale): APIEmbed => {
 
@@ -22,12 +30,15 @@ export const createDefaultSongEmbed = (lang: Locale): APIEmbed => {
   const description = t('player:embed.description', {
     mention: mention,
     emoji: lightEmoji,
-    returnObjects: true,
     lng: lang,
-  }) as string[];
+    joinArrays: '\n',
+    returnObjects: true
+  }) as string;
+
+  console.log(description, typeof description)
 
   return {
-    description: description.join('\n'),
+    description: description,
     color: Colors.DarkButNotBlack,
     author: {
       name: 'Created by doiská#0001',
@@ -70,20 +81,30 @@ export const createDefaultMenu = (lang: Locale) => {
   return new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(menu);
 }
 
-function createButtonRow(buttons: Record<string, Button>, lang: Locale) {
-  const components = Object.entries(buttons).map(([key, button]) => ({
-    custom_id: key,
-    label: t(`embed.buttons.${key.toLowerCase()}`, { ns: 'player', lng: lang }) as string,
-    style: button.style || ButtonStyle.Primary,
-    emoji: button.emoji as APIMessageComponentEmoji,
-    type: 2
-  }) satisfies APIButtonComponent);
+const parseButtonsToComponent = (buttons: Record<string, Button>): ActionRowBuilder<ButtonBuilder> => {
+  const components = Object.entries(buttons).map(([key, button]) => {
 
-  return new ActionRowBuilder<ButtonBuilder>({
-    components
+    const customIdOrUrl = button.url ? { url: button.url } : { customId: key };
+
+    return ButtonBuilder.from({
+      ...customIdOrUrl,
+      label: button.label ?? t(`embed.buttons.${key.toLowerCase()}`, { ns: 'player', lng: 'pt_br' }) as string,
+      style: button.style || ButtonStyle.Primary,
+      emoji: button.emoji as APIMessageComponentEmoji,
+      disabled: button.disabled,
+      type: 2
+    } as APIButtonComponent);
   });
+
+  return new ActionRowBuilder({ components })
 }
 
-export const createDefaultButtons = (lang: Locale) => createButtonRow(DefaultButtons, lang);
-export const createPrimaryRow = (lang: Locale) => createButtonRow(PlayerPrimaryButtons, lang);
-export const createSecondaryRow = (lang: Locale) => createButtonRow(SecondaryButtons, lang);
+const createDefaultPrimaryButtons = (locale: Locale) => parseButtonsToComponent(DynamicDefaultButtons(locale));
+export const createPlaylistButtons = (locale: Locale) => parseButtonsToComponent(DynamicPlaylistButtons(locale));
+
+export const createDefaultButtons = (locale: Locale) => {
+  return [createDefaultPrimaryButtons(locale), createPlaylistButtons(locale)];
+}
+
+export const createPrimaryButtons = (player: Venti) => parseButtonsToComponent(DynamicPrimaryButtons(player));
+export const createSecondaryButtons = (player: Venti) => parseButtonsToComponent(DynamicSecondaryButtons(player));

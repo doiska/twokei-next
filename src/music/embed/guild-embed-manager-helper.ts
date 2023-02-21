@@ -4,13 +4,13 @@ import { TrackQueue } from '../managers/TrackQueue';
 import { assertMenuSize } from '../../utils/embed-utils';
 import { logger } from '../../modules/logger-transport';
 
-export const parseTracksToMenuItem = (tracks: TrackQueue<Track>) => {
+export const parseTracksToMenuItem = (tracks: TrackQueue) => {
 
   const items = tracks.map((track, index) => {
     return {
-      label: track.info.title,
+      label: track.title,
       value: index.toString(),
-      description: track.info.author
+      description: track.author
     } as APISelectMenuOption;
   });
 
@@ -21,18 +21,18 @@ export const parseTracksToMenuItem = (tracks: TrackQueue<Track>) => {
     logger.debug('Current track found, adding to menu items.');
     items.unshift({
       default: true,
-      label: `Current: ${current.info.title}`,
+      label: `Current: ${current.title}`,
       value: 'current',
-      description: current.info.author
+      description: current.author
     });
   }
 
   if (previous) {
     logger.debug('Previous track found, adding to menu items.');
     items.unshift({
-      label: previous.info.title,
+      label: previous.title,
       value: 'previous',
-      description: previous.info.author
+      description: previous.author
     });
   }
 
