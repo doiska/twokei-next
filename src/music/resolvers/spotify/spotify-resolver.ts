@@ -132,6 +132,7 @@ export class SpotifyResolver implements TrackResolver {
 
     return {
       tracks,
+      playlistName: playlist.name,
       type: LoadType.PLAYLIST_LOADED
     }
   }

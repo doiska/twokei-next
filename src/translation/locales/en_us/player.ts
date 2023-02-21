@@ -6,17 +6,19 @@ export default {
   'embed': {
     'description': [
       '',
+      ':japanese_goblin: This is an alpha version of the bot, so expect bugs.',
+      '- If you find any, please report them to the developer.',
       '',
       '**Ways to use:**',
       '- {{- mention}} <link>',
       '- You can also use /play <link>.',
       '- Or directly import your Spotify playlist with /sync',
       '',
-      'Tips!',
-      'Select tracks by clicking in the select-menu.',
-      'You can use the buttons to control the player.',
+      '**Tips!**',
+      '- Select tracks by clicking in the select-menu.',
+      '- You can use the buttons to control the player.',
       '',
-      'WIP - More features coming soon!'
+      '**WIP - More features coming soon!**'
     ],
     'buttons': {
       'stop': 'Stop',

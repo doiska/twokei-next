@@ -1,10 +1,9 @@
 import { ClusterManager, ReClusterManager, HeartbeatManager } from 'discord-hybrid-sharding';
 import { config } from 'dotenv';
-import { bold, green, red } from 'kleur';
+import { bold, red } from 'kleur';
 import { logger } from "./modules/logger-transport";
 import { ChildProcess } from 'child_process';
 import { Worker as Worker_Thread } from 'worker_threads';
-import * as Sentry from '@sentry/node';
 
 config();
 

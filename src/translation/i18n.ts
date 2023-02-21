@@ -28,10 +28,10 @@ export const init = async () => {
 
   return i18next.init({
     resources,
-    debug: true,
+    debug: false,
     fallbackLng: DEFAULT_LOCALE,
     supportedLngs: VALID_LOCALES,
-    saveMissing: true,
+    saveMissing: true
   });
 }
 

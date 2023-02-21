@@ -71,13 +71,14 @@ export const onMessage = createEvent('messageCreate', async (message) => {
   }
 
   try {
-    const tracks = await addNewSong(contentOnly, message.member);
+    const result = await addNewSong(contentOnly, message.member);
 
-    const songs = tracks.map((song) => `**${song.title}**`);
+    const name = result.playlistName || result.tracks[0].title;
+    const isPlaylist = !!result.playlistName;
 
     const embed = new EmbedBuilder()
-      .setTitle(`🎶 New song added to the queue!`)
-      .setDescription(songs.join('\n'))
+      // .setTitle(`🎶 ${isPlaylist ? 'Playlist' : 'Song'} added to queue.`)
+      .setDescription(`${isPlaylist ? 'Playlist' : 'Track'}: **${name}** added to queue.`)
       .setColor(Colors.DarkButNotBlack);
 
     return new MessageBuilder()

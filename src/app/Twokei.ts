@@ -18,7 +18,4 @@ export const Twokei = new ExtendedClient({
 
 Twokei.cluster.on('message', (message) => logger.debug(`Received a message`, message));
 
-Twokei.shoukaku.on('ready', (name) => logger.info(`Lavalink node ${name} is now connected`));
-Twokei.shoukaku.on('error', (name, error) => logger.error(`Lavalink node ${name} has had an error`, error));
-
 Twokei.start().then(() => logger.info('Client ready!')).catch((error) => logger.error('Client failed to start', error));

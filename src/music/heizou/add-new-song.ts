@@ -48,5 +48,5 @@ export async function addNewSong(input: string, member: GuildMember) {
     player.emit(Events.TrackAdd, player, result.tracks);
   }
 
-  return result.tracks;
+  return result;
 }

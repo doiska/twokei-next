@@ -1,9 +1,7 @@
 import { CommandContext, CommandResponse, createCommand, MessageBuilder } from 'twokei-framework';
 
-import { PlayerException } from '../exceptions/PlayerException';
 import { addNewSong } from '../music/heizou/add-new-song';
 import { i18nGuild } from '../translation/guild-i18n';
-import { EmbedBuilder } from 'discord.js';
 import { getReadableException } from '../exceptions/utils/get-readable-exception';
 
 const execute = async (context: CommandContext<{ search: string }>): Promise<CommandResponse> => {
@@ -12,7 +10,8 @@ const execute = async (context: CommandContext<{ search: string }>): Promise<Com
   }
 
   try {
-    const [track, ...rest] = await addNewSong(context.input.search, context.member);
+    const result = await addNewSong(context.input.search, context.member);
+    const [track, ...rest] = result.tracks;
 
     const trackTranslation = await i18nGuild(context.guild!.id, rest.length === 0 ? 'song_added' : 'playlist_added', {
       track: track.title,

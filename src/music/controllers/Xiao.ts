@@ -156,8 +156,14 @@ export class Xiao extends EventEmitter {
     super();
 
     this.shoukaku = new Shoukaku(connector, nodes, optionsShoukaku);
+
     this.players = new Map<string, Venti>();
     this.embedManager = new GuildEmbedManager();
+
+    this.shoukaku.on('debug', (name, info) => logger.debug(`[Shoukaku] ${name}: ${info}`));
+    this.shoukaku.on('ready', (name) => logger.debug(`[Shoukaku] Node ${name} is now connected`));
+    this.shoukaku.on('close', (name, code, reason) => logger.debug(`[Shoukaku] Node ${name} closed with code ${code} and reason ${reason}`));
+    this.shoukaku.on('error', (name, error) => logger.error(`[Shoukaku] Node ${name} emitted an error: ${error}`));
   }
 
   public async createPlayer<T extends Venti>(options: VentiInitOptions): Promise<T | Venti> {
@@ -223,6 +229,7 @@ export class Xiao extends EventEmitter {
   }
 
   public async search(query: string, options?: XiaoSearchOptions): Promise<XiaoSearchResult> {
+
     const node = options?.nodeName ? this.shoukaku.getNode(options.nodeName) : this.shoukaku.getNode();
 
     if (!node) {

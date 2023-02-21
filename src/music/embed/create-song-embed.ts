@@ -43,7 +43,7 @@ export const createDefaultSongEmbed = (lang: Locale): APIEmbed => {
     author: {
       name: 'Created by doiská#0001',
       url: 'https://twitter.com/two2kei',
-      icon_url: 'https://cdn.discordapp.com/attachments/1060272332855316590/1069609975535636640/FCtRtYIVIAYGjU_.jpg'
+      icon_url: 'https://cdn.discordapp.com/attachments/926644381371469834/1077626687094792245/wvHtpZ4X_400x400.jpg'
     },
     image: {
       url: 'https://media.tenor.com/XAS0z1xPCIcAAAAd/cyberpunk-vaporwave.gif',
