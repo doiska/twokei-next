@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "swc src -d dist --source-maps --copy-files",
-    "build-dev": "rm -rf dist && swc src -d dist --source-maps --copy-files && node --inspect dist/index.js",
-    "dev": "nodemon --watch src --exec \"pnpm run build && node dist/index.js\"",
-    "prod": "yarn run build && NODE_ENV=production node dist/index.js"
+    "predev": "rm -rf dist",
+    "dev": "concurrently \"pnpm run watch-compile\" \"pnpm run watch-dev\"",
+    "watch-compile": "swc src -w --out-dir dist",
+    "watch-dev": "nodemon --delay 500ms --watch \"dist/**/*\" -e js ./dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -39,8 +39,10 @@
     "@swc/core": "^1.3.11",
     "@vitest/ui": "^0.28.5",
     "chokidar": "^3.5.3",
+    "concurrently": "^7.6.0",
     "discord-api-types": "^0.37.35",
     "nodemon": "^2.0.20",
+    "swc-node": "^1.0.0",
     "typescript": "^4.8.4"
   }
 }
