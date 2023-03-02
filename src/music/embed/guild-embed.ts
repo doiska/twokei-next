@@ -18,7 +18,6 @@ import { Venti } from '../controllers/Venti';
 import { TrackQueue } from '../managers/TrackQueue';
 import { parseTracksToMenuItem } from './guild-embed-manager-helper';
 import { logger } from '../../modules/logger-transport';
-import { DynamicPlaylistButtons } from '../../constants/music';
 
 export class GuildEmbed {
 

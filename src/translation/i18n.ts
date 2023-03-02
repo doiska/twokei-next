@@ -4,6 +4,12 @@ import * as path from 'path';
 import { logger } from '../modules/logger-transport';
 
 export const VALID_LOCALES = ['pt_br', 'en_us'] as const;
+
+export const LocaleFlags = {
+  pt_br: '🇧🇷',
+  en_us: '🇺🇸'
+}
+
 export type Locale = typeof VALID_LOCALES[number];
 
 export const DEFAULT_LOCALE: Locale = 'en_us';

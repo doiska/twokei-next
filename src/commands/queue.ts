@@ -16,7 +16,6 @@ const execute = async (context: CommandContext) => {
   const player = await Twokei.xiao.getPlayer(member.guild.id);
 
   if (!player) {
-    logger.error('No player found');
     return 'No player found';
   }
 
