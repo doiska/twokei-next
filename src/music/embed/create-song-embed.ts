@@ -35,8 +35,6 @@ export const createDefaultSongEmbed = (lang: Locale): APIEmbed => {
     returnObjects: true
   }) as string;
 
-  console.log(description, typeof description)
-
   return {
     description: description,
     color: Colors.DarkButNotBlack,

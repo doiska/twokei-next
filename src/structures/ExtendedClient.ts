@@ -1,5 +1,5 @@
 import { ClientOptions } from 'discord.js';
-import { Connectors, Shoukaku } from 'shoukaku';
+import { Connectors } from 'shoukaku';
 import { ClusterClient as ShardClient } from 'discord-hybrid-sharding';
 import { Nodes, shoukakuOptions } from '../shoukaku/options';
 import { Twokei } from '../app/Twokei';
@@ -58,12 +58,12 @@ export class ExtendedClient extends TwokeiClient {
     this.dataSource = new DataSource({
       type: 'postgres',
       synchronize: true,
-      host: process.env.POSTGRES_HOST,
-      port: Number(process.env.POSTGRES_PORT),
-      username: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASSWORD,
-      database: process.env.POSTGRES_DATABASE,
-      schema: process.env.POSTGRES_SCHEMA,
+      host: process.env.PGHOST,
+      port: Number(process.env.PGPORT),
+      username: process.env.PGUSER,
+      password: process.env.PGPASSWORD,
+      database: process.env.PGDATABASE,
+      schema: 'app',
       entities: [
         UserEntity,
         GuildEntity,
