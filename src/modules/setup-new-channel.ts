@@ -55,15 +55,14 @@ export const setupNewChannel = async (channel: TextBasedChannel, member: GuildMe
   });
 
   if (!canSendMessages(newChannel)) {
-    console.log(`I can't send messages in the new channel, deleting it...`);
     throw new Error(`I can't send messages in the new channel.`);
   }
 
   const locale = await getGuidLocale(guild.id);
-  const embed = await createDefaultSongEmbed(locale);
-  const newMessage = await newChannel.send({ embeds: [embed], components: createDefaultButtons(locale) });
-
-  console.log(`Created new channel ${newChannel.id} and message ${newMessage.id}...`)
+  const newMessage = await newChannel.send({
+    embeds: [await createDefaultSongEmbed(locale)],
+    components: createDefaultButtons(locale)
+  });
 
   await Twokei.dataSource.getRepository(SongChannelEntity).upsert({
     guild: guild.id,

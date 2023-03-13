@@ -1,6 +1,6 @@
 import { Guild } from 'discord.js';
 import { Locale, VALID_LOCALES } from '../translation/i18n';
-import { getGuildSongEntity } from '../exceptions/get-guild-song-channel';
+import { getGuildSongEntity } from './get-guild-song-channel';
 import { GuildEntity } from '../entities/GuildEntity';
 import { Twokei } from '../app/Twokei';
 import { isTextChannel } from '@sapphire/discord.js-utilities';
