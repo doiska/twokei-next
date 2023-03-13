@@ -15,7 +15,7 @@ export const Nodes: OptionWithActive[] = [
     url: 'lavalink.oops.wtf',
     secure: true,
     auth: "www.freelavalink.ga",
-    active: false
+    active: true
   }
 ].filter(i => i.active);
 

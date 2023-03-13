@@ -28,11 +28,3 @@ export const getGuidLocale = async (guildId: string): Promise<Locale> => {
 
   return guild.locale;
 }
-
-
-export const setGuildLocale = async (guildId: string, locale: Locale): Promise<void> => {
-  await Twokei.dataSource.getRepository(GuildEntity).save({
-    id: guildId,
-    locale
-  });
-}
