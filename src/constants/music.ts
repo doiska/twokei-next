@@ -13,7 +13,7 @@ export enum Menus {
   SelectSongMenu = 'SELECT_SONG_MENU',
 }
 
-export type Button = {
+export interface Button {
   execute: (userOrGuildId: GuildMember) => Promise<unknown>
   emoji?: string;
   style?: ButtonStyle;

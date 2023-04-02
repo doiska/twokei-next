@@ -2,12 +2,14 @@
   "name": "twokei-next",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "predev": "rm -rf dist",
     "dev": "concurrently \"pnpm run watch-compile\" \"pnpm run watch-dev\"",
     "watch-compile": "swc src -w --out-dir dist",
-    "watch-dev": "nodemon --delay 500ms --watch \"dist/**/*\" -e js ./dist/index.js"
+    "watch-dev": "nodemon --delay 500ms --watch \"dist/**/*\" -e js ./dist/single-shard.js",
+    "build-prod": "swc src --out-dir dist",
+    "start": "node dist/single-shard.js"
   },
   "keywords": [],
   "author": "",

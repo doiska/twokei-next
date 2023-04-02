@@ -1,7 +1,7 @@
 import { FriendlyException } from '../FriendlyException';
 import { PlayerException } from '../PlayerException';
 import { logger } from '../../modules/logger-transport';
-import { MessageBuilder } from '../../../../twokei-framework';
+import { MessageBuilder } from 'twokei-framework';
 import { Colors } from 'discord.js';
 
 export const getReadableException = (error: unknown) => {

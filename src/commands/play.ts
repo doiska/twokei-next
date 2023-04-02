@@ -3,6 +3,7 @@ import { CommandContext, CommandResponse, createCommand, MessageBuilder } from '
 import { addNewSong } from '../music/heizou/add-new-song';
 import { i18nGuild } from '../translation/guild-i18n';
 import { getReadableException } from '../exceptions/utils/get-readable-exception';
+import { Interaction } from 'discord.js';
 
 const execute = async (context: CommandContext<{ search: string }>): Promise<CommandResponse> => {
   if (!context.member || !context.channel) {
@@ -19,7 +20,9 @@ const execute = async (context: CommandContext<{ search: string }>): Promise<Com
       ns: 'player'
     });
 
-    return new MessageBuilder({ embeds: [{ description: trackTranslation }] });
+    const message = new MessageBuilder({ embeds: [{ description: trackTranslation }] });
+
+    await message.followUp(context.interaction as Interaction);
   } catch (e) {
     return getReadableException(e);
   }
