@@ -30,7 +30,7 @@
     "pg": "^8.8.0",
     "reflect-metadata": "^0.1.13",
     "shoukaku": "^3.2.2",
-    "twokei-framework": "link:../twokei-framework",
+    "twokei-framework": "^1.0.0",
     "typeorm": "^0.3.11",
     "vitest": "^0.28.5",
     "winston": "^3.8.2"
