@@ -19,14 +19,12 @@ import { init as initI18n } from '../translation/i18n';
 
 declare module 'discord.js' {
   interface Client {
-    cluster: ShardClient<TwokeiClient>;
     xiao: Xiao;
   }
 }
 
 export class ExtendedClient extends TwokeiClient {
 
-  public cluster: ShardClient<this>;
   public xiao: Xiao;
 
   public dataSource: DataSource;
@@ -34,6 +32,7 @@ export class ExtendedClient extends TwokeiClient {
   private _exiting = false;
 
   constructor(options: ClientOptions) {
+
     super({
       ...options,
       currentWorkingDirectory: __dirname,
@@ -42,7 +41,6 @@ export class ExtendedClient extends TwokeiClient {
       autoload: true
     });
 
-    //TODO: isolate this to a separate file
     this.xiao = new Xiao({
       send: (guildId, payload) => {
         const guild = Twokei.guilds.cache.get(guildId);
@@ -53,8 +51,6 @@ export class ExtendedClient extends TwokeiClient {
       defaultSearchEngine: 'youtube'
     }, new Connectors.DiscordJS(this), Nodes, shoukakuOptions);
 
-    this.cluster = new ShardClient(this);
-
     this.dataSource = new DataSource({
       type: 'postgres',
       synchronize: true,
@@ -63,7 +59,7 @@ export class ExtendedClient extends TwokeiClient {
       username: process.env.PGUSER,
       password: process.env.PGPASSWORD,
       database: process.env.PGDATABASE,
-      schema: 'app',
+      schema: process.env.PGSCHEMA,
       entities: [
         UserEntity,
         GuildEntity,
