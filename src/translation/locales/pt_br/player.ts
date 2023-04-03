@@ -1,6 +1,6 @@
 export default {
-  'track_one': 'track',
-  'track_others': 'tracks',
+  'track_one': 'faixa',
+  'track_others': 'faixas',
   'song_added': '**{{track}}** adicionado à fila',
   'playlist_added': '**{{track}}** adicionado à fila com outras {{rest}} tracks.',
   'embed': {
@@ -21,23 +21,23 @@ export default {
       '**WIP - More features coming soon!**'
     ],
     'buttons': {
-      'stop': 'Stop',
-      'previous': 'Previous',
-      'next': 'Next',
-      'pause': 'Pause',
-      'resume': 'Resume',
-      'skip': 'Skip',
-      'shuffle': 'Shuffle',
+      'stop': 'Parar',
+      'previous': 'Anterior',
+      'next': 'Próximo',
+      'pause': 'Pausar',
+      'resume': 'Continuar',
+      'skip': 'Pular',
+      'shuffle': 'Embaralhar',
       'loop': 'Loop',
       'loop_none': 'Loop',
-      'loop_track': 'Loop: Track',
-      'loop_queue': 'Loop: Queue',
+      'loop_track': 'Loop: Faixa',
+      'loop_queue': 'Loop: Fila',
       'auto_play': 'Autoplay',
       'select_language': 'Select language',
       'sync_playlist': '(Soon) Import Spotify playlist',
       'save_this_playlist': 'Save current queue',
       'your_playlists': '(Soon) Saved playlists',
-      'donate': 'Contribute with the development',
+      'donate': 'Contribua com o desenvolvimento',
     }
   },
   'player': {
