@@ -246,11 +246,15 @@ export class Venti {
       amount = this.queue.totalSize;
     }
 
+    if(this.loop === LoopStates.TRACK) {
+      this.loop = LoopStates.NONE;
+    }
+
     this.queue.removeAt(0, amount - 1);
 
-    logger.info(`Skipping ${amount} tracks for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`);
-    logger.info(`Current track is ${this.queue.current?.title}`);
-    logger.info(`Next track will be ${this.queue[0]?.title}`);
+    logger.debug(`Skipping ${amount} tracks for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`);
+    logger.debug(`Current track is ${this.queue.current?.title}`);
+    logger.debug(`Next track will be ${this.queue[0]?.title}`);
 
     this.instance.stopTrack();
     return this;
@@ -270,9 +274,8 @@ export class Venti {
     this.instance.setPaused(state);
     this.playing = !state;
 
-    logger.info(`Player for guild ${this.guildId} is now ${state ? 'paused' : 'playing'}`);
+    logger.debug(`Player for guild ${this.guildId} is now ${state ? 'paused' : 'playing'}`);
     this.emit(Events.TrackPause, this);
-
 
     return this.paused;
   }

@@ -21,7 +21,7 @@ export const parseTracksToMenuItem = (tracks: TrackQueue) => {
     logger.debug('Current track found, adding to menu items.');
     items.unshift({
       default: true,
-      label: `Current: ${current.title}`,
+      label: current.title,
       value: 'current',
       description: current.author
     });
