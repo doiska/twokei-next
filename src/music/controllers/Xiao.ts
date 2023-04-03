@@ -164,10 +164,17 @@ export class Xiao extends EventEmitter {
     this.shoukaku.on('ready', (name) => logger.debug(`[Shoukaku] Node ${name} is now connected`));
     this.shoukaku.on('close', (name, code, reason) => logger.debug(`[Shoukaku] Node ${name} closed with code ${code} and reason ${reason}`));
     this.shoukaku.on('error', (name, error) => logger.error(`[Shoukaku] Node ${name} emitted an error: ${error}`));
+
+    this.on(Events.TrackStart, trackStart);
+    this.on(Events.TrackAdd, trackAdd);
+    this.on(Events.PlayerDestroy, playerDestroy);
+    this.on(Events.TrackPause, trackPause);
+    this.on(Events.ManualUpdate, manualUpdate);
   }
 
   public async createPlayer<T extends Venti>(options: VentiInitOptions): Promise<T | Venti> {
     const current = this.players.get(options.guild);
+
     if (current) {
       return current;
     }
@@ -187,13 +194,6 @@ export class Xiao extends EventEmitter {
     });
 
     const venti = new Venti(this, player, options);
-
-    this.on(Events.TrackStart, trackStart);
-    this.on(Events.TrackAdd, trackAdd);
-    this.on(Events.PlayerDestroy, playerDestroy);
-    this.on(Events.TrackPause, trackPause);
-    this.on(Events.ManualUpdate, manualUpdate);
-
 
     this.players.set(options.guild, venti);
     this.emit(Events.PlayerCreate, venti);
