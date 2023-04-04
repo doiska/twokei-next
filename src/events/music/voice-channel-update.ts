@@ -24,6 +24,14 @@ export const voiceChannelUpdate = createEvent('voiceStateUpdate', async (oldStat
 
   if(updateType === 'voiceChannelLeave') {
 
+    if(!isConnected) {
+      try {
+        await Twokei.xiao.destroyPlayer(guild.id);
+      } catch (e) {
+        self?.voice?.disconnect();
+      }
+    }
+
     if(!selfVoice || !isConnected) {
       return;
     }

@@ -137,7 +137,7 @@ export class Xiao extends EventEmitter {
 
   public embedManager: GuildEmbedManager;
 
-  private resolvers: TrackResolver[] = [
+  public resolvers: TrackResolver[] = [
     new SpotifyResolver()
   ];
 
@@ -236,7 +236,7 @@ export class Xiao extends EventEmitter {
       throw new Error('No available nodes');
     }
 
-    if(options?.resolve ?? true) {
+    if (options?.resolve ?? true) {
       const resolver = this.resolvers.find(resolver => resolver.matches(query));
 
       logger.debug(`Resolving ${query} with ${resolver?.name ?? 'default resolver'}`);
@@ -275,5 +275,9 @@ export class Xiao extends EventEmitter {
       tracks: result.tracks.map(track => new ResolvableTrack(track)),
       playlistName: result.playlistInfo?.name
     }
+  }
+
+  public getMatchingResolver(query: string): TrackResolver | undefined {
+    return this.resolvers.find(resolver => resolver.matches(query));
   }
 }
