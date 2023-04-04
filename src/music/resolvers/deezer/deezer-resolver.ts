@@ -11,4 +11,12 @@ export class DeezerResolver implements TrackResolver {
   public resolve(query: string): Promise<XiaoSearchResult> {
     throw new Error('Method not implemented.');
   }
+
+  public getPlaylist(id: string): Promise<XiaoSearchResult> {
+    throw new Error('Method not implemented.');
+  }
+
+  public getTrack(id: string): Promise<XiaoSearchResult> {
+    throw new Error('Method not implemented.');
+  }
 }

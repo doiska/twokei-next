@@ -3,6 +3,7 @@ import { SpotifyRequestManager } from './spotify-request-manager';
 import { PlaylistTracks, SpotifyPlaylistResponse, SpotifySearchResponse, SpotifyTrackResponse } from './spotify.types';
 import { ResolvableTrack } from '../../managers/ResolvableTrack';
 import { LoadType, XiaoSearchResult } from '../../interfaces/player.types';
+import { logger } from '../../../modules/logger-transport';
 
 interface SpotifyClient {
   clientId: string;
@@ -35,9 +36,9 @@ export class SpotifyResolver implements TrackResolver {
     const defaultOptions = {
       region: 'BR',
       limits: {
-        search: 10,
-        playlists: 10,
-        tracks: 10,
+        search: 5,
+        playlists: 5,
+        tracks: 5,
         albums: 10
       },
       clients: [
@@ -55,11 +56,15 @@ export class SpotifyResolver implements TrackResolver {
     return SPOTIFY_URL.test(url);
   }
 
-  public async resolve(query: string): Promise<XiaoSearchResult> {
+  public async resolve(query: string, forceType = ''): Promise<XiaoSearchResult> {
     const spotifyUrl = SPOTIFY_URL.exec(query);
 
     if (spotifyUrl) {
       const [, type, id] = spotifyUrl;
+
+      if(forceType && forceType !== type) {
+        throw new Error('Invalid type');
+      }
 
       switch (type) {
         case 'track':
@@ -96,7 +101,7 @@ export class SpotifyResolver implements TrackResolver {
     }
   }
 
-  private async getPlaylist(id: string): Promise<XiaoSearchResult> {
+  public async getPlaylist(id: string): Promise<XiaoSearchResult> {
     const playlist = await this.requestManager.request<SpotifyPlaylistResponse>(`/playlists/${id}?market=${this.options.region}`);
 
     const tracks = playlist?.tracks?.items
@@ -137,7 +142,46 @@ export class SpotifyResolver implements TrackResolver {
     }
   }
 
-  private async getTrack(id: string) {
+  public async validate(url: string): Promise<{
+    type: LoadType;
+    playlistName?: string;
+    amount?: number;
+  }> {
+
+    const spotifyUrl = SPOTIFY_URL.exec(url);
+
+    if (!spotifyUrl) {
+      return {
+        type: LoadType.NO_MATCHES
+      }
+    }
+
+    const [, type, id] = spotifyUrl;
+
+    if(type !== 'playlist') {
+      throw new Error('Invalid type');
+    }
+
+    const playlist = await this.requestManager.request<SpotifyPlaylistResponse>(`/playlists/${id}?market=${this.options.region}`);
+
+    const tracks = playlist?.tracks?.items
+      .filter(Boolean)
+      .map((item) => this.parseTrack(item.track, null));
+
+    if (!playlist || tracks.length === 0) {
+      return {
+        type: LoadType.NO_MATCHES
+      }
+    }
+
+    return {
+      playlistName: playlist.name,
+      type: LoadType.PLAYLIST_LOADED,
+      amount: playlist.tracks.total
+    }
+  }
+
+  public async getTrack(id: string) {
     const response = await this.requestManager.request<SpotifyTrackResponse>(`/tracks/${id}`);
 
     if (!response) {
