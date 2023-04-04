@@ -16,6 +16,7 @@ import { SongEntity } from '../entities/SongEntity';
 import process from 'node:process';
 
 import { init as initI18n } from '../translation/i18n';
+import { PlaylistEntity } from '../entities/PlaylistEntity';
 
 declare module 'discord.js' {
   interface Client {
@@ -64,7 +65,8 @@ export class ExtendedClient extends TwokeiClient {
         UserEntity,
         GuildEntity,
         SongEntity,
-        SongChannelEntity
+        SongChannelEntity,
+        PlaylistEntity
       ]
     });
 
