@@ -1,16 +1,14 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
-import { UserEntity } from './UserEntity';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'played_songs' })
 export class SongEntity {
   @PrimaryGeneratedColumn()
   public id!: number;
 
-  @JoinColumn()
-  @OneToOne(() => UserEntity)
+  @Column({ name: 'user_id' })
   public user!: string;
 
-  @Column()
+  @Column({ name: 'guild_id' })
   public guild!: string;
 
   @Column()
