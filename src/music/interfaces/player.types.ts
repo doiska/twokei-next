@@ -1,4 +1,4 @@
-import { Snowflake } from 'discord.js';
+import { Snowflake, User } from 'discord.js';
 import { Maybe } from '../../utils/type-guards';
 import { ResolvableTrack } from '../managers/ResolvableTrack';
 import { Locale } from '../../translation/i18n';
@@ -27,7 +27,7 @@ export interface XiaoInitOptions {
 }
 
 export interface XiaoSearchOptions {
-  requester: unknown;
+  requester?: User;
   engine?: SearchEngines;
   nodeName?: string;
   searchType?: 'track' | 'playlist';

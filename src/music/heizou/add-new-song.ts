@@ -5,6 +5,7 @@ import { createPlayerInstance } from './create-player-instance';
 import { PlayerException } from '../../exceptions/PlayerException';
 import { GuildMember } from 'discord.js';
 import { Events } from '../interfaces/player.types';
+import { addNewRecommendationEntry } from "../../recommendation/add-new-entry";
 
 export async function addNewSong(input: string, member: GuildMember) {
   const guild = member.guild;
@@ -34,7 +35,7 @@ export async function addNewSong(input: string, member: GuildMember) {
     throw new PlayerException('Player could not be created');
   }
 
-  const result = await Twokei.xiao.search(input);
+  const result = await Twokei.xiao.search(input, { requester: member.user });
 
   if (!result.tracks.length) {
     throw new PlayerException('No tracks found');
@@ -43,7 +44,7 @@ export async function addNewSong(input: string, member: GuildMember) {
   player.queue.add(...result.tracks);
 
   if(!player.playing) {
-    player.play();
+    await player.play();
   } else {
     player.emit(Events.TrackAdd, player, result.tracks);
   }
