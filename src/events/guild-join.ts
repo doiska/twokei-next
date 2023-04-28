@@ -1,11 +1,20 @@
 import { createEvent } from 'twokei-framework';
 import { finyAnyUsableChannel } from '../utils/channel-utilities';
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder } from 'discord.js';
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ComponentType,
+  EmbedBuilder,
+  Events,
+  Locale,
+} from 'discord.js';
 import { setupNewChannel } from '../modules/setup-new-channel';
-import { i18nGuild } from '../translation/guild-i18n';
 import { logger } from '../modules/logger-transport';
+import i18next from 'i18next';
+import { Twokei } from '../app/Twokei';
 
-export const guildJoin = createEvent('guildCreate', async guild => {
+export const guildJoin = createEvent(Events.GuildCreate, async guild => {
   const { id, name: guildName, memberCount } = guild;
 
   const adminUsableChannel = await finyAnyUsableChannel(guild);
@@ -15,18 +24,13 @@ export const guildJoin = createEvent('guildCreate', async guild => {
     return;
   }
 
-  const description = [
-    'So you invited me to your server, thats great!',
-    'Let me explain how I work:',
-    '',
-    '<:2K:1068954133320708116> **First, you can create a channel for me.**',
-    '1. If you create the channel, you can **still use the command** (or mention).',
-    '2. To create the channel, click the `Setup` button below.',
-    '',
-    ':sob: **If you dont want to use the channel, theres some options:**',
-    '- :mouse: The command (click here): </play:1067082391975362654>',
-    `- :keyboard: Or mention me with the song: ${guild.members.me!.toString()} [<url/search>](https://youtu.be/dQw4w9WgXcQ)`
-  ];
+  const t = i18next.getFixedT(guild.preferredLocale === Locale.PortugueseBR ? 'pt_br' : 'en_us', 'common');
+
+  const description = t('onJoin', {
+    joinArrays: '\n',
+    'playCommand': `</play>`,
+    'me': Twokei.user!.toString()
+  });
 
   const row = new ActionRowBuilder<ButtonBuilder>();
 
@@ -42,11 +46,11 @@ export const guildJoin = createEvent('guildCreate', async guild => {
 
   row.addComponents(createChannelButton, cancelChannelButton);
 
-  const name = await i18nGuild(id, 'name');
+  const name = t('name');
 
   const embed = new EmbedBuilder()
-    .setTitle(`:wave: Hi there! I'm ${name}!`)
-    .setDescription(description.join('\n'));
+    .setTitle(`:wave: Hi there :)! I'm ${name}!`)
+    .setDescription(description);
 
   const introduction = await adminUsableChannel.send({ embeds: [embed], components: [row] });
 

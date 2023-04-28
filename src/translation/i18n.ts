@@ -12,7 +12,7 @@ export const LocaleFlags = {
 
 export type Locale = typeof VALID_LOCALES[number];
 
-export const DEFAULT_LOCALE: Locale = 'en_us';
+export const DEFAULT_LOCALE: Locale = 'pt_br';
 
 const resources = VALID_LOCALES.reduce((acc, locale) => {
   const folderPath = path.join(__dirname, 'locales', locale);
