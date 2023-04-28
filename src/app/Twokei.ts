@@ -3,7 +3,6 @@ import 'reflect-metadata';
 import { ExtendedClient } from '../structures/ExtendedClient';
 import { logger } from '../modules/logger-transport';
 
-
 export const Twokei = new ExtendedClient({
   shards: 'auto',
   shardCount: 1,

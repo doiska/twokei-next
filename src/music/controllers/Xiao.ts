@@ -31,6 +31,7 @@ import { SpotifyResolver } from '../resolvers/spotify/spotify-resolver';
 import { TrackResolver } from '../resolvers/resolver';
 import { logger } from '../../modules/logger-transport';
 import { manualUpdate } from '../events/manual-update';
+import { queueEmpty } from "../events/queue-empty";
 
 
 export interface XiaoEvents {
@@ -148,10 +149,10 @@ export class Xiao extends EventEmitter {
    * @param optionsShoukaku Shoukaku options
    */
   constructor(
-    public options: XiaoInitOptions,
-    connector: Connector,
-    nodes: NodeOption[],
-    optionsShoukaku: ShoukakuOptions = {}
+      public options: XiaoInitOptions,
+      connector: Connector,
+      nodes: NodeOption[],
+      optionsShoukaku: ShoukakuOptions = {}
   ) {
     super();
 
@@ -160,7 +161,12 @@ export class Xiao extends EventEmitter {
     this.players = new Map<string, Venti>();
     this.embedManager = new GuildEmbedManager();
 
-    this.shoukaku.on('debug', (name, info) => logger.debug(`[Shoukaku] ${name}: ${info}`));
+    this.shoukaku.on('debug', (name, info) => {
+      if (process.env.NODE_ENV !== 'production') {
+        logger.debug(`[Shoukaku] Node ${name} emitted debug info: ${info}`);
+      }
+    });
+
     this.shoukaku.on('ready', (name) => logger.debug(`[Shoukaku] Node ${name} is now connected`));
     this.shoukaku.on('close', (name, code, reason) => logger.debug(`[Shoukaku] Node ${name} closed with code ${code} and reason ${reason}`));
     this.shoukaku.on('error', (name, error) => logger.error(`[Shoukaku] Node ${name} emitted an error: ${error}`));
@@ -170,6 +176,7 @@ export class Xiao extends EventEmitter {
     this.on(Events.PlayerDestroy, playerDestroy);
     this.on(Events.TrackPause, trackPause);
     this.on(Events.ManualUpdate, manualUpdate);
+    this.on(Events.QueueEmpty, queueEmpty);
   }
 
   public async createPlayer<T extends Venti>(options: VentiInitOptions): Promise<T | Venti> {
@@ -265,15 +272,15 @@ export class Xiao extends EventEmitter {
     if (result.loadType === 'SEARCH_RESULT' && searchType === 'track') {
       return {
         type: LoadType.SEARCH_RESULT,
-        tracks: [new ResolvableTrack(result.tracks[0])],
+        tracks: [new ResolvableTrack(result.tracks[0], { requester: options?.requester })],
         playlistName: result.playlistInfo?.name
       }
     }
 
     return {
       type: LoadType.PLAYLIST_LOADED,
-      tracks: result.tracks.map(track => new ResolvableTrack(track)),
-      playlistName: result.playlistInfo?.name
+      tracks: result.tracks.map(track => new ResolvableTrack(track, { requester: options?.requester })),
+      playlistName: result.playlistInfo?.name,
     }
   }
 
