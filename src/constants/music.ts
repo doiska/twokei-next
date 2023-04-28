@@ -80,7 +80,7 @@ export const DynamicPlaylistButtons = (locale?: Locale): Record<string, Button> 
 
 export const DynamicPrimaryButtons = (player?: Venti): Record<string, Button> => {
 
-  const t = getFixedT(player?.locale ?? 'en_us', 'player');
+  const t = getFixedT(player?.locale ?? 'pt_br', 'player');
 
   return {
     STOP: {
@@ -110,7 +110,7 @@ export const DynamicPrimaryButtons = (player?: Venti): Record<string, Button> =>
 }
 
 export const DynamicSecondaryButtons = (player?: Venti): Record<string, Button> => {
-  const t = getFixedT(player?.locale ?? 'en_us', 'player');
+  const t = getFixedT(player?.locale ?? 'pt_br', 'player');
 
   return {
     SHUFFLE: {
