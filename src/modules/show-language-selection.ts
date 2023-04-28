@@ -18,7 +18,7 @@ export async function showLanguageSelection(channel: TextChannel, member: GuildM
   //   throw new Error('I need to be an administrator to use this command.');
   // }
 
-  const currentLocale = await getGuidLocale(member.guild.id) || 'en_US';
+  const currentLocale = await getGuidLocale(member.guild.id) || 'pt_br';
 
   const embed = new EmbedBuilder()
     .setTitle('Twokei')

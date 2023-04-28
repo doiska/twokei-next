@@ -1,13 +1,19 @@
 import { Xiao, XiaoEvents } from './Xiao';
-import { Player, PlayerUpdate, Track, TrackStuckEvent, WebSocketClosedEvent } from 'shoukaku';
-import { Events, VentiInitOptions, PlayerState, PlayOptions } from '../interfaces/player.types';
+import {
+  Player,
+  PlayerUpdate,
+  PlayOptions as ShoukakuPlayOptions,
+  TrackStuckEvent,
+  WebSocketClosedEvent
+} from 'shoukaku';
+import { Events, PlayerState, PlayOptions, VentiInitOptions } from '../interfaces/player.types';
 import { Snowflake } from 'discord.js';
 import { Maybe } from '../../utils/type-guards';
 import { TrackQueue } from '../managers/TrackQueue';
-import { PlayOptions as ShoukakuPlayOptions } from 'shoukaku';
 import { logger } from '../../modules/logger-transport';
 import { ResolvableTrack } from '../managers/ResolvableTrack';
 import { Locale } from '../../translation/i18n';
+import { addNewRecommendationEntry } from "../../recommendation/add-new-entry";
 
 export enum LoopStates {
   NONE = 'none',
@@ -197,7 +203,7 @@ export class Venti {
       throw new Error('No track found');
     }
 
-    if(!this.xiao.search) {
+    if (!this.xiao.search) {
       throw new Error('No search provider found');
     }
 
@@ -213,6 +219,16 @@ export class Venti {
       }
 
       logger.debug(`Playing track ${this.queue.current.title} for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`);
+
+      if (this.queue.current.requester) {
+        logger.debug(`Adding recommendation entry for ${this.queue.current.requester.id} in guild ${this.guildId}`);
+
+        addNewRecommendationEntry(this.queue.current.requester.id, this.guildId, {
+          title: this.queue.current.title,
+          author: this.queue.current.author,
+          url: this.queue.current.uri,
+        });
+      }
 
       this.instance.playTrack(shoukakuPlayOptions);
     }).catch(err => {
@@ -246,7 +262,7 @@ export class Venti {
       amount = this.queue.totalSize;
     }
 
-    if(this.loop === LoopStates.TRACK) {
+    if (this.loop === LoopStates.TRACK) {
       this.loop = LoopStates.NONE;
     }
 
