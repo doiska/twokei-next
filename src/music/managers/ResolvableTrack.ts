@@ -2,9 +2,11 @@ import { Track } from 'shoukaku';
 import { escapeRegExp } from '../../utils/dash-utils';
 import { XiaoSearchOptions, XiaoSearchResult } from '../interfaces/player.types';
 import { Twokei } from '../../app/Twokei';
+import { User } from "discord.js";
+import { logger } from "../../modules/logger-transport";
 
 interface ResolvableTrackOptions {
-  requester: unknown;
+  requester?: User;
 }
 
 type TrackSearch = (query: string, options: XiaoSearchOptions) => Promise<XiaoSearchResult>;
@@ -14,7 +16,7 @@ export class ResolvableTrack {
   /**
    * Track Requester
    */
-  public requester: unknown | undefined;
+  public requester?: User;
 
   /** Track's Base64 */
   public track: string;
@@ -145,7 +147,6 @@ export class ResolvableTrack {
       );
 
       if (sameDuration) {
-        console.log('Found same duration track')
         return sameDuration;
       }
     }
