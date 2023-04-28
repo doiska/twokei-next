@@ -11,7 +11,7 @@ import { DataSource } from 'typeorm';
 import { GuildEntity } from '../entities/GuildEntity';
 import { SongChannelEntity } from '../entities/SongChannelEntity';
 import { UserEntity } from '../entities/UserEntity';
-import { SongEntity } from '../entities/SongEntity';
+import { SongEntity } from '../recommendation/schema/SongEntity';
 
 import process from 'node:process';
 
