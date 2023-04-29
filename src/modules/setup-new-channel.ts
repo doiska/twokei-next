@@ -1,9 +1,4 @@
-import {
-  ChannelType, DiscordAPIError,
-  GuildChannel,
-  GuildMember, GuildTextBasedChannel,
-  PermissionFlagsBits, TextBasedChannel
-} from 'discord.js';
+import { ChannelType, GuildMember, PermissionFlagsBits, TextBasedChannel } from 'discord.js';
 import { canCreateChannels, canSendMessages } from '../utils/discord-utilities';
 import { SongChannelEntity } from '../entities/SongChannelEntity';
 import { Twokei } from '../app/Twokei';
@@ -23,11 +18,11 @@ export const setupNewChannel = async (channel: TextBasedChannel, member: GuildMe
   }
 
   const currentChannel = await Twokei.dataSource.getRepository(SongChannelEntity)
-    .findOne({
-      where: {
-        guild: guild.id
-      }
-    });
+      .findOne({
+        where: {
+          guild: guild.id
+        }
+      });
 
   if (currentChannel) {
     if (currentChannel.channel === channel.id) {
@@ -37,12 +32,12 @@ export const setupNewChannel = async (channel: TextBasedChannel, member: GuildMe
     console.log(`Deleting old channel ${currentChannel.channel}...`)
 
     guild.channels.fetch(currentChannel.channel)
-      .then(channel => {
-        channel?.delete();
-      })
-      .catch((e) => {
-        console.log(`Error deleting old channel: ${e.message} (${e.code})`);
-      });
+        .then(channel => {
+          channel?.delete();
+        })
+        .catch((e) => {
+          console.log(`Error deleting old channel: ${e.message} (${e.code})`);
+        });
   }
 
   const newChannel = await guild.channels.create({

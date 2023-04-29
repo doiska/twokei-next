@@ -1,10 +1,5 @@
 import { createEvent, MessageBuilder } from 'twokei-framework';
-import {
-  ChannelType,
-  Colors,
-  EmbedBuilder,
-  userMention
-} from 'discord.js';
+import { ChannelType, Colors, EmbedBuilder, userMention } from 'discord.js';
 import { Twokei } from '../app/Twokei';
 import { addNewSong } from '../music/heizou/add-new-song';
 import { SongChannelEntity } from '../entities/SongChannelEntity';
@@ -24,12 +19,12 @@ export const onMessage = createEvent('messageCreate', async (message) => {
   }
 
   const usableChannel = await Twokei.dataSource
-    .getRepository(SongChannelEntity)
-    .findOne({
-      where: {
-        guild: message.guild.id
-      }
-    });
+      .getRepository(SongChannelEntity)
+      .findOne({
+        where: {
+          guild: message.guild.id
+        }
+      });
 
   const channel = message.channel;
   const contentOnly = message.content.replace(/<@!?\d+>/g, '').trim();
@@ -42,7 +37,7 @@ export const onMessage = createEvent('messageCreate', async (message) => {
     return;
   }
 
-  if(isUsableChannel) {
+  if (isUsableChannel) {
     message.delete();
   }
 
@@ -56,18 +51,18 @@ export const onMessage = createEvent('messageCreate', async (message) => {
     ]
 
     const embed = new EmbedBuilder()
-      .setTitle(`🥲 Sorry!`)
-      .setDescription(reply.join('\n'))
+        .setTitle(`🥲 Sorry!`)
+        .setDescription(reply.join('\n'))
 
     return new MessageBuilder()
-      .setEmbeds(embed)
-      .send(channel);
+        .setEmbeds(embed)
+        .send(channel);
   }
 
   if (!hasContent) {
     return new MessageBuilder()
-      .setContent(`Please provide a song to play.`)
-      .send(channel);
+        .setContent(`Please provide a song to play.`)
+        .send(channel);
   }
 
   try {
@@ -77,24 +72,24 @@ export const onMessage = createEvent('messageCreate', async (message) => {
     const isPlaylist = !!result.playlistName;
 
     const embed = new EmbedBuilder()
-      // .setTitle(`🎶 ${isPlaylist ? 'Playlist' : 'Song'} added to queue.`)
-      .setDescription(`${isPlaylist ? 'Playlist' : 'Track'}: **${name}** added to queue.`)
-      .setColor(Colors.DarkButNotBlack);
+        // .setTitle(`🎶 ${isPlaylist ? 'Playlist' : 'Song'} added to queue.`)
+        .setDescription(`${isPlaylist ? 'Playlist' : 'Track'}: **${name}** added to queue.`)
+        .setColor(Colors.DarkButNotBlack);
 
     return new MessageBuilder()
-      .setEmbeds([embed])
-      .send(channel);
+        .setEmbeds([embed])
+        .send(channel);
   } catch (e) {
     if (e instanceof PlayerException) {
       return new MessageBuilder()
-        .setContent(e.message)
-        .send(channel);
+          .setContent(e.message)
+          .send(channel);
     }
 
     logger.error(e)
 
     return new MessageBuilder()
-      .setContent(`An error occurred while trying to play the song.`)
-      .send(channel);
+        .setContent(`An error occurred while trying to play the song.`)
+        .send(channel);
   }
 })

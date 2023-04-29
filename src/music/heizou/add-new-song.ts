@@ -5,7 +5,6 @@ import { createPlayerInstance } from './create-player-instance';
 import { PlayerException } from '../../exceptions/PlayerException';
 import { GuildMember } from 'discord.js';
 import { Events } from '../interfaces/player.types';
-import { addNewRecommendationEntry } from "../../recommendation/add-new-entry";
 
 export async function addNewSong(input: string, member: GuildMember) {
   const guild = member.guild;
@@ -43,7 +42,7 @@ export async function addNewSong(input: string, member: GuildMember) {
 
   player.queue.add(...result.tracks);
 
-  if(!player.playing) {
+  if (!player.playing) {
     await player.play();
   } else {
     player.emit(Events.TrackAdd, player, result.tracks);

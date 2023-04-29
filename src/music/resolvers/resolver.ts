@@ -1,10 +1,9 @@
-import { LoadType, XiaoSearchResult } from '../interfaces/player.types';
-import { ResolvableTrack } from '../managers/ResolvableTrack';
+import { LoadType, XiaoSearchOptions, XiaoSearchResult } from '../interfaces/player.types';
 
 export interface TrackResolver {
   name: string;
 
-  resolve(query: string): Promise<XiaoSearchResult>;
+  resolve(query: string, options?: XiaoSearchOptions): Promise<XiaoSearchResult>;
 
   matches(url: string): boolean;
 

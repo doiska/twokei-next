@@ -140,9 +140,6 @@ export class Venti {
       this.queue.previous = currentSong;
       this.queue.current = null;
 
-      console.log(`Track ended for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`);
-      console.log(`Current is null and previous is ${this.queue.previous?.title}`)
-
       if (this.queue.length) {
         if (currentSong) {
           this.emit(Events.TrackEnd, this, currentSong);
@@ -221,7 +218,7 @@ export class Venti {
       logger.debug(`Playing track ${this.queue.current.title} for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`);
 
       if (this.queue.current.requester) {
-        logger.debug(`Adding recommendation entry for ${this.queue.current.requester.id} in guild ${this.guildId}`);
+        logger.info(`Adding recommendation entry for ${this.queue.current.requester.id} in guild ${this.guildId}`);
 
         addNewRecommendationEntry(this.queue.current.requester.id, this.guildId, {
           title: this.queue.current.title,

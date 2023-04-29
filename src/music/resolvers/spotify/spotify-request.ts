@@ -18,7 +18,7 @@ export class SpotifyRequest {
 
   public async request<T>(endpoint: string, useUri = false): Promise<T> {
 
-    if(this.expiresAt < Date.now()) {
+    if (this.expiresAt < Date.now()) {
       await this.refresh();
     }
 
@@ -26,7 +26,7 @@ export class SpotifyRequest {
       throw new Error('Spotify API is rate limited');
     }
 
-    if(endpoint.startsWith('/')) {
+    if (endpoint.startsWith('/')) {
       endpoint = endpoint.slice(1);
     }
 
@@ -38,7 +38,7 @@ export class SpotifyRequest {
       }
     });
 
-    if(request.headers.get('X-RateLimit-Remaining') === '0') {
+    if (request.headers.get('X-RateLimit-Remaining') === '0') {
       this.currentApiStatus.rateLimited = true;
       throw new Error('Spotify API is rate limited');
     }
@@ -47,7 +47,7 @@ export class SpotifyRequest {
 
     const data = (await request.json());
 
-    if(data.error) {
+    if (data.error) {
       throw new Error(data.error.message);
     }
 
@@ -65,7 +65,7 @@ export class SpotifyRequest {
 
     const { access_token, expires_in } = await request.json() as { access_token: string, expires_in: number };
 
-    if(!access_token) {
+    if (!access_token) {
       throw new Error('Failed to refresh token');
     }
 

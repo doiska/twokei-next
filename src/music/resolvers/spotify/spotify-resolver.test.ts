@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it} from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { SpotifyResolver } from './spotify-resolver';
 import { LoadType } from '../../interfaces/player.types';
 

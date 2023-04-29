@@ -3,7 +3,6 @@ import { SpotifyRequestManager } from './spotify-request-manager';
 import { PlaylistTracks, SpotifyPlaylistResponse, SpotifySearchResponse, SpotifyTrackResponse } from './spotify.types';
 import { ResolvableTrack } from '../../managers/ResolvableTrack';
 import { LoadType, XiaoSearchOptions, XiaoSearchResult } from '../../interfaces/player.types';
-import { logger } from '../../../modules/logger-transport';
 import { User } from "discord.js";
 
 interface SpotifyClient {
@@ -100,8 +99,8 @@ export class SpotifyResolver implements TrackResolver {
     const playlist = await this.requestManager.request<SpotifyPlaylistResponse>(`/playlists/${id}?market=${this.options.region}`);
 
     const tracks = playlist?.tracks?.items
-      .filter(Boolean)
-      .map((item) => this.parseTrack(item.track, requester));
+        .filter(Boolean)
+        .map((item) => this.parseTrack(item.track, requester));
 
     if (!playlist || tracks.length === 0) {
       return {
@@ -124,7 +123,7 @@ export class SpotifyResolver implements TrackResolver {
       page++;
 
       const filteredTracks = nextTracks.items.filter(x => !!x && x.track)
-        .map((item) => this.parseTrack(item.track, requester));
+          .map((item) => this.parseTrack(item.track, requester));
 
       tracks.push(...filteredTracks);
 
@@ -153,15 +152,15 @@ export class SpotifyResolver implements TrackResolver {
 
     const [, type, id] = spotifyUrl;
 
-    if(type !== 'playlist') {
+    if (type !== 'playlist') {
       throw new Error('Invalid type');
     }
 
     const playlist = await this.requestManager.request<SpotifyPlaylistResponse>(`/playlists/${id}?market=${this.options.region}`);
 
     const tracks = playlist?.tracks?.items
-      .filter(Boolean)
-      .map((item) => this.parseTrack(item.track));
+        .filter(Boolean)
+        .map((item) => this.parseTrack(item.track));
 
     if (!playlist || tracks.length === 0) {
       return {
@@ -193,23 +192,25 @@ export class SpotifyResolver implements TrackResolver {
   }
 
   private parseTrack(spotifyTrack: SpotifyTrackResponse, requester?: User, thumbnail?: string) {
+    console.log(`[SPOTIFY] ${spotifyTrack.name} - ${requester?.tag}`)
+
     return new ResolvableTrack(
-      {
-        track: '',
-        info: {
-          sourceName: 'spotify',
-          title: spotifyTrack.name,
-          identifier: spotifyTrack.id,
-          author: spotifyTrack.artists[0] ? spotifyTrack.artists[0].name : 'Unknown',
-          length: spotifyTrack.duration_ms,
-          isSeekable: true,
-          isStream: false,
-          position: 0,
-          uri: `https://open.spotify.com/track/${spotifyTrack.id}`
+        {
+          track: '',
+          info: {
+            sourceName: 'spotify',
+            title: spotifyTrack.name,
+            identifier: spotifyTrack.id,
+            author: spotifyTrack.artists[0] ? spotifyTrack.artists[0].name : 'Unknown',
+            length: spotifyTrack.duration_ms,
+            isSeekable: true,
+            isStream: false,
+            position: 0,
+            uri: `https://open.spotify.com/track/${spotifyTrack.id}`
+          },
+          thumbnail: thumbnail ?? spotifyTrack.album?.images[0]?.url ?? ''
         },
-        thumbnail: thumbnail ?? spotifyTrack.album?.images[0]?.url ?? ''
-      },
-      { requester }
+        { requester }
     );
   }
 }

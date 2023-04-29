@@ -249,7 +249,7 @@ export class Xiao extends EventEmitter {
       logger.debug(`Resolving ${query} with ${resolver?.name ?? 'default resolver'}`);
 
       if (resolver) {
-        return resolver.resolve(query);
+        return resolver.resolve(query, options);
       }
     }
 

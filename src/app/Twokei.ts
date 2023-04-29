@@ -14,5 +14,5 @@ export const Twokei = new ExtendedClient({
 });
 
 Twokei.start()
-  .then(() => logger.info('Client ready!'))
-  .catch((error) => logger.error('Client failed to start', error));
+    .then(() => logger.info('Client ready!'))
+    .catch((error) => logger.error('Client failed to start', error));

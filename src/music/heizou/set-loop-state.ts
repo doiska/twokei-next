@@ -1,4 +1,4 @@
-import { Guild, GuildResolvable } from 'discord.js';
+import { GuildResolvable } from 'discord.js';
 import { Twokei } from '../../app/Twokei';
 import { LoopStates } from '../controllers/Venti';
 import { FriendlyException } from '../../exceptions/FriendlyException';

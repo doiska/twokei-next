@@ -13,9 +13,9 @@ export class SpotifyRequestManager {
   }
 
   public request<T>(endpoint: string, useUri = false): Promise<T> {
-   const requester = this.mode === 'single' ? this.requests[0] : this.getLeastUsedRequest();
+    const requester = this.mode === 'single' ? this.requests[0] : this.getLeastUsedRequest();
 
-   logger.info(`Requesting ${endpoint} with ${requester.currentApiStatus.requests} requests made.`);
+    logger.info(`Requesting ${endpoint} with ${requester.currentApiStatus.requests} requests made.`);
 
     return requester.request(endpoint, useUri);
   }
@@ -25,7 +25,7 @@ export class SpotifyRequestManager {
 
     const requests = this.requests.filter(isNotRateLimited);
 
-    if(requests.length === 0) {
+    if (requests.length === 0) {
       throw new Error('All requests are rate limited');
     }
 

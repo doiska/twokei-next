@@ -1,4 +1,4 @@
-import { ClusterManager, ReClusterManager, HeartbeatManager } from 'discord-hybrid-sharding';
+import { ClusterManager, HeartbeatManager, ReClusterManager } from 'discord-hybrid-sharding';
 import { config } from 'dotenv';
 import { bold, red } from 'kleur';
 import { logger } from "./modules/logger-transport";
@@ -15,14 +15,14 @@ const shardingManager = new ClusterManager(`${__dirname}/app/Twokei.js`, {
 });
 
 shardingManager.extend(
-  new HeartbeatManager({ interval: 10000, maxMissedHeartbeats: 3 }),
-  new ReClusterManager({ restartMode: "gracefulSwitch" })
+    new HeartbeatManager({ interval: 10000, maxMissedHeartbeats: 3 }),
+    new ReClusterManager({ restartMode: "gracefulSwitch" })
 );
 
 const isChildProcess = (process: any): process is ChildProcess => process.send !== undefined;
 
 const getPid = (thread?: Worker_Thread | ChildProcess | null) => {
-  if(!thread) return 'undefined';
+  if (!thread) return 'undefined';
   return (isChildProcess(thread) ? thread.pid : thread.threadId) || 'undefined';
 }
 
@@ -30,7 +30,7 @@ shardingManager.on('clusterCreate', (cluster) => {
   logger.info(`[Cluster] Cluster Id: ${bold(cluster.id)} has been created and is now starting...`);
 
   cluster.on('spawn', (thread) => {
-    if(!thread) {
+    if (!thread) {
       logger.error(`[Cluster] Cluster ${red(cluster.id)} has spawned, but the thread is undefined.`);
       return;
     }
@@ -50,15 +50,15 @@ shardingManager.on('clusterCreate', (cluster) => {
 });
 
 shardingManager
-  .spawn()
-  .then(() => logger.info(bold(`[Cluster] All clusters have been spawned.`)))
-  .catch(e => logger.error(bold(`[Cluster] Failed to spawn clusters: ${red(e)}`)));
+    .spawn()
+    .then(() => logger.info(bold(`[Cluster] All clusters have been spawned.`)))
+    .catch(e => logger.error(bold(`[Cluster] Failed to spawn clusters: ${red(e)}`)));
 
 const stdin = process.openStdin();
 
 stdin.addListener('data', (d) => {
   const input = d.toString().trim();
-  if(input === 'exit') {
+  if (input === 'exit') {
     logger.info('Exiting...');
     shardingManager.broadcastEval('process.exit()');
   }
