@@ -15,17 +15,18 @@ export const addNewRecommendationEntry = async (member: string, guild: string, s
     where: {
       user: member,
       guild: guild,
+      song: song.url || song.title
     }
   });
 
-  if(songEntity) {
+  if (songEntity) {
     songEntity.count += 1;
     await repo.save(songEntity);
   } else {
     await repo.insert({
       user: member,
       guild: guild,
-      song: song.title,
+      song: song.url || song.title,
       count: 1
     });
   }

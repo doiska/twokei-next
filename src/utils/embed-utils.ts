@@ -1,4 +1,4 @@
-import { APIEmbed, EmbedData, SelectMenuComponentOptionData, StringSelectMenuComponentData } from 'discord.js';
+import { APIEmbed, SelectMenuComponentOptionData } from 'discord.js';
 import { EmbedLimits, SelectMenuLimits } from './limits';
 
 export const assertEmbedSize = (embed: APIEmbed): APIEmbed => {
@@ -24,7 +24,7 @@ export const assertEmbedSize = (embed: APIEmbed): APIEmbed => {
 
 export const assertMenuSize = (options: SelectMenuComponentOptionData[]) => {
 
-  if(!options) return options;
+  if (!options) return options;
 
   options = options?.slice(0, SelectMenuLimits.MaximumOptionsLength);
 
