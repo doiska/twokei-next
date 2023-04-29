@@ -8,11 +8,11 @@ export const trackStart: XiaoEvents[Events.TrackStart] = (venti) => {
 
   const embed = Twokei.xiao.embedManager.get(venti.guildId);
 
-  if(!embed) {
+  if (!embed) {
     return;
   }
 
-  if(venti.playing) {
+  if (venti.playing) {
     embed.refreshComponents();
   }
 

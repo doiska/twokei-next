@@ -31,22 +31,22 @@ export async function setGuildLocale(guild: Guild, locale: Locale) {
 
 
   getGuildSongEntity(guild).then(async entity => {
-      const channel = await guild.channels.fetch(entity.channel);
+        const channel = await guild.channels.fetch(entity.channel);
 
-      if (!channel || !isTextChannel(channel)) {
-        return;
+        if (!channel || !isTextChannel(channel)) {
+          return;
+        }
+
+        const message = await channel.messages.fetch(entity.message);
+
+        if (!message) {
+          return;
+        }
+
+        await message.edit({
+          embeds: [await createDefaultSongEmbed(locale)],
+          components: createDefaultButtons(locale)
+        });
       }
-
-      const message = await channel.messages.fetch(entity.message);
-
-      if (!message) {
-        return;
-      }
-
-      await message.edit({
-        embeds: [await createDefaultSongEmbed(locale)],
-        components: createDefaultButtons(locale)
-      });
-    }
   );
 }

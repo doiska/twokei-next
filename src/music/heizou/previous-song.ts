@@ -9,7 +9,7 @@ export const previousSong = async (guild: GuildResolvable): Promise<void> => {
     throw new FriendlyException('No player found');
   }
 
-  if(!player.queue.previous) {
+  if (!player.queue.previous) {
     throw new FriendlyException('No previous song found');
   }
 

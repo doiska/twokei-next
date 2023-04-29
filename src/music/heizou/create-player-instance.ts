@@ -16,11 +16,11 @@ export async function createPlayerInstance({ guild, voiceChannel }: InitOptions)
   }
 
   const songChannel = await Twokei.dataSource.getRepository(SongChannelEntity)
-    .findOne({
-      where: {
-        guild: guild.id
-      }
-    });
+      .findOne({
+        where: {
+          guild: guild.id
+        }
+      });
 
   const newPlayer = await Twokei.xiao.createPlayer({
     guild: guild.id,

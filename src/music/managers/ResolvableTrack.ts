@@ -3,7 +3,6 @@ import { escapeRegExp } from '../../utils/dash-utils';
 import { XiaoSearchOptions, XiaoSearchResult } from '../interfaces/player.types';
 import { Twokei } from '../../app/Twokei';
 import { User } from "discord.js";
-import { logger } from "../../modules/logger-transport";
 
 interface ResolvableTrackOptions {
   requester?: User;
@@ -71,14 +70,14 @@ export class ResolvableTrack {
 
   get isReadyToPlay(): boolean {
     return (
-      !!this.track &&
-      !!this.sourceName &&
-      !!this.identifier &&
-      !!this.author &&
-      !!this.length &&
-      !!this.title &&
-      !!this.uri &&
-      !!this.realUri
+        !!this.track &&
+        !!this.sourceName &&
+        !!this.identifier &&
+        !!this.author &&
+        !!this.length &&
+        !!this.title &&
+        !!this.uri &&
+        !!this.realUri
     );
   }
 
@@ -128,22 +127,21 @@ export class ResolvableTrack {
       const author = [this.author, `${this.author} - Topic`];
 
       const officialTrack = tracks.find(
-        (track) =>
-          author.some((name) => new RegExp(`^${escapeRegExp(name)}$`, 'i').test(track.info.author)) ||
-          new RegExp(`^${escapeRegExp(this.title)}$`, 'i').test(track.info.title)
+          (track) =>
+              author.some((name) => new RegExp(`^${escapeRegExp(name)}$`, 'i').test(track.info.author)) ||
+              new RegExp(`^${escapeRegExp(this.title)}$`, 'i').test(track.info.title)
       );
 
       if (officialTrack) {
-        console.log('Found official track');
         return officialTrack;
       }
     }
 
     if (this.length) {
       const sameDuration = tracks.find(
-        (track) =>
-          track.info.length >= (this.length ? this.length : 0) - 2000 &&
-          track.info.length <= (this.length ? this.length : 0) + 2000
+          (track) =>
+              track.info.length >= (this.length ? this.length : 0) - 2000 &&
+              track.info.length <= (this.length ? this.length : 0) + 2000
       );
 
       if (sameDuration) {

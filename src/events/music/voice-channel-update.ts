@@ -3,13 +3,13 @@ import { ChannelType, VoiceState } from 'discord.js';
 import { Twokei } from '../../app/Twokei';
 
 type VoiceChannelUpdateTypes = 'voiceChannelJoin'
-  | 'voiceChannelLeave'
-  | 'voiceChannelSwitch'
-  | 'voiceChannelDeaf'
-  | 'voiceChannelMute'
-  | 'voiceChannelUnMute'
-  | 'voiceChannelUnDeaf'
-  | 'voiceUpdate';
+    | 'voiceChannelLeave'
+    | 'voiceChannelSwitch'
+    | 'voiceChannelDeaf'
+    | 'voiceChannelMute'
+    | 'voiceChannelUnMute'
+    | 'voiceChannelUnDeaf'
+    | 'voiceUpdate';
 
 export const voiceChannelUpdate = createEvent('voiceStateUpdate', async (oldState, newState) => {
 
@@ -22,9 +22,9 @@ export const voiceChannelUpdate = createEvent('voiceStateUpdate', async (oldStat
 
   const updateType = getUpdateType(oldState, newState);
 
-  if(updateType === 'voiceChannelLeave') {
+  if (updateType === 'voiceChannelLeave') {
 
-    if(!isConnected) {
+    if (!isConnected) {
       try {
         await Twokei.xiao.destroyPlayer(guild.id);
       } catch (e) {
@@ -32,13 +32,13 @@ export const voiceChannelUpdate = createEvent('voiceStateUpdate', async (oldStat
       }
     }
 
-    if(!selfVoice || !isConnected) {
+    if (!selfVoice || !isConnected) {
       return;
     }
 
     const isEmpty = oldState.channel?.members.filter((member) => !member.user.bot).size === 0;
 
-    if(!isEmpty) {
+    if (!isEmpty) {
       return;
     }
 
@@ -54,31 +54,31 @@ function getUpdateType(oldState: VoiceState, newState: VoiceState): VoiceChannel
   const oldChannel = oldState.channel;
   const newChannel = newState.channel;
 
-  if(!oldChannel && newChannel) {
+  if (!oldChannel && newChannel) {
     return 'voiceChannelJoin';
   }
 
-  if(oldChannel && !newChannel) {
+  if (oldChannel && !newChannel) {
     return 'voiceChannelLeave';
   }
 
-  if(oldChannel && newChannel && oldChannel.id !== newChannel.id) {
+  if (oldChannel && newChannel && oldChannel.id !== newChannel.id) {
     return 'voiceChannelSwitch';
   }
 
-  if(oldState.deaf && !newState.deaf) {
+  if (oldState.deaf && !newState.deaf) {
     return 'voiceChannelUnDeaf';
   }
 
-  if(!oldState.deaf && newState.deaf) {
+  if (!oldState.deaf && newState.deaf) {
     return 'voiceChannelDeaf';
   }
 
-  if(oldState.mute && !newState.mute) {
+  if (oldState.mute && !newState.mute) {
     return 'voiceChannelUnMute';
   }
 
-  if(!oldState.mute && newState.mute) {
+  if (!oldState.mute && newState.mute) {
     return 'voiceChannelMute';
   }
 

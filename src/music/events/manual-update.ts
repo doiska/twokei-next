@@ -18,11 +18,11 @@ export const manualUpdate: XiaoEvents[Events.ManualUpdate] = (venti, update) => 
     return;
   }
 
-  if(update?.embed) {
+  if (update?.embed) {
     embed.refreshEmbed();
   }
 
-  if(update?.components) {
+  if (update?.components) {
     embed.refreshComponents();
   }
 

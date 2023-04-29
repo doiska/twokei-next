@@ -16,17 +16,17 @@ export const onButtonClickEvent = createEvent('interactionCreate', async (intera
 
   const { member, customId, guild } = interaction;
 
-  if(!customId || !member || !guild) {
+  if (!customId || !member || !guild) {
     return;
   }
 
-  if(!isGuildMember(member)) {
+  if (!isGuildMember(member)) {
     return;
   }
 
   const player = Twokei.xiao.getPlayer(guild.id);
 
-  if(!player) {
+  if (!player) {
     throw new PlayerException('No player found');
   }
 
@@ -44,18 +44,18 @@ export const onButtonClickEvent = createEvent('interactionCreate', async (intera
   logger.debug(`Button ${bold(customId)} was clicked by ${member.user.tag} in ${guild.name}`);
 
   return buttonFunction.execute(member)
-    .then(() => interaction.deleteReply())
-    .catch((err: unknown) => {
-      if (err instanceof PlayerException || err instanceof FriendlyException) {
-        interaction.editReply(getReadableException(err));
-        return;
-      }
+      .then(() => interaction.deleteReply())
+      .catch((err: unknown) => {
+        if (err instanceof PlayerException || err instanceof FriendlyException) {
+          interaction.editReply(getReadableException(err));
+          return;
+        }
 
-      logger.error(err);
+        logger.error(err);
 
-      interaction.editReply(new MessageBuilder().setEmbeds({
-        title: 'Error', description: 'An error occurred while' +
-          ' executing this command'
-      }));
-    });
+        interaction.editReply(new MessageBuilder().setEmbeds({
+          title: 'Error', description: 'An error occurred while' +
+              ' executing this command'
+        }));
+      });
 })

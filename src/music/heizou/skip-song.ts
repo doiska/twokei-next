@@ -1,5 +1,4 @@
-import { GuildResolvable, Snowflake } from 'discord.js';
-import { PlayerException } from '../../exceptions/PlayerException';
+import { GuildResolvable } from 'discord.js';
 import { Twokei } from '../../app/Twokei';
 import { FriendlyException } from '../../exceptions/FriendlyException';
 
@@ -10,11 +9,11 @@ export const skipSong = async (guild: GuildResolvable, amount = 1) => {
     throw new FriendlyException('No player found.');
   }
 
-  if(isNaN(amount)) {
+  if (isNaN(amount)) {
     throw new FriendlyException('Amount is not a number.');
   }
 
-  if(player.queue.length < amount) {
+  if (player.queue.length < amount) {
     throw new FriendlyException('There are not enough songs in the queue.');
   }
 

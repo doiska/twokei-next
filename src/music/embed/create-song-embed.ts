@@ -2,7 +2,8 @@ import {
   ActionRowBuilder,
   APIButtonComponent,
   APIEmbed,
-  APIMessageComponentEmoji, ButtonBuilder,
+  APIMessageComponentEmoji,
+  ButtonBuilder,
   ButtonStyle,
   Colors,
   formatEmoji,
@@ -13,7 +14,8 @@ import { Locale } from '../../translation/i18n';
 import { Twokei } from '../../app/Twokei';
 import {
   Button,
-  DynamicDefaultButtons, DynamicPlaylistButtons,
+  DynamicDefaultButtons,
+  DynamicPlaylistButtons,
   DynamicPrimaryButtons,
   DynamicSecondaryButtons,
   Menus

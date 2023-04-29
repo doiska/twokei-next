@@ -9,5 +9,7 @@ export const trackAdd: XiaoEvents[Events.TrackAdd] = (venti) => {
     return;
   }
 
-  embed.refreshEmbed().refreshComponents().refresh();
+  embed
+      .refreshComponents()
+      .refresh();
 }

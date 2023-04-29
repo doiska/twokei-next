@@ -1,11 +1,5 @@
-import {
-  ActionRowBuilder,
-  EmbedBuilder,
-  GuildMember,
-  StringSelectMenuBuilder,
-  TextChannel
-} from 'discord.js';
-import { isValidLocale, Locale, LocaleFlags, VALID_LOCALES } from '../translation/i18n';
+import { ActionRowBuilder, EmbedBuilder, GuildMember, StringSelectMenuBuilder, TextChannel } from 'discord.js';
+import { isValidLocale, LocaleFlags, VALID_LOCALES } from '../translation/i18n';
 import { setGuildLocale } from './update-guild-locale';
 import { getGuidLocale } from '../translation/guild-i18n';
 
@@ -21,9 +15,9 @@ export async function showLanguageSelection(channel: TextChannel, member: GuildM
   const currentLocale = await getGuidLocale(member.guild.id) || 'pt_br';
 
   const embed = new EmbedBuilder()
-    .setTitle('Twokei')
-    .setDescription('Select a language for the bot.')
-    .setTimestamp();
+      .setTitle('Twokei')
+      .setDescription('Select a language for the bot.')
+      .setTimestamp();
 
   const selectMenu = new StringSelectMenuBuilder();
 
@@ -48,9 +42,9 @@ export async function showLanguageSelection(channel: TextChannel, member: GuildM
 
   languageSelectionMessage.awaitMessageComponent({
     filter: (interaction) =>
-      interaction.user.id === member.id &&
-      interaction.customId === 'language-selection' &&
-      interaction.isStringSelectMenu(),
+        interaction.user.id === member.id &&
+        interaction.customId === 'language-selection' &&
+        interaction.isStringSelectMenu(),
     time: 15000
   }).then((interaction) => {
     if (!interaction.isStringSelectMenu()) {
@@ -59,7 +53,7 @@ export async function showLanguageSelection(channel: TextChannel, member: GuildM
 
     const selected = interaction.values[0];
 
-    if(!isValidLocale(selected)) {
+    if (!isValidLocale(selected)) {
       return interaction.reply({
         content: `The language ${selected} is not valid.`,
         ephemeral: true

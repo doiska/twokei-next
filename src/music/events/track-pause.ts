@@ -8,7 +8,7 @@ export const trackPause: XiaoEvents[Events.TrackPause] = (venti) => {
 
   const embed = Twokei.xiao.embedManager.get(venti.guildId);
 
-  if(!embed) {
+  if (!embed) {
     return;
   }
 
