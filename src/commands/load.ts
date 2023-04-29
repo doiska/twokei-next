@@ -1,17 +1,16 @@
-import { CommandContext, CommandResponse, createCommand } from 'twokei-framework';
+import { CommandContext, CommandResponse, createCommand, MessageBuilder } from 'twokei-framework';
 import { Twokei } from '../app/Twokei';
 import { PlaylistEntity } from '../entities/PlaylistEntity';
 import { addNewSong } from '../music/heizou/add-new-song';
 import { i18nGuild } from '../translation/guild-i18n';
 import { Interaction } from 'discord.js';
 import { getReadableException } from '../exceptions/utils/get-readable-exception';
-import { MessageBuilder } from 'twokei-framework';
 
 const execute = async (context: CommandContext<{ name: string }>): Promise<CommandResponse> => {
 
   const { user, input: { name } } = context;
 
-  if(!context.member) {
+  if (!context.member) {
     return;
   }
 
@@ -49,12 +48,12 @@ export const syncCommand = createCommand({
   description: 'Load playlist',
   slash: (builder) => {
     return builder
-      .addStringOption((option) =>
-        option
-          .setName('name')
-          .setDescription('Playlist name')
-          .setRequired(true)
-      )
+        .addStringOption((option) =>
+            option
+                .setName('name')
+                .setDescription('Playlist name')
+                .setRequired(true)
+        )
   },
   execute: execute
 });

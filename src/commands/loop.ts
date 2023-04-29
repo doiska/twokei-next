@@ -13,8 +13,8 @@ const execute = async (context: CommandContext<{ state?: keyof typeof LoopStates
   }
 
   return setLoopState(guild, state ? LoopStates[state] : undefined)
-    .then((newState) => i18next.t('player.commands.loop.success', { ns: 'player', loop: newState }))
-    .catch(getReadableException);
+      .then((newState) => i18next.t('player.commands.loop.success', { ns: 'player', loop: newState }))
+      .catch(getReadableException);
 }
 
 export const loopCommand = createCommand({
@@ -38,12 +38,12 @@ export const loopCommand = createCommand({
     ]
 
     return builder
-      .addStringOption(option => (
-          option.setName('state')
-            .setDescription('The type of loop')
-            .setRequired(false)
-            .addChoices(...choices)
+        .addStringOption(option => (
+                option.setName('state')
+                    .setDescription('The type of loop')
+                    .setRequired(false)
+                    .addChoices(...choices)
+            )
         )
-      )
   }
 }, execute);

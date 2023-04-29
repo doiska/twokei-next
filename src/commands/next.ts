@@ -1,4 +1,4 @@
-import { MessageBuilder, CommandContext, CommandResponse, createCommand } from 'twokei-framework';
+import { CommandContext, CommandResponse, createCommand, MessageBuilder } from 'twokei-framework';
 import { skipSong } from '../music/heizou/skip-song';
 import { getReadableException } from '../exceptions/utils/get-readable-exception';
 
@@ -12,8 +12,8 @@ const execute = async (context: CommandContext<{ amount: number }>): Promise<Com
   }
 
   return skipSong(guild.id, amount ?? 1)
-    .then(() => new MessageBuilder({ content: 'Skipped' }))
-    .catch(getReadableException);
+      .then(() => new MessageBuilder({ content: 'Skipped' }))
+      .catch(getReadableException);
 }
 
 export const nextCommand = createCommand({
@@ -22,12 +22,12 @@ export const nextCommand = createCommand({
   aliases: ['next'],
   slash: (builder) => {
     return builder
-      .addIntegerOption((option) =>
-        option
-          .setName('amount')
-          .setDescription('Skip amount')
-          .setRequired(false)
-      )
+        .addIntegerOption((option) =>
+            option
+                .setName('amount')
+                .setDescription('Skip amount')
+                .setRequired(false)
+        )
   },
   execute: execute
 });

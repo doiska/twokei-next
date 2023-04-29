@@ -10,6 +10,6 @@ export const setupCommand = createCommand({
 }, async (context) => {
 
   return setupNewChannel(context.channel!, context.member!).then(newChannel =>
-    `Setup complete, you can now use ${channelMention(newChannel.id)} to request songs.`)
-    .catch(getReadableException);
+      `Setup complete, you can now use ${channelMention(newChannel.id)} to request songs.`)
+      .catch(getReadableException);
 });

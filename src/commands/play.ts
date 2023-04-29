@@ -33,12 +33,12 @@ export const playCommand = createCommand({
   description: 'Play a song',
   slash: (builder) => {
     return builder
-      .addStringOption((option) =>
-        option
-          .setName('search')
-          .setDescription('Input')
-          .setRequired(true)
-      )
+        .addStringOption((option) =>
+            option
+                .setName('search')
+                .setDescription('Input')
+                .setRequired(true)
+        )
   },
   execute: execute
 });

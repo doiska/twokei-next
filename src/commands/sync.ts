@@ -15,13 +15,13 @@ const execute = async (context: CommandContext<{ url: string }>): Promise<Comman
   try {
     const resolver = await Twokei.xiao.getMatchingResolver(url);
 
-    if(!resolver) {
+    if (!resolver) {
       return 'Invalid playlist, empty or not found';
     }
 
     const result = await resolver.validate(url);
 
-    if(result.type !== LoadType.PLAYLIST_LOADED) {
+    if (result.type !== LoadType.PLAYLIST_LOADED) {
       return 'Invalid playlist, empty or not found';
     }
 
@@ -42,12 +42,12 @@ export const syncCommand = createCommand({
   description: 'Sync playlist',
   slash: (builder) => {
     return builder
-      .addStringOption((option) =>
-        option
-          .setName('url')
-          .setDescription('Playlist or Profile url')
-          .setRequired(true)
-      )
+        .addStringOption((option) =>
+            option
+                .setName('url')
+                .setDescription('Playlist or Profile url')
+                .setRequired(true)
+        )
   },
   execute: execute
 });
