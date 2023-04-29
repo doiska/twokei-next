@@ -10,8 +10,8 @@ const execute = async (context: CommandContext) => {
   }
 
   return destroyPlayerInstance(guild.id)
-    .then(() => 'Stopped')
-    .catch(getReadableException);
+      .then(() => 'Stopped')
+      .catch(getReadableException);
 }
 
 export const stopCommand = createCommand({
