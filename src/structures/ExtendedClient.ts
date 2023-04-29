@@ -1,7 +1,6 @@
 import { ClientOptions } from 'discord.js';
 import { Connectors } from 'shoukaku';
-import { ClusterClient as ShardClient } from 'discord-hybrid-sharding';
-import { Nodes, shoukakuOptions } from '../shoukaku/options';
+import { Nodes, shoukakuOptions } from '../music/options';
 import { Twokei } from '../app/Twokei';
 import { logger } from '../modules/logger-transport';
 import { Xiao } from '../music/controllers/Xiao';
@@ -88,15 +87,15 @@ export class ExtendedClient extends TwokeiClient {
 
   public async start(): Promise<void> {
     this.dataSource.initialize()
-      .then(async () => {
-        logger.info('Database connected!');
-        await initI18n()
-          .then(() => logger.info('i18n initialized!'))
-          .catch((error) => logger.error('i18n failed to initialize', error));
+        .then(async () => {
+          logger.info('Database connected!');
+          await initI18n()
+              .then(() => logger.info('i18n initialized!'))
+              .catch((error) => logger.error('i18n failed to initialize', error));
 
-        await this.login(process.env.TOKEN);
-      })
-      .catch((error) => logger.error('Database failed to connect', error));
+          await this.login(process.env.TOKEN);
+        })
+        .catch((error) => logger.error('Database failed to connect', error));
   }
 
   private exit() {
