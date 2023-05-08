@@ -16,18 +16,6 @@ export const Nodes: OptionWithActive[] = [
     "secure": true
   },
   {
-    "name": "suki.nathan.to",
-    "url": "suki.nathan.to:443",
-    "auth": "adowbongmanacc",
-    "secure": true
-  },
-  {
-    name: "lavalink.devamop.in",
-    url: "lavalink.devamop.in:443",
-    auth: "DevamOP",
-    secure: true
-  },
-  {
     "name": "https://open.spotify.com/track/4TuNI3WEMyLQAKRMJmcQdA",
     "url": "narco.buses.rocks:2269",
     "auth": "glasshost1984",
@@ -117,9 +105,9 @@ export const Nodes: OptionWithActive[] = [
     "auth": "ilovemonkeys",
     "secure": false
   }
-]
+].filter(node => node.secure)
 
 export const shoukakuOptions: ShoukakuOptions = {
-  resume: true,
-  resumeByLibrary: true
+  // resume: true,
+  // resumeByLibrary: true
 }
