@@ -4,6 +4,30 @@ type OptionWithActive = NodeOption & { active?: boolean };
 
 export const Nodes: OptionWithActive[] = [
   {
+    "name": "lavalink.lexnet.cc",
+    "url": "lavalink.lexnet.cc:443",
+    "auth": "lexn3tl@val!nk",
+    "secure": true
+  },
+  {
+    "name": "eu-lavalink.lexnet.cc",
+    "url": "eu-lavalink.lexnet.cc:443",
+    "auth": "lexn3tl@val!nk",
+    "secure": true
+  },
+  {
+    "name": "suki.nathan.to",
+    "url": "suki.nathan.to:443",
+    "auth": "adowbongmanacc",
+    "secure": true
+  },
+  {
+    name: "lavalink.devamop.in",
+    url: "lavalink.devamop.in:443",
+    auth: "DevamOP",
+    secure: true
+  },
+  {
     "name": "https://open.spotify.com/track/4TuNI3WEMyLQAKRMJmcQdA",
     "url": "narco.buses.rocks:2269",
     "auth": "glasshost1984",
