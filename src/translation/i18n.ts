@@ -20,6 +20,7 @@ const resources = VALID_LOCALES.reduce((acc, locale) => {
 
   files.forEach(async file => {
     const key = file.split('.')[0];
+
     if (!acc[locale]) {
       acc[locale] = {} as ResourceLanguage;
     }
