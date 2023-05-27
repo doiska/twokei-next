@@ -6,16 +6,10 @@ import { logger } from '../modules/logger-transport';
 import { Xiao } from '../music/controllers/Xiao';
 
 import { TwokeiClient } from 'twokei-framework';
-import { DataSource } from 'typeorm';
-import { GuildEntity } from '../entities/GuildEntity';
-import { SongChannelEntity } from '../entities/SongChannelEntity';
-import { UserEntity } from '../entities/UserEntity';
-import { SongEntity } from '../recommendation/schema/SongEntity';
 
 import process from 'node:process';
 
 import { init as initI18n } from '../translation/i18n';
-import { PlaylistEntity } from '../entities/PlaylistEntity';
 
 declare module 'discord.js' {
   interface Client {
@@ -27,8 +21,6 @@ export class ExtendedClient extends TwokeiClient {
 
   public xiao: Xiao;
 
-  public dataSource: DataSource;
-
   private _exiting = false;
 
   constructor(options: ClientOptions) {
@@ -36,8 +28,8 @@ export class ExtendedClient extends TwokeiClient {
     super({
       ...options,
       currentWorkingDirectory: __dirname,
-      commandsPath: `../commands/**/*.{ts,js}`,
-      eventsPath: `../events/**/*.{ts,js}`,
+      commandsPath: `../listeners/commands/**/*.{ts,js}`,
+      eventsPath: `../listeners/events/**/*.{ts,js}`,
       autoload: true
     });
 
@@ -51,51 +43,39 @@ export class ExtendedClient extends TwokeiClient {
       defaultSearchEngine: 'youtube'
     }, new Connectors.DiscordJS(this), Nodes, shoukakuOptions);
 
-    this.dataSource = new DataSource({
-      type: 'postgres',
-      synchronize: true,
-      host: process.env.PGHOST,
-      port: Number(process.env.PGPORT),
-      username: process.env.PGUSER,
-      password: process.env.PGPASSWORD,
-      database: process.env.PGDATABASE,
-      schema: process.env.PGSCHEMA,
-      entities: [
-        UserEntity,
-        GuildEntity,
-        SongEntity,
-        SongChannelEntity,
-        PlaylistEntity
-      ]
-    });
-
     this.on('error', (error) => {
       logger.error(error);
+      console.log(error)
     });
 
     this.on('warn', (warning) => {
       logger.warn(warning);
+      console.log(warning)
     });
 
     ['beforeExit',
       'SIGUSR1',
       'SIGUSR2',
       'SIGINT',
-      'SIGTERM',
+      'SIGTERM'
     ].map((event) => process.on(event, () => this.exit()));
   }
 
   public async start(): Promise<void> {
-    this.dataSource.initialize()
-        .then(async () => {
-          logger.info('Database connected!');
-          await initI18n()
-              .then(() => logger.info('i18n initialized!'))
-              .catch((error) => logger.error('i18n failed to initialize', error));
 
-          await this.login(process.env.TOKEN);
-        })
-        .catch((error) => logger.error('Database failed to connect', error));
+    await Promise.all([
+      this.login(process.env.TOKEN),
+      initI18n()
+    ])
+      .then(() => {
+        logger.info('All modules initialized');
+        logger.info('Logged in.');
+      })
+      .catch((error) => {
+        logger.error(error);
+        logger.error('Failed to initialize modules');
+        this.exit();
+      });
   }
 
   private exit() {
@@ -109,5 +89,13 @@ export class ExtendedClient extends TwokeiClient {
 
     this.destroy();
     process.exit(0);
+  }
+
+  public async getCommands() {
+    if (!this.application) {
+      throw new Error('Application not found');
+    }
+
+    return await this.application.commands.fetch();
   }
 }

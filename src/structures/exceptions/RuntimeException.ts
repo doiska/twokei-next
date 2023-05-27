@@ -1,4 +1,4 @@
-import { logger } from "../modules/logger-transport";
+import { logger } from "../../modules/logger-transport";
 
 export class RuntimeException extends Error {
   constructor(message: string) {

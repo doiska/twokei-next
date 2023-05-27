@@ -1,7 +1,8 @@
-import { Twokei } from '../app/Twokei';
-import { GuildEntity } from '../entities/GuildEntity';
 import { DEFAULT_LOCALE, isValidLocale, Locale } from './i18n';
 import i18next, { TOptions } from 'i18next';
+import { kil } from '../app/Kil';
+import { guilds } from '../schemas/Guild';
+import { eq } from 'drizzle-orm';
 
 export const i18nGuild = async (guildId: string, key: string, options?: TOptions) => {
   const locale = await getGuidLocale(guildId);
@@ -15,12 +16,7 @@ export const multiI18nGuild = async (guildId: string, keys: string[], options?: 
 }
 
 export const getGuidLocale = async (guildId: string): Promise<Locale> => {
-
-  const guild = await Twokei.dataSource.getRepository(GuildEntity).findOne({
-    where: {
-      id: guildId
-    }
-  });
+  const [guild] = await kil.select().from(guilds).where(eq(guilds.guildId, guildId));
 
   if (!guild || !isValidLocale(guild.locale)) {
     return DEFAULT_LOCALE;
