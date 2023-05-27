@@ -1,26 +1,33 @@
-import { ChannelType, Guild, TextChannel } from 'discord.js';
-import { isGuildBasedChannel, isStageChannel, isTextChannel } from '@sapphire/discord.js-utilities';
+import { ChannelType, Guild, PermissionsBitField, TextChannel } from 'discord.js';
+import { logger } from '../modules/logger-transport';
+import { Maybe } from './type-guards';
+import { isGuildBasedChannel, isTextBasedChannel, isTextChannel } from '@sapphire/discord.js-utilities';
+import { canSendMessages } from './discord-utilities';
 
-export const findAnyUsableChannel = async (guild: Guild) => {
+export const findAnyUsableChannel = async (guild: Guild): Promise<Maybe<TextChannel>> => {
 
   if (!guild.members.me) {
     return;
   }
 
-  const self = guild.members.me;
-  const systemChannel = guild.systemChannel;
-
-  if(systemChannel && systemChannel.permissionsFor(self).has('SendMessages')) {
-    return systemChannel as TextChannel;
-  }
-
   const channels = await guild.channels.fetch();
 
-  return channels.find(channel =>
-      channel &&
-      channel.permissionsFor(self).has('SendMessages') &&
-      !isStageChannel(channel) &&
-      isGuildBasedChannel(channel) &&
-      isTextChannel(channel)
-  ) as TextChannel;
+  const channel = channels.find(channel => {
+
+    if (!channel) {
+      return false;
+    }
+
+    if (!isGuildBasedChannel(channel) || !isTextChannel(channel)) {
+      return false;
+    }
+
+    return canSendMessages(channel);
+  });
+
+  if (channel) {
+    logger.debug(`Found channel ${channel.name} (${channel.id}) in guild ${guild.name} (${guild.id}).`);
+  }
+
+  return channel as Maybe<TextChannel>;
 }

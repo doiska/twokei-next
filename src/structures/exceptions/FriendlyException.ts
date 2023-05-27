@@ -1,4 +1,4 @@
-import { logger } from '../modules/logger-transport';
+import { logger } from '../../modules/logger-transport';
 
 export class FriendlyException extends Error {
   constructor(message: string) {
