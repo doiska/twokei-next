@@ -1,6 +1,6 @@
 import { createEvent } from 'twokei-framework';
 import { ChannelType, VoiceState } from 'discord.js';
-import { Twokei } from '../../app/Twokei';
+import { Twokei } from '../../../app/Twokei';
 
 type VoiceChannelUpdateTypes = 'voiceChannelJoin'
     | 'voiceChannelLeave'

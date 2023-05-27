@@ -1,13 +1,13 @@
 import { Interaction } from 'discord.js';
 import { createEvent, MessageBuilder } from 'twokei-framework';
-import { DynamicPrimaryButtons, DynamicSecondaryButtons } from '../../constants/music';
-import { logger } from '../../modules/logger-transport';
+import { DynamicPrimaryButtons, DynamicSecondaryButtons } from '../../../constants/music';
+import { logger } from '../../../modules/logger-transport';
 import { bold } from 'kleur';
-import { getReadableException } from '../../exceptions/utils/get-readable-exception';
-import { PlayerException } from '../../exceptions/PlayerException';
-import { FriendlyException } from '../../exceptions/FriendlyException';
-import { isGuildMember } from '../../utils/type-guards';
-import { Twokei } from '../../app/Twokei';
+import { getReadableException } from '../../../structures/exceptions/utils/get-readable-exception';
+import { PlayerException } from '../../../structures/exceptions/PlayerException';
+import { FriendlyException } from '../../../structures/exceptions/FriendlyException';
+import { isGuildMember } from '../../../utils/type-guards';
+import { Twokei } from '../../../app/Twokei';
 
 export const onButtonClickEvent = createEvent('interactionCreate', async (interaction: Interaction) => {
   if (!interaction.isButton()) {
@@ -27,7 +27,7 @@ export const onButtonClickEvent = createEvent('interactionCreate', async (intera
   const player = Twokei.xiao.getPlayer(guild.id);
 
   if (!player) {
-    throw new PlayerException('No player found');
+    return;
   }
 
   const primary = DynamicPrimaryButtons();
@@ -40,8 +40,6 @@ export const onButtonClickEvent = createEvent('interactionCreate', async (intera
   }
 
   await interaction.deferReply({ ephemeral: true });
-
-  logger.debug(`Button ${bold(customId)} was clicked by ${member.user.tag} in ${guild.name}`);
 
   return buttonFunction.execute(member)
       .then(() => interaction.deleteReply())

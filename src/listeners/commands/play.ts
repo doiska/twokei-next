@@ -1,8 +1,8 @@
 import { CommandContext, CommandResponse, createCommand, MessageBuilder } from 'twokei-framework';
 
-import { addNewSong } from '../music/heizou/add-new-song';
-import { i18nGuild } from '../translation/guild-i18n';
-import { getReadableException } from '../exceptions/utils/get-readable-exception';
+import { addNewSong } from '../../music/heizou/add-new-song';
+import { i18nGuild } from '../../translation/guild-i18n';
+import { getReadableException } from '../../structures/exceptions/utils/get-readable-exception';
 import { Interaction } from 'discord.js';
 
 const execute = async (context: CommandContext<{ search: string }>): Promise<CommandResponse> => {

@@ -1,7 +1,7 @@
 import { createEvent } from 'twokei-framework';
 import { Interaction } from 'discord.js';
-import { Twokei } from '../../../app/Twokei';
-import { Menus } from '../../../constants/music';
+import { Twokei } from '../../../../app/Twokei';
+import { Menus } from '../../../../constants/music';
 
 export const selectMenuEvent = createEvent('interactionCreate', (interaction: Interaction) => {
 

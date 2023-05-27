@@ -1,10 +1,12 @@
 import { createEvent, MessageBuilder } from 'twokei-framework';
 import { ChannelType, Colors, EmbedBuilder, userMention } from 'discord.js';
-import { Twokei } from '../app/Twokei';
-import { addNewSong } from '../music/heizou/add-new-song';
-import { SongChannelEntity } from '../entities/SongChannelEntity';
-import { PlayerException } from '../exceptions/PlayerException';
-import { logger } from '../modules/logger-transport';
+import { Twokei } from '../../app/Twokei';
+import { addNewSong } from '../../music/heizou/add-new-song';
+import { PlayerException } from '../../structures/exceptions/PlayerException';
+import { logger } from '../../modules/logger-transport';
+import { kil } from '../../app/Kil';
+import { songChannels } from '../../schemas/SongChannels';
+import { eq } from 'drizzle-orm';
 
 export const onMessage = createEvent('messageCreate', async (message) => {
 
@@ -18,18 +20,14 @@ export const onMessage = createEvent('messageCreate', async (message) => {
     return;
   }
 
-  const usableChannel = await Twokei.dataSource
-      .getRepository(SongChannelEntity)
-      .findOne({
-        where: {
-          guild: message.guild.id
-        }
-      });
+  const [usableChannel] = await kil.select()
+    .from(songChannels)
+    .where(eq(songChannels.guildId, message.guild.id));
 
   const channel = message.channel;
   const contentOnly = message.content.replace(/<@!?\d+>/g, '').trim();
   const hasMention = message.mentions.users.has(selfId);
-  const isUsableChannel = usableChannel?.channel === channel.id;
+  const isUsableChannel = usableChannel?.channelId === channel.id;
   const hasContent = contentOnly.length > 0;
 
 
@@ -51,18 +49,18 @@ export const onMessage = createEvent('messageCreate', async (message) => {
     ]
 
     const embed = new EmbedBuilder()
-        .setTitle(`🥲 Sorry!`)
-        .setDescription(reply.join('\n'))
+      .setTitle(`🥲 Sorry!`)
+      .setDescription(reply.join('\n'))
 
     return new MessageBuilder()
-        .setEmbeds(embed)
-        .send(channel);
+      .setEmbeds(embed)
+      .send(channel);
   }
 
   if (!hasContent) {
     return new MessageBuilder()
-        .setContent(`Please provide a song to play.`)
-        .send(channel);
+      .setContent(`Please provide a song to play.`)
+      .send(channel);
   }
 
   try {
@@ -72,24 +70,23 @@ export const onMessage = createEvent('messageCreate', async (message) => {
     const isPlaylist = !!result.playlistName;
 
     const embed = new EmbedBuilder()
-        // .setTitle(`🎶 ${isPlaylist ? 'Playlist' : 'Song'} added to queue.`)
-        .setDescription(`${isPlaylist ? 'Playlist' : 'Track'}: **${name}** added to queue.`)
-        .setColor(Colors.DarkButNotBlack);
+      .setDescription(`${isPlaylist ? 'Playlist' : 'Track'}: **${name}** added to queue.`)
+      .setColor(Colors.DarkButNotBlack);
 
     return new MessageBuilder()
-        .setEmbeds([embed])
-        .send(channel);
+      .setEmbeds([embed])
+      .send(channel);
   } catch (e) {
     if (e instanceof PlayerException) {
       return new MessageBuilder()
-          .setContent(e.message)
-          .send(channel);
+        .setContent(e.message)
+        .send(channel);
     }
 
     logger.error(e)
 
     return new MessageBuilder()
-        .setContent(`An error occurred while trying to play the song.`)
-        .send(channel);
+      .setContent(`An error occurred while trying to play the song.`)
+      .send(channel);
   }
 })
