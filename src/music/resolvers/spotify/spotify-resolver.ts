@@ -1,7 +1,7 @@
 import { TrackResolver } from '../resolver';
 import { SpotifyRequestManager } from './spotify-request-manager';
 import { PlaylistTracks, SpotifyPlaylistResponse, SpotifySearchResponse, SpotifyTrackResponse } from './spotify.types';
-import { ResolvableTrack } from '../../managers/ResolvableTrack';
+import { ResolvableTrack } from '../../structures/ResolvableTrack';
 import { LoadType, XiaoSearchOptions, XiaoSearchResult } from '../../interfaces/player.types';
 import { User } from "discord.js";
 

@@ -16,7 +16,7 @@ import {
 } from './create-song-embed';
 import { Locale } from '../../translation/i18n';
 import { Venti } from '../controllers/Venti';
-import { TrackQueue } from '../managers/TrackQueue';
+import { TrackQueue } from '../structures/TrackQueue';
 import { parseTracksToMenuItem } from './guild-embed-manager-helper';
 import { logger } from '../../modules/logger-transport';
 

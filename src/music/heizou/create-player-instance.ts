@@ -1,7 +1,9 @@
 import { Guild, TextChannel } from 'discord.js';
 import { Twokei } from '../../app/Twokei';
-import { SongChannelEntity } from '../../entities/SongChannelEntity';
 import { getGuidLocale } from '../../translation/guild-i18n';
+import { kil } from '../../app/Kil';
+import { songChannels } from '../../schemas/SongChannels';
+import { eq } from 'drizzle-orm';
 
 interface InitOptions {
   guild: Guild;
@@ -15,12 +17,7 @@ export async function createPlayerInstance({ guild, voiceChannel }: InitOptions)
     return player;
   }
 
-  const songChannel = await Twokei.dataSource.getRepository(SongChannelEntity)
-      .findOne({
-        where: {
-          guild: guild.id
-        }
-      });
+  const [songChannel] = await kil.select().from(songChannels).where(eq(songChannels.guildId, guild.id));
 
   const newPlayer = await Twokei.xiao.createPlayer({
     guild: guild.id,
@@ -29,8 +26,8 @@ export async function createPlayerInstance({ guild, voiceChannel }: InitOptions)
   });
 
   if (songChannel) {
-    const channel = await guild.channels.fetch(songChannel.channel) as TextChannel;
-    const message = await channel.messages.fetch(songChannel.message);
+    const channel = await guild.channels.fetch(songChannel.channelId) as TextChannel;
+    const message = await channel.messages.fetch(songChannel.messageId);
 
     if (channel && message) {
       await Twokei.xiao.embedManager.create(newPlayer, guild.id, message);

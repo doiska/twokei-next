@@ -9,9 +9,9 @@ import {
 import { Events, PlayerState, PlayOptions, VentiInitOptions } from '../interfaces/player.types';
 import { Snowflake } from 'discord.js';
 import { Maybe } from '../../utils/type-guards';
-import { TrackQueue } from '../managers/TrackQueue';
+import { TrackQueue } from '../structures/TrackQueue';
 import { logger } from '../../modules/logger-transport';
-import { ResolvableTrack } from '../managers/ResolvableTrack';
+import { ResolvableTrack } from '../structures/ResolvableTrack';
 import { Locale } from '../../translation/i18n';
 import { addNewRecommendationEntry } from "../../recommendation/add-new-entry";
 
@@ -224,11 +224,12 @@ export class Venti {
           title: this.queue.current.title,
           author: this.queue.current.author,
           url: this.queue.current.uri,
+          length: this.queue.current.length
         });
       }
 
       this.instance.playTrack(shoukakuPlayOptions);
-    }).catch(err => {
+    }).catch((err) => {
       console.error(err)
       this.emit(Events.Debug, `Error while resolving track for guild ${this.guildId} - ${err}`);
       logger.error(`Error while resolving track for guild ${this.guildId} - ${err}`, err.stack);
