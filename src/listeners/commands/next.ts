@@ -1,6 +1,6 @@
 import { CommandContext, CommandResponse, createCommand, MessageBuilder } from 'twokei-framework';
-import { skipSong } from '../music/heizou/skip-song';
-import { getReadableException } from '../exceptions/utils/get-readable-exception';
+import { skipSong } from '../../music/heizou/skip-song';
+import { getReadableException } from '../../structures/exceptions/utils/get-readable-exception';
 
 
 const execute = async (context: CommandContext<{ amount: number }>): Promise<CommandResponse> => {

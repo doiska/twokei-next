@@ -1,8 +1,10 @@
 import { CommandContext, CommandResponse, createCommand } from 'twokei-framework';
-import { getReadableException } from '../exceptions/utils/get-readable-exception';
-import { LoadType } from '../music/interfaces/player.types';
-import { Twokei } from '../app/Twokei';
-import { PlaylistEntity } from '../entities/PlaylistEntity';
+import { getReadableException } from '../../structures/exceptions/utils/get-readable-exception';
+import { LoadType } from '../../music/interfaces/player.types';
+import { Twokei } from '../../app/Twokei';
+import { kil } from '../../app/Kil';
+import { playlists } from '../../schemas/Playlists';
+import { and, eq } from 'drizzle-orm';
 
 const execute = async (context: CommandContext<{ url: string }>): Promise<CommandResponse> => {
 
@@ -25,10 +27,18 @@ const execute = async (context: CommandContext<{ url: string }>): Promise<Comman
       return 'Invalid playlist, empty or not found';
     }
 
-    await Twokei.dataSource.getRepository(PlaylistEntity).save({
-      name: result.playlistName ?? 'Unamed playlist',
-      user: user.id,
-      url: url
+    const [response] = await kil.select()
+      .from(playlists)
+      .where(and(eq(playlists.userId, user.id), eq(playlists.playlistUrl, url)));
+
+    if(response) {
+      return `Playlist already synced: ${result.playlistName}`;
+    }
+
+    await kil.insert(playlists).values({
+      playlistName: result.playlistName ?? 'Unamed playlist',
+      userId: user.id,
+      playlistUrl: url
     });
 
     return `Successfully synced playlist: ${result.playlistName} with ${result.amount} songs!`;
@@ -42,12 +52,12 @@ export const syncCommand = createCommand({
   description: 'Sync playlist',
   slash: (builder) => {
     return builder
-        .addStringOption((option) =>
-            option
-                .setName('url')
-                .setDescription('Playlist or Profile url')
-                .setRequired(true)
-        )
+      .addStringOption((option) =>
+        option
+          .setName('url')
+          .setDescription('Playlist or Profile url')
+          .setRequired(true)
+      )
   },
   execute: execute
 });
