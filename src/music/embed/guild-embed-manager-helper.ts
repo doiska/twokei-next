@@ -1,5 +1,5 @@
 import { APISelectMenuOption } from 'discord.js';
-import { TrackQueue } from '../managers/TrackQueue';
+import { TrackQueue } from '../structures/TrackQueue';
 import { assertMenuSize } from '../../utils/embed-utils';
 
 export const parseTracksToMenuItem = (tracks: TrackQueue) => {

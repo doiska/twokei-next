@@ -1,6 +1,6 @@
 import { GuildResolvable } from 'discord.js';
 import { Twokei } from '../../app/Twokei';
-import { FriendlyException } from '../../exceptions/FriendlyException';
+import { FriendlyException } from '../../structures/exceptions/FriendlyException';
 
 export const skipSong = async (guild: GuildResolvable, amount = 1) => {
   const player = await Twokei.xiao.getPlayer(guild);

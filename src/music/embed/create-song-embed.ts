@@ -42,7 +42,7 @@ export const createDefaultSongEmbed = (lang: Locale): APIEmbed => {
     color: Colors.DarkButNotBlack,
     author: {
       name: 'Created by doiská#0001',
-      url: 'https://twitter.com/two2kei',
+      url: 'https://discord.com/users/226038466272690176',
       icon_url: 'https://cdn.discordapp.com/attachments/926644381371469834/1077626687094792245/wvHtpZ4X_400x400.jpg'
     },
     image: {

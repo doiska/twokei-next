@@ -24,9 +24,9 @@ import { playerDestroy } from '../events/player-destroy';
 import { trackAdd } from '../events/track-add';
 import { GuildEmbedManager } from '../embed/guild-embed-manager';
 import { Twokei } from '../../app/Twokei';
-import { PlayerException } from '../../exceptions/PlayerException';
+import { PlayerException } from '../../structures/exceptions/PlayerException';
 import { trackPause } from '../events/track-pause';
-import { ResolvableTrack } from '../managers/ResolvableTrack';
+import { ResolvableTrack } from '../structures/ResolvableTrack';
 import { SpotifyResolver } from '../resolvers/spotify/spotify-resolver';
 import { TrackResolver } from '../resolvers/resolver';
 import { logger } from '../../modules/logger-transport';
@@ -161,15 +161,15 @@ export class Xiao extends EventEmitter {
     this.players = new Map<string, Venti>();
     this.embedManager = new GuildEmbedManager();
 
-    this.shoukaku.on('debug', (name, info) => {
-      if (process.env.NODE_ENV !== 'production') {
-        logger.debug(`[Shoukaku] Node ${name} emitted debug info: ${info}`);
-      }
-    });
-
-    this.shoukaku.on('ready', (name) => logger.debug(`[Shoukaku] Node ${name} is now connected`));
-    this.shoukaku.on('close', (name, code, reason) => logger.debug(`[Shoukaku] Node ${name} closed with code ${code} and reason ${reason}`));
-    this.shoukaku.on('error', (name, error) => logger.error(`[Shoukaku] Node ${name} emitted an error: ${error}`));
+    // this.shoukaku.on('debug', (name, info) => {
+    //   if (process.env.NODE_ENV !== 'production') {
+    //     logger.debug(`[Shoukaku] Node ${name} emitted debug info: ${info}`);
+    //   }
+    // });
+    //
+    // this.shoukaku.on('ready', (name) => logger.debug(`[Shoukaku] Node ${name} is now connected`));
+    // this.shoukaku.on('close', (name, code, reason) => logger.debug(`[Shoukaku] Node ${name} closed with code ${code} and reason ${reason}`));
+    this.shoukaku.on('error', (name, error) => {});
 
     this.on(Events.TrackStart, trackStart);
     this.on(Events.TrackAdd, trackAdd);

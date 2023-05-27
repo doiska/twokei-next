@@ -1,7 +1,7 @@
 import { GuildResolvable } from 'discord.js';
 import { Twokei } from '../../app/Twokei';
 import { LoopStates } from '../controllers/Venti';
-import { FriendlyException } from '../../exceptions/FriendlyException';
+import { FriendlyException } from '../../structures/exceptions/FriendlyException';
 
 export const setLoopState = async (guild: GuildResolvable, loopState?: LoopStates): Promise<LoopStates> => {
 

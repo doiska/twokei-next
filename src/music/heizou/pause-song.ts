@@ -1,4 +1,4 @@
-import { FriendlyException } from '../../exceptions/FriendlyException';
+import { FriendlyException } from '../../structures/exceptions/FriendlyException';
 import { Twokei } from '../../app/Twokei';
 import { GuildResolvable } from 'discord.js';
 
