@@ -1,9 +1,11 @@
 import { ChannelType, GuildMember, PermissionFlagsBits, TextBasedChannel } from 'discord.js';
 import { canCreateChannels, canSendMessages } from '../utils/discord-utilities';
-import { SongChannelEntity } from '../entities/SongChannelEntity';
 import { Twokei } from '../app/Twokei';
 import { createDefaultButtons, createDefaultSongEmbed } from '../music/embed/create-song-embed';
 import { getGuidLocale } from '../translation/guild-i18n';
+import { kil } from '../app/Kil';
+import { songChannels } from '../schemas/SongChannels';
+import { eq } from 'drizzle-orm';
 
 export const setupNewChannel = async (channel: TextBasedChannel, member: GuildMember) => {
   const guild = member.guild;
@@ -17,27 +19,18 @@ export const setupNewChannel = async (channel: TextBasedChannel, member: GuildMe
     throw new Error(`I can't create channels in this server.`);
   }
 
-  const currentChannel = await Twokei.dataSource.getRepository(SongChannelEntity)
-      .findOne({
-        where: {
-          guild: guild.id
-        }
-      });
+  const [currentChannel] = await kil.select().from(songChannels).where(eq(songChannels.guildId, guild.id));
 
   if (currentChannel) {
-    if (currentChannel.channel === channel.id) {
+    if (currentChannel.channelId === channel.id) {
       throw new Error(`You can't use the command in this channel, please use another channel.`);
     }
 
-    console.log(`Deleting old channel ${currentChannel.channel}...`)
-
-    guild.channels.fetch(currentChannel.channel)
-        .then(channel => {
-          channel?.delete();
-        })
-        .catch((e) => {
-          console.log(`Error deleting old channel: ${e.message} (${e.code})`);
-        });
+    guild.channels.fetch(currentChannel.channelId)
+      .then(channel => {
+        channel?.delete();
+      })
+      .catch(() => {});
   }
 
   const newChannel = await guild.channels.create({
@@ -54,16 +47,23 @@ export const setupNewChannel = async (channel: TextBasedChannel, member: GuildMe
   }
 
   const locale = await getGuidLocale(guild.id);
+
   const newMessage = await newChannel.send({
     embeds: [await createDefaultSongEmbed(locale)],
     components: createDefaultButtons(locale)
   });
 
-  await Twokei.dataSource.getRepository(SongChannelEntity).upsert({
-    guild: guild.id,
-    channel: newChannel.id,
-    message: newMessage.id
-  }, ['guild']);
+  await kil.insert(songChannels).values({
+    guildId: guild.id,
+    channelId: newChannel.id,
+    messageId: newMessage.id
+  }).onConflictDoUpdate({
+    set: {
+      channelId: newChannel.id,
+      messageId: newMessage.id
+    },
+    target: [songChannels.guildId]
+  })
 
   return newChannel;
 }
