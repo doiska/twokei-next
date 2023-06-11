@@ -2,7 +2,7 @@ import { ChannelType, GuildMember, PermissionFlagsBits, TextBasedChannel } from 
 import { canCreateChannels, canSendMessages } from '../utils/discord-utilities';
 import { Twokei } from '../app/Twokei';
 import { createDefaultButtons, createDefaultSongEmbed } from '../music/embed/create-song-embed';
-import { getGuidLocale } from '../translation/guild-i18n';
+import { getGuidLocale } from '../i18n/guild-i18n';
 import { kil } from '../app/Kil';
 import { songChannels } from '../schemas/SongChannels';
 import { eq } from 'drizzle-orm';

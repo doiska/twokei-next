@@ -1,5 +1,5 @@
 import { Message } from 'discord.js';
-import { Locale } from '../../translation/i18n';
+import { Locale } from '../../i18n/i18n';
 import i18next from 'i18next';
 import { getCommand } from '../../utils/slash-utilities';
 

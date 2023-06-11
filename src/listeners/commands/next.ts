@@ -5,13 +5,13 @@ import { getReadableException } from '../../structures/exceptions/utils/get-read
 
 const execute = async (context: CommandContext<{ amount: number }>): Promise<CommandResponse> => {
 
-  const { guild, input: { amount } } = context;
+  const { member, guild, input: { amount } } = context;
 
-  if (!guild) {
+  if (!member) {
     return;
   }
 
-  return skipSong(guild.id, amount ?? 1)
+  return skipSong(member, amount ?? 1)
       .then(() => new MessageBuilder({ content: 'Skipped' }))
       .catch(getReadableException);
 }

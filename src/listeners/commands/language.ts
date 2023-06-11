@@ -1,8 +1,8 @@
 import { CommandContext, createCommand } from 'twokei-framework';
 import { isTextChannel } from '@sapphire/discord.js-utilities';
 import { ActionRowBuilder, EmbedBuilder, PermissionsBitField, StringSelectMenuBuilder } from 'discord.js';
-import { LocaleFlags, VALID_LOCALES } from '../../translation/i18n';
-import { getGuidLocale } from '../../translation/guild-i18n';
+import { LocaleFlags, VALID_LOCALES } from '../../i18n/i18n';
+import { getGuidLocale } from '../../i18n/guild-i18n';
 
 const execute = async (context: CommandContext) => {
   if (!context.member || !context.guild || !context.channel || !isTextChannel(context.channel)) {

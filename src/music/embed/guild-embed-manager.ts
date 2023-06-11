@@ -1,7 +1,7 @@
 import { Message, Snowflake } from 'discord.js';
 import { GuildEmbed } from './guild-embed';
 import { Maybe } from '../../utils/type-guards';
-import { getGuidLocale } from '../../translation/guild-i18n';
+import { getGuidLocale } from '../../i18n/guild-i18n';
 import { Venti } from '../controllers/Venti';
 
 export class GuildEmbedManager {
