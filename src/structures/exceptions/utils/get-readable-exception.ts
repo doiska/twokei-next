@@ -5,9 +5,6 @@ import { MessageBuilder } from 'twokei-framework';
 import { Colors } from 'discord.js';
 
 export const getReadableException = (error: unknown) => {
-
-  console.log(error)
-
   if (error instanceof FriendlyException || error instanceof PlayerException) {
     return new MessageBuilder({
       embeds: [{

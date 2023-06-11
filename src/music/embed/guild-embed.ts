@@ -14,7 +14,7 @@ import {
   createPrimaryButtons,
   createSecondaryButtons
 } from './create-song-embed';
-import { Locale } from '../../translation/i18n';
+import { Locale } from '../../i18n/i18n';
 import { Venti } from '../controllers/Venti';
 import { TrackQueue } from '../structures/TrackQueue';
 import { parseTracksToMenuItem } from './guild-embed-manager-helper';

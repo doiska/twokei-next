@@ -1,12 +1,17 @@
-import { GuildResolvable } from 'discord.js';
+import { GuildMember } from 'discord.js';
 import { Twokei } from '../../app/Twokei';
 import { FriendlyException } from '../../structures/exceptions/FriendlyException';
+import { isConnectedTo } from '../../preconditions/vc-conditions';
 
-export const skipSong = async (guild: GuildResolvable, amount = 1) => {
-  const player = await Twokei.xiao.getPlayer(guild);
+export const skipSong = async (member: GuildMember, amount = 1) => {
+  const player = await Twokei.xiao.getPlayer(member);
 
   if (!player) {
     throw new FriendlyException('No player found.');
+  }
+
+  if(!isConnectedTo(member, player.voiceId!)) {
+    throw new FriendlyException('error.not-in-vc');
   }
 
   if (isNaN(amount)) {

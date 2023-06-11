@@ -10,7 +10,7 @@ import {
   StringSelectMenuBuilder,
   userMention
 } from 'discord.js';
-import { Locale } from '../../translation/i18n';
+import { Locale } from '../../i18n/i18n';
 import { Twokei } from '../../app/Twokei';
 import {
   Button,

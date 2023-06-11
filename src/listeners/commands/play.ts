@@ -1,7 +1,7 @@
 import { CommandContext, CommandResponse, createCommand, MessageBuilder } from 'twokei-framework';
 
 import { addNewSong } from '../../music/heizou/add-new-song';
-import { i18nGuild } from '../../translation/guild-i18n';
+import { i18nGuild } from '../../i18n/guild-i18n';
 import { getReadableException } from '../../structures/exceptions/utils/get-readable-exception';
 import { Interaction } from 'discord.js';
 

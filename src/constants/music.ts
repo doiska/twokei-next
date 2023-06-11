@@ -7,7 +7,7 @@ import { destroyPlayerInstance } from '../music/heizou/destroy-player-instance';
 import { pauseSong } from '../music/heizou/pause-song';
 import { Venti } from '../music/controllers/Venti';
 import { getFixedT } from 'i18next';
-import { Locale } from '../translation/i18n';
+import { Locale } from '../i18n/i18n';
 
 export enum Menus {
   SelectSongMenu = 'SELECT_SONG_MENU',

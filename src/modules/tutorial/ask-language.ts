@@ -8,7 +8,7 @@ import {
   Locale, Message, PermissionsBitField,
 } from 'discord.js';
 import { getFixedT } from 'i18next';
-import { LocaleFlags, VALID_LOCALES } from '../../translation/i18n';
+import { LocaleFlags, VALID_LOCALES } from '../../i18n/i18n';
 import { Twokei } from '../../app/Twokei';
 
 export async function askLanguage(message: Message, guild: Guild) {

@@ -3,13 +3,13 @@ import { destroyPlayerInstance } from '../../music/heizou/destroy-player-instanc
 import { getReadableException } from '../../structures/exceptions/utils/get-readable-exception';
 
 const execute = async (context: CommandContext) => {
-  const { guild } = context;
+  const { member } = context;
 
-  if (!guild) {
+  if (!member) {
     return;
   }
 
-  return destroyPlayerInstance(guild.id)
+  return destroyPlayerInstance(member)
       .then(() => 'Stopped')
       .catch(getReadableException);
 }

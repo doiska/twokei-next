@@ -1,6 +1,6 @@
 import { Guild, TextChannel } from 'discord.js';
 import { Twokei } from '../../app/Twokei';
-import { getGuidLocale } from '../../translation/guild-i18n';
+import { getGuidLocale } from '../../i18n/guild-i18n';
 import { kil } from '../../app/Kil';
 import { songChannels } from '../../schemas/SongChannels';
 import { eq } from 'drizzle-orm';

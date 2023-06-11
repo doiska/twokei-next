@@ -9,7 +9,7 @@ import { TwokeiClient } from 'twokei-framework';
 
 import process from 'node:process';
 
-import { init as initI18n } from '../translation/i18n';
+import { init as initI18n } from '../i18n/i18n';
 
 declare module 'discord.js' {
   interface Client {

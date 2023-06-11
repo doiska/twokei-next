@@ -5,6 +5,7 @@ import { createPlayerInstance } from './create-player-instance';
 import { PlayerException } from '../../structures/exceptions/PlayerException';
 import { GuildMember } from 'discord.js';
 import { Events } from '../interfaces/player.types';
+import { isConnectedTo } from '../../preconditions/vc-conditions';
 
 export async function addNewSong(input: string, member: GuildMember) {
   const guild = member.guild;
@@ -18,7 +19,13 @@ export async function addNewSong(input: string, member: GuildMember) {
   }
 
   if (!isVoiceChannel(member.voice.channel)) {
-    throw new PlayerException('No voice channel');
+    throw new PlayerException('You must be in a voice channel to use this command.');
+  }
+
+  const currentVoiceId = Twokei.xiao.getPlayer(guild.id)?.voiceId;
+
+  if (currentVoiceId && isConnectedTo(member, currentVoiceId)) {
+    throw new PlayerException('You must be in the same voice channel as me to use this command.');
   }
 
   if (!canJoinVoiceChannel(member.voice.channel)) {
@@ -31,7 +38,7 @@ export async function addNewSong(input: string, member: GuildMember) {
   })
 
   if (!player) {
-    throw new PlayerException('Player could not be created');
+    throw new PlayerException('Failed to create player instance, please try again.');
   }
 
   const result = await Twokei.xiao.search(input, { requester: member.user });

@@ -1,5 +1,5 @@
 import { Guild } from 'discord.js';
-import { Locale, VALID_LOCALES } from '../translation/i18n';
+import { Locale, VALID_LOCALES } from '../i18n/i18n';
 import { getGuildSongEntity } from './get-guild-song-channel';
 import { isTextChannel } from '@sapphire/discord.js-utilities';
 import { createDefaultButtons, createDefaultSongEmbed } from '../music/embed/create-song-embed';
