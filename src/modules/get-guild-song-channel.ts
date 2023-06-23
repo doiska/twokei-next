@@ -1,10 +1,12 @@
 import { GuildResolvable } from 'discord.js';
-import { Twokei } from '../app/Twokei';
-import { kil } from '../app/Kil';
-import { songChannels } from '../schemas/SongChannels';
+
 import { eq } from 'drizzle-orm';
 
-export async function getGuildSongEntity(guild: GuildResolvable) {
+import { Twokei } from '../app/Twokei';
+import { kil } from '../db/Kil';
+import { songChannels } from '../db/schemas/SongChannels';
+
+export async function getGuildSongChannel(guild: GuildResolvable) {
   const id = Twokei.guilds.resolveId(guild);
 
   if (!id) {

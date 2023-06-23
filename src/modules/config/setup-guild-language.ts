@@ -4,22 +4,29 @@ import {
   ButtonStyle,
   ComponentType,
   EmbedBuilder,
-  Guild,
-  Locale, Message, PermissionsBitField,
+  GuildTextBasedChannel,
+  PermissionsBitField
 } from 'discord.js';
+
+import { eq } from 'drizzle-orm';
 import { getFixedT } from 'i18next';
-import { LocaleFlags, VALID_LOCALES } from '../../i18n/i18n';
+
 import { Twokei } from '../../app/Twokei';
+import { kil } from '../../db/Kil';
+import { guilds } from '../../db/schemas/Guild';
+import { Locale, LocaleFlags, VALID_LOCALES } from '../../i18n/i18n';
 
-export async function askLanguage(message: Message, guild: Guild) {
-  const embed = new EmbedBuilder();
-  const language = guild.preferredLocale === Locale.PortugueseBR ? 'pt_br' : 'en_us';
+export async function setupGuildLanguage(channel: GuildTextBasedChannel) {
 
+  const guild = channel.guild;
+
+  const language: Locale = guild.preferredLocale === 'pt-BR' ? 'pt_br' : 'en_us';
   const ft = getFixedT(language, 'tutorial');
 
-  embed.setTitle(ft('language.title'));
-  embed.setDescription(ft('language.description', { joinArrays: '\n' }));
-  embed.setThumbnail(Twokei.user!.displayAvatarURL({ size: 2048 }) ?? '');
+  const embed = new EmbedBuilder()
+    .setTitle(ft('language.title'))
+    .setDescription(ft('language.description', { joinArrays: '\n' }))
+    .setThumbnail(Twokei.user?.displayAvatarURL({ size: 2048 }) ?? '');
 
   const languageButtons = VALID_LOCALES.map(locale =>
     new ButtonBuilder()
@@ -38,7 +45,7 @@ export async function askLanguage(message: Message, guild: Guild) {
     components: [...languageButtons, helpButton]
   });
 
-  await message.edit({ embeds: [embed], components: [row] });
+  const message = await channel.send({ embeds: [embed], components: [row] });
 
   const interaction = await message.awaitMessageComponent({
     componentType: ComponentType.Button,
@@ -48,9 +55,11 @@ export async function askLanguage(message: Message, guild: Guild) {
 
   interaction.deferUpdate();
 
-  if(interaction) {
-    return interaction?.customId.split('-')?.[1] as Locale;
-  }
+  await message.delete();
 
-  return language as Locale;
+  const newLocale = interaction?.customId.split('-')?.[1] ?? language;
+
+  await kil.update(guilds).set({ locale: newLocale }).where(eq(guilds.guildId, guild.id));
+
+  return newLocale as Locale;
 }
