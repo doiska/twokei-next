@@ -1,8 +1,9 @@
 import { Message, Snowflake } from 'discord.js';
-import { GuildEmbed } from './guild-embed';
+
+import { getGuidLocale } from '../../modules/guild-locale';
 import { Maybe } from '../../utils/type-guards';
-import { getGuidLocale } from '../../i18n/guild-i18n';
 import { Venti } from '../controllers/Venti';
+import { GuildEmbed } from './guild-embed';
 
 export class GuildEmbedManager {
 

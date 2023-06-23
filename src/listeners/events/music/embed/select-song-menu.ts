@@ -1,5 +1,7 @@
-import { createEvent } from 'twokei-framework';
 import { Interaction } from 'discord.js';
+
+import { createEvent } from 'twokei-framework';
+
 import { Twokei } from '../../../../app/Twokei';
 import { Menus } from '../../../../constants/music';
 
@@ -60,4 +62,4 @@ export const selectMenuEvent = createEvent('interactionCreate', (interaction: In
   player.skip(id + 1);
 
   interaction.reply({ content: `Skipped ${id} tracks`, ephemeral: true });
-})
+});

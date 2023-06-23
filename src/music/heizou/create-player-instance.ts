@@ -1,9 +1,12 @@
 import { Guild, TextChannel } from 'discord.js';
-import { Twokei } from '../../app/Twokei';
-import { getGuidLocale } from '../../i18n/guild-i18n';
-import { kil } from '../../app/Kil';
-import { songChannels } from '../../schemas/SongChannels';
+
 import { eq } from 'drizzle-orm';
+
+import { Twokei } from '../../app/Twokei';
+import { xiao } from '../../app/Xiao';
+import { kil } from '../../db/Kil';
+import { songChannels } from '../../db/schemas/SongChannels';
+import { getGuidLocale } from '../../modules/guild-locale';
 
 interface InitOptions {
   guild: Guild;
@@ -11,7 +14,7 @@ interface InitOptions {
 }
 
 export async function createPlayerInstance({ guild, voiceChannel }: InitOptions) {
-  const player = Twokei.xiao.getPlayer(guild.id);
+  const player = xiao.getPlayer(guild.id);
 
   if (player) {
     return player;
@@ -19,7 +22,7 @@ export async function createPlayerInstance({ guild, voiceChannel }: InitOptions)
 
   const [songChannel] = await kil.select().from(songChannels).where(eq(songChannels.guildId, guild.id));
 
-  const newPlayer = await Twokei.xiao.createPlayer({
+  const newPlayer = await xiao.createPlayer({
     guild: guild.id,
     voiceChannel: voiceChannel,
     lang: await getGuidLocale(guild.id)

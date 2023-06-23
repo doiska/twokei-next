@@ -1,12 +1,13 @@
+import { Interaction } from 'discord.js';
+
+import { t } from 'i18next';
 import { CommandContext, CommandResponse, createCommand, MessageBuilder } from 'twokei-framework';
 
 import { addNewSong } from '../../music/heizou/add-new-song';
-import { i18nGuild } from '../../i18n/guild-i18n';
 import { getReadableException } from '../../structures/exceptions/utils/get-readable-exception';
-import { Interaction } from 'discord.js';
 
 const execute = async (context: CommandContext<{ search: string }>): Promise<CommandResponse> => {
-  if (!context.member || !context.channel) {
+  if (!context.member || !context.channel || !context.guild) {
     return;
   }
 
@@ -14,7 +15,7 @@ const execute = async (context: CommandContext<{ search: string }>): Promise<Com
     const result = await addNewSong(context.input.search, context.member);
     const [track, ...rest] = result.tracks;
 
-    const trackTranslation = await i18nGuild(context.guild!.id, rest.length === 0 ? 'song_added' : 'playlist_added', {
+    const trackTranslation = await t(rest.length === 0 ? 'song_added' : 'playlist_added', {
       track: track.title,
       rest: rest.length,
       ns: 'player'
@@ -26,19 +27,19 @@ const execute = async (context: CommandContext<{ search: string }>): Promise<Com
   } catch (e) {
     return getReadableException(e);
   }
-}
+};
 
 export const playCommand = createCommand({
   name: 'play',
   description: 'Play a song',
   slash: (builder) => {
     return builder
-        .addStringOption((option) =>
-            option
-                .setName('search')
-                .setDescription('Input')
-                .setRequired(true)
-        )
+      .addStringOption((option) =>
+        option
+          .setName('search')
+          .setDescription('Input')
+          .setRequired(true)
+      );
   },
   execute: execute
 });

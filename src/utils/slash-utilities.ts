@@ -1,9 +1,7 @@
 import { Twokei } from '../app/Twokei';
 
-export const getCommand = async (commandName: string) => {
-  const commands = await Twokei.getCommands();
-
-  const found = commands.find((command) => command.name === commandName);
+export const getCommand = (commandName: string) => {
+  const found = Twokei.getCommands().find((command) => command.name === commandName);
 
   if(!found) {
     return;
@@ -12,7 +10,16 @@ export const getCommand = async (commandName: string) => {
   return {
     ...found,
     toString() {
-      return `</${found.name}:${found.id}>`
+      return `</${found.name}:${found.id}>`;
     }
-  }
+  };
+};
+
+export function getCommands() {
+  return Twokei.getCommands().map((command) => ({
+    ...command,
+    toString() {
+      return `</${command.name}:${command.id}>`;
+    }
+  }));
 }

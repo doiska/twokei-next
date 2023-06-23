@@ -1,10 +1,10 @@
-import { Events } from '../interfaces/player.types';
-import { XiaoEvents } from '../controllers/Xiao';
 import { Twokei } from '../../app/Twokei';
 import { logger } from '../../modules/logger-transport';
+import { XiaoEvents } from '../controllers/Xiao';
+import { Events } from '../interfaces/player.types';
 
 export const trackPause: XiaoEvents[Events.TrackPause] = (venti) => {
-  logger.debug(`[Xiao] Track started. Refreshing components...`)
+  logger.debug('[Xiao] Track started. Refreshing components...');
 
   const embed = Twokei.xiao.embedManager.get(venti.guildId);
 
@@ -13,4 +13,4 @@ export const trackPause: XiaoEvents[Events.TrackPause] = (venti) => {
   }
 
   embed.refreshComponents().refresh();
-}
+};

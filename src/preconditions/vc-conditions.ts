@@ -1,3 +1,5 @@
 import { GuildMember } from 'discord.js';
 
-export const isConnectedTo = (member: GuildMember, channel: string) => member.voice.channel?.id === channel
+import { Maybe } from '../utils/type-guards';
+
+export const isConnectedTo = (member: GuildMember, channel: Maybe<string>) => member.voice.channel?.id === channel;

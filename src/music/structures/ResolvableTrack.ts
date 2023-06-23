@@ -1,15 +1,13 @@
+import { User } from 'discord.js';
+
 import { Track } from 'shoukaku';
-import { escapeRegExp } from '../../utils/dash-utils';
-import { XiaoSearchOptions, XiaoSearchResult } from '../interfaces/player.types';
+
 import { Twokei } from '../../app/Twokei';
-import { User } from "discord.js";
+import { escapeRegExp } from '../../utils/dash-utils';
 
 interface ResolvableTrackOptions {
   requester?: User;
 }
-
-type TrackSearch = (query: string, options: XiaoSearchOptions) => Promise<XiaoSearchResult>;
-
 export class ResolvableTrack {
 
   /**
@@ -42,7 +40,7 @@ export class ResolvableTrack {
   /** The YouTube/soundcloud URI for spotify and other unsupported source */
   public realUri: string | null;
 
-  public resolvedBySource: boolean = false;
+  public resolvedBySource = false;
 
   public constructor(track: Track & { thumbnail?: string }, options?: ResolvableTrackOptions) {
 
@@ -70,7 +68,7 @@ export class ResolvableTrack {
 
   get isReadyToPlay(): boolean {
     return (
-        !!this.track &&
+      !!this.track &&
         !!this.sourceName &&
         !!this.identifier &&
         !!this.author &&
@@ -127,8 +125,8 @@ export class ResolvableTrack {
       const author = [this.author, `${this.author} - Topic`];
 
       const officialTrack = tracks.find(
-          (track) =>
-              author.some((name) => new RegExp(`^${escapeRegExp(name)}$`, 'i').test(track.info.author)) ||
+        (track) =>
+          author.some((name) => new RegExp(`^${escapeRegExp(name)}$`, 'i').test(track.info.author)) ||
               new RegExp(`^${escapeRegExp(this.title)}$`, 'i').test(track.info.title)
       );
 
@@ -139,8 +137,8 @@ export class ResolvableTrack {
 
     if (this.length) {
       const sameDuration = tracks.find(
-          (track) =>
-              track.info.length >= (this.length ? this.length : 0) - 2000 &&
+        (track) =>
+          track.info.length >= (this.length ? this.length : 0) - 2000 &&
               track.info.length <= (this.length ? this.length : 0) + 2000
       );
 
@@ -166,7 +164,7 @@ export class ResolvableTrack {
         position: this.position || 0,
         sourceName: this.sourceName
       }
-    }
+    };
   }
 
   private parseResolvableToTrack(resolvable: Track | ResolvableTrack): Track {

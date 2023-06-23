@@ -1,17 +1,20 @@
-import { CommandContext, CommandResponse, createCommand, MessageBuilder } from 'twokei-framework';
-import { addNewSong } from '../../music/heizou/add-new-song';
-import { i18nGuild } from '../../i18n/guild-i18n';
 import { Interaction } from 'discord.js';
-import { getReadableException } from '../../structures/exceptions/utils/get-readable-exception';
-import { kil } from '../../app/Kil';
-import { playlists } from '../../schemas/Playlists';
+
 import { and, eq, ilike } from 'drizzle-orm';
+import { t } from 'i18next';
+import { CommandContext, CommandResponse, createCommand, MessageBuilder } from 'twokei-framework';
+
+import { kil } from '../../db/Kil';
+import { playlists } from '../../db/schemas/Playlists';
+import { addNewSong } from '../../music/heizou/add-new-song';
+import { getReadableException } from '../../structures/exceptions/utils/get-readable-exception';
+
 
 const execute = async (context: CommandContext<{ name: string }>): Promise<CommandResponse> => {
 
   const { user, input: { name } } = context;
 
-  if (!context.member) {
+  if (!context.member || !context.channel || !context.guild) {
     return;
   }
 
@@ -27,7 +30,7 @@ const execute = async (context: CommandContext<{ name: string }>): Promise<Comma
     const result = await addNewSong(playlist.playlistUrl, context.member);
     const [track, ...rest] = result.tracks;
 
-    const trackTranslation = await i18nGuild(context.guild!.id, rest.length === 0 ? 'song_added' : 'playlist_added', {
+    const trackTranslation = await t(rest.length === 0 ? 'song_added' : 'playlist_added', {
       track: track.title,
       rest: rest.length,
       ns: 'player'
@@ -39,7 +42,7 @@ const execute = async (context: CommandContext<{ name: string }>): Promise<Comma
   } catch (e) {
     return getReadableException(e);
   }
-}
+};
 
 export const syncCommand = createCommand({
   name: 'load',
@@ -51,7 +54,7 @@ export const syncCommand = createCommand({
           .setName('name')
           .setDescription('Playlist name')
           .setRequired(true)
-      )
+      );
   },
   execute: execute
 });

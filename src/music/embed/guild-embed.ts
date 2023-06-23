@@ -6,19 +6,20 @@ import {
   SelectMenuBuilder,
   Snowflake
 } from 'discord.js';
+
+import { Locale } from '../../i18n/i18n';
+import { logger } from '../../modules/logger-transport';
+import { Venti } from '../controllers/Venti';
+import { TrackQueue } from '../structures/TrackQueue';
 import {
   createDefaultButtons,
-  createDefaultMenu,
+  selectSongMenu,
   createDefaultSongEmbed,
   createPlaylistButtons,
   createPrimaryButtons,
   createSecondaryButtons
 } from './create-song-embed';
-import { Locale } from '../../i18n/i18n';
-import { Venti } from '../controllers/Venti';
-import { TrackQueue } from '../structures/TrackQueue';
 import { parseTracksToMenuItem } from './guild-embed-manager-helper';
-import { logger } from '../../modules/logger-transport';
 
 export class GuildEmbed {
 
@@ -49,14 +50,17 @@ export class GuildEmbed {
       return this;
     }
 
+
     const queue = this.player.queue;
-    const title = queue.current?.title || 'Nenhuma música tocando';
     const url = queue.current?.uri || '';
 
-    this.setEmbed({
-      title,
-      url
-    });
+    this.embed = {
+      ...this.embed,
+      url,
+      image: {
+        url: queue.current?.thumbnail || this.embed.thumbnail?.url || ''
+      }
+    };
 
     return this;
   }
@@ -72,15 +76,6 @@ export class GuildEmbed {
     return this;
   }
 
-  private setEmbed(embed: APIEmbed) {
-    this.embed = {
-      ...this.embed,
-      ...embed
-    }
-
-    return this;
-  }
-
   private createButtons() {
     return [
       createPlaylistButtons(this.player.locale),
@@ -90,7 +85,7 @@ export class GuildEmbed {
   }
 
   private createSelectMenu(queue: TrackQueue) {
-    const row = createDefaultMenu(this.locale);
+    const row = selectSongMenu;
     const menu = row.components[0] as SelectMenuBuilder;
 
     menu.setOptions(parseTracksToMenuItem(queue));
@@ -101,15 +96,13 @@ export class GuildEmbed {
 
   public reset() {
     this.embed = createDefaultSongEmbed(this.locale);
-    this.components = [
-      createDefaultMenu(this.locale),
-      ...createDefaultButtons(this.locale)
-    ];
+    this.components = createDefaultButtons(this.locale);
+
     return this;
   }
 
   public refresh() {
-    logger.debug(`[Xiao] Refreshing message...`);
+    logger.debug('[Xiao] Refreshing message...');
     this.message.edit({ components: this.components, embeds: [this.embed] });
   }
 }

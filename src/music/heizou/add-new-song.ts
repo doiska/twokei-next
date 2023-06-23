@@ -1,11 +1,15 @@
-import { isVoiceChannel } from '@sapphire/discord.js-utilities';
-import { canJoinVoiceChannel } from '../../utils/discord-utilities';
-import { Twokei } from '../../app/Twokei';
-import { createPlayerInstance } from './create-player-instance';
-import { PlayerException } from '../../structures/exceptions/PlayerException';
 import { GuildMember } from 'discord.js';
-import { Events } from '../interfaces/player.types';
+
+import { isVoiceChannel } from '@sapphire/discord.js-utilities';
+
+import { Twokei } from '../../app/Twokei';
 import { isConnectedTo } from '../../preconditions/vc-conditions';
+import { PlayerException } from '../../structures/exceptions/PlayerException';
+import { canJoinVoiceChannel } from '../../utils/discord-utilities';
+import { Events } from '../interfaces/player.types';
+import { createPlayerInstance } from './create-player-instance';
+
+
 
 export async function addNewSong(input: string, member: GuildMember) {
   const guild = member.guild;
@@ -24,6 +28,8 @@ export async function addNewSong(input: string, member: GuildMember) {
 
   const currentVoiceId = Twokei.xiao.getPlayer(guild.id)?.voiceId;
 
+  console.log(currentVoiceId);
+
   if (currentVoiceId && isConnectedTo(member, currentVoiceId)) {
     throw new PlayerException('You must be in the same voice channel as me to use this command.');
   }
@@ -35,7 +41,7 @@ export async function addNewSong(input: string, member: GuildMember) {
   const player = await createPlayerInstance({
     guild: guild,
     voiceChannel: member.voice.channel.id
-  })
+  });
 
   if (!player) {
     throw new PlayerException('Failed to create player instance, please try again.');

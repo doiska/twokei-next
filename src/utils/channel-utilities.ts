@@ -1,8 +1,10 @@
-import { ChannelType, Guild, PermissionsBitField, TextChannel } from 'discord.js';
+import { Guild, TextChannel } from 'discord.js';
+
+import { isGuildBasedChannel, isTextChannel } from '@sapphire/discord.js-utilities';
+
 import { logger } from '../modules/logger-transport';
-import { Maybe } from './type-guards';
-import { isGuildBasedChannel, isTextBasedChannel, isTextChannel } from '@sapphire/discord.js-utilities';
 import { canSendMessages } from './discord-utilities';
+import { Maybe } from './type-guards';
 
 export const findAnyUsableChannel = async (guild: Guild): Promise<Maybe<TextChannel>> => {
 
@@ -30,4 +32,4 @@ export const findAnyUsableChannel = async (guild: Guild): Promise<Maybe<TextChan
   }
 
   return channel as Maybe<TextChannel>;
-}
+};

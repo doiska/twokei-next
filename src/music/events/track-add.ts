@@ -1,6 +1,6 @@
-import { Events } from '../interfaces/player.types';
-import { XiaoEvents } from '../controllers/Xiao';
 import { Twokei } from '../../app/Twokei';
+import { XiaoEvents } from '../controllers/Xiao';
+import { Events } from '../interfaces/player.types';
 
 export const trackAdd: XiaoEvents[Events.TrackAdd] = (venti) => {
   const embed = Twokei.xiao.embedManager.get(venti.guildId);
@@ -10,6 +10,6 @@ export const trackAdd: XiaoEvents[Events.TrackAdd] = (venti) => {
   }
 
   embed
-      .refreshComponents()
-      .refresh();
-}
+    .refreshComponents()
+    .refresh();
+};

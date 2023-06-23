@@ -1,6 +1,7 @@
-import { FriendlyException } from '../../structures/exceptions/FriendlyException';
-import { Twokei } from '../../app/Twokei';
 import { GuildResolvable } from 'discord.js';
+
+import { Twokei } from '../../app/Twokei';
+import { FriendlyException } from '../../structures/exceptions/FriendlyException';
 
 export const pauseSong = async (guild: GuildResolvable) => {
   const player = await Twokei.xiao.getPlayer(guild);
@@ -14,5 +15,5 @@ export const pauseSong = async (guild: GuildResolvable) => {
   }
 
   player.pause();
-}
+};
 

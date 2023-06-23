@@ -1,9 +1,10 @@
+import { ChildProcess } from 'child_process';
 import { ClusterManager, HeartbeatManager, ReClusterManager } from 'discord-hybrid-sharding';
 import { config } from 'dotenv';
 import { bold, red } from 'kleur';
-import { logger } from "./modules/logger-transport";
-import { ChildProcess } from 'child_process';
 import { Worker as Worker_Thread } from 'worker_threads';
+
+import { logger } from './modules/logger-transport';
 
 config();
 
@@ -15,16 +16,18 @@ const shardingManager = new ClusterManager(`${__dirname}/app/Twokei.js`, {
 });
 
 shardingManager.extend(
-    new HeartbeatManager({ interval: 10000, maxMissedHeartbeats: 3 }),
-    new ReClusterManager({ restartMode: "gracefulSwitch" })
+  new HeartbeatManager({ interval: 10000, maxMissedHeartbeats: 3 }),
+  new ReClusterManager({ restartMode: 'gracefulSwitch' })
 );
 
-const isChildProcess = (process: any): process is ChildProcess => process.send !== undefined;
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+const isChildProcess = (process: unknown): process is ChildProcess => process?.send !== undefined;
 
 const getPid = (thread?: Worker_Thread | ChildProcess | null) => {
   if (!thread) return 'undefined';
   return (isChildProcess(thread) ? thread.pid : thread.threadId) || 'undefined';
-}
+};
 
 shardingManager.on('clusterCreate', (cluster) => {
   logger.info(`[Cluster] Cluster Id: ${bold(cluster.id)} has been created and is now starting...`);
@@ -41,7 +44,7 @@ shardingManager.on('clusterCreate', (cluster) => {
   cluster.on('message', (message) => logger.debug(`[Cluster] Cluster ${cluster.id} has received a message: ${message}`));
 
   cluster.on('error', (error) => {
-    logger.error(`[Cluster] Cluster ${red(cluster.id)} has had an error: ${red(error.message)}`, error)
+    logger.error(`[Cluster] Cluster ${red(cluster.id)} has had an error: ${red(error.message)}`, error);
   });
 
   cluster.on('death', (cluster, thread) => {
@@ -50,9 +53,9 @@ shardingManager.on('clusterCreate', (cluster) => {
 });
 
 shardingManager
-    .spawn()
-    .then(() => logger.info(bold(`[Cluster] All clusters have been spawned.`)))
-    .catch(e => logger.error(bold(`[Cluster] Failed to spawn clusters: ${red(e)}`)));
+  .spawn()
+  .then(() => logger.info(bold('[Cluster] All clusters have been spawned.')))
+  .catch(e => logger.error(bold(`[Cluster] Failed to spawn clusters: ${red(e)}`)));
 
 const stdin = process.openStdin();
 

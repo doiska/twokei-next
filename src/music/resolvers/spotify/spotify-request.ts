@@ -3,14 +3,14 @@ const AUTH_URL = 'https://accounts.spotify.com/api/token?grant_type=client_crede
 
 export class SpotifyRequest {
 
-  private token: string = '';
-  private expiresAt: number = 0;
+  private token = '';
+  private expiresAt = 0;
   private readonly authorization: string = '';
 
   public currentApiStatus = {
     requests: 0,
     rateLimited: false,
-  }
+  };
 
   constructor({ clientId, clientSecret }: { clientId: string, clientSecret: string }) {
     this.authorization = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;

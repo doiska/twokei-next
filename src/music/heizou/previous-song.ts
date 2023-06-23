@@ -1,6 +1,7 @@
-import { FriendlyException } from '../../structures/exceptions/FriendlyException';
-import { Twokei } from '../../app/Twokei';
 import { GuildResolvable } from 'discord.js';
+
+import { Twokei } from '../../app/Twokei';
+import { FriendlyException } from '../../structures/exceptions/FriendlyException';
 
 export const previousSong = async (guild: GuildResolvable): Promise<void> => {
   const player = await Twokei.xiao.getPlayer(guild);
@@ -14,4 +15,4 @@ export const previousSong = async (guild: GuildResolvable): Promise<void> => {
   }
 
   player.play(player.queue.previous, { replace: true });
-}
+};
