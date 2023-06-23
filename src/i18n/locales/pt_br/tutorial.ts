@@ -7,4 +7,4 @@ export default {
     ],
     help: 'Help me translate :)',
   }
-}
+};

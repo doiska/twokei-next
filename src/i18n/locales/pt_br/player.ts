@@ -5,20 +5,17 @@ export default {
   'playlist_added': '**{{track}}** adicionado à fila com outras {{rest}} tracks.',
   'embed': {
     'description': [
-      '',
-      ':japanese_goblin: Versão alpha do bot, bugs são esperados.',
-      '- Se encontrar algum, por favor reporte ao desenvolvedor.',
-      '',
-      '**Formas de usar:**',
-      '- {{- mention}} <link>',
-      '- Você também pode utilizar: /play <link>.',
-      '- Ou importe sua playlist do Spotify: /sync',
-      '',
-      '**Dicas!**',
-      '- Selecione as músicas clicando no menu de seleção.',
-      '- Você pode utilizar os botões para controlar o player.',
-      '',
-      '**WIP - More features coming soon!**'
+      '## <a:raio:1121849523854118973> [Twokei Music](https://twokei.com)',
+      ' ',
+      '### <:hanakin:1121884455225786478> Como usar?',
+      '- **Mencione** o bot com o nome/url da música para adicionar à fila.',
+      '- Exemplo: "**{{- mention}} lofi hiphop**"',
+      '### <:spotify:1121851501715931187> Spotify Sync',
+      '- Sincronize seu **Spotify**, use {{- command_sync}} (link do perfil)!',
+      '- Apenas playlists públicas são suportadas.',
+      '### 🎨 Gostou da arte?',
+      '- **Nome:** {{- art.name}}',
+      '- **Autor:** [{{- art.author}}]({{- art.authorUrl}})',
     ],
     'buttons': {
       'stop': 'Parar',
@@ -33,8 +30,9 @@ export default {
       'loop_track': 'Loop: Faixa',
       'loop_queue': 'Loop: Fila',
       'auto_play': 'Autoplay',
-      'select_language': 'Select language',
-      'sync_playlist': '(Soon) Import Spotify playlist',
+      'select_language': 'Alterar idioma',
+      'load_playlist': 'Carregar playlist',
+      'sync_playlist': '(Soon) Importar Playlist do Spotify',
       'save_this_playlist': 'Save current queue',
       'your_playlists': '(Soon) Saved playlists',
       'donate': 'Contribua com o desenvolvimento',
@@ -48,4 +46,4 @@ export default {
       }
     }
   }
-}
+};

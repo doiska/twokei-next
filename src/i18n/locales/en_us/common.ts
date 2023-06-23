@@ -12,7 +12,7 @@ export default {
     '',
     ':sob: **If you dont want to use the channel, theres some options:**',
     '- :mouse: The command (click here): {{playCommand}}',
-    `- :keyboard: Or mention me with the song: {{me}} [<url/search>](https://youtu.be/dQw4w9WgXcQ)`
+    '- :keyboard: Or mention me with the song: {{me}} [<url/search>](https://youtu.be/dQw4w9WgXcQ)'
   ],
   join_embed: {
     title: '⚡ Hey there! I\'m Twokei!',
