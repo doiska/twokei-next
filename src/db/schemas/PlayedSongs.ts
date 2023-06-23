@@ -1,4 +1,5 @@
-import { bigint, integer, pgSchema, pgTable, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
+import { integer, pgSchema, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
+
 import { users } from './Users';
 
 export const playedSongs = pgSchema(process.env.PGSCHEMA ?? 'app').table('played_songs', {
@@ -12,5 +13,5 @@ export const playedSongs = pgSchema(process.env.PGSCHEMA ?? 'app').table('played
 }, ps => {
   return {
     songUrlUnique: uniqueIndex('songUrlUnique').on(ps.songUrl, ps.userId)
-  }
+  };
 });
