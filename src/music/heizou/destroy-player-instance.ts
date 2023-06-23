@@ -1,4 +1,5 @@
 import { GuildMember } from 'discord.js';
+
 import { Twokei } from '../../app/Twokei';
 import { isConnectedTo } from '../../preconditions/vc-conditions';
 import { FriendlyException } from '../../structures/exceptions/FriendlyException';
@@ -12,4 +13,4 @@ export const destroyPlayerInstance = async (member: GuildMember) => {
   }
 
   return Twokei.xiao.destroyPlayer(member);
-}
+};

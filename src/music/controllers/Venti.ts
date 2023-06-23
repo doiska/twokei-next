@@ -1,4 +1,5 @@
-import { Xiao, XiaoEvents } from './Xiao';
+import { Snowflake } from 'discord.js';
+
 import {
   Player,
   PlayerUpdate,
@@ -6,14 +7,14 @@ import {
   TrackStuckEvent,
   WebSocketClosedEvent
 } from 'shoukaku';
-import { Events, PlayerState, PlayOptions, VentiInitOptions } from '../interfaces/player.types';
-import { Snowflake } from 'discord.js';
-import { Maybe } from '../../utils/type-guards';
-import { TrackQueue } from '../structures/TrackQueue';
-import { logger } from '../../modules/logger-transport';
-import { ResolvableTrack } from '../structures/ResolvableTrack';
+
 import { Locale } from '../../i18n/i18n';
-import { addNewRecommendationEntry } from "../../recommendation/add-new-entry";
+import { logger } from '../../modules/logger-transport';
+import { Maybe } from '../../utils/type-guards';
+import { Events, PlayerState, PlayOptions, VentiInitOptions } from '../interfaces/player.types';
+import { ResolvableTrack } from '../structures/ResolvableTrack';
+import { TrackQueue } from '../structures/TrackQueue';
+import { Xiao, XiaoEvents } from './Xiao';
 
 export enum LoopStates {
   NONE = 'none',
@@ -59,7 +60,7 @@ export class Venti {
   /**
    * If the player is connected to a voice channel and playing.
    */
-  public playing: boolean = false;
+  public playing = false;
 
   /**
    * The player's state.
@@ -69,7 +70,7 @@ export class Venti {
   /**
    * Pause state of the player.
    */
-  public paused: boolean = false;
+  public paused = false;
 
   /**
    * Song queue.
@@ -92,7 +93,7 @@ export class Venti {
     this.queue = new TrackQueue();
 
     this.instance.on('start', () => {
-      this.playing = true
+      this.playing = true;
       if (this.queue.current) {
         this.emit(Events.TrackStart, this, this.queue.current);
       }
@@ -105,7 +106,7 @@ export class Venti {
 
       if (data.reason === 'REPLACED') {
         console.log(`Track replaced for guild ${this.guildId} - skipping end event`);
-        this.emit(Events.TrackEnd, this, this.queue.current!);
+        this.emit(Events.TrackEnd, this, this.queue?.current);
         return;
       }
 
@@ -172,7 +173,7 @@ export class Venti {
     playOptions = {
       replace: false,
       ...playOptions
-    }
+    };
 
     if (this.state === PlayerState.DESTROYED) {
       throw new Error('Player is destroyed');
@@ -213,27 +214,15 @@ export class Venti {
           ...playOptions,
           noReplace: !playOptions?.replace
         }
-      }
+      };
 
       logger.debug(`Playing track ${this.queue.current.title} for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`);
-
-      if (this.queue.current.requester) {
-        logger.info(`Adding recommendation entry for ${this.queue.current.requester.id} in guild ${this.guildId}`);
-
-        addNewRecommendationEntry(this.queue.current.requester.id, this.guildId, {
-          title: this.queue.current.title,
-          author: this.queue.current.author,
-          url: this.queue.current.uri,
-          length: this.queue.current.length
-        });
-      }
-
       this.instance.playTrack(shoukakuPlayOptions);
     }).catch((err) => {
       this.emit(Events.Debug, `Error while resolving track for guild ${this.guildId} - ${err}`);
       logger.error(`Error while resolving track for guild ${this.guildId} - ${err}`, err.stack);
       this.queue.length ? this.play() : this.emit(Events.QueueEmpty, this);
-    })
+    });
 
     return this;
   }
@@ -306,7 +295,7 @@ export class Venti {
       [LoopStates.NONE]: LoopStates.QUEUE,
       [LoopStates.QUEUE]: LoopStates.TRACK,
       [LoopStates.TRACK]: LoopStates.NONE
-    }
+    };
 
     const newLoopState = loop || nextState[this.loop];
 

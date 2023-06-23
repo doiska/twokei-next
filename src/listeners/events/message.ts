@@ -1,12 +1,15 @@
-import { createEvent, MessageBuilder } from 'twokei-framework';
 import { ChannelType, Colors, EmbedBuilder, userMention } from 'discord.js';
+
+import { eq } from 'drizzle-orm';
+import { createEvent, MessageBuilder } from 'twokei-framework';
+
 import { Twokei } from '../../app/Twokei';
+import { kil } from '../../db/Kil';
+import { songChannels } from '../../db/schemas/SongChannels';
+import { logger } from '../../modules/logger-transport';
 import { addNewSong } from '../../music/heizou/add-new-song';
 import { PlayerException } from '../../structures/exceptions/PlayerException';
-import { logger } from '../../modules/logger-transport';
-import { kil } from '../../app/Kil';
-import { songChannels } from '../../schemas/SongChannels';
-import { eq } from 'drizzle-orm';
+
 
 export const onMessage = createEvent('messageCreate', async (message) => {
 
@@ -36,21 +39,21 @@ export const onMessage = createEvent('messageCreate', async (message) => {
   }
 
   if (isUsableChannel) {
-    message.delete();
+    await message.delete();
   }
 
   if (!hasMention && isUsableChannel) {
     const reply = [
-      `**Due a \`Discord\` limitation, to use this channel you need to send a message mentioning the bot.**`,
-      `Please mention the bot and the song.`,
+      '**Due a `Discord` limitation, to use this channel you need to send a message mentioning the bot.**',
+      'Please mention the bot and the song.',
       '',
       `**Example:** ${userMention(selfId)} https://music.youtube.com/watch?v=Ni5_Wrmh0f8`,
-      `Or click here </play:1052294614503137374>.`
-    ]
+      'Or click here </play:1052294614503137374>.'
+    ];
 
     const embed = new EmbedBuilder()
-      .setTitle(`🥲 Sorry!`)
-      .setDescription(reply.join('\n'))
+      .setTitle('🥲 Sorry!')
+      .setDescription(reply.join('\n'));
 
     return new MessageBuilder()
       .setEmbeds(embed)
@@ -59,7 +62,7 @@ export const onMessage = createEvent('messageCreate', async (message) => {
 
   if (!hasContent) {
     return new MessageBuilder()
-      .setContent(`Please provide a song to play.`)
+      .setContent('Please provide a song to play.')
       .send(channel);
   }
 
@@ -83,10 +86,10 @@ export const onMessage = createEvent('messageCreate', async (message) => {
         .send(channel);
     }
 
-    logger.error(e)
+    logger.error(e);
 
     return new MessageBuilder()
-      .setContent(`An error occurred while trying to play the song.`)
+      .setContent('An error occurred while trying to play the song.')
       .send(channel);
   }
-})
+});

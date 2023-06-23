@@ -1,7 +1,8 @@
-import { createEvent } from 'twokei-framework';
-import { Twokei } from '../../app/Twokei';
 import * as process from 'process';
-import { logger } from "../../modules/logger-transport";
+import { createEvent } from 'twokei-framework';
+
+import { Twokei } from '../../app/Twokei';
+import { logger } from '../../modules/logger-transport';
 
 export const onReady = createEvent('ready', async () => {
   if (process.env.GUILD_ID) {
@@ -9,8 +10,8 @@ export const onReady = createEvent('ready', async () => {
 
     Twokei.emit('guildCreate', guild);
 
-    Twokei.application!.commands.fetch()
-        .then(commands =>
-            logger.info(`Loaded commands: ${commands.map(command => command.name).join(', ')}.`));
+    Twokei.application?.commands.fetch()
+      .then(commands =>
+        logger.info(`Loaded commands: ${commands.map(command => command.name).join(', ')}.`));
   }
 });

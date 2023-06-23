@@ -1,3 +1,5 @@
+import { GuildResolvable } from 'discord.js';
+
 import { EventEmitter } from 'events';
 import {
   Connector,
@@ -9,7 +11,19 @@ import {
   TrackStuckEvent,
   WebSocketClosedEvent
 } from 'shoukaku';
-import { Venti } from './Venti';
+
+import { Twokei } from '../../app/Twokei';
+import { logger } from '../../modules/logger-transport';
+import { PlayerException } from '../../structures/exceptions/PlayerException';
+import { noop } from '../../utils/dash-utils';
+import { Maybe } from '../../utils/type-guards';
+import { GuildEmbedManager } from '../embed/guild-embed-manager';
+import { manualUpdate } from '../events/manual-update';
+import { playerDestroy } from '../events/player-destroy';
+import { queueEmpty } from '../events/queue-empty';
+import { trackAdd } from '../events/track-add';
+import { trackPause } from '../events/track-pause';
+import { trackStart } from '../events/track-start';
 import {
   Events,
   LoadType,
@@ -18,20 +32,10 @@ import {
   XiaoSearchOptions,
   XiaoSearchResult
 } from '../interfaces/player.types';
-import { GuildResolvable } from 'discord.js';
-import { trackStart } from '../events/track-start';
-import { playerDestroy } from '../events/player-destroy';
-import { trackAdd } from '../events/track-add';
-import { GuildEmbedManager } from '../embed/guild-embed-manager';
-import { Twokei } from '../../app/Twokei';
-import { PlayerException } from '../../structures/exceptions/PlayerException';
-import { trackPause } from '../events/track-pause';
-import { ResolvableTrack } from '../structures/ResolvableTrack';
-import { SpotifyResolver } from '../resolvers/spotify/spotify-resolver';
 import { TrackResolver } from '../resolvers/resolver';
-import { logger } from '../../modules/logger-transport';
-import { manualUpdate } from '../events/manual-update';
-import { queueEmpty } from "../events/queue-empty";
+import { SpotifyResolver } from '../resolvers/spotify/spotify-resolver';
+import { ResolvableTrack } from '../structures/ResolvableTrack';
+import { Venti } from './Venti';
 
 
 export interface XiaoEvents {
@@ -63,7 +67,7 @@ export interface XiaoEvents {
   /**
    * Emitted when a track ends.
    */
-  [Events.TrackEnd]: (venti: Venti, track: ResolvableTrack) => void;
+  [Events.TrackEnd]: (venti: Venti, track: Maybe<ResolvableTrack>) => void;
 
   /**
    * Emitted when a player got empty.
@@ -169,7 +173,7 @@ export class Xiao extends EventEmitter {
     //
     // this.shoukaku.on('ready', (name) => logger.debug(`[Shoukaku] Node ${name} is now connected`));
     // this.shoukaku.on('close', (name, code, reason) => logger.debug(`[Shoukaku] Node ${name} closed with code ${code} and reason ${reason}`));
-    this.shoukaku.on('error', (name, error) => {});
+    this.shoukaku.on('error', noop);
 
     this.on(Events.TrackStart, trackStart);
     this.on(Events.TrackAdd, trackAdd);
@@ -186,7 +190,7 @@ export class Xiao extends EventEmitter {
       return current;
     }
 
-    let node = options.nodeName ? this.shoukaku.getNode(options.nodeName) : this.shoukaku.getNode();
+    const node = options.nodeName ? this.shoukaku.getNode(options.nodeName) : this.shoukaku.getNode();
 
     if (!node) {
       throw new Error('No available nodes');
@@ -274,14 +278,14 @@ export class Xiao extends EventEmitter {
         type: LoadType.SEARCH_RESULT,
         tracks: [new ResolvableTrack(result.tracks[0], { requester: options?.requester })],
         playlistName: result.playlistInfo?.name
-      }
+      };
     }
 
     return {
       type: LoadType.PLAYLIST_LOADED,
       tracks: result.tracks.map(track => new ResolvableTrack(track, { requester: options?.requester })),
       playlistName: result.playlistInfo?.name,
-    }
+    };
   }
 
   public getMatchingResolver(query: string): TrackResolver | undefined {

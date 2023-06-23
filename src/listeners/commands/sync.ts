@@ -1,10 +1,11 @@
-import { CommandContext, CommandResponse, createCommand } from 'twokei-framework';
-import { getReadableException } from '../../structures/exceptions/utils/get-readable-exception';
-import { LoadType } from '../../music/interfaces/player.types';
-import { Twokei } from '../../app/Twokei';
-import { kil } from '../../app/Kil';
-import { playlists } from '../../schemas/Playlists';
 import { and, eq } from 'drizzle-orm';
+import { CommandContext, CommandResponse, createCommand } from 'twokei-framework';
+
+import { Twokei } from '../../app/Twokei';
+import { kil } from '../../db/Kil';
+import { playlists } from '../../db/schemas/Playlists';
+import { LoadType } from '../../music/interfaces/player.types';
+import { getReadableException } from '../../structures/exceptions/utils/get-readable-exception';
 
 const execute = async (context: CommandContext<{ url: string }>): Promise<CommandResponse> => {
 
@@ -45,7 +46,7 @@ const execute = async (context: CommandContext<{ url: string }>): Promise<Comman
   } catch (error) {
     return getReadableException(error);
   }
-}
+};
 
 export const syncCommand = createCommand({
   name: 'sync',
@@ -57,7 +58,7 @@ export const syncCommand = createCommand({
           .setName('url')
           .setDescription('Playlist or Profile url')
           .setRequired(true)
-      )
+      );
   },
   execute: execute
 });

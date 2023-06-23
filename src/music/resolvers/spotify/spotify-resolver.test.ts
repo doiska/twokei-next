@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { SpotifyResolver } from './spotify-resolver';
+
 import { LoadType } from '../../interfaces/player.types';
+import { SpotifyResolver } from './spotify-resolver';
 
 describe('SpotifyResolver', () => {
 
@@ -31,7 +32,7 @@ describe('SpotifyResolver', () => {
     it('should return a collection of tracks', async () => {
       const resolvers = await resolver.search('The Weeknd - Blinding Lights');
 
-      console.log(resolvers)
+      console.log(resolvers);
 
       expect(resolvers).toBeDefined();
       expect(resolvers.type).toBe(LoadType.SEARCH_RESULT);

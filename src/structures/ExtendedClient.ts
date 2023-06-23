@@ -1,15 +1,14 @@
-import { ClientOptions } from 'discord.js';
-import { Connectors } from 'shoukaku';
-import { Nodes, shoukakuOptions } from '../music/options';
-import { Twokei } from '../app/Twokei';
-import { logger } from '../modules/logger-transport';
-import { Xiao } from '../music/controllers/Xiao';
-
-import { TwokeiClient } from 'twokei-framework';
+import { ApplicationCommand, ClientOptions, Collection } from 'discord.js';
 
 import process from 'node:process';
+import { Connectors } from 'shoukaku';
+import { TwokeiClient } from 'twokei-framework';
 
+import { Twokei } from '../app/Twokei';
 import { init as initI18n } from '../i18n/i18n';
+import { logger } from '../modules/logger-transport';
+import { Xiao } from '../music/controllers/Xiao';
+import { Nodes, shoukakuOptions } from '../music/options';
 
 declare module 'discord.js' {
   interface Client {
@@ -23,13 +22,15 @@ export class ExtendedClient extends TwokeiClient {
 
   private _exiting = false;
 
+  private loadedCommands: Collection<string, ApplicationCommand> = new Collection();
+
   constructor(options: ClientOptions) {
 
     super({
       ...options,
       currentWorkingDirectory: __dirname,
-      commandsPath: `../listeners/commands/**/*.{ts,js}`,
-      eventsPath: `../listeners/events/**/*.{ts,js}`,
+      commandsPath: '../listeners/commands/**/*.{ts,js}',
+      eventsPath: '../listeners/events/**/*.{ts,js}',
       autoload: true
     });
 
@@ -45,12 +46,12 @@ export class ExtendedClient extends TwokeiClient {
 
     this.on('error', (error) => {
       logger.error(error);
-      console.log(error)
+      console.log(error);
     });
 
     this.on('warn', (warning) => {
       logger.warn(warning);
-      console.log(warning)
+      console.log(warning);
     });
 
     ['beforeExit',
@@ -62,20 +63,21 @@ export class ExtendedClient extends TwokeiClient {
   }
 
   public async start(): Promise<void> {
+    try {
+      await this.login(process.env.TOKEN);
 
-    await Promise.all([
-      this.login(process.env.TOKEN),
-      initI18n()
-    ])
-      .then(() => {
-        logger.info('All modules initialized');
-        logger.info('Logged in.');
-      })
-      .catch((error) => {
-        logger.error(error);
-        logger.error('Failed to initialize modules');
-        this.exit();
-      });
+      this.loadedCommands = await this.application?.commands.fetch() ?? new Collection();
+
+      await initI18n();
+
+      logger.info('All modules initialized');
+      logger.info(`Logged in as ${this.user?.tag}`);
+      logger.info(`Loaded commands: ${this.loadedCommands.size}`);
+    } catch (e) {
+      logger.error(e);
+      logger.error('Failed to initialize modules');
+      this.exit();
+    }
   }
 
   private exit() {
@@ -83,7 +85,7 @@ export class ExtendedClient extends TwokeiClient {
       return;
     }
 
-    console.log('Exiting...')
+    console.log('Exiting...');
 
     this._exiting = true;
 
@@ -91,11 +93,7 @@ export class ExtendedClient extends TwokeiClient {
     process.exit(0);
   }
 
-  public async getCommands() {
-    if (!this.application) {
-      throw new Error('Application not found');
-    }
-
-    return await this.application.commands.fetch();
+  public getCommands() {
+    return this.loadedCommands;
   }
 }

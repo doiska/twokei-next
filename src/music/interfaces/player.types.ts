@@ -1,7 +1,8 @@
 import { Snowflake, User } from 'discord.js';
+
+import { Locale } from '../../i18n/i18n';
 import { Maybe } from '../../utils/type-guards';
 import { ResolvableTrack } from '../structures/ResolvableTrack';
-import { Locale } from '../../i18n/i18n';
 
 export enum LoadType {
   TRACK_LOADED = 'TRACK_LOADED',

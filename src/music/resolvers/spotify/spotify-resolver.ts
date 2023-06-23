@@ -1,9 +1,11 @@
+import { User } from 'discord.js';
+
+import { LoadType, XiaoSearchOptions, XiaoSearchResult } from '../../interfaces/player.types';
+import { ResolvableTrack } from '../../structures/ResolvableTrack';
 import { TrackResolver } from '../resolver';
 import { SpotifyRequestManager } from './spotify-request-manager';
 import { PlaylistTracks, SpotifyPlaylistResponse, SpotifySearchResponse, SpotifyTrackResponse } from './spotify.types';
-import { ResolvableTrack } from '../../structures/ResolvableTrack';
-import { LoadType, XiaoSearchOptions, XiaoSearchResult } from '../../interfaces/player.types';
-import { User } from "discord.js";
+
 
 interface SpotifyClient {
   clientId: string;
@@ -22,7 +24,7 @@ export interface SpotifyResolverOptions {
 }
 
 
-const SPOTIFY_URL = /(?:https?:\/\/open\.spotify\.com\/|spotify:)(?:.+)?(track|playlist|album|artist)[\/:]([A-Za-z0-9]+)/;
+const SPOTIFY_URL = /(?:https?:\/\/open\.spotify\.com\/|spotify:)(?:.+)?(track|playlist|album|artist)[/:]([A-Za-z0-9]+)/;
 
 export class SpotifyResolver implements TrackResolver {
 
@@ -47,7 +49,7 @@ export class SpotifyResolver implements TrackResolver {
           clientSecret: process.env.SPOTIFY_CLIENT_SECRET ?? ''
         }
       ]
-    }
+    };
     this.options = defaultOptions;
     this.requestManager = new SpotifyRequestManager(defaultOptions);
   }
@@ -63,17 +65,17 @@ export class SpotifyResolver implements TrackResolver {
       const [, type, id] = spotifyUrl;
 
       switch (type) {
-        case 'track':
-          return this.getTrack(id, options?.requester);
-        case 'playlist':
-          return this.getPlaylist(id, options?.requester);
+      case 'track':
+        return this.getTrack(id, options?.requester);
+      case 'playlist':
+        return this.getPlaylist(id, options?.requester);
       }
     }
 
     return {
       tracks: [],
       type: LoadType.NO_MATCHES
-    }
+    };
   }
 
   public async search(query: string, requester?: User): Promise<XiaoSearchResult> {
@@ -86,27 +88,27 @@ export class SpotifyResolver implements TrackResolver {
       return {
         tracks: [],
         type: LoadType.NO_MATCHES
-      }
+      };
     }
 
     return {
       tracks: resolved.tracks.items.map((item) => this.parseTrack(item, requester)),
       type: LoadType.SEARCH_RESULT
-    }
+    };
   }
 
   public async getPlaylist(id: string, requester?: User): Promise<XiaoSearchResult> {
     const playlist = await this.requestManager.request<SpotifyPlaylistResponse>(`/playlists/${id}?market=${this.options.region}`);
 
     const tracks = playlist?.tracks?.items
-        .filter(Boolean)
-        .map((item) => this.parseTrack(item.track, requester));
+      .filter(Boolean)
+      .map((item) => this.parseTrack(item.track, requester));
 
     if (!playlist || tracks.length === 0) {
       return {
         tracks: [],
         type: LoadType.NO_MATCHES
-      }
+      };
     }
 
     let next = playlist.tracks.next;
@@ -123,7 +125,7 @@ export class SpotifyResolver implements TrackResolver {
       page++;
 
       const filteredTracks = nextTracks.items.filter(x => !!x && x.track)
-          .map((item) => this.parseTrack(item.track, requester));
+        .map((item) => this.parseTrack(item.track, requester));
 
       tracks.push(...filteredTracks);
 
@@ -133,7 +135,7 @@ export class SpotifyResolver implements TrackResolver {
       tracks,
       playlistName: playlist.name,
       type: LoadType.PLAYLIST_LOADED
-    }
+    };
   }
 
   public async validate(url: string): Promise<{
@@ -147,7 +149,7 @@ export class SpotifyResolver implements TrackResolver {
     if (!spotifyUrl) {
       return {
         type: LoadType.NO_MATCHES
-      }
+      };
     }
 
     const [, type, id] = spotifyUrl;
@@ -159,20 +161,20 @@ export class SpotifyResolver implements TrackResolver {
     const playlist = await this.requestManager.request<SpotifyPlaylistResponse>(`/playlists/${id}?market=${this.options.region}`);
 
     const tracks = playlist?.tracks?.items
-        .filter(Boolean)
-        .map((item) => this.parseTrack(item.track));
+      .filter(Boolean)
+      .map((item) => this.parseTrack(item.track));
 
     if (!playlist || tracks.length === 0) {
       return {
         type: LoadType.NO_MATCHES
-      }
+      };
     }
 
     return {
       playlistName: playlist.name,
       type: LoadType.PLAYLIST_LOADED,
       amount: playlist.tracks.total
-    }
+    };
   }
 
   public async getTrack(id: string, requester?: User): Promise<XiaoSearchResult> {
@@ -182,35 +184,35 @@ export class SpotifyResolver implements TrackResolver {
       return {
         tracks: [],
         type: LoadType.NO_MATCHES
-      }
+      };
     }
 
     return {
       tracks: [this.parseTrack(response, requester)],
       type: LoadType.TRACK_LOADED
-    }
+    };
   }
 
   private parseTrack(spotifyTrack: SpotifyTrackResponse, requester?: User, thumbnail?: string) {
-    console.log(`[SPOTIFY] ${spotifyTrack.name} - ${requester?.tag}`)
+    console.log(`[SPOTIFY] ${spotifyTrack.name} - ${requester?.tag}`);
 
     return new ResolvableTrack(
-        {
-          track: '',
-          info: {
-            sourceName: 'spotify',
-            title: spotifyTrack.name,
-            identifier: spotifyTrack.id,
-            author: spotifyTrack.artists[0] ? spotifyTrack.artists[0].name : 'Unknown',
-            length: spotifyTrack.duration_ms,
-            isSeekable: true,
-            isStream: false,
-            position: 0,
-            uri: `https://open.spotify.com/track/${spotifyTrack.id}`
-          },
-          thumbnail: thumbnail ?? spotifyTrack.album?.images[0]?.url ?? ''
+      {
+        track: '',
+        info: {
+          sourceName: 'spotify',
+          title: spotifyTrack.name,
+          identifier: spotifyTrack.id,
+          author: spotifyTrack.artists[0] ? spotifyTrack.artists[0].name : 'Unknown',
+          length: spotifyTrack.duration_ms,
+          isSeekable: true,
+          isStream: false,
+          position: 0,
+          uri: `https://open.spotify.com/track/${spotifyTrack.id}`
         },
-        { requester }
+        thumbnail: thumbnail ?? spotifyTrack.album?.images[0]?.url ?? ''
+      },
+      { requester }
     );
   }
 }

@@ -1,5 +1,6 @@
 import { APIEmbed, SelectMenuComponentOptionData } from 'discord.js';
-import { EmbedLimits, SelectMenuLimits } from './limits';
+
+import { EmbedLimits, SelectMenuLimits } from '@sapphire/discord.js-utilities';
 
 export const assertEmbedSize = (embed: APIEmbed): APIEmbed => {
   return {
@@ -20,7 +21,7 @@ export const assertEmbedSize = (embed: APIEmbed): APIEmbed => {
       text: embed.footer?.text?.substring(0, EmbedLimits.MaximumFooterLength) ?? '',
     },
   };
-}
+};
 
 export const assertMenuSize = (options: SelectMenuComponentOptionData[]) => {
 
@@ -33,4 +34,4 @@ export const assertMenuSize = (options: SelectMenuComponentOptionData[]) => {
     label: option.label.substring(0, SelectMenuLimits.MaximumLengthOfNameOfOption),
     description: option.description?.substring(0, SelectMenuLimits.MaximumLengthOfNameOfOption),
   }));
-}
+};
