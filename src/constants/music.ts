@@ -1,54 +1,49 @@
-import { ButtonStyle, GuildMember } from 'discord.js';
+import {getFixedT} from 'i18next';
 
-import { getFixedT } from 'i18next';
+import {ButtonStyle, GuildMember} from 'discord.js';
 
-import { Venti } from '../music/controllers/Venti';
-import { destroyPlayerInstance } from '../music/heizou/destroy-player-instance';
-import { pauseSong } from '../music/heizou/pause-song';
-import { previousSong } from '../music/heizou/previous-song';
-import { setLoopState } from '../music/heizou/set-loop-state';
-import { shuffleQueue } from '../music/heizou/shuffle-queue';
-import { skipSong } from '../music/heizou/skip-song';
+import {Venti} from '@/music/controllers/Venti';
+import {destroyPlayerInstance} from '@/music/heizou/destroy-player-instance';
+import {pauseSong} from '@/music/heizou/pause-song';
+import {previousSong} from '@/music/heizou/previous-song';
+import {setLoopState} from '@/music/heizou/set-loop-state';
+import {shuffleQueue} from '@/music/heizou/shuffle-queue';
+import {skipSong} from '@/music/heizou/skip-song';
 
 export enum Menus {
-  SelectSongMenu = 'SELECT_SONG_MENU',
+    SelectSongMenu = 'SELECT_SONG_MENU',
 }
 
 export interface Button {
-  execute?: (userOrGuildId: GuildMember) => Promise<unknown>
-  emoji?: string;
-  style?: ButtonStyle;
-  disabled?: boolean;
-  label?: string;
-  url?: string;
+    execute?: (userOrGuildId: GuildMember) => Promise<unknown>
+    emoji?: string;
+    style?: ButtonStyle;
+    disabled?: boolean;
+    label?: string;
+    url?: string;
 }
 
 export const DynamicDefaultButtons = {
-  SELECT_LANGUAGE: {
-    label: 'Select Language',
-    emoji: '🌐',
-    style: ButtonStyle.Secondary,
+  SYNC_PLAYLIST: {
+    emoji: ':spotify_dark:1077441343456018463',
+    style: ButtonStyle.Success,
   },
   DONATE: {
     label: 'Donate',
     emoji: '<:pray:1077449609447751791>',
     style: ButtonStyle.Link,
     url: 'https://ko-fi.com/doiska',
-  }
+  },
 };
 
 export const DynamicPlaylistButtons = {
-  LOAD_PLAYLIST: {
-    emoji: ':playlist_icon:1077444078234521700',
-    style: ButtonStyle.Secondary,
-    disabled: true
-  },
   SYNC_PLAYLIST: {
     emoji: ':spotify_dark:1077441343456018463',
     style: ButtonStyle.Success,
     disabled: true
   }
 };
+
 export const DynamicPrimaryButtons = (player?: Venti): Record<string, Button> => {
 
   const t = getFixedT(player?.locale ?? 'pt_br', 'player');
