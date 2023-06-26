@@ -51,8 +51,13 @@ module.exports = {
       { // example configuration
         newlinesBetween: 'always',
         groups: [
-          '/^discord.js/',
-          '/^@sapphire/',
+          '/^node:/',
+          '/^i18next/',
+          [
+            '/^discord.js/',
+            '/^@sapphire/',
+            '/^twokei-framework/',
+          ],
           'module',
           '/^@shared/',
           ['parent', 'sibling', 'index']
