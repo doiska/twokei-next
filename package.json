@@ -6,13 +6,10 @@
     "node": "18"
   },
   "scripts": {
-    "predev": "rm -rf dist",
-    "dev": "concurrently \"pnpm run watch-compile\" \"pnpm run watch-dev\"",
-    "watch-compile": "swc src -w --out-dir dist",
-    "watch-dev": "nodemon --delay 500ms --watch \"dist/**/*\" -e js ./dist/single-shard.js",
-    "build-prod": "swc src --out-dir dist",
+    "dev": "node -r @swc-node/register ./src/single-shard.ts",
+    "build": "swc ./src -d dist",
     "start": "node dist/single-shard.js",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint src --ext .ts --fix"
   },
   "keywords": [],
   "author": "",
@@ -22,20 +19,18 @@
   },
   "dependencies": {
     "@sapphire/discord.js-utilities": "^6.0.2",
-    "@sentry/node": "^7.36.0",
-    "@sentry/tracing": "^7.36.0",
     "discord-hybrid-sharding": "github:meister03/discord-hybrid-sharding",
     "discord.js": "^14.6.0",
     "dotenv": "^16.0.3",
     "drizzle-orm": "^0.26.1",
-    "fast-glob": "^3.2.12",
     "i18next": "^22.4.10",
     "kleur": "^4.1.5",
     "pg": "^8.8.0",
     "postgres": "^3.3.4",
     "reflect-metadata": "^0.1.13",
     "shoukaku": "^3.2.2",
-    "twokei-framework": "file:..\\twokei-framework",
+    "twokei-frameowk": "link:..\\twokei-frameowk",
+    "twokei-framework": "link:..\\twokei-framework",
     "vitest": "^0.28.5",
     "winston": "^3.8.2"
   },
@@ -47,8 +42,6 @@
     "@typescript-eslint/eslint-plugin": "^5.60.0",
     "@typescript-eslint/parser": "^5.60.0",
     "@vitest/ui": "^0.28.5",
-    "chokidar": "^3.5.3",
-    "concurrently": "^7.6.0",
     "drizzle-kit": "^0.18.1",
     "eslint": "^8.43.0",
     "eslint-plugin-import-helpers": "^1.3.1",
