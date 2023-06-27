@@ -1,14 +1,14 @@
-import { ChannelType, Colors, EmbedBuilder, userMention } from 'discord.js';
+import {ChannelType, Colors, EmbedBuilder, userMention} from 'discord.js';
+import {createEvent, MessageBuilder} from 'twokei-framework';
 
-import { eq } from 'drizzle-orm';
-import { createEvent, MessageBuilder } from 'twokei-framework';
+import {eq} from 'drizzle-orm';
 
-import { Twokei } from '../../app/Twokei';
-import { kil } from '../../db/Kil';
-import { songChannels } from '../../db/schemas/SongChannels';
-import { logger } from '../../modules/logger-transport';
-import { addNewSong } from '../../music/heizou/add-new-song';
-import { PlayerException } from '../../structures/exceptions/PlayerException';
+import {Twokei} from '../../app/Twokei';
+import {kil} from '../../db/Kil';
+import {songChannels} from '../../db/schemas/SongChannels';
+import {logger} from '../../modules/logger-transport';
+import {addNewSong} from '../../music/heizou/add-new-song';
+import {PlayerException} from '../../structures/exceptions/PlayerException';
 
 
 export const onMessage = createEvent('messageCreate', async (message) => {

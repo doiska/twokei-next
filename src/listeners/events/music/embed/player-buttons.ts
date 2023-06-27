@@ -1,21 +1,20 @@
-import { Interaction } from 'discord.js';
+import {Interaction} from 'discord.js';
+import {createEvent, MessageBuilder} from 'twokei-framework';
 
-import { createEvent, MessageBuilder } from 'twokei-framework';
-
-import { Twokei } from '../../../../app/Twokei';
-import { DynamicPrimaryButtons, DynamicSecondaryButtons } from '../../../../constants/music';
-import { logger } from '../../../../modules/logger-transport';
-import { FriendlyException } from '../../../../structures/exceptions/FriendlyException';
-import { PlayerException } from '../../../../structures/exceptions/PlayerException';
-import { getReadableException } from '../../../../structures/exceptions/utils/get-readable-exception';
-import { isGuildMember } from '../../../../utils/type-guards';
+import {xiao} from '../../../../app/Xiao';
+import {DynamicPrimaryButtons, DynamicSecondaryButtons} from '../../../../constants/music';
+import {logger} from '../../../../modules/logger-transport';
+import {FriendlyException} from '../../../../structures/exceptions/FriendlyException';
+import {PlayerException} from '../../../../structures/exceptions/PlayerException';
+import {getReadableException} from '../../../../structures/exceptions/utils/get-readable-exception';
+import {isGuildMember} from '../../../../utils/type-guards';
 
 export const onButtonClickEvent = createEvent('interactionCreate', async (interaction: Interaction) => {
   if (!interaction.isButton()) {
     return;
   }
 
-  const { member, customId, guild } = interaction;
+  const {member, customId, guild} = interaction;
 
   if (!customId || !member || !guild) {
     return;
@@ -25,7 +24,7 @@ export const onButtonClickEvent = createEvent('interactionCreate', async (intera
     return;
   }
 
-  const player = Twokei.xiao.getPlayer(guild.id);
+  const player = xiao.getPlayer(guild.id);
 
   if (!player) {
     return;
@@ -40,9 +39,9 @@ export const onButtonClickEvent = createEvent('interactionCreate', async (intera
     return;
   }
 
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ephemeral: true});
 
-  if(!buttonFunction.execute) {
+  if (!buttonFunction.execute) {
     return;
   }
 

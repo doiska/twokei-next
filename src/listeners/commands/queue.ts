@@ -1,19 +1,19 @@
-import { CommandContext, createCommand, MessageBuilder } from 'twokei-framework';
+import {CommandContext, createCommand, MessageBuilder} from 'twokei-framework';
 
-import { Twokei } from '../../app/Twokei';
-import { logger } from '../../modules/logger-transport';
+import {xiao} from '../../app/Xiao';
+import {logger} from '../../modules/logger-transport';
 
 
 const execute = async (context: CommandContext) => {
 
-  const { member } = context;
+  const {member} = context;
 
   if (!member || !member?.guild) {
     logger.error('No member or guild');
     return;
   }
 
-  const player = await Twokei.xiao.getPlayer(member.guild.id);
+  const player = await xiao.getPlayer(member.guild.id);
 
   if (!player) {
     return 'No player found';

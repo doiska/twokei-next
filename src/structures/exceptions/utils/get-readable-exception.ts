@@ -1,10 +1,9 @@
-import { Colors } from 'discord.js';
+import {Colors} from 'discord.js';
+import {MessageBuilder} from 'twokei-framework';
 
-import { MessageBuilder } from 'twokei-framework';
-
-import { logger } from '../../../modules/logger-transport';
-import { FriendlyException } from '../FriendlyException';
-import { PlayerException } from '../PlayerException';
+import {logger} from '../../../modules/logger-transport';
+import {FriendlyException} from '../FriendlyException';
+import {PlayerException} from '../PlayerException';
 
 export const getReadableException = (error: unknown) => {
   if (error instanceof FriendlyException || error instanceof PlayerException) {
@@ -17,7 +16,7 @@ export const getReadableException = (error: unknown) => {
     });
   }
 
-  logger.debug('Handling readable exception', { error });
+  logger.debug('Handling readable exception', {error});
 
   throw error;
 };

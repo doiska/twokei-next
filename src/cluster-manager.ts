@@ -1,10 +1,10 @@
-import { ChildProcess } from 'child_process';
-import { ClusterManager, HeartbeatManager, ReClusterManager } from 'discord-hybrid-sharding';
-import { config } from 'dotenv';
-import { bold, red } from 'kleur';
-import { Worker as Worker_Thread } from 'worker_threads';
+import {ChildProcess} from 'child_process';
+import {ClusterManager, HeartbeatManager, ReClusterManager} from 'discord-hybrid-sharding';
+import {config} from 'dotenv';
+import {bold, red} from 'kleur';
+import {Worker as Worker_Thread} from 'worker_threads';
 
-import { logger } from './modules/logger-transport';
+import {logger} from './modules/logger-transport';
 
 config();
 
@@ -16,8 +16,8 @@ const shardingManager = new ClusterManager(`${__dirname}/app/Twokei.js`, {
 });
 
 shardingManager.extend(
-  new HeartbeatManager({ interval: 10000, maxMissedHeartbeats: 3 }),
-  new ReClusterManager({ restartMode: 'gracefulSwitch' })
+  new HeartbeatManager({interval: 10000, maxMissedHeartbeats: 3}),
+  new ReClusterManager({restartMode: 'gracefulSwitch'})
 );
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

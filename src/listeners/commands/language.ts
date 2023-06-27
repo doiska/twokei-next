@@ -1,13 +1,12 @@
-import { PermissionsBitField } from 'discord.js';
+import {isTextChannel} from '@sapphire/discord.js-utilities';
+import {PermissionsBitField} from 'discord.js';
+import {CommandContext, createCommand} from 'twokei-framework';
 
-import { isTextChannel } from '@sapphire/discord.js-utilities';
+import {eq} from 'drizzle-orm';
 
-import { eq } from 'drizzle-orm';
-import { CommandContext, createCommand } from 'twokei-framework';
-
-import { kil } from '../../db/Kil';
-import { guilds } from '../../db/schemas/Guild';
-import { setupGuildLanguage } from '../../modules/config/setup-guild-language';
+import {kil} from '../../db/Kil';
+import {guilds} from '../../db/schemas/Guild';
+import {setupGuildLanguage} from '../../modules/config/setup-guild-language';
 
 const execute = async (context: CommandContext) => {
   if (!context.member || !context.guild || !context.channel || !isTextChannel(context.channel)) {
@@ -15,7 +14,7 @@ const execute = async (context: CommandContext) => {
   }
 
   const newLocale = await setupGuildLanguage(context.channel);
-  await kil.update(guilds).set({ locale: newLocale }).where(eq(guilds.guildId, context.guild.id));
+  await kil.update(guilds).set({locale: newLocale}).where(eq(guilds.guildId, context.guild.id));
 };
 
 export const localeCommand = createCommand({
