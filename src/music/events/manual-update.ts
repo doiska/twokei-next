@@ -1,6 +1,7 @@
-import { Twokei } from '../../app/Twokei';
-import { XiaoEvents } from '../controllers/Xiao';
-import { Events } from '../interfaces/player.types';
+import {xiao} from '@/app/Xiao';
+
+import {XiaoEvents} from '../controllers/Xiao';
+import {Events} from '../interfaces/player.types';
 
 export const manualUpdate: XiaoEvents[Events.ManualUpdate] = (venti, update) => {
 
@@ -12,7 +13,7 @@ export const manualUpdate: XiaoEvents[Events.ManualUpdate] = (venti, update) => 
     return;
   }
 
-  const embed = Twokei.xiao.embedManager.get(venti.guildId);
+  const embed = xiao.embedManager.get(venti.guildId);
 
   if (!embed) {
     return;

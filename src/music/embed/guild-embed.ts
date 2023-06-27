@@ -7,19 +7,18 @@ import {
   Snowflake
 } from 'discord.js';
 
-import { Locale } from '../../i18n/i18n';
-import { logger } from '../../modules/logger-transport';
-import { Venti } from '../controllers/Venti';
-import { TrackQueue } from '../structures/TrackQueue';
+import {Locale} from '../../i18n/i18n';
+import {logger} from '../../modules/logger-transport';
+import {Venti} from '../controllers/Venti';
+import {TrackQueue} from '../structures/TrackQueue';
 import {
   createDefaultButtons,
-  selectSongMenu,
   createDefaultSongEmbed,
-  createPlaylistButtons,
   createPrimaryButtons,
-  createSecondaryButtons
+  createSecondaryButtons,
+  selectSongMenu
 } from './create-song-embed';
-import { parseTracksToMenuItem } from './guild-embed-manager-helper';
+import {parseTracksToMenuItem} from './guild-embed-manager-helper';
 
 export class GuildEmbed {
 
@@ -76,9 +75,20 @@ export class GuildEmbed {
     return this;
   }
 
+  public reset() {
+    this.embed = createDefaultSongEmbed(this.locale);
+    this.components = createDefaultButtons(this.locale);
+
+    return this;
+  }
+
+  public refresh() {
+    logger.debug('[Xiao] Refreshing message...');
+    this.message.edit({components: this.components, embeds: [this.embed]});
+  }
+
   private createButtons() {
     return [
-      createPlaylistButtons(this.player.locale),
       createPrimaryButtons(this.player),
       createSecondaryButtons(this.player)
     ];
@@ -92,17 +102,5 @@ export class GuildEmbed {
     menu.setDisabled(false);
 
     return row.setComponents(menu);
-  }
-
-  public reset() {
-    this.embed = createDefaultSongEmbed(this.locale);
-    this.components = createDefaultButtons(this.locale);
-
-    return this;
-  }
-
-  public refresh() {
-    logger.debug('[Xiao] Refreshing message...');
-    this.message.edit({ components: this.components, embeds: [this.embed] });
   }
 }

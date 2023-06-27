@@ -1,10 +1,14 @@
-import { Maybe } from '../../utils/type-guards';
-import { ResolvableTrack } from './ResolvableTrack';
+import {Maybe} from '../../utils/type-guards';
+import {ResolvableTrack} from './ResolvableTrack';
 
 export class TrackQueue<T = ResolvableTrack> extends Array<T> {
 
   public current: Maybe<T>;
   public previous: Maybe<T>;
+
+  get totalSize(): number {
+    return this.length;
+  }
 
   add(...item: T[]): void {
     this.push(...item);
@@ -27,10 +31,6 @@ export class TrackQueue<T = ResolvableTrack> extends Array<T> {
 
   get(index: number): T | undefined {
     return this.at(index);
-  }
-
-  get totalSize(): number {
-    return this.length;
   }
 
   isEmpty(): boolean {

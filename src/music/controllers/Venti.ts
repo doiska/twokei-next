@@ -1,5 +1,9 @@
-import { Snowflake } from 'discord.js';
+import {Snowflake} from 'discord.js';
 
+
+import {Locale} from '@/i18n/i18n';
+import {logger} from '@/modules/logger-transport';
+import {Maybe} from '@/utils/type-guards';
 import {
   Player,
   PlayerUpdate,
@@ -8,79 +12,66 @@ import {
   WebSocketClosedEvent
 } from 'shoukaku';
 
-import { Locale } from '../../i18n/i18n';
-import { logger } from '../../modules/logger-transport';
-import { Maybe } from '../../utils/type-guards';
-import { Events, PlayerState, PlayOptions, VentiInitOptions } from '../interfaces/player.types';
-import { ResolvableTrack } from '../structures/ResolvableTrack';
-import { TrackQueue } from '../structures/TrackQueue';
-import { Xiao, XiaoEvents } from './Xiao';
+import {Events, PlayerState, PlayOptions, VentiInitOptions} from '../interfaces/player.types';
+import {ResolvableTrack} from '../structures/ResolvableTrack';
+import {TrackQueue} from '../structures/TrackQueue';
+import {Xiao, XiaoEvents} from './Xiao';
 
 export enum LoopStates {
-  NONE = 'none',
-  TRACK = 'track',
-  QUEUE = 'queue'
+    NONE = 'none',
+    TRACK = 'track',
+    QUEUE = 'queue'
 }
 
 // Player
 export class Venti {
 
   /**
-   * The Xiao instance.
-   * @private
-   */
-  private readonly xiao: Xiao;
-
-  /**
-   * The player's options.
-   * @private
-   */
-  private options: VentiInitOptions;
-
-  /**
-   * The Shoukaku Player instance.
-   */
+     * The Shoukaku Player instance.
+     */
   public instance: Player;
-
   /**
-   * The guild ID of the player.
-   */
+     * The guild ID of the player.
+     */
   public readonly guildId: Snowflake;
-
   /**
-   * The voice channel id.
-   */
+     * The voice channel id.
+     */
   public voiceId: Maybe<Snowflake>;
-
   /**
-   * Loop state of the player.
-   */
+     * Loop state of the player.
+     */
   public loop: LoopStates = LoopStates.NONE;
-
   /**
-   * If the player is connected to a voice channel and playing.
-   */
+     * If the player is connected to a voice channel and playing.
+     */
   public playing = false;
-
   /**
-   * The player's state.
-   */
+     * The player's state.
+     */
   public state: PlayerState = PlayerState.CONNECTING;
-
   /**
-   * Pause state of the player.
-   */
+     * Pause state of the player.
+     */
   public paused = false;
-
   /**
-   * Song queue.
-   */
+     * Song queue.
+     */
   public queue: TrackQueue;
-
   /**
-   * The locale of the player.
-   */
+     * The locale of the player.
+     */
   public locale: Locale;
+  /**
+     * The Xiao instance.
+     * @private
+     */
+  private readonly xiao: Xiao;
+  /**
+     * The player's options.
+     * @private
+     */
+  private options: VentiInitOptions;
 
   constructor(xiao: Xiao, player: Player, options: VentiInitOptions) {
     this.xiao = xiao;
@@ -228,9 +219,9 @@ export class Venti {
   }
 
   /**
-   * Skip the current track (or more) and play the next one.
-   * @param amount
-   */
+     * Skip the current track (or more) and play the next one.
+     * @param amount
+     */
   public async skip(amount = 1): Promise<Venti> {
     if (this.state === PlayerState.DESTROYED) {
       throw new Error('Player is destroyed');
@@ -283,9 +274,9 @@ export class Venti {
   }
 
   /**
-   * Switch loop state.
-   * @param loop
-   */
+     * Switch loop state.
+     * @param loop
+     */
   public setLoop(loop?: LoopStates) {
     if (this.state === PlayerState.DESTROYED) {
       throw new Error('Player is destroyed');
@@ -301,13 +292,13 @@ export class Venti {
 
     this.loop = newLoopState;
 
-    this.emit(Events.ManualUpdate, this, { components: true });
+    this.emit(Events.ManualUpdate, this, {components: true});
     return newLoopState;
   }
 
   /**
-   * Disconnects the player from the voice channel.
-   */
+     * Disconnects the player from the voice channel.
+     */
   public disconnect() {
     if (this.state === PlayerState.DISCONNECTED || !this.voiceId) {
       throw new Error('Player is already disconnected');
@@ -334,8 +325,8 @@ export class Venti {
   }
 
   /**
-   * Destroy the player and remove it from the cache.
-   */
+     * Destroy the player and remove it from the cache.
+     */
   public destroy(): Venti {
     if (this.state === PlayerState.DESTROYING || this.state === PlayerState.DESTROYED) {
       throw new Error('Player is already destroyed');
@@ -356,10 +347,10 @@ export class Venti {
   }
 
   /**
-   * Set voice channel and move the player to the voice channel
-   * @param voiceId Voice channel Id
-   * @returns Venti
-   */
+     * Set voice channel and move the player to the voice channel
+     * @param voiceId Voice channel Id
+     * @returns Venti
+     */
   public setVoiceChannel(voiceId: Snowflake): Venti {
     if (this.state === PlayerState.DESTROYED) {
       throw new Error('Player is already destroyed');

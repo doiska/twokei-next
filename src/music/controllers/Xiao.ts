@@ -1,6 +1,11 @@
-import { GuildResolvable } from 'discord.js';
+import {GuildResolvable} from 'discord.js';
 
-import { EventEmitter } from 'events';
+import {Twokei} from '@/app/Twokei';
+import {logger} from '@/modules/logger-transport';
+import {PlayerException} from '@/structures/exceptions/PlayerException';
+import {noop} from '@/utils/dash-utils';
+import {Maybe} from '@/utils/type-guards';
+import {EventEmitter} from 'events';
 import {
   Connector,
   NodeOption,
@@ -12,18 +17,10 @@ import {
   WebSocketClosedEvent
 } from 'shoukaku';
 
-import { Twokei } from '../../app/Twokei';
-import { logger } from '../../modules/logger-transport';
-import { PlayerException } from '../../structures/exceptions/PlayerException';
-import { noop } from '../../utils/dash-utils';
-import { Maybe } from '../../utils/type-guards';
-import { GuildEmbedManager } from '../embed/guild-embed-manager';
-import { manualUpdate } from '../events/manual-update';
-import { playerDestroy } from '../events/player-destroy';
-import { queueEmpty } from '../events/queue-empty';
-import { trackAdd } from '../events/track-add';
-import { trackPause } from '../events/track-pause';
-import { trackStart } from '../events/track-start';
+import {GuildEmbedManager} from '../embed/guild-embed-manager';
+import {manualUpdate} from '../events/manual-update';
+import {playerDestroy, queueEmpty} from '../events/queue-empty';
+import {trackUpdate} from '../events/track-update';
 import {
   Events,
   LoadType,
@@ -32,96 +29,96 @@ import {
   XiaoSearchOptions,
   XiaoSearchResult
 } from '../interfaces/player.types';
-import { TrackResolver } from '../resolvers/resolver';
-import { SpotifyResolver } from '../resolvers/spotify/spotify-resolver';
-import { ResolvableTrack } from '../structures/ResolvableTrack';
-import { Venti } from './Venti';
+import {TrackResolver} from '../resolvers/resolver';
+import {SpotifyResolver} from '../resolvers/spotify/spotify-resolver';
+import {ResolvableTrack} from '../structures/ResolvableTrack';
+import {Venti} from './Venti';
 
 
 export interface XiaoEvents {
-  /**
-   * Emitted when a player is created.
-   */
-  [Events.PlayerCreate]: (venti: Venti) => void;
+    /**
+     * Emitted when a player is created.
+     */
+    [Events.PlayerCreate]: (venti: Venti) => void;
 
-  /**
-   * Emitted when a player is destroyed.
-   */
-  [Events.PlayerDestroy]: (venti: Venti) => void;
+    /**
+     * Emitted when a player is destroyed.
+     */
+    [Events.PlayerDestroy]: (venti: Venti) => void;
 
-  /**
-   * Emitted when a track is added to the queue.
-   */
-  [Events.TrackAdd]: (venti: Venti, track: ResolvableTrack[]) => void;
+    /**
+     * Emitted when a track is added to the queue.
+     */
+    [Events.TrackAdd]: (venti: Venti, track: ResolvableTrack[]) => void;
 
-  /**
-   * Emitted when a track starts playing.
-   */
-  [Events.TrackStart]: (venti: Venti, track: ResolvableTrack) => void;
+    /**
+     * Emitted when a track starts playing.
+     */
+    [Events.TrackStart]: (venti: Venti, track: ResolvableTrack) => void;
 
-  /**
-   * Emitted when a track pauses.
-   */
-  [Events.TrackPause]: (venti: Venti) => void;
+    /**
+     * Emitted when a track pauses.
+     */
+    [Events.TrackPause]: (venti: Venti) => void;
 
-  /**
-   * Emitted when a track ends.
-   */
-  [Events.TrackEnd]: (venti: Venti, track: Maybe<ResolvableTrack>) => void;
+    /**
+     * Emitted when a track ends.
+     */
+    [Events.TrackEnd]: (venti: Venti, track: Maybe<ResolvableTrack>) => void;
 
-  /**
-   * Emitted when a player got empty.
-   */
-  [Events.QueueEmpty]: (venti: Venti) => void;
+    /**
+     * Emitted when a player got empty.
+     */
+    [Events.QueueEmpty]: (venti: Venti) => void;
 
-  /**
-   * Emitted when a player got closed.
-   */
-  [Events.PlayerClosed]: (venti: Venti, data: WebSocketClosedEvent) => void;
+    /**
+     * Emitted when a player got closed.
+     */
+    [Events.PlayerClosed]: (venti: Venti, data: WebSocketClosedEvent) => void;
 
-  /**
-   * Emitted when a player got updated.
-   */
-  [Events.PlayerStuck]: (venti: Venti, data: TrackStuckEvent) => void;
+    /**
+     * Emitted when a player got updated.
+     */
+    [Events.PlayerStuck]: (venti: Venti, data: TrackStuckEvent) => void;
 
-  /**
-   * Emitted when a player got an exception.
-   */
-  [Events.PlayerException]: (venti: Venti, data: TrackExceptionEvent) => void;
+    /**
+     * Emitted when a player got an exception.
+     */
+    [Events.PlayerException]: (venti: Venti, data: TrackExceptionEvent) => void;
 
-  /**
-   * Emitted when a player updated.
-   */
-  [Events.PlayerUpdate]: (venti: Venti, data: PlayerUpdate) => void;
+    /**
+     * Emitted when a player updated.
+     */
+    [Events.PlayerUpdate]: (venti: Venti, data: PlayerUpdate) => void;
 
-  /**
-   * Emitted when a player resumed.
-   */
-  [Events.PlayerResumed]: (venti: Venti) => void;
+    /**
+     * Emitted when a player resumed.
+     */
+    [Events.PlayerResumed]: (venti: Venti) => void;
 
-  /**
-   * Emitted when a player got an error while resolving a track.
-   */
-  [Events.PlayerResolveError]: (venti: Venti, track: ResolvableTrack, message?: string) => void;
+    /**
+     * Emitted when a player got an error while resolving a track.
+     */
+    [Events.PlayerResolveError]: (venti: Venti, track: ResolvableTrack, message?: string) => void;
 
 
-  /**
-   * Emitted when user interact and causes manual update
-   */
-  [Events.ManualUpdate]: (venti?: Venti, update?: { embed?: boolean, components?: boolean }) => void;
+    /**
+     * Emitted when user interact and causes manual update
+     */
+    [Events.ManualUpdate]: (venti?: Venti, update?: { embed?: boolean, components?: boolean }) => void;
 
-  /**
-   * Emitted for debugging purposes.
-   */
-  [Events.Debug]: (message: string) => void;
+    /**
+     * Emitted for debugging purposes.
+     */
+    [Events.Debug]: (message: string) => void;
 }
 
 export declare interface Xiao {
-  on<U extends keyof XiaoEvents>(event: U, listener: XiaoEvents[U]): this;
+    on<U extends keyof XiaoEvents>(event: U, listener: XiaoEvents[U]): this;
 
-  once<U extends keyof XiaoEvents>(event: U, listener: XiaoEvents[U]): this;
+    once<U extends keyof XiaoEvents>(event: U, listener: XiaoEvents[U]): this;
 
-  emit<U extends keyof XiaoEvents>(event: U, ...args: Parameters<XiaoEvents[U]>): boolean;
+    emit<U extends keyof XiaoEvents>(event: U, ...args: Parameters<XiaoEvents[U]>): boolean;
 }
 
 /**
@@ -131,13 +128,13 @@ export declare interface Xiao {
 export class Xiao extends EventEmitter {
 
   /**
-   * Shoukaku instance
-   */
+     * Shoukaku instance
+     */
   public shoukaku: Shoukaku;
 
   /**
-   * Venti players manager
-   */
+     * Venti players manager
+     */
   public readonly players: Map<string, Venti> = new Map();
 
   public embedManager: GuildEmbedManager;
@@ -147,16 +144,16 @@ export class Xiao extends EventEmitter {
   ];
 
   /**
-   * @param options Xiao options
-   * @param nodes Shoukaku nodes
-   * @param connector Shoukaku connector
-   * @param optionsShoukaku Shoukaku options
-   */
+     * @param options Xiao options
+     * @param nodes Shoukaku nodes
+     * @param connector Shoukaku connector
+     * @param optionsShoukaku Shoukaku options
+     */
   constructor(
-      public options: XiaoInitOptions,
-      connector: Connector,
-      nodes: NodeOption[],
-      optionsShoukaku: ShoukakuOptions = {}
+        public options: XiaoInitOptions,
+        connector: Connector,
+        nodes: NodeOption[],
+        optionsShoukaku: ShoukakuOptions = {}
   ) {
     super();
 
@@ -165,22 +162,18 @@ export class Xiao extends EventEmitter {
     this.players = new Map<string, Venti>();
     this.embedManager = new GuildEmbedManager();
 
-    // this.shoukaku.on('debug', (name, info) => {
-    //   if (process.env.NODE_ENV !== 'production') {
-    //     logger.debug(`[Shoukaku] Node ${name} emitted debug info: ${info}`);
-    //   }
-    // });
-    //
-    // this.shoukaku.on('ready', (name) => logger.debug(`[Shoukaku] Node ${name} is now connected`));
-    // this.shoukaku.on('close', (name, code, reason) => logger.debug(`[Shoukaku] Node ${name} closed with code ${code} and reason ${reason}`));
-    this.shoukaku.on('error', noop);
+    this.shoukaku.on('ready', (name) => logger.info(`[Shoukaku] Node ${name} is now connected`));
+    this.shoukaku.on('close', (name, code, reason) => logger.debug(`[Shoukaku] Node ${name} closed with code ${code} and reason ${reason}`));
+    this.shoukaku.on('error', (name, error) => logger.error(`[Shoukaku] Node ${name} emitted error: ${error}`));
 
-    this.on(Events.TrackStart, trackStart);
-    this.on(Events.TrackAdd, trackAdd);
+    this.on(Events.TrackStart, trackUpdate);
+    this.on(Events.TrackAdd, trackUpdate);
+    this.on(Events.TrackPause, trackUpdate);
+
     this.on(Events.PlayerDestroy, playerDestroy);
-    this.on(Events.TrackPause, trackPause);
-    this.on(Events.ManualUpdate, manualUpdate);
     this.on(Events.QueueEmpty, queueEmpty);
+
+    this.on(Events.ManualUpdate, manualUpdate);
   }
 
   public async createPlayer<T extends Venti>(options: VentiInitOptions): Promise<T | Venti> {
@@ -276,14 +269,14 @@ export class Xiao extends EventEmitter {
     if (result.loadType === 'SEARCH_RESULT' && searchType === 'track') {
       return {
         type: LoadType.SEARCH_RESULT,
-        tracks: [new ResolvableTrack(result.tracks[0], { requester: options?.requester })],
+        tracks: [new ResolvableTrack(result.tracks[0], {requester: options?.requester})],
         playlistName: result.playlistInfo?.name
       };
     }
 
     return {
       type: LoadType.PLAYLIST_LOADED,
-      tracks: result.tracks.map(track => new ResolvableTrack(track, { requester: options?.requester })),
+      tracks: result.tracks.map(track => new ResolvableTrack(track, {requester: options?.requester})),
       playlistName: result.playlistInfo?.name,
     };
   }

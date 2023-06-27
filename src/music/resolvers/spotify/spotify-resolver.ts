@@ -1,26 +1,26 @@
-import { User } from 'discord.js';
+import {User} from 'discord.js';
 
-import { LoadType, XiaoSearchOptions, XiaoSearchResult } from '../../interfaces/player.types';
-import { ResolvableTrack } from '../../structures/ResolvableTrack';
-import { TrackResolver } from '../resolver';
-import { SpotifyRequestManager } from './spotify-request-manager';
-import { PlaylistTracks, SpotifyPlaylistResponse, SpotifySearchResponse, SpotifyTrackResponse } from './spotify.types';
+import {LoadType, XiaoSearchOptions, XiaoSearchResult} from '../../interfaces/player.types';
+import {ResolvableTrack} from '../../structures/ResolvableTrack';
+import {TrackResolver} from '../resolver';
+import {SpotifyRequestManager} from './spotify-request-manager';
+import {PlaylistTracks, SpotifyPlaylistResponse, SpotifySearchResponse, SpotifyTrackResponse} from './spotify.types';
 
 
 interface SpotifyClient {
-  clientId: string;
-  clientSecret: string;
+    clientId: string;
+    clientSecret: string;
 }
 
 export interface SpotifyResolverOptions {
-  clients: SpotifyClient[];
-  region: string;
-  limits: {
-    search: number;
-    playlists: number;
-    tracks: number;
-    albums: number;
-  };
+    clients: SpotifyClient[];
+    region: string;
+    limits: {
+        search: number;
+        playlists: number;
+        tracks: number;
+        albums: number;
+    };
 }
 
 
@@ -139,10 +139,10 @@ export class SpotifyResolver implements TrackResolver {
   }
 
   public async validate(url: string): Promise<{
-    type: LoadType;
-    playlistName?: string;
-    amount?: number;
-  }> {
+        type: LoadType;
+        playlistName?: string;
+        amount?: number;
+    }> {
 
     const spotifyUrl = SPOTIFY_URL.exec(url);
 
@@ -212,7 +212,7 @@ export class SpotifyResolver implements TrackResolver {
         },
         thumbnail: thumbnail ?? spotifyTrack.album?.images[0]?.url ?? ''
       },
-      { requester }
+      {requester}
     );
   }
 }

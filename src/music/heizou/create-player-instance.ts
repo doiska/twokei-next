@@ -1,19 +1,18 @@
-import { Guild, TextChannel } from 'discord.js';
+import {Guild, TextChannel} from 'discord.js';
 
-import { eq } from 'drizzle-orm';
+import {eq} from 'drizzle-orm';
 
-import { Twokei } from '../../app/Twokei';
-import { xiao } from '../../app/Xiao';
-import { kil } from '../../db/Kil';
-import { songChannels } from '../../db/schemas/SongChannels';
-import { getGuidLocale } from '../../modules/guild-locale';
+import {xiao} from '../../app/Xiao';
+import {kil} from '../../db/Kil';
+import {songChannels} from '../../db/schemas/SongChannels';
+import {getGuidLocale} from '../../modules/guild-locale';
 
 interface InitOptions {
-  guild: Guild;
-  voiceChannel: string;
+    guild: Guild;
+    voiceChannel: string;
 }
 
-export async function createPlayerInstance({ guild, voiceChannel }: InitOptions) {
+export async function createPlayerInstance({guild, voiceChannel}: InitOptions) {
   const player = xiao.getPlayer(guild.id);
 
   if (player) {
@@ -33,7 +32,7 @@ export async function createPlayerInstance({ guild, voiceChannel }: InitOptions)
     const message = await channel.messages.fetch(songChannel.messageId);
 
     if (channel && message) {
-      await Twokei.xiao.embedManager.create(newPlayer, guild.id, message);
+      await xiao.embedManager.create(newPlayer, guild.id, message);
     }
   }
 

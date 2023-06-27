@@ -1,7 +1,7 @@
-import { beforeAll, describe, expect, it } from 'vitest';
+import {beforeAll, describe, expect, it} from 'vitest';
 
-import { LoadType } from '../../interfaces/player.types';
-import { SpotifyResolver } from './spotify-resolver';
+import {LoadType} from '../../interfaces/player.types';
+import {SpotifyResolver} from './spotify-resolver';
 
 describe('SpotifyResolver', () => {
 

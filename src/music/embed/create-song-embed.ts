@@ -1,3 +1,5 @@
+import {t} from 'i18next';
+
 import {
   ActionRowBuilder,
   APIButtonComponent,
@@ -11,19 +13,17 @@ import {
   userMention
 } from 'discord.js';
 
-import { t } from 'i18next';
 
-import { Twokei } from '../../app/Twokei';
+import {Twokei} from '../../app/Twokei';
 import {
   Button,
   DynamicDefaultButtons,
-  DynamicPlaylistButtons,
   DynamicPrimaryButtons,
   DynamicSecondaryButtons,
   Menus
 } from '../../constants/music';
-import { Locale } from '../../i18n/i18n';
-import { Venti } from '../controllers/Venti';
+import {Locale} from '../../i18n/i18n';
+import {Venti} from '../controllers/Venti';
 
 const arts = [
   {
@@ -99,8 +99,8 @@ export const selectSongMenu = new ActionRowBuilder<StringSelectMenuBuilder>({
 
 const parseButtonsToComponent = (buttons: Record<string, Button>, locale: Locale): ActionRowBuilder<ButtonBuilder> => {
   const components = Object.entries(buttons).map(([key, button]) => {
-    const customIdOrUrl = button.url ? { url: button.url } : { customId: key };
-    const label = t(`embed.buttons.${key.toLowerCase()}`, { ns: 'player', lng: locale }) ?? button.label;
+    const customIdOrUrl = button.url ? {url: button.url} : {customId: key};
+    const label = t(`embed.buttons.${key.toLowerCase()}`, {ns: 'player', lng: locale}) ?? button.label;
 
     return ButtonBuilder.from({
       ...customIdOrUrl,
@@ -112,13 +112,12 @@ const parseButtonsToComponent = (buttons: Record<string, Button>, locale: Locale
     } as APIButtonComponent);
   });
 
-  return new ActionRowBuilder({ components });
+  return new ActionRowBuilder({components});
 };
 
 const defaultPrimaryButtons = (locale: Locale) => parseButtonsToComponent(DynamicDefaultButtons, locale);
-export const createPlaylistButtons = (locale: Locale) => parseButtonsToComponent(DynamicPlaylistButtons, locale);
 
-export const createDefaultButtons = (locale: Locale) => [defaultPrimaryButtons(locale), createPlaylistButtons(locale)];
+export const createDefaultButtons = (locale: Locale) => [defaultPrimaryButtons(locale)];
 
 export const createPrimaryButtons = (player: Venti) => parseButtonsToComponent(DynamicPrimaryButtons(player), player.locale);
 export const createSecondaryButtons = (player: Venti) => parseButtonsToComponent(DynamicSecondaryButtons(player), player.locale);
