@@ -1,14 +1,14 @@
-import { Guild } from 'discord.js';
+import {isTextChannel} from '@sapphire/discord.js-utilities';
+import {Guild} from 'discord.js';
 
-import { isTextChannel } from '@sapphire/discord.js-utilities';
 
-import { eq } from 'drizzle-orm';
+import {eq} from 'drizzle-orm';
 
-import { kil } from '../db/Kil';
-import { guilds } from '../db/schemas/Guild';
-import { DEFAULT_LOCALE, isValidLocale, Locale, VALID_LOCALES } from '../i18n/i18n';
-import { createDefaultButtons, createDefaultSongEmbed } from '../music/embed/create-song-embed';
-import { getGuildSongChannel } from './get-guild-song-channel';
+import {kil} from '../db/Kil';
+import {guilds} from '../db/schemas/Guild';
+import {DEFAULT_LOCALE, isValidLocale, Locale, VALID_LOCALES} from '../i18n/i18n';
+import {createDefaultButtons, createDefaultSongEmbed} from '../music/embed/create-song-embed';
+import {getGuildSongChannel} from './get-guild-song-channel';
 
 export const getGuidLocale = async (guildId: string): Promise<Locale> => {
   const [guild] = await kil.select().from(guilds).where(eq(guilds.guildId, guildId));
