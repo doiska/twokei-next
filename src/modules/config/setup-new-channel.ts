@@ -1,15 +1,15 @@
-import { ChannelType, Guild, PermissionFlagsBits } from 'discord.js';
+import {ChannelType, Guild, PermissionFlagsBits} from 'discord.js';
 
-import { eq } from 'drizzle-orm';
+import {eq} from 'drizzle-orm';
 
-import { Twokei } from '../../app/Twokei';
-import { kil } from '../../db/Kil';
-import { songChannels } from '../../db/schemas/SongChannels';
-import { createDefaultButtons, createDefaultSongEmbed } from '../../music/embed/create-song-embed';
-import { FriendlyException } from '../../structures/exceptions/FriendlyException';
-import { noop } from '../../utils/dash-utils';
-import { canCreateChannels, canSendMessages } from '../../utils/discord-utilities';
-import { setupGuildLanguage } from './setup-guild-language';
+import {Twokei} from '../../app/Twokei';
+import {kil} from '../../db/Kil';
+import {songChannels} from '../../db/schemas/SongChannels';
+import {createDefaultButtons, createDefaultSongEmbed} from '../../music/embed/create-song-embed';
+import {FriendlyException} from '../../structures/exceptions/FriendlyException';
+import {noop} from '../../utils/dash-utils';
+import {canCreateChannels, canSendMessages} from '../../utils/discord-utilities';
+import {setupGuildLanguage} from './setup-guild-language';
 
 export const setupNewChannel = async (guild: Guild) => {
   const self = guild.members.me;

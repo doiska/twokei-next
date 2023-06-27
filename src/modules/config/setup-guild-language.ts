@@ -1,3 +1,5 @@
+import {getFixedT} from 'i18next';
+
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -8,13 +10,12 @@ import {
   PermissionsBitField
 } from 'discord.js';
 
-import { eq } from 'drizzle-orm';
-import { getFixedT } from 'i18next';
 
-import { Twokei } from '../../app/Twokei';
-import { kil } from '../../db/Kil';
-import { guilds } from '../../db/schemas/Guild';
-import { Locale, LocaleFlags, VALID_LOCALES } from '../../i18n/i18n';
+import {Twokei} from '@/app/Twokei';
+import {kil} from '@/db/Kil';
+import {guilds} from '@/db/schemas/Guild';
+import {Locale, LocaleFlags, VALID_LOCALES} from '@/i18n/i18n';
+import {eq} from 'drizzle-orm';
 
 export async function setupGuildLanguage(channel: GuildTextBasedChannel) {
 
@@ -25,8 +26,8 @@ export async function setupGuildLanguage(channel: GuildTextBasedChannel) {
 
   const embed = new EmbedBuilder()
     .setTitle(ft('language.title'))
-    .setDescription(ft('language.description', { joinArrays: '\n' }))
-    .setThumbnail(Twokei.user?.displayAvatarURL({ size: 2048 }) ?? '');
+    .setDescription(ft('language.description', {joinArrays: '\n'}))
+    .setThumbnail(Twokei.user?.displayAvatarURL({size: 2048}) ?? '');
 
   const languageButtons = VALID_LOCALES.map(locale =>
     new ButtonBuilder()
@@ -45,7 +46,7 @@ export async function setupGuildLanguage(channel: GuildTextBasedChannel) {
     components: [...languageButtons, helpButton]
   });
 
-  const message = await channel.send({ embeds: [embed], components: [row] });
+  const message = await channel.send({embeds: [embed], components: [row]});
 
   const interaction = await message.awaitMessageComponent({
     componentType: ComponentType.Button,
@@ -59,7 +60,7 @@ export async function setupGuildLanguage(channel: GuildTextBasedChannel) {
 
   const newLocale = interaction?.customId.split('-')?.[1] ?? language;
 
-  await kil.update(guilds).set({ locale: newLocale }).where(eq(guilds.guildId, guild.id));
+  await kil.update(guilds).set({locale: newLocale}).where(eq(guilds.guildId, guild.id));
 
   return newLocale as Locale;
 }
