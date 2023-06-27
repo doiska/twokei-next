@@ -1,12 +1,11 @@
-import { Events } from 'discord.js';
+import {Events} from 'discord.js';
+import {createEvent} from 'twokei-framework';
 
-import { createEvent } from 'twokei-framework';
-
-import { kil } from '../../db/Kil';
-import { guilds } from '../../db/schemas/Guild';
-import { setupNewChannel } from '../../modules/config/setup-new-channel';
-import { FriendlyException } from '../../structures/exceptions/FriendlyException';
-import { noop } from '../../utils/dash-utils';
+import {kil} from '../../db/Kil';
+import {guilds} from '../../db/schemas/Guild';
+import {setupNewChannel} from '../../modules/config/setup-new-channel';
+import {FriendlyException} from '../../structures/exceptions/FriendlyException';
+import {noop} from '../../utils/dash-utils';
 
 export const guildJoin = createEvent(Events.GuildCreate, async guild => {
 

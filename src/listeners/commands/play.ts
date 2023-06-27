@@ -1,10 +1,11 @@
-import { Interaction } from 'discord.js';
+import {t} from 'i18next';
 
-import { t } from 'i18next';
-import { CommandContext, CommandResponse, createCommand, MessageBuilder } from 'twokei-framework';
+import {Interaction} from 'discord.js';
+import {CommandContext, CommandResponse, createCommand, MessageBuilder} from 'twokei-framework';
 
-import { addNewSong } from '../../music/heizou/add-new-song';
-import { getReadableException } from '../../structures/exceptions/utils/get-readable-exception';
+
+import {addNewSong} from '../../music/heizou/add-new-song';
+import {getReadableException} from '../../structures/exceptions/utils/get-readable-exception';
 
 const execute = async (context: CommandContext<{ search: string }>): Promise<CommandResponse> => {
   if (!context.member || !context.channel || !context.guild) {
@@ -21,7 +22,7 @@ const execute = async (context: CommandContext<{ search: string }>): Promise<Com
       ns: 'player'
     });
 
-    const message = new MessageBuilder({ embeds: [{ description: trackTranslation }] });
+    const message = new MessageBuilder({embeds: [{description: trackTranslation}]});
 
     await message.followUp(context.interaction as Interaction);
   } catch (e) {

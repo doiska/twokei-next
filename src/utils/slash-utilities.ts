@@ -1,9 +1,9 @@
-import { Twokei } from '../app/Twokei';
+import {Twokei} from '../app/Twokei';
 
 export const getCommand = (commandName: string) => {
   const found = Twokei.getCommands().find((command) => command.name === commandName);
 
-  if(!found) {
+  if (!found) {
     return;
   }
 

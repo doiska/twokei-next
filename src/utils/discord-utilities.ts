@@ -1,14 +1,8 @@
-import {
-  BaseGuildVoiceChannel,
-  Guild,
-  PermissionFlagsBits,
-  PermissionResolvable,
-  PermissionsBitField
-} from 'discord.js';
+import {ChannelTypes, isDMChannel, isGuildBasedChannel} from '@sapphire/discord.js-utilities';
+import {BaseGuildVoiceChannel, Guild, PermissionFlagsBits, PermissionResolvable, PermissionsBitField} from 'discord.js';
 
-import { ChannelTypes, isDMChannel, isGuildBasedChannel } from '@sapphire/discord.js-utilities';
 
-import { isNullish, Nullish } from './type-guards';
+import {isNullish, Nullish} from './type-guards';
 
 export const canCreateChannels = (guild: Guild) =>
   canDoGuildUtility(guild, [
@@ -32,7 +26,7 @@ export const canJoinVoiceChannel = (channel: BaseGuildVoiceChannel) =>
   canDoChannelUtility(channel, [PermissionsBitField.Flags.Connect]);
 
 function canDoGuildUtility(guild: Guild, permissions: PermissionResolvable) {
-  const { me } = guild.members;
+  const {me} = guild.members;
 
   if (!me) {
     return false;
@@ -46,7 +40,7 @@ function canDoChannelUtility(channel: ChannelTypes, permissionsToPass: Permissio
     return true;
   }
 
-  const { me } = channel.guild.members;
+  const {me} = channel.guild.members;
 
   if (!me) {
     return false;

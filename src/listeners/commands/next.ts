@@ -1,19 +1,19 @@
-import { CommandContext, CommandResponse, createCommand, MessageBuilder } from 'twokei-framework';
+import {CommandContext, CommandResponse, createCommand, MessageBuilder} from 'twokei-framework';
 
-import { skipSong } from '../../music/heizou/skip-song';
-import { getReadableException } from '../../structures/exceptions/utils/get-readable-exception';
+import {skipSong} from '../../music/heizou/skip-song';
+import {getReadableException} from '../../structures/exceptions/utils/get-readable-exception';
 
 
 const execute = async (context: CommandContext<{ amount: number }>): Promise<CommandResponse> => {
 
-  const { member, input: { amount } } = context;
+  const {member, input: {amount}} = context;
 
   if (!member) {
     return;
   }
 
   return skipSong(member, amount ?? 1)
-    .then(() => new MessageBuilder({ content: 'Skipped' }))
+    .then(() => new MessageBuilder({content: 'Skipped'}))
     .catch(getReadableException);
 };
 

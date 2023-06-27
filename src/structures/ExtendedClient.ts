@@ -1,48 +1,26 @@
-import { ApplicationCommand, ClientOptions, Collection } from 'discord.js';
-
 import process from 'node:process';
-import { Connectors } from 'shoukaku';
-import { TwokeiClient } from 'twokei-framework';
 
-import { Twokei } from '../app/Twokei';
-import { init as initI18n } from '../i18n/i18n';
-import { logger } from '../modules/logger-transport';
-import { Xiao } from '../music/controllers/Xiao';
-import { Nodes, shoukakuOptions } from '../music/options';
+import {ApplicationCommand, ClientOptions, Collection} from 'discord.js';
+import {TwokeiClient} from 'twokei-framework';
 
-declare module 'discord.js' {
-  interface Client {
-    xiao: Xiao;
-  }
-}
+import {logger} from '@/modules/logger-transport';
+
+import {init as initI18n} from '../i18n/i18n';
 
 export class ExtendedClient extends TwokeiClient {
 
-  public xiao: Xiao;
-
-  private _exiting = false;
-
   private loadedCommands: Collection<string, ApplicationCommand> = new Collection();
+  private _exiting = false;
 
   constructor(options: ClientOptions) {
 
     super({
       ...options,
-      currentWorkingDirectory: __dirname,
+      currentWorkingDirectory: process.cwd() + '/src/',
       commandsPath: '../listeners/commands/**/*.{ts,js}',
       eventsPath: '../listeners/events/**/*.{ts,js}',
       autoload: true
     });
-
-    this.xiao = new Xiao({
-      send: (guildId, payload) => {
-        const guild = Twokei.guilds.cache.get(guildId);
-        if (guild) {
-          guild.shard.send(payload);
-        }
-      },
-      defaultSearchEngine: 'youtube'
-    }, new Connectors.DiscordJS(this), Nodes, shoukakuOptions);
 
     this.on('error', (error) => {
       logger.error(error);
@@ -80,6 +58,10 @@ export class ExtendedClient extends TwokeiClient {
     }
   }
 
+  public getCommands() {
+    return this.loadedCommands;
+  }
+
   private exit() {
     if (this._exiting) {
       return;
@@ -91,9 +73,5 @@ export class ExtendedClient extends TwokeiClient {
 
     this.destroy();
     process.exit(0);
-  }
-
-  public getCommands() {
-    return this.loadedCommands;
   }
 }

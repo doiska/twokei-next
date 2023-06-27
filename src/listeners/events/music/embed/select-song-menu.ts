@@ -1,9 +1,8 @@
-import { Interaction } from 'discord.js';
+import {Interaction} from 'discord.js';
+import {createEvent} from 'twokei-framework';
 
-import { createEvent } from 'twokei-framework';
-
-import { Twokei } from '../../../../app/Twokei';
-import { Menus } from '../../../../constants/music';
+import {xiao} from '../../../../app/Xiao';
+import {Menus} from '../../../../constants/music';
 
 export const selectMenuEvent = createEvent('interactionCreate', (interaction: Interaction) => {
 
@@ -19,7 +18,7 @@ export const selectMenuEvent = createEvent('interactionCreate', (interaction: In
     return;
   }
 
-  const player = Twokei.xiao.getPlayer(interaction.guild.id);
+  const player = xiao.getPlayer(interaction.guild.id);
 
   if (!player) {
     return;
@@ -39,12 +38,12 @@ export const selectMenuEvent = createEvent('interactionCreate', (interaction: In
       return;
     }
 
-    player.play(player.queue.previous, { replace: true });
-    return interaction.reply({ content: 'Previous track', ephemeral: true });
+    player.play(player.queue.previous, {replace: true});
+    return interaction.reply({content: 'Previous track', ephemeral: true});
   }
 
   if (value === 'current') {
-    return interaction.reply({ content: 'Current track', ephemeral: true });
+    return interaction.reply({content: 'Current track', ephemeral: true});
   }
 
   const id = Number(value);
@@ -61,5 +60,5 @@ export const selectMenuEvent = createEvent('interactionCreate', (interaction: In
 
   player.skip(id + 1);
 
-  interaction.reply({ content: `Skipped ${id} tracks`, ephemeral: true });
+  interaction.reply({content: `Skipped ${id} tracks`, ephemeral: true});
 });

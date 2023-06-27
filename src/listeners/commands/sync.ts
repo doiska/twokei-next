@@ -1,22 +1,23 @@
-import { and, eq } from 'drizzle-orm';
-import { CommandContext, CommandResponse, createCommand } from 'twokei-framework';
+import {CommandContext, CommandResponse, createCommand} from 'twokei-framework';
 
-import { Twokei } from '../../app/Twokei';
-import { kil } from '../../db/Kil';
-import { playlists } from '../../db/schemas/Playlists';
-import { LoadType } from '../../music/interfaces/player.types';
-import { getReadableException } from '../../structures/exceptions/utils/get-readable-exception';
+import {and, eq} from 'drizzle-orm';
+
+import {xiao} from '../../app/Xiao';
+import {kil} from '../../db/Kil';
+import {playlists} from '../../db/schemas/Playlists';
+import {LoadType} from '../../music/interfaces/player.types';
+import {getReadableException} from '../../structures/exceptions/utils/get-readable-exception';
 
 const execute = async (context: CommandContext<{ url: string }>): Promise<CommandResponse> => {
 
-  const { user, guild, input: { url } } = context;
+  const {user, guild, input: {url}} = context;
 
   if (!guild) {
     return;
   }
 
   try {
-    const resolver = await Twokei.xiao.getMatchingResolver(url);
+    const resolver = await xiao.getMatchingResolver(url);
 
     if (!resolver) {
       return 'Invalid playlist, empty or not found';
@@ -32,7 +33,7 @@ const execute = async (context: CommandContext<{ url: string }>): Promise<Comman
       .from(playlists)
       .where(and(eq(playlists.userId, user.id), eq(playlists.playlistUrl, url)));
 
-    if(response) {
+    if (response) {
       return `Playlist already synced: ${result.playlistName}`;
     }
 

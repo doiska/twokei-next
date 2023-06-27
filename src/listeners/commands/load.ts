@@ -1,18 +1,19 @@
-import { Interaction } from 'discord.js';
+import {t} from 'i18next';
 
-import { and, eq, ilike } from 'drizzle-orm';
-import { t } from 'i18next';
-import { CommandContext, CommandResponse, createCommand, MessageBuilder } from 'twokei-framework';
+import {Interaction} from 'discord.js';
+import {CommandContext, CommandResponse, createCommand, MessageBuilder} from 'twokei-framework';
 
-import { kil } from '../../db/Kil';
-import { playlists } from '../../db/schemas/Playlists';
-import { addNewSong } from '../../music/heizou/add-new-song';
-import { getReadableException } from '../../structures/exceptions/utils/get-readable-exception';
+import {and, eq, ilike} from 'drizzle-orm';
+
+import {kil} from '../../db/Kil';
+import {playlists} from '../../db/schemas/Playlists';
+import {addNewSong} from '../../music/heizou/add-new-song';
+import {getReadableException} from '../../structures/exceptions/utils/get-readable-exception';
 
 
 const execute = async (context: CommandContext<{ name: string }>): Promise<CommandResponse> => {
 
-  const { user, input: { name } } = context;
+  const {user, input: {name}} = context;
 
   if (!context.member || !context.channel || !context.guild) {
     return;
@@ -36,7 +37,7 @@ const execute = async (context: CommandContext<{ name: string }>): Promise<Comma
       ns: 'player'
     });
 
-    const message = new MessageBuilder({ embeds: [{ description: trackTranslation }] });
+    const message = new MessageBuilder({embeds: [{description: trackTranslation}]});
 
     await message.followUp(context.interaction as Interaction);
   } catch (e) {

@@ -1,21 +1,22 @@
-import { APIApplicationCommandOptionChoice } from 'discord.js';
-
 import i18next from 'i18next';
-import { CommandContext, createCommand } from 'twokei-framework';
 
-import { LoopStates } from '../../music/controllers/Venti';
-import { setLoopState } from '../../music/heizou/set-loop-state';
-import { getReadableException } from '../../structures/exceptions/utils/get-readable-exception';
+import {APIApplicationCommandOptionChoice} from 'discord.js';
+import {CommandContext, createCommand} from 'twokei-framework';
+
+
+import {LoopStates} from '../../music/controllers/Venti';
+import {setLoopState} from '../../music/heizou/set-loop-state';
+import {getReadableException} from '../../structures/exceptions/utils/get-readable-exception';
 
 const execute = async (context: CommandContext<{ state?: keyof typeof LoopStates }>) => {
-  const { member, input: { state } } = context;
+  const {member, input: {state}} = context;
 
   if (!member) {
-    return i18next.t('player.commands.loop.no-guild', { ns: 'player' });
+    return i18next.t('player.commands.loop.no-guild', {ns: 'player'});
   }
 
   return setLoopState(member, state ? LoopStates[state] : undefined)
-    .then((newState) => i18next.t('player.commands.loop.success', { ns: 'player', loop: newState }))
+    .then((newState) => i18next.t('player.commands.loop.success', {ns: 'player', loop: newState}))
     .catch(getReadableException);
 };
 

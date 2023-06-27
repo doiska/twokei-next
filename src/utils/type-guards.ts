@@ -1,4 +1,4 @@
-import { GuildMember } from 'discord.js';
+import {GuildMember} from 'discord.js';
 
 export type Maybe<T> = T | null | undefined;
 
@@ -18,4 +18,4 @@ export function isNullOrUndefined(value: unknown): value is Nullish {
 
 export const isGuildMember = (value: unknown): value is GuildMember => value?.constructor.name === 'GuildMember';
 
-export { isNullOrUndefined as isNullish };
+export {isNullOrUndefined as isNullish};
