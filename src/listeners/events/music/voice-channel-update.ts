@@ -1,8 +1,7 @@
-import { VoiceState } from 'discord.js';
+import {VoiceState} from 'discord.js';
+import {createEvent} from 'twokei-framework';
 
-import { createEvent } from 'twokei-framework';
-
-import { Twokei } from '../../../app/Twokei';
+import {xiao} from '../../../app/Xiao';
 
 type VoiceChannelUpdateTypes = 'voiceChannelJoin'
     | 'voiceChannelLeave'
@@ -28,7 +27,7 @@ export const voiceChannelUpdate = createEvent('voiceStateUpdate', async (oldStat
 
     if (!isConnected) {
       try {
-        await Twokei.xiao.destroyPlayer(guild.id);
+        await xiao.destroyPlayer(guild.id);
       } catch (e) {
         self?.voice?.disconnect();
       }
@@ -45,7 +44,7 @@ export const voiceChannelUpdate = createEvent('voiceStateUpdate', async (oldStat
     }
 
     try {
-      await Twokei.xiao.destroyPlayer(newState.guild.id);
+      await xiao.destroyPlayer(newState.guild.id);
     } catch (e) {
       newState.guild.members.me?.voice?.disconnect();
     }
