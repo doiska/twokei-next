@@ -1,18 +1,19 @@
-import { User } from 'discord.js';
+import {User} from 'discord.js';
 
-import { Track } from 'shoukaku';
+import {Track} from 'shoukaku';
 
-import { Twokei } from '../../app/Twokei';
-import { escapeRegExp } from '../../utils/dash-utils';
+import {xiao} from '../../app/Xiao';
+import {escapeRegExp} from '../../utils/dash-utils';
 
 interface ResolvableTrackOptions {
-  requester?: User;
+    requester?: User;
 }
+
 export class ResolvableTrack {
 
   /**
-   * Track Requester
-   */
+     * Track Requester
+     */
   public requester?: User;
 
   /** Track's Base64 */
@@ -44,7 +45,7 @@ export class ResolvableTrack {
 
   public constructor(track: Track & { thumbnail?: string }, options?: ResolvableTrackOptions) {
 
-    const { info } = track;
+    const {info} = track;
 
     this.requester = options?.requester;
     this.track = track.track;
@@ -69,13 +70,13 @@ export class ResolvableTrack {
   get isReadyToPlay(): boolean {
     return (
       !!this.track &&
-        !!this.sourceName &&
-        !!this.identifier &&
-        !!this.author &&
-        !!this.length &&
-        !!this.title &&
-        !!this.uri &&
-        !!this.realUri
+            !!this.sourceName &&
+            !!this.identifier &&
+            !!this.author &&
+            !!this.length &&
+            !!this.title &&
+            !!this.uri &&
+            !!this.realUri
     );
   }
 
@@ -109,47 +110,6 @@ export class ResolvableTrack {
     return this;
   }
 
-  private async getTrack() {
-    const source = 'yt';
-    const query = [this.title, this.author].filter(Boolean).join(' - ');
-
-    const response = await Twokei.xiao.search(query, { requester: this.requester, engine: source });
-
-    if (!response || !response.tracks.length) {
-      return;
-    }
-
-    const tracks = response.tracks.map(this.parseResolvableToTrack);
-
-    if (this.author) {
-      const author = [this.author, `${this.author} - Topic`];
-
-      const officialTrack = tracks.find(
-        (track) =>
-          author.some((name) => new RegExp(`^${escapeRegExp(name)}$`, 'i').test(track.info.author)) ||
-              new RegExp(`^${escapeRegExp(this.title)}$`, 'i').test(track.info.title)
-      );
-
-      if (officialTrack) {
-        return officialTrack;
-      }
-    }
-
-    if (this.length) {
-      const sameDuration = tracks.find(
-        (track) =>
-          track.info.length >= (this.length ? this.length : 0) - 2000 &&
-              track.info.length <= (this.length ? this.length : 0) + 2000
-      );
-
-      if (sameDuration) {
-        return sameDuration;
-      }
-    }
-
-    return tracks[0];
-  }
-
   public getRaw(): Track {
     return {
       track: this.track,
@@ -165,6 +125,47 @@ export class ResolvableTrack {
         sourceName: this.sourceName
       }
     };
+  }
+
+  private async getTrack() {
+    const source = 'yt';
+    const query = [this.title, this.author].filter(Boolean).join(' - ');
+
+    const response = await xiao.search(query, {requester: this.requester, engine: source});
+
+    if (!response || !response.tracks.length) {
+      return;
+    }
+
+    const tracks = response.tracks.map(this.parseResolvableToTrack);
+
+    if (this.author) {
+      const author = [this.author, `${this.author} - Topic`];
+
+      const officialTrack = tracks.find(
+        (track) =>
+          author.some((name) => new RegExp(`^${escapeRegExp(name)}$`, 'i').test(track.info.author)) ||
+                    new RegExp(`^${escapeRegExp(this.title)}$`, 'i').test(track.info.title)
+      );
+
+      if (officialTrack) {
+        return officialTrack;
+      }
+    }
+
+    if (this.length) {
+      const sameDuration = tracks.find(
+        (track) =>
+          track.info.length >= (this.length ? this.length : 0) - 2000 &&
+                    track.info.length <= (this.length ? this.length : 0) + 2000
+      );
+
+      if (sameDuration) {
+        return sameDuration;
+      }
+    }
+
+    return tracks[0];
   }
 
   private parseResolvableToTrack(resolvable: Track | ResolvableTrack): Track {

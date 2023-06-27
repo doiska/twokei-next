@@ -3,16 +3,15 @@ const AUTH_URL = 'https://accounts.spotify.com/api/token?grant_type=client_crede
 
 export class SpotifyRequest {
 
-  private token = '';
-  private expiresAt = 0;
-  private readonly authorization: string = '';
-
   public currentApiStatus = {
     requests: 0,
     rateLimited: false,
   };
+  private token = '';
+  private expiresAt = 0;
+  private readonly authorization: string = '';
 
-  constructor({ clientId, clientSecret }: { clientId: string, clientSecret: string }) {
+  constructor({clientId, clientSecret}: { clientId: string, clientSecret: string }) {
     this.authorization = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;
   }
 
@@ -63,7 +62,7 @@ export class SpotifyRequest {
       }
     });
 
-    const { access_token, expires_in } = await request.json() as { access_token: string, expires_in: number };
+    const {access_token, expires_in} = await request.json() as { access_token: string, expires_in: number };
 
     if (!access_token) {
       throw new Error('Failed to refresh token');
