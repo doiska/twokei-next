@@ -22,39 +22,9 @@ export const Nodes: OptionWithActive[] = [
     "secure": true
   },
   {
-    "name": "https://open.spotify.com/track/4TuNI3WEMyLQAKRMJmcQdA",
-    "url": "narco.buses.rocks:2269",
-    "auth": "glasshost1984",
-    "secure": false
-  },
-  {
     "name": "https://www.alexanderof.xyz",
     "url": "lavalink1.albinhakanson.se:1141",
     "auth": "albinhakanson.se",
-    "secure": false
-  },
-  {
-    "name": "https://sneakynodes.com/discord",
-    "url": "lavalink.sneakynodes.com:2333",
-    "auth": "sneakynodes.com",
-    "secure": false
-  },
-  {
-    "name": "https://discord.gg/ZNKNY3RpRg",
-    "url": "server.alfari.id:6969",
-    "auth": "youshallnotpass",
-    "secure": false
-  },
-  {
-    "name": "https://discord.gg/7G9TvNvZVs",
-    "url": "my.tofumc.pro:25570",
-    "auth": "sussy",
-    "secure": false
-  },
-  {
-    "name": "https://github.com/Dep0s1t",
-    "url": "lavalink4africa.islantay.tk:8880",
-    "auth": "AmeliaWatsonisTheBest**!",
     "secure": false
   },
   {
