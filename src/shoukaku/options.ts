@@ -74,44 +74,8 @@ export const Nodes: OptionWithActive[] = [
     "url": "lava4.horizxon.studio:80",
     "auth": "horizxon.studio",
     "secure": false
-  },
-  {
-    "name": "https://timelessnesses.me",
-    "url": "krn.2d.gay:80",
-    "auth": "AWP)JQ$Gv9}dm.u",
-    "secure": false
-  },
-  {
-    "name": "https://mune.moe",
-    "url": "purr.aikomechawaii.live:10415",
-    "auth": "AnythingAsPassword",
-    "secure": false
-  },
-  {
-    "name": "https://aikomechawaii.live",
-    "url": "purr.aikomechawaii.live:10357",
-    "auth": "ImayBeStupid",
-    "secure": false
-  },
-  {
-    "name": "https://github.com/MiracleCherryPie",
-    "url": "lavalink.oxygen-project.cloud:2100",
-    "auth": "oxygen-project.cloud",
-    "secure": false
-  },
-  {
-    "name": "https://putraa.my.id",
-    "url": "sg1.clevent.my.id:2333",
-    "auth": "youshallnotpass",
-    "secure": false
-  },
-  {
-    "name": "https://velleri.us",
-    "url": "lv.velleri.us:2333",
-    "auth": "ilovemonkeys",
-    "secure": false
   }
-].filter(node => node.secure)
+];
 
 export const shoukakuOptions: ShoukakuOptions = {
   // resume: true,
