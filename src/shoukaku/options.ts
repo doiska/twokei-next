@@ -4,6 +4,12 @@ type OptionWithActive = NodeOption & { active?: boolean };
 
 export const Nodes: OptionWithActive[] = [
   {
+    "name": "Amazon Eduardin",
+    "url": "15.228.220.230:2333",
+    "auth": "youshallnotpass",
+    "secure": false
+  },
+  {
     "name": "lavalink.lexnet.cc",
     "url": "lavalink.lexnet.cc:443",
     "auth": "lexn3tl@val!nk",
