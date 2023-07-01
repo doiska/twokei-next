@@ -1,5 +1,4 @@
-import {pgSchema, timestamp, varchar} from 'drizzle-orm/pg-core';
-
+import { pgSchema, timestamp, varchar } from 'drizzle-orm/pg-core';
 
 export const guilds = pgSchema(process.env.PGSCHEMA ?? 'app').table('guilds', {
   guildId: varchar('guild_id').primaryKey().notNull(),

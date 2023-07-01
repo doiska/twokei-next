@@ -1,10 +1,14 @@
-import {ChildProcess} from 'child_process';
-import {ClusterManager, HeartbeatManager, ReClusterManager} from 'discord-hybrid-sharding';
-import {config} from 'dotenv';
-import {bold, red} from 'kleur';
-import {Worker as Worker_Thread} from 'worker_threads';
+import { ChildProcess } from 'child_process';
+import {
+  ClusterManager,
+  HeartbeatManager,
+  ReClusterManager,
+} from 'discord-hybrid-sharding';
+import { config } from 'dotenv';
+import { bold, red } from 'kleur';
+import { Worker as Worker_Thread } from 'worker_threads';
 
-import {logger} from './modules/logger-transport';
+import { logger } from './modules/logger-transport';
 
 config();
 
@@ -12,12 +16,12 @@ const shardingManager = new ClusterManager(`${__dirname}/app/Twokei.js`, {
   token: process.env.TOKEN,
   mode: 'process',
   shardsPerClusters: 1,
-  totalShards: 1
+  totalShards: 1,
 });
 
 shardingManager.extend(
-  new HeartbeatManager({interval: 10000, maxMissedHeartbeats: 3}),
-  new ReClusterManager({restartMode: 'gracefulSwitch'})
+  new HeartbeatManager({ interval: 10000, maxMissedHeartbeats: 3 }),
+  new ReClusterManager({ restartMode: 'gracefulSwitch' }),
 );
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -30,32 +34,55 @@ const getPid = (thread?: Worker_Thread | ChildProcess | null) => {
 };
 
 shardingManager.on('clusterCreate', (cluster) => {
-  logger.info(`[Cluster] Cluster Id: ${bold(cluster.id)} has been created and is now starting...`);
+  logger.info(
+    `[Cluster] Cluster Id: ${bold(
+      cluster.id,
+    )} has been created and is now starting...`,
+  );
 
   cluster.on('spawn', (thread) => {
     if (!thread) {
-      logger.error(`[Cluster] Cluster ${red(cluster.id)} has spawned, but the thread is undefined.`);
+      logger.error(
+        `[Cluster] Cluster ${red(
+          cluster.id,
+        )} has spawned, but the thread is undefined.`,
+      );
       return;
     }
 
-    logger.info(`[Cluster] Cluster Id: ${bold(cluster.id)} has spawned. PID: ${bold(getPid(thread))}`);
+    logger.info(
+      `[Cluster] Cluster Id: ${bold(cluster.id)} has spawned. PID: ${bold(
+        getPid(thread),
+      )}`,
+    );
   });
 
-  cluster.on('message', (message) => logger.debug(`[Cluster] Cluster ${cluster.id} has received a message: ${message}`));
+  cluster.on('message', (message) => logger.debug(
+    `[Cluster] Cluster ${cluster.id} has received a message: ${message}`,
+  ));
 
   cluster.on('error', (error) => {
-    logger.error(`[Cluster] Cluster ${red(cluster.id)} has had an error: ${red(error.message)}`, error);
+    logger.error(
+      `[Cluster] Cluster ${red(cluster.id)} has had an error: ${red(
+        error.message,
+      )}`,
+      error,
+    );
   });
 
   cluster.on('death', (cluster, thread) => {
-    logger.error(`[Cluster] Cluster ${red(cluster.id)} has died. PID: ${red(getPid(thread))}`);
+    logger.error(
+      `[Cluster] Cluster ${red(cluster.id)} has died. PID: ${red(
+        getPid(thread),
+      )}`,
+    );
   });
 });
 
 shardingManager
   .spawn()
   .then(() => logger.info(bold('[Cluster] All clusters have been spawned.')))
-  .catch(e => logger.error(bold(`[Cluster] Failed to spawn clusters: ${red(e)}`)));
+  .catch((e) => logger.error(bold(`[Cluster] Failed to spawn clusters: ${red(e)}`)));
 
 const stdin = process.openStdin();
 

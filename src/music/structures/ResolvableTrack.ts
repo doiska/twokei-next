@@ -1,51 +1,63 @@
-import {User} from 'discord.js';
+import { User } from 'discord.js';
 
-import {Track} from 'shoukaku';
+import { Track } from 'shoukaku';
 
-import {xiao} from '../../app/Xiao';
-import {escapeRegExp} from '../../utils/dash-utils';
+import { xiao } from '../../app/Xiao';
+import { escapeRegExp } from '../../utils/dash-utils';
 
 interface ResolvableTrackOptions {
-    requester?: User;
+  requester?: User;
 }
 
 export class ResolvableTrack {
-
   /**
-     * Track Requester
-     */
+   * Track Requester
+   */
   public requester?: User;
 
   /** Track's Base64 */
   public track: string;
+
   /** Track's source */
   public sourceName: string;
+
   /** Track's title */
   public title: string;
+
   /** Track's URI */
   public uri: string;
+
   /** Track's identifier */
   public identifier: string;
+
   /** Whether the track is seekable */
   public isSeekable: boolean;
+
   /** Whether the track is a stream */
   public isStream: boolean;
+
   /** Track's author */
   public author: string | undefined;
+
   /** Track's length */
   public length: number | undefined;
+
   /** Track's position (I don't know this) */
   public position: number | undefined;
+
   /** Track's thumbnail, if available */
   public thumbnail: string | undefined;
+
   /** The YouTube/soundcloud URI for spotify and other unsupported source */
   public realUri: string | null;
 
   public resolvedBySource = false;
 
-  public constructor(track: Track & { thumbnail?: string }, options?: ResolvableTrackOptions) {
-
-    const {info} = track;
+  public constructor(
+    track: Track & { thumbnail?: string },
+    options?: ResolvableTrackOptions,
+  ) {
+    const { info } = track;
 
     this.requester = options?.requester;
     this.track = track.track;
@@ -69,20 +81,18 @@ export class ResolvableTrack {
 
   get isReadyToPlay(): boolean {
     return (
-      !!this.track &&
-            !!this.sourceName &&
-            !!this.identifier &&
-            !!this.author &&
-            !!this.length &&
-            !!this.title &&
-            !!this.uri &&
-            !!this.realUri
+      !!this.track
+      && !!this.sourceName
+      && !!this.identifier
+      && !!this.author
+      && !!this.length
+      && !!this.title
+      && !!this.uri
+      && !!this.realUri
     );
   }
 
-
   public async resolve(overwrite = false): Promise<ResolvableTrack> {
-
     if (this.isReadyToPlay) {
       return this;
     }
@@ -122,8 +132,8 @@ export class ResolvableTrack {
         author: this.author || '',
         isStream: this.isStream,
         position: this.position || 0,
-        sourceName: this.sourceName
-      }
+        sourceName: this.sourceName,
+      },
     };
   }
 
@@ -131,7 +141,10 @@ export class ResolvableTrack {
     const source = 'yt';
     const query = [this.title, this.author].filter(Boolean).join(' - ');
 
-    const response = await xiao.search(query, {requester: this.requester, engine: source});
+    const response = await xiao.search(query, {
+      requester: this.requester,
+      engine: source,
+    });
 
     if (!response || !response.tracks.length) {
       return;
@@ -143,9 +156,10 @@ export class ResolvableTrack {
       const author = [this.author, `${this.author} - Topic`];
 
       const officialTrack = tracks.find(
-        (track) =>
-          author.some((name) => new RegExp(`^${escapeRegExp(name)}$`, 'i').test(track.info.author)) ||
-                    new RegExp(`^${escapeRegExp(this.title)}$`, 'i').test(track.info.title)
+        (track) => author.some((name) => new RegExp(`^${escapeRegExp(name)}$`, 'i').test(track.info.author))
+          || new RegExp(`^${escapeRegExp(this.title)}$`, 'i').test(
+            track.info.title,
+          ),
       );
 
       if (officialTrack) {
@@ -155,9 +169,8 @@ export class ResolvableTrack {
 
     if (this.length) {
       const sameDuration = tracks.find(
-        (track) =>
-          track.info.length >= (this.length ? this.length : 0) - 2000 &&
-                    track.info.length <= (this.length ? this.length : 0) + 2000
+        (track) => track.info.length >= (this.length ? this.length : 0) - 2000
+          && track.info.length <= (this.length ? this.length : 0) + 2000,
       );
 
       if (sameDuration) {
@@ -186,8 +199,8 @@ export class ResolvableTrack {
         sourceName: track.sourceName,
         author: track.author ?? '',
         length: track.length ?? 0,
-        position: track.position ?? 0
-      }
+        position: track.position ?? 0,
+      },
     };
   }
 }

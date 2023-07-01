@@ -1,69 +1,46 @@
 module.exports = {
-  'env': {
-    'browser': true,
-    'es2021': true
+  env: {
+    browser: true,
+    es2021: true,
   },
-  'extends': [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended'
-  ],
-  'overrides': [
+  extends: ['airbnb-base', 'airbnb-typescript/base', 'prettier/prettier'],
+  overrides: [
     {
-      'env': {
-        'node': true
+      env: {
+        node: true,
       },
-      'files': [
-        '.eslintrc.{js,cjs}'
-      ],
-      'parserOptions': {
-        'sourceType': 'script'
-      }
-    }
+      files: ['.eslintrc.{js,cjs}'],
+      parserOptions: {
+        sourceType: 'script',
+      },
+    },
   ],
-  'parser': '@typescript-eslint/parser',
-  'parserOptions': {
-    'ecmaVersion': 'latest',
-    'sourceType': 'module'
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+    project: './tsconfig.eslint.json',
   },
-  'plugins': [
-    '@typescript-eslint',
-    'eslint-plugin-import-helpers'
-  ],
-  'rules': {
-    'indent': [
-      'error',
-      2
-    ],
-    'linebreak-style': [
-      'error',
-      'windows'
-    ],
-    'quotes': [
-      'error',
-      'single'
-    ],
-    'semi': [
-      'error',
-      'always'
-    ],
+  plugins: ['@typescript-eslint', 'eslint-plugin-import-helpers'],
+  rules: {
+    'class-methods-use-this': ['off'],
+    'import/extensions': ['off'],
+    'import/no-unresolved': ['off'],
+    'import/prefer-default-export': ['off'],
     'import-helpers/order-imports': [
       'warn',
-      { // example configuration
+      {
+        // example configuration
         newlinesBetween: 'always',
         groups: [
-          '/^node:/',
-          '/^i18next/',
-          [
-            '/^discord.js/',
-            '/^@sapphire/',
-            '/^twokei-framework/',
-          ],
+          ['/^node:/', '/^drizzle-orm/', '/^i18next/'],
+          ['/^discord.js/', '/^@sapphire/', '/^twokei-framework/'],
           'module',
           '/^@shared/',
-          ['parent', 'sibling', 'index']
+          ['parent', 'sibling', 'index'],
         ],
-        alphabetize: {order: 'asc', ignoreCase: true}
-      }
-    ]
-  }
+        alphabetize: { order: 'asc', ignoreCase: true },
+      },
+    ],
+  },
 };

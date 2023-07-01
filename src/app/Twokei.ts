@@ -1,15 +1,71 @@
 import 'reflect-metadata';
-import { logger } from '../modules/logger-transport';
-import { ExtendedClient } from '../structures/ExtendedClient';
+import '../modules/setup';
+import '@sapphire/plugin-i18next/register';
 
-export const Twokei = new ExtendedClient({
+import {
+  ApplicationCommandRegistries,
+  LogLevel,
+  RegisterBehavior,
+  SapphireClient,
+} from '@sapphire/framework';
+import { GatewayIntentBits, Partials } from 'discord.js';
+
+import en_us from '@/locales/en_us';
+import pt_br from '@/locales/pt_br';
+import { getGuidLocale } from '@/modules/guild-locale';
+
+ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
+  RegisterBehavior.BulkOverwrite,
+);
+
+export const Twokei = new SapphireClient({
+  defaultPrefix: '*',
+  regexPrefix: /^(hey +)?bot[,! ]/i,
+  caseInsensitiveCommands: true,
+  logger: {
+    level: LogLevel.Debug,
+  },
+  shards: 'auto',
   intents: [
-    'Guilds',
-    'GuildVoiceStates',
-    'GuildMessages'
-  ]
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.Guilds,
+  ],
+  partials: [Partials.Channel],
+  loadMessageCommandListeners: true,
+  i18n: {
+    i18next: {
+      fallbackLng: 'pt_br',
+      supportedLngs: ['pt_br', 'en_us'],
+      resources: {
+        pt_br,
+        en_us,
+      },
+      interpolation: {
+        defaultVariables: {
+          name: 'Twokei',
+          mention: '@Twokei',
+        },
+      },
+    },
+    defaultLanguageDirectory: './dist/locales',
+    fetchLanguage: async (context) => {
+      if (!context.guild?.id) {
+        return 'pt_br';
+      }
+
+      return getGuidLocale(context.guild?.id);
+    },
+  },
 });
 
-Twokei.start()
-  .then(() => logger.info('Client ready!'))
-  .catch((error) => logger.error('Client failed to start', error));
+const main = async () => {
+  try {
+    await Twokei.login(process.env.DISCORD_TOKEN);
+  } catch (error) {
+    Twokei.logger.fatal(error);
+    process.exit(1);
+  }
+};
+
+main();

@@ -1,4 +1,4 @@
-import {NodeOption, ShoukakuOptions} from 'shoukaku';
+import { NodeOption, ShoukakuOptions } from 'shoukaku';
 
 export type OptionWithActive = NodeOption & { active?: boolean };
 
@@ -8,7 +8,7 @@ export const Nodes: OptionWithActive[] = [
     url: '15.228.220.230:2333',
     secure: false,
     auth: 'youshallnotpass',
-  }
+  },
   // {
   //   name: 'lava1.horizxon.studio:80',
   //   url: 'lava1.horizxon.studio',
@@ -37,5 +37,5 @@ export const Nodes: OptionWithActive[] = [
 
 export const shoukakuOptions: ShoukakuOptions = {
   resume: true,
-  resumeByLibrary: true
+  resumeByLibrary: true,
 };

@@ -1,7 +1,7 @@
-import {GuildResolvable} from 'discord.js';
+import { GuildResolvable } from 'discord.js';
 
-import {xiao} from '../../app/Xiao';
-import {FriendlyException} from '../../structures/exceptions/FriendlyException';
+import { xiao } from '../../app/Xiao';
+import { FriendlyException } from '../../structures/exceptions/FriendlyException';
 
 export const pauseSong = async (guild: GuildResolvable) => {
   const player = await xiao.getPlayer(guild);
@@ -16,4 +16,3 @@ export const pauseSong = async (guild: GuildResolvable) => {
 
   player.pause();
 };
-

@@ -1,10 +1,10 @@
-import {GuildResolvable} from 'discord.js';
+import { GuildResolvable } from 'discord.js';
 
-import {eq} from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
-import {Twokei} from '../app/Twokei';
-import {kil} from '../db/Kil';
-import {songChannels} from '../db/schemas/SongChannels';
+import { Twokei } from '../app/Twokei';
+import { kil } from '../db/Kil';
+import { songChannels } from '../db/schemas/SongChannels';
 
 export async function getGuildSongChannel(guild: GuildResolvable) {
   const id = Twokei.guilds.resolveId(guild);
@@ -13,7 +13,8 @@ export async function getGuildSongChannel(guild: GuildResolvable) {
     throw new Error(`Invalid guild: ${guild}`);
   }
 
-  const [entity] = await kil.select()
+  const [entity] = await kil
+    .select()
     .from(songChannels)
     .where(eq(songChannels.guildId, id));
 

@@ -1,10 +1,12 @@
-import {xiao} from '@/app/Xiao';
+import { xiao } from '@/app/Xiao';
 
-import {XiaoEvents} from '../controllers/Xiao';
-import {Events} from '../interfaces/player.types';
+import { XiaoEvents } from '../controllers/Xiao';
+import { Events } from '../interfaces/player.types';
 
-export const manualUpdate: XiaoEvents[Events.ManualUpdate] = (venti, update) => {
-
+export const manualUpdate: XiaoEvents[Events.ManualUpdate] = (
+  venti,
+  update,
+) => {
   if (!venti) {
     return;
   }

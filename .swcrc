@@ -1,12 +1,17 @@
 {
   "jsc": {
     "parser": {
-      "syntax": "typescript"
+      "syntax": "typescript",
+      "decorators": true
     },
-    "baseUrl": "./src",
+    "target": "es2020",
     "paths": {
-      "@/*": ["*"]
+      "@/*": ["./*"]
     },
-    "target": "es2018"
+    "baseUrl": "./src"
+  },
+
+  "module": {
+    "type": "commonjs"
   }
 }

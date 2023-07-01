@@ -1,4 +1,4 @@
-import {GuildMember} from 'discord.js';
+import { GuildMember } from 'discord.js';
 
 export type Maybe<T> = T | null | undefined;
 
@@ -6,7 +6,6 @@ export type Maybe<T> = T | null | undefined;
  * Type union for the full 2 billion dollar mistake in the JavaScript ecosystem
  */
 export type Nullish = null | undefined;
-
 
 /**
  * Checks whether a value is `null` or `undefined`
@@ -18,4 +17,4 @@ export function isNullOrUndefined(value: unknown): value is Nullish {
 
 export const isGuildMember = (value: unknown): value is GuildMember => value?.constructor.name === 'GuildMember';
 
-export {isNullOrUndefined as isNullish};
+export { isNullOrUndefined as isNullish };
