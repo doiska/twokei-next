@@ -1,29 +1,45 @@
-// import { Color, cyan, green, red, yellow} from 'kleur';
-import {createLogger, format, transports} from 'winston';
-import {CliConfigSetLevels} from 'winston/lib/winston/config';
+import {
+  blue, Color, cyan, green, red, reset, yellow,
+} from 'kleur';
+import { createLogger, format, transports } from 'winston';
+import { CliConfigSetLevels } from 'winston/lib/winston/config';
 //
-// const colors: Record<keyof CliConfigSetLevels, Color> = {
-//   error: red,
-//   info: blue,
-//   warn: yellow,
-//   debug: cyan,
-//   verbose: green,
-// };
+const colors: Record<keyof CliConfigSetLevels, Color> = {
+  error: red,
+  info: blue,
+  warn: yellow,
+  debug: cyan,
+  verbose: green,
+};
 
 const consoleTransportInstance = new transports.Console({
   format: format.combine(
     format.printf((info) => {
-      const {timestamp, level, message, stack, pid, ...rest} = info;
-      // const color = colors[info.level] ?? blue;
-      const content = message || stack || 'Profiler';
+      const {
+        timestamp,
+        level: uncoloredLevel,
+        pid: _,
+        message,
+        stack,
+        ...rest
+      } = info;
 
-      const details = Object.keys(rest).length ? `\n${JSON.stringify(rest, null, 2)}` : '';
+      const content = stack ? '' : reset(message);
 
-      return `[${pid}] (${timestamp}) [${level.toUpperCase()}]: ${content} ${details}`;
+      const color = colors[info.level] ?? blue;
+      const prefix = `${color(timestamp)} - ${color(
+        uncoloredLevel.toUpperCase(),
+      )} - `;
+      const trace = stack ? `\n${stack.replace(/\n/g, `\n${prefix}`)}` : '';
+
+      const details = Object.keys(rest).length
+        ? `\n${JSON.stringify(rest, null, 2)}`
+        : '';
+
+      return `${prefix} ${content} ${details} ${trace}`;
     }),
   ),
 });
-
 
 export const logger = createLogger({
   level: 'debug',
@@ -31,9 +47,9 @@ export const logger = createLogger({
     pid: process.pid,
   },
   format: format.combine(
-    format.timestamp({format: 'YYYY-MM-DD HH:mm:ss'}),
-    format.errors({stack: true}),
+    format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    format.errors({ stack: true }),
     format.json(),
   ),
-  transports: [consoleTransportInstance]
+  transports: [consoleTransportInstance],
 });

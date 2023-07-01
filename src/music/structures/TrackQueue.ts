@@ -1,9 +1,9 @@
-import {Maybe} from '../../utils/type-guards';
-import {ResolvableTrack} from './ResolvableTrack';
+import { Maybe } from '../../utils/type-guards';
+import { ResolvableTrack } from './ResolvableTrack';
 
 export class TrackQueue<T = ResolvableTrack> extends Array<T> {
-
   public current: Maybe<T>;
+
   public previous: Maybe<T>;
 
   get totalSize(): number {

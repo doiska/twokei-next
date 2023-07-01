@@ -1,21 +1,23 @@
-import {isGuildBasedChannel, isTextChannel} from '@sapphire/discord.js-utilities';
-import {Guild, TextChannel} from 'discord.js';
+import {
+  isGuildBasedChannel,
+  isTextChannel,
+  canSendMessages,
+} from '@sapphire/discord.js-utilities';
+import { Guild, TextChannel } from 'discord.js';
 
+import { logger } from '../modules/logger-transport';
+import { Maybe } from './type-guards';
 
-import {logger} from '../modules/logger-transport';
-import {canSendMessages} from './discord-utilities';
-import {Maybe} from './type-guards';
-
-export const findAnyUsableChannel = async (guild: Guild): Promise<Maybe<TextChannel>> => {
-
+export const findAnyUsableChannel = async (
+  guild: Guild,
+): Promise<Maybe<TextChannel>> => {
   if (!guild.members.me) {
     return;
   }
 
   const channels = await guild.channels.fetch();
 
-  const channel = channels.find(channel => {
-
+  const channel = channels.find((channel) => {
     if (!channel) {
       return false;
     }
@@ -28,7 +30,9 @@ export const findAnyUsableChannel = async (guild: Guild): Promise<Maybe<TextChan
   });
 
   if (channel) {
-    logger.debug(`Found channel ${channel.name} (${channel.id}) in guild ${guild.name} (${guild.id}).`);
+    logger.debug(
+      `Found channel ${channel.name} (${channel.id}) in guild ${guild.name} (${guild.id}).`,
+    );
   }
 
   return channel as Maybe<TextChannel>;

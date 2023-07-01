@@ -2,21 +2,30 @@ const BASE_URL = 'https://api.spotify.com/v1';
 const AUTH_URL = 'https://accounts.spotify.com/api/token?grant_type=client_credentials';
 
 export class SpotifyRequest {
-
   public currentApiStatus = {
     requests: 0,
     rateLimited: false,
   };
+
   private token = '';
+
   private expiresAt = 0;
+
   private readonly authorization: string = '';
 
-  constructor({clientId, clientSecret}: { clientId: string, clientSecret: string }) {
-    this.authorization = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;
+  constructor({
+    clientId,
+    clientSecret,
+  }: {
+    clientId: string;
+    clientSecret: string;
+  }) {
+    this.authorization = `Basic ${Buffer.from(
+      `${clientId}:${clientSecret}`,
+    ).toString('base64')}`;
   }
 
   public async request<T>(endpoint: string, useUri = false): Promise<T> {
-
     if (this.expiresAt < Date.now()) {
       await this.refresh();
     }
@@ -34,7 +43,7 @@ export class SpotifyRequest {
     const request = await fetch(route, {
       headers: {
         Authorization: `Bearer ${this.token}`,
-      }
+      },
     });
 
     if (request.headers.get('X-RateLimit-Remaining') === '0') {
@@ -44,7 +53,7 @@ export class SpotifyRequest {
 
     this.currentApiStatus.requests++;
 
-    const data = (await request.json());
+    const data = await request.json();
 
     if (data.error) {
       throw new Error(data.error.message);
@@ -59,16 +68,19 @@ export class SpotifyRequest {
       headers: {
         Authorization: this.authorization,
         'Content-Type': 'application/x-www-form-urlencoded',
-      }
+      },
     });
 
-    const {access_token, expires_in} = await request.json() as { access_token: string, expires_in: number };
+    const { access_token, expires_in } = (await request.json()) as {
+      access_token: string;
+      expires_in: number;
+    };
 
     if (!access_token) {
       throw new Error('Failed to refresh token');
     }
 
     this.token = access_token;
-    this.expiresAt = Date.now() + (expires_in * 1000);
+    this.expiresAt = Date.now() + expires_in * 1000;
   }
 }

@@ -1,8 +1,8 @@
-import {GuildMember} from 'discord.js';
+import { GuildMember } from 'discord.js';
 
-import {xiao} from '../../app/Xiao';
-import {isConnectedTo} from '../../preconditions/vc-conditions';
-import {FriendlyException} from '../../structures/exceptions/FriendlyException';
+import { xiao } from '../../app/Xiao';
+import { isConnectedTo } from '../../preconditions/vc-conditions';
+import { FriendlyException } from '../../structures/exceptions/FriendlyException';
 
 export const skipSong = async (member: GuildMember, amount = 1) => {
   const player = await xiao.getPlayer(member);

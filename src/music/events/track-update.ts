@@ -1,7 +1,7 @@
-import {xiao} from '../../app/Xiao';
-import {Venti} from '../controllers/Venti';
+import { xiao } from '../../app/Xiao';
+import { Venti } from '../controllers/Venti';
 
-//TODO: Why do not update the component when the track starts?
+// TODO: Why do not update the component when the track starts?
 // export const trackStart: XiaoEvents[Events.TrackStart] = (venti) => {
 //   logger.debug('[Xiao] Track started. Refreshing components...');
 //
@@ -31,8 +31,5 @@ export const trackUpdate: UpdateEvents = (venti: Venti) => {
     embed.refreshEmbed();
   }
 
-  embed
-    .refreshComponents()
-    .refreshEmbed()
-    .refresh();
+  embed.refreshComponents().refreshEmbed().refresh();
 };

@@ -1,57 +1,63 @@
-import {VoiceState} from 'discord.js';
-import {createEvent} from 'twokei-framework';
+import { VoiceState } from 'discord.js';
+import { createEvent } from 'twokei-framework';
 
-import {xiao} from '../../../app/Xiao';
+import { xiao } from '../../../app/Xiao';
 
-type VoiceChannelUpdateTypes = 'voiceChannelJoin'
-    | 'voiceChannelLeave'
-    | 'voiceChannelSwitch'
-    | 'voiceChannelDeaf'
-    | 'voiceChannelMute'
-    | 'voiceChannelUnMute'
-    | 'voiceChannelUnDeaf'
-    | 'voiceUpdate';
+type VoiceChannelUpdateTypes =
+  | 'voiceChannelJoin'
+  | 'voiceChannelLeave'
+  | 'voiceChannelSwitch'
+  | 'voiceChannelDeaf'
+  | 'voiceChannelMute'
+  | 'voiceChannelUnMute'
+  | 'voiceChannelUnDeaf'
+  | 'voiceUpdate';
 
-export const voiceChannelUpdate = createEvent('voiceStateUpdate', async (oldState, newState) => {
+export const voiceChannelUpdate = createEvent(
+  'voiceStateUpdate',
+  async (oldState, newState) => {
+    const guild = newState.guild || oldState.guild;
+    const self = guild.members.me;
+    const selfVoice = self?.voice;
 
-  const guild = newState.guild || oldState.guild;
-  const self = guild.members.me;
-  const selfVoice = self?.voice;
+    const channel = newState.channel || oldState.channel;
+    const isConnected = channel?.id === selfVoice?.channel?.id;
 
-  const channel = newState.channel || oldState.channel;
-  const isConnected = channel?.id === selfVoice?.channel?.id;
+    const updateType = getUpdateType(oldState, newState);
 
-  const updateType = getUpdateType(oldState, newState);
+    if (updateType === 'voiceChannelLeave') {
+      if (!isConnected) {
+        try {
+          await xiao.destroyPlayer(guild.id);
+        } catch (e) {
+          self?.voice?.disconnect();
+        }
+      }
 
-  if (updateType === 'voiceChannelLeave') {
+      if (!selfVoice || !isConnected) {
+        return;
+      }
 
-    if (!isConnected) {
+      const isEmpty = oldState.channel?.members.filter((member) => !member.user.bot).size
+        === 0;
+
+      if (!isEmpty) {
+        return;
+      }
+
       try {
-        await xiao.destroyPlayer(guild.id);
+        await xiao.destroyPlayer(newState.guild.id);
       } catch (e) {
-        self?.voice?.disconnect();
+        newState.guild.members.me?.voice?.disconnect();
       }
     }
+  },
+);
 
-    if (!selfVoice || !isConnected) {
-      return;
-    }
-
-    const isEmpty = oldState.channel?.members.filter((member) => !member.user.bot).size === 0;
-
-    if (!isEmpty) {
-      return;
-    }
-
-    try {
-      await xiao.destroyPlayer(newState.guild.id);
-    } catch (e) {
-      newState.guild.members.me?.voice?.disconnect();
-    }
-  }
-});
-
-function getUpdateType(oldState: VoiceState, newState: VoiceState): VoiceChannelUpdateTypes {
+function getUpdateType(
+  oldState: VoiceState,
+  newState: VoiceState,
+): VoiceChannelUpdateTypes {
   const oldChannel = oldState.channel;
   const newChannel = newState.channel;
 
@@ -82,7 +88,6 @@ function getUpdateType(oldState: VoiceState, newState: VoiceState): VoiceChannel
   if (!oldState.mute && newState.mute) {
     return 'voiceChannelMute';
   }
-
 
   return 'voiceUpdate';
 }

@@ -4,36 +4,34 @@ import {
   Message,
   MessageActionRowComponentBuilder,
   SelectMenuBuilder,
-  Snowflake
 } from 'discord.js';
 
-import {Locale} from '../../i18n/i18n';
-import {logger} from '../../modules/logger-transport';
-import {Venti} from '../controllers/Venti';
-import {TrackQueue} from '../structures/TrackQueue';
+import { Locale } from '../../locales/i18n';
+import { logger } from '../../modules/logger-transport';
+import { Venti } from '../controllers/Venti';
+import { TrackQueue } from '../structures/TrackQueue';
 import {
   createDefaultButtons,
   createDefaultSongEmbed,
   createPrimaryButtons,
   createSecondaryButtons,
-  selectSongMenu
+  selectSongMenu,
 } from './create-song-embed';
-import {parseTracksToMenuItem} from './guild-embed-manager-helper';
+import { parseTracksToMenuItem } from './guild-embed-manager-helper';
 
 export class GuildEmbed {
-
-  private readonly guildId: Snowflake;
   private readonly message: Message;
 
   private embed: APIEmbed;
+
   private components: ActionRowBuilder<MessageActionRowComponentBuilder>[];
 
   private readonly player: Venti;
+
   private readonly locale: Locale;
 
-  constructor(venti: Venti, guildId: Snowflake, message: Message, locale: Locale = 'pt_br') {
+  constructor(venti: Venti, message: Message, locale: Locale = 'pt_br') {
     this.player = venti;
-    this.guildId = guildId;
     this.message = message;
 
     this.embed = createDefaultSongEmbed(locale);
@@ -43,22 +41,20 @@ export class GuildEmbed {
   }
 
   public refreshEmbed() {
-
     if (!this.player) {
       logger.error('Player not found');
       return this;
     }
 
-
-    const queue = this.player.queue;
+    const { queue } = this.player;
     const url = queue.current?.uri || '';
 
     this.embed = {
       ...this.embed,
       url,
       image: {
-        url: queue.current?.thumbnail || this.embed.thumbnail?.url || ''
-      }
+        url: queue.current?.thumbnail || this.embed.thumbnail?.url || '',
+      },
     };
 
     return this;
@@ -70,7 +66,10 @@ export class GuildEmbed {
       return this;
     }
 
-    this.components = [this.createSelectMenu(this.player.queue), ...this.createButtons()];
+    this.components = [
+      this.createSelectMenu(this.player.queue),
+      ...this.createButtons(),
+    ];
 
     return this;
   }
@@ -84,13 +83,13 @@ export class GuildEmbed {
 
   public refresh() {
     logger.debug('[Xiao] Refreshing message...');
-    this.message.edit({components: this.components, embeds: [this.embed]});
+    this.message.edit({ components: this.components, embeds: [this.embed] });
   }
 
   private createButtons() {
     return [
       createPrimaryButtons(this.player),
-      createSecondaryButtons(this.player)
+      createSecondaryButtons(this.player),
     ];
   }
 
