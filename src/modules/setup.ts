@@ -8,12 +8,10 @@ import '@sapphire/plugin-api/register';
 import '@sapphire/plugin-editable-commands/register';
 import '@sapphire/plugin-logger/register';
 import '@sapphire/plugin-subcommands/register';
-import { setup, type ArrayString } from '@skyra/env-utilities';
-import * as colorette from 'colorette';
-import { join } from 'path';
 import { inspect } from 'util';
-
-import { srcDir } from './constants';
+import { join } from 'path';
+import * as colorette from 'colorette';
+import { setup, type ArrayString } from '@skyra/env-utilities';
 
 process.env.NODE_ENV ??= 'development';
 
@@ -21,6 +19,9 @@ process.env.NODE_ENV ??= 'development';
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
   RegisterBehavior.BulkOverwrite,
 );
+
+const rootDir = join(__dirname, '..', '..');
+const srcDir = join(rootDir, 'src');
 
 // Read env var
 setup({ path: join(srcDir, '.env') });

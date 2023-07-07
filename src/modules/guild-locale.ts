@@ -1,12 +1,12 @@
 import { eq } from 'drizzle-orm';
 
-import { kil } from '../db/Kil';
-import { guilds } from '../db/schemas/Guild';
 import {
   DEFAULT_LOCALE,
   isValidLocale,
   Locale,
 } from '../locales/i18n';
+import { guilds } from '../db/schemas/Guild';
+import { kil } from '../db/Kil';
 
 export const getGuidLocale = async (guildId: string): Promise<Locale> => {
   const [guild] = await kil

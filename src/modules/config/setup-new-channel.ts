@@ -1,19 +1,16 @@
+import {
+  ChannelType, Guild, PermissionFlagsBits, PermissionsBitField,
+} from 'discord.js';
+import { container } from '@sapphire/framework';
 import { canSendMessages } from '@sapphire/discord.js-utilities';
-import { ChannelType, Guild, PermissionFlagsBits } from 'discord.js';
 
-import { eq } from 'drizzle-orm';
-import { Twokei } from '@/app/Twokei';
-import { kil } from '@/db/Kil';
-import { songChannels } from '@/db/schemas/SongChannels';
+import { noop } from '@/utils/utils';
+import { FriendlyException } from '@/structures/exceptions/FriendlyException';
 import {
   createDefaultButtons,
   createDefaultSongEmbed,
 } from '@/music/embed/create-song-embed';
-import { FriendlyException } from '@/structures/exceptions/FriendlyException';
-import { noop } from '@/utils/dash-utils';
-import {
-  canCreateChannels,
-} from '@/utils/discord-utilities';
+import { Twokei } from '@/app/Twokei';
 
 import { setupGuildLanguage } from './setup-guild-language';
 
@@ -26,18 +23,26 @@ export const setupNewChannel = async (guild: Guild) => {
     );
   }
 
-  if (!canCreateChannels(guild)) {
+  const selfPermissions = self.permissions;
+
+  const createChannelPermissions = [PermissionsBitField.Flags.ManageChannels,
+    PermissionsBitField.Flags.ManageMessages,
+    PermissionsBitField.Flags.SendMessages];
+
+  const canCreateChannel = createChannelPermissions.every((permission) => {
+    return selfPermissions.has(permission);
+  });
+
+  if (!canCreateChannel) {
     throw new FriendlyException("I can't create channels in this server.");
   }
 
-  const [currentChannel] = await kil
-    .select()
-    .from(songChannels)
-    .where(eq(songChannels.guildId, guild.id));
+  const currentChannel = await container.sc.get(guild);
 
   if (currentChannel) {
     await guild.channels
       .fetch(currentChannel.channelId)
+    // eslint-disable-next-line no-void
       .then((channel) => void channel?.delete())
       .catch(noop);
   }
@@ -68,20 +73,7 @@ export const setupNewChannel = async (guild: Guild) => {
     components: createDefaultButtons(response),
   });
 
-  await kil
-    .insert(songChannels)
-    .values({
-      guildId: newChannel.guild.id,
-      channelId: newChannel.id,
-      messageId: newMessage.id,
-    })
-    .onConflictDoUpdate({
-      set: {
-        channelId: newChannel.id,
-        messageId: newMessage.id,
-      },
-      target: [songChannels.guildId],
-    });
+  await container.sc.set(guild.id, newChannel.id, newMessage.id);
 
   return newChannel;
 };

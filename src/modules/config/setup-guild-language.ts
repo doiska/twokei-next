@@ -1,5 +1,4 @@
 import { eq } from 'drizzle-orm';
-import { getFixedT } from 'i18next';
 
 import {
   ActionRowBuilder,
@@ -11,20 +10,22 @@ import {
   PermissionsBitField,
 } from 'discord.js';
 
-import { Twokei } from '@/app/Twokei';
-import { kil } from '@/db/Kil';
-import { guilds } from '@/db/schemas/Guild';
+import { fetchT } from 'twokei-i18next';
 import { Locale, LocaleFlags, VALID_LOCALES } from '@/locales/i18n';
+import { guilds } from '@/db/schemas/Guild';
+import { kil } from '@/db/Kil';
+import { Twokei } from '@/app/Twokei';
 
 export async function setupGuildLanguage(channel: GuildTextBasedChannel) {
   const { guild } = channel;
 
   const language: Locale = guild.preferredLocale === 'pt-BR' ? 'pt_br' : 'en_us';
-  const ft = getFixedT(language, 'tutorial');
+
+  const ft = await fetchT(channel);
 
   const embed = new EmbedBuilder()
-    .setTitle(ft('language.title'))
-    .setDescription(ft('language.description', { joinArrays: '\n' }))
+    .setTitle(ft('tutorial:language.title'))
+    .setDescription(ft('tutorial:language.description', { joinArrays: '\n' }))
     .setThumbnail(Twokei.user?.displayAvatarURL({ size: 2048 }) ?? '');
 
   const languageButtons = VALID_LOCALES.map((locale) => new ButtonBuilder()
@@ -33,7 +34,7 @@ export async function setupGuildLanguage(channel: GuildTextBasedChannel) {
     .setStyle(ButtonStyle.Secondary));
 
   const helpButton = new ButtonBuilder()
-    .setLabel(ft('language.help'))
+    .setLabel(ft('tutorial:language.help'))
     .setURL('https://google.com')
     .setStyle(ButtonStyle.Link)
     .setDisabled(true);
@@ -46,13 +47,17 @@ export async function setupGuildLanguage(channel: GuildTextBasedChannel) {
 
   const interaction = await message.awaitMessageComponent({
     componentType: ComponentType.Button,
-    filter: (interaction) => (interaction.member?.permissions as PermissionsBitField).has(
-      'ManageChannels',
-    ),
+    filter: (buttonInteraction) => (buttonInteraction.member?.permissions as PermissionsBitField)
+      .has(
+        'ManageChannels',
+      ),
     time: 1000 * 60 * 5,
-  });
+  })
+    .catch(() => null);
 
-  interaction.deferUpdate();
+  if (interaction) {
+    interaction.deferUpdate();
+  }
 
   await message.delete();
 
