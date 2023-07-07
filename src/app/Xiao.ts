@@ -1,7 +1,9 @@
-import { Twokei } from '@/app/Twokei';
-import { Xiao } from '@/music/controllers/Xiao';
-import { Nodes, shoukakuOptions } from '@/music/options';
+import { container } from '@sapphire/framework';
+
 import { Connectors } from 'shoukaku';
+import { Nodes, shoukakuOptions } from '@/music/options';
+import { Xiao } from '@/music/controllers/Xiao';
+import { Twokei } from '@/app/Twokei';
 
 const sourcesUrl = [
   'https://raw.githubusercontent.com/DarrenOfficial/lavalink-list/master/docs/NoSSL/lavalink-without-ssl.md',
@@ -10,7 +12,8 @@ const sourcesUrl = [
 
 export async function getWebNodes() {
   const sources = await Promise.all(
-    sourcesUrl.map(async (source) => fetch(source).then((res) => res.text())),
+    sourcesUrl.map(async (source) => fetch(source)
+      .then((res) => res.text())),
   );
 
   return sources.map((source) => {
@@ -18,12 +21,15 @@ export async function getWebNodes() {
     const matches = source.match(regex) || [];
 
     return matches.map((match) => {
-      const filtered = match.slice(7, -3).trim().split('\n');
+      const filtered = match.slice(7, -3)
+        .trim()
+        .split('\n');
 
       const parsed = filtered.reduce((acc, curr) => {
         const [key, value] = curr
           .split(':')
-          .map((str) => str.replace(/"/g, '').trim());
+          .map((str) => str.replace(/"/g, '')
+            .trim());
 
         if (value === 'true' || value === 'false') {
           acc[key.toLowerCase()] = value === 'true';
@@ -58,3 +64,5 @@ export const xiao = new Xiao(
   Nodes,
   shoukakuOptions,
 );
+
+container.xiao = xiao;
