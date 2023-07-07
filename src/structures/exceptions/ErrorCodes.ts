@@ -8,4 +8,6 @@ export enum ErrorCodes {
   PLAYER_MISSING_INPUT = 'player-missing-input',
   PLAYER_NO_TRACKS_FOUND = 'player-no-tracks-found',
   MISSING_MESSAGE = 'missing-message',
+  MISSING_SONG_CHANNEL = 'missing-song-channel',
+  USE_SONG_CHANNEL = 'use-song-channel',
 }
