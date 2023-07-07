@@ -7,8 +7,7 @@ import { canSendMessages } from '@sapphire/discord.js-utilities';
 import { noop } from '@/utils/utils';
 import { FriendlyException } from '@/structures/exceptions/FriendlyException';
 import {
-  createDefaultButtons,
-  createDefaultSongEmbed,
+  createDefaultSongEmbed, staticPrimaryButtons, useButtons,
 } from '@/music/embed/create-song-embed';
 import { Twokei } from '@/app/Twokei';
 
@@ -66,11 +65,11 @@ export const setupNewChannel = async (guild: Guild) => {
     throw new FriendlyException("I can't send messages in the new channel.");
   }
 
-  const response = await setupGuildLanguage(newChannel);
+  await setupGuildLanguage(newChannel);
 
   const newMessage = await newChannel.send({
-    embeds: [await createDefaultSongEmbed(response)],
-    components: createDefaultButtons(response),
+    embeds: [await createDefaultSongEmbed(guild)],
+    components: await useButtons([staticPrimaryButtons], guild),
   });
 
   await container.sc.set(guild.id, newChannel.id, newMessage.id);
