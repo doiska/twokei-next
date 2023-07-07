@@ -1,28 +1,27 @@
-import { t } from 'i18next';
+import { Guild } from 'discord.js';
 
-import { getGuidLocale } from '@/modules/guild-locale';
-import { logger } from '@/modules/logger-transport';
+import { fetchT } from 'twokei-i18next';
 import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
+import { logger } from '@/modules/logger-transport';
 
-import { FriendlyException } from '../FriendlyException';
 import { PlayerException } from '../PlayerException';
+import { FriendlyException } from '../FriendlyException';
 
-export const getReadableException = async (error: unknown, guildId: string) => {
+export const getReadableException = async (error: unknown, guild?: Guild | null) => {
   if (error instanceof FriendlyException || error instanceof PlayerException) {
     logger.debug('Handling readable exception', { error });
 
-    const locale = await getGuidLocale(guildId);
+    const t = guild ? await fetchT(guild) : (key: string) => key;
 
     if (error.message) {
       return t(error.message, {
         ns: 'error',
-        lng: locale ?? 'pt_br',
+        defaultValue: ErrorCodes.UNKNOWN,
       });
     }
 
     return t(ErrorCodes.UNKNOWN, {
       ns: 'error',
-      lng: locale ?? 'pt_br',
     });
   }
 
