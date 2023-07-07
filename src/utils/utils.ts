@@ -1,67 +1,45 @@
-import { Command } from '@sapphire/framework';
 import {
-  InteractionEditReplyOptions,
-  InteractionReplyOptions,
-  MessagePayload,
+  BaseMessageOptions, Message,
 } from 'discord.js';
+import { send } from '@sapphire/plugin-editable-commands';
+import { Command } from '@sapphire/framework';
 
-import { Locale } from '@/locales/i18n';
-import { noop } from '@/utils/dash-utils';
+import { RandomMessages } from '@/constants/random-messages';
 
-const messages = {
-  en_us: [
-    'Loading...',
-    'Cooking up some good stuff...',
-    'Just a sec...',
-    'I\'m on it!',
-    'I\'m working on it! (I\'m not really) (I\'m just lazy)',
-    'Hold on...',
-    'You\'re not paying me enough for this...',
-    'I\'m doing my best!',
-  ],
-  pt_br: [
-    'Carregando...',
-    'Preparando algo especial...',
-    'Só um momento...',
-    'Estou nisso!',
-    'Estou trabalhando nisso! (Não é verdade) (Sou só preguiçoso)',
-    'Aguarde um instante...',
-    'Você não está me pagando o suficiente para isso...',
-    'Estou fazendo o meu melhor!',
-  ],
-} as const;
+export const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-export async function sendInteraction(
-  interaction: Command.ChatInputCommandInteraction,
-  replyOptions: SendInteractionReplyOptions,
-  deleteAfter = 0,
-) {
-  console.log(interaction.deferred, interaction.replied);
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+export const noop = () => {};
 
-  if (interaction.replied) {
+export async function reply<
+  T extends Message | Command.ChatInputCommandInteraction,
+>(interaction: T, replyOptions: BaseMessageOptions | string, deleteAfterSeconds = 0) {
+  const isMessage = interaction instanceof Message;
+
+  if (isMessage) {
+    await send(interaction, replyOptions);
+  } else if (interaction.replied) {
     await interaction.editReply(replyOptions);
   } else {
-    await interaction.reply(replyOptions as InteractionReplyOptions);
+    await interaction.reply(replyOptions);
   }
 
-  if (deleteAfter) {
+  if (deleteAfterSeconds) {
     setTimeout(async () => {
-      await interaction.deleteReply().catch(noop);
-    }, deleteAfter);
+      if (isMessage) {
+        await interaction.delete()
+          .catch(noop);
+      } else {
+        await interaction.deleteReply()
+          .catch(noop);
+      }
+    }, (deleteAfterSeconds * 1000) + 1000);
   }
 }
 
-export function sendLoadingMessage(
-  interaction: Command.ChatInputCommandInteraction,
-  locale: Locale = 'en_us',
-  deleteAfter = 0,
-) {
-  const random = Math.floor(Math.random() * messages[locale].length);
-  return sendInteraction(interaction, messages[locale][random], deleteAfter);
-}
+export const getRandomLoadingMessage = () => {
+  const random = Math.floor(Math.random() * Object.keys(RandomMessages).length);
+  return `messages:${Object.values(RandomMessages)[random]}`;
+};
 
-type SendInteractionReplyOptions =
-  | InteractionEditReplyOptions
-  | InteractionReplyOptions
-  | string
-  | MessagePayload;
+export type Maybe<T> = T | null | undefined;

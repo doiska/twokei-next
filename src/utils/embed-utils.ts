@@ -1,5 +1,16 @@
+import { APIEmbed, EmbedBuilder, SelectMenuComponentOptionData } from 'discord.js';
+import { isNullish } from '@sapphire/utilities';
 import { EmbedLimits, SelectMenuLimits } from '@sapphire/discord.js-utilities';
-import { APIEmbed, SelectMenuComponentOptionData } from 'discord.js';
+
+export function isEmbed(embed: unknown): embed is APIEmbed {
+  const isEmbedBuilder = embed instanceof EmbedBuilder;
+  const isEmbedObject = !!embed && typeof embed === 'object' && 'description' in embed;
+
+  return (
+    !isNullish(embed)
+    && (isEmbedBuilder || isEmbedObject)
+  );
+}
 
 export const assertEmbedSize = (embed: APIEmbed): APIEmbed => ({
   ...embed,
@@ -27,7 +38,10 @@ export const assertEmbedSize = (embed: APIEmbed): APIEmbed => ({
 export const assertMenuSize = (options: SelectMenuComponentOptionData[]) => {
   if (!options) return options;
 
-  const slicedOptions = options?.slice(0, SelectMenuLimits.MaximumOptionsLength);
+  const slicedOptions = options?.slice(
+    0,
+    SelectMenuLimits.MaximumOptionsLength,
+  );
 
   return slicedOptions.map((option) => ({
     ...option,
