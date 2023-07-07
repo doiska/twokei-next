@@ -1,100 +1,98 @@
-import { eq } from 'drizzle-orm';
-
-import { ApplyOptions } from '@sapphire/decorators';
-import { isGuildBasedChannel, isTextChannel } from '@sapphire/discord.js-utilities';
-import { Listener } from '@sapphire/framework';
-import { send } from '@sapphire/plugin-editable-commands';
-import { fetchT, resolveKey } from '@sapphire/plugin-i18next';
 import {
-  Colors, EmbedBuilder, Events, Message,
+  Events, Message,
 } from 'discord.js';
+import { container, Listener } from '@sapphire/framework';
+import { isGuildBasedChannel, isTextChannel } from '@sapphire/discord.js-utilities';
+import { ApplyOptions } from '@sapphire/decorators';
 
-import { kil } from '@/db/Kil';
-import { songChannels } from '@/db/schemas/SongChannels';
-import { logger } from '@/modules/logger-transport';
-import { addNewSong } from '@/music/heizou/add-new-song';
-import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
+import { resolveKey } from 'twokei-i18next';
+import { getRandomLoadingMessage } from '@/utils/utils';
+import { Embed } from '@/utils/messages';
 import { PlayerException } from '@/structures/exceptions/PlayerException';
+import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
+import { addNewSong } from '@/music/heizou/add-new-song';
+import { logger } from '@/modules/logger-transport';
 
 @ApplyOptions<Listener.Options>({
   name: 'play-message-event',
   event: Events.MessageCreate,
 })
 export class PlayMessage extends Listener<Events.MessageCreate> {
-  public override async run(message: Message) {
+  public override async run(message: Message): Promise<void | undefined> {
     const self = this.container.client.id;
-    const { channel: typedChannel, member, guild } = message;
 
-    if (!self || message.author.bot || !guild || !member) {
-      return;
-    }
+    const {
+      author,
+      channel: typedChannel,
+      member,
+      guild,
+    } = message;
 
-    if (!isTextChannel(typedChannel) || !isGuildBasedChannel(typedChannel)) {
-      return;
-    }
-
-    const contentOnly = message.content.replace(/<@!?\d+>/g, '').trim();
-    const hasMentions = message.mentions.members?.has(self);
-
-    const [songChannel] = await kil
-      .select()
-      .from(songChannels)
-      .where(eq(songChannels.guildId, guild.id));
-
-    const isUsableChannel = songChannel?.channelId === typedChannel.id;
-
-    if (!isUsableChannel) {
-      return;
-    }
-
-    await message.delete();
-
-    const errorEmbed = new EmbedBuilder().setColor(Colors.Red);
-
-    if (!hasMentions) {
-      const ft = await fetchT(message);
-
-      errorEmbed.setDescription(ft(ErrorCodes.MISSING_MESSAGE, {
-        ns: 'error',
-        joinArrays: '\n',
-        mention: this.container.client.user?.toString(),
-      }));
-
-      send(message, {
-        embeds: [errorEmbed],
-      });
-
+    if (!self || author.bot || !guild || !member) {
       return;
     }
 
     try {
+      if (!isTextChannel(typedChannel) || !isGuildBasedChannel(typedChannel)) {
+        return;
+      }
+
+      const contentOnly = message.content.replace(/<@!?\d+>/g, '')
+        .trim();
+      const hasMentions = message.mentions.members?.has(self);
+
+      const songChannel = await container.sc.get(guild);
+
+      const isUsableChannel = songChannel?.channelId === typedChannel.id;
+
+      if (!isUsableChannel) {
+        if (!hasMentions) {
+          return;
+        }
+
+        const response = await resolveKey(message, ErrorCodes.USE_SONG_CHANNEL, { ns: 'error', song_channel: `<#${songChannel?.channelId}>` });
+
+        this.container.client.replyTo(message, Embed.error(response));
+        return;
+      }
+
+      await message.delete();
+
+      if (!hasMentions) {
+        const response = await resolveKey(
+          message,
+          ErrorCodes.MISSING_MESSAGE,
+          {
+            joinArrays: '\n',
+            ns: 'error',
+            mention: this.container.client.user?.toString(),
+            defaultValue: ErrorCodes.MISSING_MESSAGE,
+          },
+        );
+
+        this.container.client.replyTo(message, Embed.error(response));
+        return;
+      }
+
+      const locale = await this.container.client.fetchLanguage(guild);
+
+      await this.container.client.replyTo(message, Embed.loading(getRandomLoadingMessage(locale)));
+
       const result = await addNewSong(contentOnly, member);
 
       const name = result.playlistName || result.tracks[0].title;
       const isPlaylist = !!result.playlistName;
 
-      const embed = new EmbedBuilder()
-        .setDescription(
-          `${isPlaylist ? 'Playlist' : 'Track'}: **${name}** added to queue.`,
-        )
-        .setColor(Colors.Green);
-
-      send(message, { embeds: [embed] });
+      this.container.client.replyTo(message, Embed.success(`${isPlaylist ? 'Playlist' : 'Track'}: **${name}** added to queue.`));
     } catch (e) {
       if (e instanceof PlayerException) {
-        errorEmbed.setDescription(await resolveKey(message, e.message, { ns: 'error' }));
-
-        send(message, { embeds: [errorEmbed] });
+        const translation = await resolveKey(message, e.message, { ns: 'error', defaultValue: ErrorCodes.UNKNOWN }) as string;
+        this.container.client.replyTo(message, Embed.error(translation ?? ErrorCodes.UNKNOWN));
         return;
       }
 
       logger.error(e);
-
-      errorEmbed.setDescription('An error occurred while trying to add the song to the queue.');
-
-      send(message, {
-        embeds: [errorEmbed],
-      });
+      this.container.client.replyTo(message, Embed.error(await resolveKey(message, ErrorCodes.UNKNOWN, { ns: 'error' }) as string));
     }
   }
 }

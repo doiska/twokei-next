@@ -1,7 +1,9 @@
-import { ApplyOptions } from '@sapphire/decorators';
-import { Listener } from '@sapphire/framework';
 import type { Client } from 'discord.js';
 import { Events } from 'discord.js';
+import { Listener } from '@sapphire/framework';
+import { ApplyOptions } from '@sapphire/decorators';
+
+import { logger } from '@/modules/logger-transport';
 
 @ApplyOptions<Listener.Options>({
   name: 'ready-event',
@@ -10,10 +12,8 @@ import { Events } from 'discord.js';
 export class ReadyListener extends Listener {
   public run(client: Client) {
     const { username, id } = client.user!;
-    this.container.logger.info(`Successfully logged in as ${username} (${id})`);
 
-    console.log(client.guilds.cache.first());
-
+    logger.info(`Successfully logged in as ${username} (${id})`);
     this.container.client.emit('guildCreate', client.guilds.cache.first()!);
   }
 }
