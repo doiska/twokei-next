@@ -1,15 +1,14 @@
+import { Guild } from 'discord.js';
+import { container } from '@sapphire/framework';
 import {
   isGuildBasedChannel,
   isMessageInstance,
   isTextChannel,
 } from '@sapphire/discord.js-utilities';
-import { Guild } from 'discord.js';
 
+import { fetchLanguage } from 'twokei-i18next';
+import { VentiInitOptions } from '@/music/interfaces/player.types';
 import { xiao } from '@/app/Xiao';
-import { kil } from '@/db/Kil';
-import { songChannels } from '@/db/schemas/SongChannels';
-import { getGuidLocale } from '@/modules/guild-locale';
-import { eq } from 'drizzle-orm';
 
 interface InitOptions {
   guild: Guild;
@@ -26,16 +25,13 @@ export async function createPlayerInstance({
     return player;
   }
 
-  const newPlayer = await xiao.createPlayer({
-    guild: guild.id,
+  const playerOptions: VentiInitOptions = {
+    guild,
     voiceChannel,
-    lang: await getGuidLocale(guild.id),
-  });
+    lang: await fetchLanguage(guild) as 'en_us' | 'pt_br',
+  };
 
-  const [songChannel] = await kil
-    .select()
-    .from(songChannels)
-    .where(eq(songChannels.guildId, guild.id));
+  const songChannel = await container.sc.get(guild.id);
 
   if (songChannel) {
     const channel = await guild.channels
@@ -48,10 +44,10 @@ export async function createPlayerInstance({
         .catch(() => null);
 
       if (message && isMessageInstance(message)) {
-        await xiao.embedManager.create(newPlayer, guild.id, message);
+        playerOptions.embedMessage = message;
       }
     }
   }
 
-  return newPlayer;
+  return xiao.createPlayer(playerOptions);
 }

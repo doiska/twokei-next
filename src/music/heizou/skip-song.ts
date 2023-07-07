@@ -1,11 +1,11 @@
 import { GuildMember } from 'discord.js';
+import { container } from '@sapphire/framework';
 
-import { xiao } from '../../app/Xiao';
-import { isConnectedTo } from '../../preconditions/vc-conditions';
-import { FriendlyException } from '../../structures/exceptions/FriendlyException';
+import { FriendlyException } from '@/structures/exceptions/FriendlyException';
+import { isConnectedTo } from '@/preconditions/vc-conditions';
 
 export const skipSong = async (member: GuildMember, amount = 1) => {
-  const player = await xiao.getPlayer(member);
+  const player = await container.xiao.getPlayer(member);
 
   if (!player) {
     throw new FriendlyException('No player found.');
@@ -15,7 +15,7 @@ export const skipSong = async (member: GuildMember, amount = 1) => {
     throw new FriendlyException('error.not-in-vc');
   }
 
-  if (isNaN(amount)) {
+  if (Number.isNaN(amount)) {
     throw new FriendlyException('Amount is not a number.');
   }
 

@@ -1,8 +1,9 @@
-import { Snowflake, User } from 'discord.js';
+import { Guild, Message, Snowflake, User } from 'discord.js';
 
-import { Locale } from '../../locales/i18n';
-import { Maybe } from '../../utils/type-guards';
+import { Maybe } from '@/utils/utils';
+
 import { ResolvableTrack } from '../structures/ResolvableTrack';
+import { Locale } from '../../locales/i18n';
 
 export enum LoadType {
   TRACK_LOADED = 'TRACK_LOADED',
@@ -41,8 +42,9 @@ export interface XiaoSearchResult {
 }
 
 export interface VentiInitOptions {
-  guild: Snowflake;
+  guild: Guild;
   voiceChannel: Snowflake;
+  embedMessage?: Message;
   lang: Locale;
   deaf?: boolean;
   mute?: boolean;
