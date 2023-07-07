@@ -20,4 +20,6 @@ export default {
     '**Example:** <{{- mention}}> https://music.youtube.com/watch?v=Ni5_Wrmh0f8',
     'Or click here {{- command_play}}',
   ],
+  [ErrorCodes.MISSING_SONG_CHANNEL]: 'The music channel has not been set on this server, use /setup and make sure the bot has the necessary permissions.',
+  [ErrorCodes.USE_SONG_CHANNEL]: 'Send the message in {{- song_channel}} so that I can play the song.',
 };

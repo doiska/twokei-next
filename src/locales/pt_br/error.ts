@@ -20,4 +20,7 @@ export default {
     'Isso ocorre devido a uma limitação do `Discord`',
     'Para usar este canal você precisa enviar uma mensagem mencionando o bot.',
   ],
+  [ErrorCodes.MISSING_SONG_CHANNEL]: 'O canal de música não foi definido neste servidor, use /setup e garanta que o bot tenha as permissões necessárias.',
+  [ErrorCodes.USE_SONG_CHANNEL]: 'Envie a mensagem no {{- song_channel}} para que eu possa tocar a música.',
+
 };
