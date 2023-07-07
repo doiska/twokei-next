@@ -1,8 +1,5 @@
-import { Snowflake } from 'discord.js';
+import { Guild, Message, Snowflake } from 'discord.js';
 
-import { Locale } from '@/locales/i18n';
-import { logger } from '@/modules/logger-transport';
-import { Maybe } from '@/utils/type-guards';
 import {
   Player,
   PlayerUpdate,
@@ -10,16 +7,19 @@ import {
   TrackStuckEvent,
   WebSocketClosedEvent,
 } from 'shoukaku';
+import { Maybe } from '@/utils/utils';
+import { logger } from '@/modules/logger-transport';
+import { Locale } from '@/locales/i18n';
 
+import type { Xiao, XiaoEvents } from './Xiao';
+import { TrackQueue } from '../structures/TrackQueue';
+import { ResolvableTrack } from '../structures/ResolvableTrack';
 import {
   Events,
   PlayerState,
   PlayOptions,
   VentiInitOptions,
 } from '../interfaces/player.types';
-import { ResolvableTrack } from '../structures/ResolvableTrack';
-import { TrackQueue } from '../structures/TrackQueue';
-import { Xiao, XiaoEvents } from './Xiao';
 
 export enum LoopStates {
   NONE = 'none',
@@ -37,7 +37,13 @@ export class Venti {
   /**
    * The guild ID of the player.
    */
+  public readonly guild: Guild;
+
   public readonly guildId: Snowflake;
+
+  /*
+
+   */
 
   /**
    * The voice channel id.
@@ -86,13 +92,21 @@ export class Venti {
    */
   private options: VentiInitOptions;
 
+  /**
+    * The SongChannel embed message.
+    * @private
+   */
+  public embedMessage?: Message;
+
   constructor(xiao: Xiao, player: Player, options: VentiInitOptions) {
     this.xiao = xiao;
     this.options = options;
     this.instance = player;
-    this.guildId = options.guild;
+    this.guild = options.guild;
+    this.guildId = options.guild.id;
     this.voiceId = options.voiceChannel;
     this.locale = options.lang;
+    this.embedMessage = options.embedMessage;
 
     this.queue = new TrackQueue();
 
@@ -115,9 +129,6 @@ export class Venti {
       }
 
       if (data.reason === 'REPLACED') {
-        console.log(
-          `Track replaced for guild ${this.guildId} - skipping end event`,
-        );
         this.emit(Events.TrackEnd, this, this.queue?.current);
         return;
       }
@@ -179,10 +190,10 @@ export class Venti {
     this.instance.on('resumed', () => this.emit(Events.PlayerResumed, this));
   }
 
-  public async play(track?: ResolvableTrack, playOptions?: PlayOptions) {
-    playOptions = {
+  public async play(track?: ResolvableTrack, userPlayOptions?: PlayOptions) {
+    const playOptions = {
       replace: false,
-      ...playOptions,
+      ...userPlayOptions,
     };
 
     if (this.state === PlayerState.DESTROYED) {
@@ -247,9 +258,13 @@ export class Venti {
           `Error while resolving track for guild ${this.guildId} - ${err}`,
           err.stack,
         );
-        this.queue.length ? this.play() : this.emit(Events.QueueEmpty, this);
-      });
 
+        if (this.queue.length) {
+          this.play();
+        } else {
+          this.emit(Events.QueueEmpty, this);
+        }
+      });
     return this;
   }
 
@@ -271,6 +286,7 @@ export class Venti {
     }
 
     if (amount > this.queue.totalSize) {
+      // eslint-disable-next-line no-param-reassign
       amount = this.queue.totalSize;
     }
 
@@ -292,6 +308,7 @@ export class Venti {
 
   public pause(state?: boolean) {
     if (typeof state !== 'boolean') {
+      // eslint-disable-next-line no-param-reassign
       state = !this.paused;
     }
 

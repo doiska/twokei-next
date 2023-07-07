@@ -1,11 +1,5 @@
-import { GuildResolvable } from 'discord.js';
+import { Guild, GuildResolvable } from 'discord.js';
 
-import { Twokei } from '@/app/Twokei';
-import { getWebNodes } from '@/app/Xiao';
-import { logger } from '@/modules/logger-transport';
-import { PlayerException } from '@/structures/exceptions/PlayerException';
-import { Maybe } from '@/utils/type-guards';
-import { EventEmitter } from 'events';
 import {
   Connector,
   NodeOption,
@@ -16,11 +10,15 @@ import {
   TrackStuckEvent,
   WebSocketClosedEvent,
 } from 'shoukaku';
+import { EventEmitter } from 'events';
+import { Maybe } from '@/utils/utils';
+import { logger, playerLogger } from '@/modules/logger-transport';
+import { Twokei } from '@/app/Twokei';
 
-import { GuildEmbedManager } from '../embed/guild-embed-manager';
-import { manualUpdate } from '../events/manual-update';
-import { playerDestroy, queueEmpty } from '../events/queue-empty';
-import { trackUpdate } from '../events/track-update';
+import { Venti } from './Venti';
+import { ResolvableTrack } from '../structures/ResolvableTrack';
+import { SpotifyResolver } from '../resolvers/spotify/spotify-resolver';
+import { TrackResolver } from '../resolvers/resolver';
 import {
   Events,
   LoadType,
@@ -29,10 +27,8 @@ import {
   XiaoSearchOptions,
   XiaoSearchResult,
 } from '../interfaces/player.types';
-import { TrackResolver } from '../resolvers/resolver';
-import { SpotifyResolver } from '../resolvers/spotify/spotify-resolver';
-import { ResolvableTrack } from '../structures/ResolvableTrack';
-import { Venti } from './Venti';
+import { playerDestroy, queueEmpty } from '../events/queue-empty';
+import { manualUpdate } from '../events/manual-update';
 
 export interface XiaoEvents {
   /**
@@ -108,7 +104,7 @@ export interface XiaoEvents {
    * Emitted when user interact and causes manual update
    */
   [Events.ManualUpdate]: (
-    venti?: Venti,
+    venti: Venti,
     update?: { embed?: boolean; components?: boolean }
   ) => void;
 
@@ -144,8 +140,6 @@ export class Xiao extends EventEmitter {
    */
   public readonly players: Map<string, Venti> = new Map();
 
-  public embedManager: GuildEmbedManager;
-
   public resolvers: TrackResolver[] = [new SpotifyResolver()];
 
   /**
@@ -165,30 +159,31 @@ export class Xiao extends EventEmitter {
     this.shoukaku = new Shoukaku(connector, nodes, optionsShoukaku);
 
     this.players = new Map<string, Venti>();
-    this.embedManager = new GuildEmbedManager();
 
-    this.shoukaku.on('ready', (name) => logger.info(`[Shoukaku] Node ${name} is now connected`));
-    this.shoukaku.on('close', (name, code, reason) => logger.debug(
+    this.shoukaku.on('ready', (name) => playerLogger.info(`[Shoukaku] Node ${name} is now connected`));
+    this.shoukaku.on('close', (name, code, reason) => playerLogger.debug(
       `[Shoukaku] Node ${name} closed with code ${code} and reason ${reason}`,
     ));
-    this.shoukaku.on('error', (name, error) => logger.error(`[Shoukaku] Node ${name} emitted error: ${error}`));
+    this.shoukaku.on('error', (name, error) => playerLogger.error(`[Shoukaku] Node ${name} emitted error: ${error}`));
 
-    this.on(Events.TrackStart, trackUpdate);
-    this.on(Events.TrackAdd, trackUpdate);
-    this.on(Events.TrackPause, trackUpdate);
+    this.on(Events.Debug, (message) => logger.debug(message));
+
+    this.on(Events.TrackStart, (venti) => manualUpdate(venti, { embed: true, components: true }));
+    this.on(Events.TrackAdd, (venti) => manualUpdate(venti, { embed: true, components: true }));
+    this.on(Events.TrackPause, (venti) => manualUpdate(venti, { embed: true, components: true }));
 
     this.on(Events.PlayerDestroy, playerDestroy);
     this.on(Events.QueueEmpty, queueEmpty);
 
     this.on(Events.ManualUpdate, manualUpdate);
 
-    this._loadNodes();
+    this.loadNodes();
   }
 
   public async createPlayer<T extends Venti>(
     options: VentiInitOptions,
   ): Promise<T | Venti> {
-    const current = this.players.get(options.guild);
+    const current = this.players.get(options.guild.id);
 
     if (current) {
       return current;
@@ -203,7 +198,7 @@ export class Xiao extends EventEmitter {
     }
 
     const player = await node.joinChannel({
-      guildId: options.guild,
+      guildId: options.guild.id,
       channelId: options.voiceChannel,
       deaf: options.deaf,
       mute: options.mute,
@@ -212,7 +207,7 @@ export class Xiao extends EventEmitter {
 
     const venti = new Venti(this, player, options);
 
-    this.players.set(options.guild, venti);
+    this.players.set(options.guild.id, venti);
     this.emit(Events.PlayerCreate, venti);
 
     return venti;
@@ -228,20 +223,18 @@ export class Xiao extends EventEmitter {
     return this.players.get(resolvedGuildId);
   }
 
-  public async destroyPlayer(guildId: GuildResolvable): Promise<void> {
-    const resolvedGuildId = Twokei.guilds.resolveId(guildId);
+  public async destroyPlayer(guild: Guild): Promise<void> {
+    this.players.delete(guild.id);
 
-    if (!resolvedGuildId) {
-      throw new PlayerException('Guild not found');
-    }
+    guild.members.me?.voice?.disconnect();
 
-    const player = this.players.get(resolvedGuildId);
+    const player = this.players.get(guild.id);
+
     if (!player) {
-      throw new PlayerException('Player not found');
+      return;
     }
 
     player.destroy();
-    this.players.delete(resolvedGuildId);
   }
 
   public async search(
@@ -257,7 +250,7 @@ export class Xiao extends EventEmitter {
     }
 
     if (options?.resolve ?? true) {
-      const resolver = this.resolvers.find((resolver) => resolver.matches(query));
+      const resolver = this.resolvers.find((trackResolver) => trackResolver.matches(query));
 
       logger.debug(
         `Resolving ${query} with ${resolver?.name ?? 'default resolver'}`,
@@ -309,12 +302,12 @@ export class Xiao extends EventEmitter {
     return this.resolvers.find((resolver) => resolver.matches(query));
   }
 
-  private async _loadNodes() {
-    const webNodes = getWebNodes();
-
-    if (webNodes) {
-      console.log('Web nodes found, loading...');
-      console.log(webNodes);
-    }
+  private async loadNodes() {
+    // const webNodes = getWebNodes();
+    //
+    // if (webNodes) {
+    //   console.log('Web nodes found, loading...');
+    //   console.log(webNodes);
+    // }
   }
 }

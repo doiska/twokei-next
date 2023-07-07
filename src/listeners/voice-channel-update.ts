@@ -30,7 +30,7 @@ export class VoiceChannelUpdate extends Listener {
     if (updateType === 'voiceChannelLeave') {
       if (!isConnected) {
         try {
-          await container.xiao.destroyPlayer(guild.id);
+          await container.xiao.destroyPlayer(guild);
         } catch (e) {
           self?.voice?.disconnect();
         }
@@ -48,7 +48,7 @@ export class VoiceChannelUpdate extends Listener {
       }
 
       try {
-        await container.xiao.destroyPlayer(newState.guild.id);
+        await container.xiao.destroyPlayer(newState.guild);
       } catch (e) {
         newState.guild.members.me?.voice?.disconnect();
       }
