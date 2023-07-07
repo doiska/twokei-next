@@ -1,28 +1,21 @@
-import { t } from 'i18next';
-
 import {
   ActionRowBuilder,
-  APIButtonComponent,
   APIEmbed,
-  APIMessageComponentEmoji,
-  ButtonBuilder,
+  ButtonBuilder, ButtonComponentData,
   ButtonStyle,
   Colors,
   formatEmoji,
+  Guild,
   StringSelectMenuBuilder,
   userMention,
 } from 'discord.js';
 
-import { Twokei } from '../../app/Twokei';
+import { fetchT } from 'twokei-i18next';
 import {
-  Button,
-  DynamicDefaultButtons,
-  DynamicPrimaryButtons,
-  DynamicSecondaryButtons,
   Menus,
-} from '../../constants/music';
-import { Locale } from '../../locales/i18n';
-import { Venti } from '../controllers/Venti';
+} from '@/constants/music';
+import { EmbedButtons, PlayerButtons } from '@/constants/buttons/player-buttons';
+import { Twokei } from '@/app/Twokei';
 
 const arts = [
   {
@@ -33,25 +26,28 @@ const arts = [
   },
 ];
 
-export const createDefaultSongEmbed = (lang: Locale): APIEmbed => {
+export const createDefaultSongEmbed = async (guild: Guild): Promise<APIEmbed> => {
   const mention = Twokei.user?.id ? userMention(Twokei.user.id) : '@Twokei';
 
   const lightEmoji = formatEmoji('1069597636950249523');
   const randomArt = arts[Math.floor(Math.random() * arts.length)];
 
+  const t = await fetchT(guild);
+
   const translations = {
     emoji: lightEmoji,
     mention,
-    'art.name': randomArt.name,
-    'art.author': randomArt.author,
-    'art.authorUrl': randomArt.authorUrl,
+    art: {
+      name: randomArt.name,
+      author: randomArt.author,
+      authorUrl: randomArt.authorUrl,
+    },
   };
 
   const description = t('player:embed.description', {
-    lng: lang,
     joinArrays: '\n',
     returnObjects: true,
-    replace: translations,
+    ...translations,
   }) as string;
 
   return {
@@ -97,33 +93,83 @@ export const selectSongMenu = new ActionRowBuilder<StringSelectMenuBuilder>({
   ],
 });
 
-const parseButtonsToComponent = (
-  buttons: Record<string, Button>,
-  locale: Locale,
-): ActionRowBuilder<ButtonBuilder> => {
-  const components = Object.entries(buttons).map(([key, button]) => {
-    const customIdOrUrl = button.url ? { url: button.url } : { customId: key };
-    const label = t(`embed.buttons.${key.toLowerCase()}`, { ns: 'player', lng: locale })
-      ?? button.label;
-
-    return ButtonBuilder.from({
-      ...customIdOrUrl,
-      label,
-      style: button.style || ButtonStyle.Primary,
-      emoji: button.emoji as APIMessageComponentEmoji,
-      disabled: button.disabled,
-      type: 2,
-    } as APIButtonComponent);
-  });
-
-  return new ActionRowBuilder({ components });
+type UsableButton = {
+  customId: string;
+  style: ButtonStyle;
+  emoji: string;
 };
 
-const defaultPrimaryButtons = (locale: Locale) => parseButtonsToComponent(DynamicDefaultButtons, locale);
+export async function useButtons(
+  buttonRows: UsableButton[][],
+  guild: Guild,
+): Promise<ActionRowBuilder<ButtonBuilder>[]> {
+  const t = await fetchT(guild);
 
-export const createDefaultButtons = (locale: Locale) => [
-  defaultPrimaryButtons(locale),
+  return buttonRows.map((buttons) => {
+    const newButtons = buttons.map((button) => {
+      const label = t(`embed.buttons.${button.customId.toLowerCase()}`, {
+        ns: 'player',
+      });
+
+      return {
+        ...button,
+        label,
+        type: 2,
+      };
+    });
+
+    return new ActionRowBuilder<ButtonBuilder>({
+      components: newButtons,
+    });
+  });
+}
+
+export const staticPrimaryButtons = [
+  {
+    style: ButtonStyle.Secondary,
+    customId: EmbedButtons.DONATE,
+    emoji: '<:pray:1077449609447751791>',
+  },
+  {
+    style: ButtonStyle.Secondary,
+    customId: EmbedButtons.SYNC_PLAYLIST,
+    emoji: ':spotify_dark:1077441343456018463',
+  },
 ];
 
-export const createPrimaryButtons = (player: Venti) => parseButtonsToComponent(DynamicPrimaryButtons(player), player.locale);
-export const createSecondaryButtons = (player: Venti) => parseButtonsToComponent(DynamicSecondaryButtons(player), player.locale);
+const primaryPlayerEmbedButtons = [
+  {
+    style: ButtonStyle.Primary,
+    emoji: '⏹️',
+    customId: PlayerButtons.STOP,
+  },
+  {
+    style: ButtonStyle.Primary,
+    emoji: '⏮️',
+    customId: PlayerButtons.PREVIOUS,
+  },
+  {
+    style: ButtonStyle.Primary,
+    emoji: '⏸️',
+    customId: PlayerButtons.PAUSE,
+  },
+
+  {
+    style: ButtonStyle.Primary,
+    emoji: '⏭️',
+    customId: PlayerButtons.SKIP,
+  },
+] as Exclude<ButtonComponentData, 'label'>[];
+
+const secondaryEmbedButtons = [
+  {
+    style: ButtonStyle.Primary,
+    emoji: '▶️',
+    customId: PlayerButtons.SHUFFLE,
+  },
+  {
+    style: ButtonStyle.Primary,
+    emoji: '🔁',
+    customId: PlayerButtons.LOOP,
+  },
+] as Exclude<ButtonComponentData, 'label'>[];
