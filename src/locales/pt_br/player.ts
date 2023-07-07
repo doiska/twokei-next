@@ -18,6 +18,13 @@ export default {
       '- **Nome:** {{- art.name}}',
       '- **Autor:** [{{- art.author}}]({{- art.authorUrl}})',
     ],
+    description_playing: [
+      '',
+      '### 🎶 Tocando agora:',
+      '- **{{- track.title}}**',
+      '- **{{- track.author}}**',
+      '- A pedido de: **{{- track.requestedBy}}**',
+    ],
     buttons: {
       stop: 'Parar',
       previous: 'Anterior',
