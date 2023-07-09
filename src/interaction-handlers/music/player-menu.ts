@@ -7,7 +7,7 @@ import { resolveKey } from 'twokei-i18next';
 import { getRandomLoadingMessage } from '@/utils/utils';
 import { Embed } from '@/utils/messages';
 import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
-import { Menus } from '@/constants/music';
+import { Menus } from '@/constants/buttons/player-buttons';
 
 @ApplyOptions<InteractionHandler.Options>({
   name: 'player-menu',
@@ -60,7 +60,7 @@ export class PlayerMenu extends InteractionHandler {
       } else if (option === 'previous' && player.queue.previous) {
         await player.play(player.queue.previous, { replace: true });
       } else if (typeof option === 'number') {
-        await player.skip(option);
+        await player.skip(option + 1);
       }
     } catch (error) {
       await interaction.editReply({

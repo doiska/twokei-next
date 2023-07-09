@@ -12,7 +12,9 @@ import { getRandomLoadingMessage } from '@/utils/utils';
 import { Embed } from '@/utils/messages';
 import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
 import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
+import { skipSong } from '@/music/heizou/skip-song';
 import { shuffleQueue } from '@/music/heizou/shuffle-queue';
+import { setLoopState } from '@/music/heizou/set-loop-state';
 import { previousSong } from '@/music/heizou/previous-song';
 import { pauseSong } from '@/music/heizou/pause-song';
 import { destroyPlayerInstance } from '@/music/heizou/destroy-player-instance';
@@ -56,12 +58,13 @@ export class PlayerButtonsInteraction extends InteractionHandler {
       [PlayerButtons.STOP]: destroyPlayerInstance,
       [PlayerButtons.PREVIOUS]: previousSong,
       [PlayerButtons.PAUSE]: pauseSong,
-      [PlayerButtons.SKIP]: previousSong,
+      [PlayerButtons.SKIP]: skipSong,
       [PlayerButtons.SHUFFLE]: shuffleQueue,
+      [PlayerButtons.LOOP]: setLoopState,
     } as {
       [key in PlayerButtons]: (
         member: GuildMember
-      ) => Promise<void>;
+      ) => Promise<never>;
     };
 
     const action = actions?.[button];
