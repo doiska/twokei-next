@@ -13,4 +13,8 @@ export default {
   tutorial,
   commands,
   messages,
-} as Resource;
+} as Resource & {
+  common: typeof common;
+  error: typeof error;
+  player: typeof player;
+};
