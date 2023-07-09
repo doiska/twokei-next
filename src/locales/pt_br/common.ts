@@ -19,4 +19,37 @@ export default {
       '',
     ],
   },
+  donate: {
+    description: [
+      '## <a:hanakoeating:1121884717290094652> Como me ajudar no desenvolvimento?',
+      '- O desenvolvimento é feito por uma única pessoa.',
+      '- Você pode me ajudar com uma doação (clicando no botão abaixo).',
+      '- Votando no **Twokei** em: [top.gg](https://top.gg/bot/804289482624587274/vote).',
+      '- E convidando para outros servidores.',
+      '### O que eu ganho com isso?',
+      '- Você me ajuda a continuar desenvolvendo.',
+      '- E desbloqueia acesso ao **Spotify Sync**.',
+      '### <:spotify:1121851501715931187> Spotify Sync',
+      '- Sincroniza suas playlists públicas do Spotify com o bot.',
+      '- Assim você pode ouvir suas músicas favoritas no Discord.',
+      '- E ainda pode compartilhar com seus amigos.',
+    ],
+    pix: {
+      description: [
+        '## Muito obrigado! 🥰',
+        '- Você pode fazer uma doação usando o Pix.',
+        '- Basta escanear o QR Code abaixo.',
+        '- Ou copiar o código e colar no seu app do banco.',
+        '### Chave Pix',
+        '```',
+        '12321312312',
+        '```',
+      ],
+    },
+    buttons: {
+      pix: 'Pix (Brasil)',
+      paypal: 'PayPal',
+      vote: 'Votar',
+    },
+  },
 } as ResourceLanguage;
