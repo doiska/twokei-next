@@ -1,19 +1,19 @@
 import { User } from 'discord.js';
 
 import {
-  LoadType,
-  XiaoSearchOptions,
-  XiaoSearchResult,
-} from '../../interfaces/player.types';
-import { ResolvableTrack } from '../../structures/ResolvableTrack';
-import { TrackResolver } from '../resolver';
-import { SpotifyRequestManager } from './spotify-request-manager';
-import {
   PlaylistTracks,
   SpotifyPlaylistResponse,
   SpotifySearchResponse,
   SpotifyTrackResponse,
 } from './spotify.types';
+import { SpotifyRequestManager } from './spotify-request-manager';
+import { TrackResolver } from '../resolver';
+import { ResolvableTrack } from '../../structures/ResolvableTrack';
+import {
+  LoadType,
+  XiaoSearchOptions,
+  XiaoSearchResult,
+} from '../../interfaces/player.types';
 
 interface SpotifyClient {
   clientId: string;
@@ -144,7 +144,7 @@ export class SpotifyResolver implements TrackResolver {
       }
 
       next = nextTracks.next;
-      page++;
+      page += 1;
 
       const filteredTracks = nextTracks.items
         .filter((x) => !!x && x.track)

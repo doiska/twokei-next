@@ -1,12 +1,12 @@
-import { isTextChannel } from '@sapphire/discord.js-utilities';
-import { PermissionsBitField } from 'discord.js';
-
 import { eq } from 'drizzle-orm';
 
-import { CommandContext, createCommand } from '../../../twokei-framework';
-import { kil } from '../db/Kil';
-import { guilds } from '../db/schemas/Guild';
+import { PermissionsBitField } from 'discord.js';
+import { isTextChannel } from '@sapphire/discord.js-utilities';
+
 import { setupGuildLanguage } from '../modules/config/setup-guild-language';
+import { guilds } from '../db/schemas/Guild';
+import { kil } from '../db/Kil';
+import { CommandContext, createCommand } from '../../../twokei-framework';
 
 const execute = async (context: CommandContext) => {
   if (

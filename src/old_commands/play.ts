@@ -1,15 +1,15 @@
-import { t } from 'i18next';
-
 import { Interaction } from 'discord.js';
 
+import { t } from 'i18next';
+
+import { getReadableException } from '../structures/exceptions/utils/get-readable-exception';
+import { addNewSong } from '../music/heizou/add-new-song';
 import {
   CommandContext,
   CommandResponse,
   createCommand,
   MessageBuilder,
 } from '../../../twokei-framework';
-import { addNewSong } from '../music/heizou/add-new-song';
-import { getReadableException } from '../structures/exceptions/utils/get-readable-exception';
 
 const execute = async (
   context: CommandContext<{ search: string }>,
@@ -44,6 +44,8 @@ const execute = async (
 export const playCommand = createCommand({
   name: 'play',
   description: 'Play a song',
-  slash: (builder) => builder.addStringOption((option) => option.setName('search').setDescription('Input').setRequired(true)),
+  slash: (builder) => builder.addStringOption((option) => option.setName('search')
+    .setDescription('Input')
+    .setRequired(true)),
   execute,
 });

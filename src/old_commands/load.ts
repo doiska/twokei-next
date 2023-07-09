@@ -1,19 +1,19 @@
-import { t } from 'i18next';
+import { and, eq, ilike } from 'drizzle-orm';
 
 import { Interaction } from 'discord.js';
 
-import { and, eq, ilike } from 'drizzle-orm';
+import { t } from 'i18next';
 
+import { getReadableException } from '../structures/exceptions/utils/get-readable-exception';
+import { addNewSong } from '../music/heizou/add-new-song';
+import { playlists } from '../db/schemas/Playlists';
+import { kil } from '../db/Kil';
 import {
   CommandContext,
   CommandResponse,
   createCommand,
   MessageBuilder,
 } from '../../../twokei-framework';
-import { kil } from '../db/Kil';
-import { playlists } from '../db/schemas/Playlists';
-import { addNewSong } from '../music/heizou/add-new-song';
-import { getReadableException } from '../structures/exceptions/utils/get-readable-exception';
 
 const execute = async (
   context: CommandContext<{ name: string }>,
@@ -64,6 +64,8 @@ const execute = async (
 export const syncCommand = createCommand({
   name: 'load',
   description: 'Load playlist',
-  slash: (builder) => builder.addStringOption((option) => option.setName('name').setDescription('Playlist name').setRequired(true)),
+  slash: (builder) => builder.addStringOption((option) => option.setName('name')
+    .setDescription('Playlist name')
+    .setRequired(true)),
   execute,
 });

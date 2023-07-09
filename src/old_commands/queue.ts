@@ -1,10 +1,10 @@
+import { logger } from '../modules/logger-transport';
+import { xiao } from '../app/Xiao';
 import {
   CommandContext,
   createCommand,
   MessageBuilder,
 } from '../../../twokei-framework';
-import { xiao } from '../app/Xiao';
-import { logger } from '../modules/logger-transport';
 
 const execute = async (context: CommandContext) => {
   const { member } = context;

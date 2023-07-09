@@ -2,7 +2,7 @@ import {
   BaseMessageOptions,
   ClientOptions,
   EmbedBuilder,
-  EmbedData,
+  EmbedData, InteractionReplyOptions,
   Message,
   RepliableInteraction,
 } from 'discord.js';
@@ -43,7 +43,7 @@ export class TwokeiClient extends SapphireClient {
 
   async replyTo(
     interaction: Message | RepliableInteraction,
-    content: BaseMessageOptions | EmbedBuilder | string,
+    content: BaseMessageOptions | EmbedBuilder | string | InteractionReplyOptions,
     deleteInSeconds = 15,
   ) {
     if (isAnyInteractableInteraction(interaction)) {
@@ -72,7 +72,7 @@ export class TwokeiClient extends SapphireClient {
 
   private async replyToInteraction(
     interaction: RepliableInteraction,
-    content: BaseMessageOptions | EmbedBuilder | string,
+    content: BaseMessageOptions | EmbedBuilder | string | InteractionReplyOptions,
     deleteInSeconds = 15,
   ) {
     const contentParsed = await this.parseContent(content);
@@ -104,7 +104,7 @@ declare module '@sapphire/framework' {
   interface SapphireClient {
     replyTo(
       interaction: Message | RepliableInteraction,
-      content: EmbedBuilder | BaseMessageOptions | string | EmbedData | APIEmbed,
+      content: EmbedBuilder | BaseMessageOptions | string | EmbedData | APIEmbed | InteractionReplyOptions,
       deleteInSeconds?: number,
     ): Promise<void>;
 

@@ -1,3 +1,5 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
+import '@total-typescript/ts-reset';
 import { SongChannelManager } from '@/music/song-channels/SongChannels';
 import { Xiao } from '@/music/controllers/Xiao';
 

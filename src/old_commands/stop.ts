@@ -1,6 +1,6 @@
-import { CommandContext, createCommand } from '../../../twokei-framework';
-import { destroyPlayerInstance } from '../music/heizou/destroy-player-instance';
 import { getReadableException } from '../structures/exceptions/utils/get-readable-exception';
+import { destroyPlayerInstance } from '../music/heizou/destroy-player-instance';
+import { CommandContext, createCommand } from '../../../twokei-framework';
 
 const execute = async (context: CommandContext) => {
   const { member } = context;

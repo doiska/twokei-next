@@ -23,23 +23,37 @@ module.exports = {
   },
   plugins: ['@typescript-eslint', 'eslint-plugin-import-helpers'],
   rules: {
+    'max-len': ['error', {
+      code: 120,
+      ignoreComments: true,
+      ignoreStrings: true,
+      ignoreTemplateLiterals: true,
+    }],
+    'object-curly-newline': ['error', {
+      consistent: true,
+      multiline: true,
+    }],
+    'newline-per-chained-call': ['error', { ignoreChainWithDepth: 1 }],
+    'function-call-argument-newline': ['error', 'consistent'],
+    'function-paren-newline': ['error', 'consistent'],
+    '@typescript-eslint/no-use-before-define': ['off'],
     'class-methods-use-this': ['off'],
+    'consistent-return': ['off'],
     'import/extensions': ['off'],
     'import/no-unresolved': ['off'],
     'import/prefer-default-export': ['off'],
     'import-helpers/order-imports': [
       'warn',
       {
-        // example configuration
         newlinesBetween: 'always',
         groups: [
-          ['/^node:/', '/^drizzle-orm/', '/^i18next/'],
-          ['/^discord.js/', '/^@sapphire/', '/^twokei-framework/'],
+          ['/^node:/', '/^drizzle-orm/'],
+          ['/^@sapphire/', '/^discord.js/'],
           'module',
           '/^@shared/',
           ['parent', 'sibling', 'index'],
         ],
-        alphabetize: { order: 'asc', ignoreCase: true },
+        alphabetize: { order: 'desc', ignoreCase: true },
       },
     ],
   },
