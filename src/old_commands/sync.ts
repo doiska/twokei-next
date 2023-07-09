@@ -1,15 +1,15 @@
 import { and, eq } from 'drizzle-orm';
 
+import { getReadableException } from '../structures/exceptions/utils/get-readable-exception';
+import { LoadType } from '../music/interfaces/player.types';
+import { playlists } from '../db/schemas/Playlists';
+import { kil } from '../db/Kil';
+import { xiao } from '../app/Xiao';
 import {
   CommandContext,
   CommandResponse,
   createCommand,
 } from '../../../twokei-framework';
-import { xiao } from '../app/Xiao';
-import { kil } from '../db/Kil';
-import { playlists } from '../db/schemas/Playlists';
-import { LoadType } from '../music/interfaces/player.types';
-import { getReadableException } from '../structures/exceptions/utils/get-readable-exception';
 
 const execute = async (
   context: CommandContext<{ url: string }>,
@@ -48,11 +48,12 @@ const execute = async (
       return `Playlist already synced: ${result.playlistName}`;
     }
 
-    await kil.insert(playlists).values({
-      playlistName: result.playlistName ?? 'Unamed playlist',
-      userId: user.id,
-      playlistUrl: url,
-    });
+    await kil.insert(playlists)
+      .values({
+        playlistName: result.playlistName ?? 'Unamed playlist',
+        userId: user.id,
+        playlistUrl: url,
+      });
 
     return `Successfully synced playlist: ${result.playlistName} with ${result.amount} songs!`;
   } catch (error) {

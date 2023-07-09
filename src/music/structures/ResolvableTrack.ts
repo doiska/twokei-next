@@ -1,9 +1,9 @@
 import { User } from 'discord.js';
 
 import { Track } from 'shoukaku';
+import { escapeRegExp } from '@/utils/utils';
 
 import { xiao } from '../../app/Xiao';
-import { escapeRegExp } from '../../utils/dash-utils';
 
 interface ResolvableTrackOptions {
   requester?: User;
@@ -139,7 +139,8 @@ export class ResolvableTrack {
 
   private async getTrack() {
     const source = 'yt';
-    const query = [this.title, this.author].filter(Boolean).join(' - ');
+    const query = [this.title, this.author].filter(Boolean)
+      .join(' - ');
 
     const response = await xiao.search(query, {
       requester: this.requester,
@@ -156,10 +157,12 @@ export class ResolvableTrack {
       const author = [this.author, `${this.author} - Topic`];
 
       const officialTrack = tracks.find(
-        (track) => author.some((name) => new RegExp(`^${escapeRegExp(name)}$`, 'i').test(track.info.author))
-          || new RegExp(`^${escapeRegExp(this.title)}$`, 'i').test(
-            track.info.title,
-          ),
+        (track) => author.some((name) => new RegExp(`^${escapeRegExp(name)}$`, 'i')
+          .test(track.info.author))
+          || new RegExp(`^${escapeRegExp(this.title)}$`, 'i')
+            .test(
+              track.info.title,
+            ),
       );
 
       if (officialTrack) {

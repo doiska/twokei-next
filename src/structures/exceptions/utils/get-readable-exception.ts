@@ -16,7 +16,6 @@ export const getReadableException = async (error: unknown, guild?: Guild | null)
     if (error.message) {
       return t(error.message, {
         ns: 'error',
-        defaultValue: ErrorCodes.UNKNOWN,
       });
     }
 

@@ -76,7 +76,7 @@ export class PlayMessage extends Listener<Events.MessageCreate> {
 
       const locale = await this.container.client.fetchLanguage(guild);
 
-      await this.container.client.replyTo(message, Embed.loading(getRandomLoadingMessage(locale)));
+      await this.container.client.replyTo(message, Embed.loading(getRandomLoadingMessage()));
 
       const result = await addNewSong(contentOnly, member);
 

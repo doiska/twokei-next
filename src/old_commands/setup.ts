@@ -1,8 +1,8 @@
 import { PermissionsBitField } from 'discord.js';
 
-import { createCommand } from '../../../twokei-framework';
-import { setupNewChannel } from '../modules/config/setup-new-channel';
 import { getReadableException } from '../structures/exceptions/utils/get-readable-exception';
+import { setupNewChannel } from '../modules/config/setup-new-channel';
+import { createCommand } from '../../../twokei-framework';
 
 export const setupCommand = createCommand(
   {

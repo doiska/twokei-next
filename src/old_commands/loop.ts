@@ -1,11 +1,11 @@
-import i18next from 'i18next';
-
 import { APIApplicationCommandOptionChoice } from 'discord.js';
 
-import { CommandContext, createCommand } from '../../../twokei-framework';
-import { LoopStates } from '../music/controllers/Venti';
-import { setLoopState } from '../music/heizou/set-loop-state';
+import i18next from 'i18next';
+import { setLoopState } from '@/music/heizou/set-loop-state';
+
 import { getReadableException } from '../structures/exceptions/utils/get-readable-exception';
+import { LoopStates } from '../music/controllers/Venti';
+import { CommandContext, createCommand } from '../../../twokei-framework';
 
 const execute = async (
   context: CommandContext<{ state?: keyof typeof LoopStates }>,
@@ -24,7 +24,7 @@ const execute = async (
       ns: 'player',
       loop: newState,
     }))
-    .catch(getReadableException);
+    .catch((error) => getReadableException(error, context.guild));
 };
 
 export const loopCommand = createCommand(

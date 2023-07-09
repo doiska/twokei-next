@@ -1,6 +1,6 @@
-import { logger } from '../../../modules/logger-transport';
-import { SpotifyRequest } from './spotify-request';
 import { SpotifyResolverOptions } from './spotify-resolver';
+import { SpotifyRequest } from './spotify-request';
+import { logger } from '../../../modules/logger-transport';
 
 export class SpotifyRequestManager {
   private readonly mode: 'single' | 'multiple' = 'single';

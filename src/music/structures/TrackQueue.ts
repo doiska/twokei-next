@@ -1,4 +1,5 @@
-import { Maybe } from '../../utils/type-guards';
+import { Maybe } from '@/utils/utils';
+
 import { ResolvableTrack } from './ResolvableTrack';
 
 export class TrackQueue<T = ResolvableTrack> extends Array<T> {

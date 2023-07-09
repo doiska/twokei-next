@@ -1,7 +1,7 @@
 import {
   ActionRowBuilder,
   APIEmbed,
-  ButtonBuilder, ButtonComponentData,
+  ButtonBuilder,
   ButtonStyle,
   Colors,
   formatEmoji,
@@ -11,10 +11,9 @@ import {
 } from 'discord.js';
 
 import { fetchT } from 'twokei-i18next';
-import {
-  Menus,
-} from '@/constants/music';
-import { EmbedButtons, PlayerButtons } from '@/constants/buttons/player-buttons';
+import { TrackQueue } from '@/music/structures/TrackQueue';
+import { parseTracksToMenuItem } from '@/music/embed/guild-embed-manager-helper';
+import { EmbedButtons, Menus, PlayerButtons } from '@/constants/buttons/player-buttons';
 import { Twokei } from '@/app/Twokei';
 
 const arts = [
@@ -71,33 +70,33 @@ export const createDefaultSongEmbed = async (guild: Guild): Promise<APIEmbed> =>
   };
 };
 
-export const selectSongMenu = new ActionRowBuilder<StringSelectMenuBuilder>({
-  components: [
-    new StringSelectMenuBuilder()
-      .setCustomId(Menus.SelectSongMenu)
-      .setPlaceholder('Select a song')
-      .setMinValues(0)
-      .setMaxValues(1)
-      .setDisabled(true)
-      .setOptions([
-        {
-          default: true,
-          label: 'Add more songs to use the select-menu!',
-          value: 'add-more-songs',
-          emoji: {
-            name: 'light',
-            id: '1069597636950249523',
-          },
-        },
-      ]),
-  ],
-});
+export const createSelectMenu = (tracks?: TrackQueue) => {
+  const options = tracks ? parseTracksToMenuItem(tracks) : [
+    {
+      default: true,
+      label: 'Add more songs to use the select-menu!',
+      value: 'add-more-songs',
+      emoji: {
+        name: 'light',
+        id: '1069597636950249523',
+      },
+    },
+  ];
 
-type UsableButton = {
-  customId: string;
-  style: ButtonStyle;
-  emoji: string;
+  return new ActionRowBuilder<StringSelectMenuBuilder>({
+    components: [
+      new StringSelectMenuBuilder()
+        .setCustomId(Menus.SelectSongMenu)
+        .setPlaceholder('Select a song')
+        .setMinValues(0)
+        .setMaxValues(1)
+        .setDisabled(options.length <= 1)
+        .setOptions(options),
+    ],
+  });
 };
+
+type UsableButton = { style: ButtonStyle, customId: EmbedButtons | PlayerButtons, emoji: string };
 
 export async function useButtons(
   buttonRows: UsableButton[][],
@@ -118,9 +117,7 @@ export async function useButtons(
       };
     });
 
-    return new ActionRowBuilder<ButtonBuilder>({
-      components: newButtons,
-    });
+    return new ActionRowBuilder<ButtonBuilder>({ components: newButtons });
   });
 }
 
@@ -137,19 +134,19 @@ export const staticPrimaryButtons = [
   },
 ];
 
-const primaryPlayerEmbedButtons = [
+export const primaryPlayerEmbedButtons = [
   {
-    style: ButtonStyle.Primary,
+    style: ButtonStyle.Secondary,
     emoji: '⏹️',
     customId: PlayerButtons.STOP,
   },
   {
-    style: ButtonStyle.Primary,
+    style: ButtonStyle.Secondary,
     emoji: '⏮️',
     customId: PlayerButtons.PREVIOUS,
   },
   {
-    style: ButtonStyle.Primary,
+    style: ButtonStyle.Secondary,
     emoji: '⏸️',
     customId: PlayerButtons.PAUSE,
   },
@@ -159,17 +156,22 @@ const primaryPlayerEmbedButtons = [
     emoji: '⏭️',
     customId: PlayerButtons.SKIP,
   },
-] as Exclude<ButtonComponentData, 'label'>[];
+];
 
-const secondaryEmbedButtons = [
+export const secondaryPlayerEmbedButtons = [
   {
-    style: ButtonStyle.Primary,
-    emoji: '▶️',
+    style: ButtonStyle.Secondary,
+    emoji: '️<:shuffle:976599781742886912>',
     customId: PlayerButtons.SHUFFLE,
   },
   {
-    style: ButtonStyle.Primary,
+    style: ButtonStyle.Secondary,
     emoji: '🔁',
     customId: PlayerButtons.LOOP,
   },
-] as Exclude<ButtonComponentData, 'label'>[];
+  {
+    style: ButtonStyle.Secondary,
+    emoji: '⭐',
+    customId: EmbedButtons.SAVE_PLAYLIST,
+  },
+];

@@ -1,12 +1,12 @@
-import { ChildProcess } from 'child_process';
+import { Worker as Worker_Thread } from 'worker_threads';
+import { bold, red } from 'kleur';
+import { config } from 'dotenv';
 import {
   ClusterManager,
   HeartbeatManager,
   ReClusterManager,
 } from 'discord-hybrid-sharding';
-import { config } from 'dotenv';
-import { bold, red } from 'kleur';
-import { Worker as Worker_Thread } from 'worker_threads';
+import { ChildProcess } from 'child_process';
 
 import { logger } from './modules/logger-transport';
 
@@ -87,7 +87,8 @@ shardingManager
 const stdin = process.openStdin();
 
 stdin.addListener('data', (d) => {
-  const input = d.toString().trim();
+  const input = d.toString()
+    .trim();
   if (input === 'exit') {
     logger.info('Exiting...');
     shardingManager.broadcastEval('process.exit()');

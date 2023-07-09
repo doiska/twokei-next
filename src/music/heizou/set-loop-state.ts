@@ -1,22 +1,24 @@
 import { GuildMember } from 'discord.js';
+import { container } from '@sapphire/framework';
 
-import { LoopStates } from '../controllers/Venti';
-import { FriendlyException } from '../../structures/exceptions/FriendlyException';
-import { isConnectedTo } from '../../preconditions/vc-conditions';
-import { xiao } from '../../app/Xiao';
+import { FriendlyException } from '@/structures/exceptions/FriendlyException';
+import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
+import { isConnectedTo } from '@/preconditions/vc-conditions';
+
+import type { LoopStates } from '../controllers/Venti';
 
 export const setLoopState = async (
   member: GuildMember,
   loopState?: LoopStates,
 ): Promise<LoopStates> => {
-  const player = await xiao.getPlayer(member);
+  const player = await container.xiao.getPlayer(member);
 
   if (!player) {
     throw new FriendlyException('No player found');
   }
 
-  if (isConnectedTo(member, player?.voiceId)) {
-    throw new FriendlyException('error.not-in-vc');
+  if (!isConnectedTo(member, player?.voiceId)) {
+    throw new FriendlyException(ErrorCodes.NOT_IN_VC);
   }
 
   return player.setLoop(loopState);

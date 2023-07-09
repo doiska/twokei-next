@@ -98,7 +98,6 @@ export class PlayCommand extends Command {
         thumbnail: {
           url: track.thumbnail ?? '',
         },
-        description: '\n\nLike the song to add it to your liked songs!\nOr dislike to not hear it again.',
       });
 
       await container.client.replyTo(interaction, {

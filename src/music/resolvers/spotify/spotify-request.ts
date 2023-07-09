@@ -22,7 +22,8 @@ export class SpotifyRequest {
   }) {
     this.authorization = `Basic ${Buffer.from(
       `${clientId}:${clientSecret}`,
-    ).toString('base64')}`;
+    )
+      .toString('base64')}`;
   }
 
   public async request<T>(endpoint: string, useUri = false): Promise<T> {
@@ -51,7 +52,7 @@ export class SpotifyRequest {
       throw new Error('Spotify API is rate limited');
     }
 
-    this.currentApiStatus.requests++;
+    this.currentApiStatus.requests += 1;
 
     const data = await request.json();
 
