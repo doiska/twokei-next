@@ -28,14 +28,12 @@ export const DynamicDefaultButtons = (locale?: Locale): Record<string, Button> =
   return {
     SELECT_LANGUAGE: {
       label: t('embed.buttons.select_language') || 'Select Language',
-      emoji: '🌐',
       style: ButtonStyle.Secondary,
       execute: async () => {
       }
     },
     DONATE: {
       label: t('embed.buttons.donate') || 'Donate',
-      emoji: '<:pray:1077449609447751791>',
       style: ButtonStyle.Link,
       url: 'https://ko-fi.com/doiska',
       execute: async () => {
@@ -51,7 +49,6 @@ export const DynamicPlaylistButtons = (locale?: Locale): Record<string, Button> 
   return {
     LOAD_PLAYLIST: {
       label: t('embed.buttons.your_playlists') || 'View playlists',
-      emoji: ':playlist_icon:1077444078234521700',
       style: ButtonStyle.Secondary,
       disabled: true,
       execute: async () => {
@@ -68,7 +65,6 @@ export const DynamicPlaylistButtons = (locale?: Locale): Record<string, Button> 
     // },
     SYNC_PLAYLIST: {
       label: t('embed.buttons.sync_playlist') || 'Sync Playlist',
-      emoji: ':spotify_dark:1077441343456018463',
       style: ButtonStyle.Success,
       disabled: true,
       execute: async () => {
@@ -84,12 +80,10 @@ export const DynamicPrimaryButtons = (player?: Venti): Record<string, Button> =>
 
   return {
     STOP: {
-      emoji: '⏹️',
       style: ButtonStyle.Secondary,
       execute: destroyPlayerInstance
     },
     PREVIOUS: {
-      emoji: '⏮️',
       style: ButtonStyle.Secondary,
       disabled: !player?.queue.previous,
       execute: previousSong
@@ -101,7 +95,6 @@ export const DynamicPrimaryButtons = (player?: Venti): Record<string, Button> =>
       execute: pauseSong
     },
     SKIP: {
-      emoji: '⏭️',
       style: ButtonStyle.Secondary,
       disabled: !player?.queue.totalSize,
       execute: skipSong
@@ -114,13 +107,11 @@ export const DynamicSecondaryButtons = (player?: Venti): Record<string, Button> 
 
   return {
     SHUFFLE: {
-      emoji: '🔀',
       style: ButtonStyle.Secondary,
       execute: shuffleQueue
     },
     LOOP: {
       label: t(`embed.buttons.loop_${player?.loop.toLowerCase()}`) || 'Loop',
-      emoji: '🔁',
       style: player?.loop === 'none' ? ButtonStyle.Secondary : ButtonStyle.Primary,
       execute: setLoopState
     }
