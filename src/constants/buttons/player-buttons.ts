@@ -13,7 +13,7 @@ export enum PlayerButtons {
 }
 
 export enum EmbedButtons {
-  SYNC_PLAYLIST = 'SYNC_PLAYLIST',
+  VIEW_PROFILE = 'VIEW_PROFILE',
   DONATE = 'DONATE',
   SAVE_PLAYLIST = 'SAVE_PLAYLIST',
 }
