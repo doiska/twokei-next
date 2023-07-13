@@ -22,12 +22,6 @@ export const Nodes: OptionWithActive[] = [
     "secure": true
   },
   {
-    "name": "https://www.alexanderof.xyz",
-    "url": "lavalink1.albinhakanson.se:1141",
-    "auth": "albinhakanson.se",
-    "secure": false
-  },
-  {
     "name": "https://horizxon.studio/",
     "url": "lava1.horizxon.studio:80",
     "auth": "horizxon.studio",
