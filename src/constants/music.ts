@@ -90,7 +90,6 @@ export const DynamicPrimaryButtons = (player?: Venti): Record<string, Button> =>
     },
     PAUSE: {
       label: t(player?.paused ? 'embed.buttons.resume' : 'embed.buttons.pause') || 'Pause',
-      emoji: player?.paused ? '▶️' : '⏸️',
       style: player?.paused ? ButtonStyle.Primary : ButtonStyle.Secondary,
       execute: pauseSong
     },
