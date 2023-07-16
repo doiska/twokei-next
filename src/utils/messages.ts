@@ -1,20 +1,46 @@
 import { Colors } from 'discord.js';
 import type { APIEmbed } from 'discord.js';
 
+function createEmbed (defaultData: APIEmbed & { appendStart?: string }) {
+  // eslint-disable-next-line func-names
+  return function (data: string | string[] | APIEmbed): APIEmbed {
+    const {
+      appendStart = '',
+      ...defaultEmbed
+    } = defaultData;
+
+    if (typeof data === 'string') {
+      return {
+        ...(data !== '' && { description: `${appendStart} ${data}` }),
+        ...defaultEmbed,
+      };
+    }
+
+    if (Array.isArray(data)) {
+      return {
+        description: data.join('\n'),
+        ...defaultEmbed,
+      };
+    }
+
+    return {
+      ...data,
+      ...defaultEmbed,
+    };
+  };
+}
+
 export const Embed = {
-  error: (description?: string, rest?: APIEmbed) => ({
+  error: createEmbed({
     color: Colors.Red,
-    description: `<:hanakin:1121884455225786478> ${description ?? 'An error occurred while executing this command.'}`,
-    ...rest,
+    appendStart: '<:hanakin:1121884455225786478>',
   }),
-  loading: (description?: string, rest?: APIEmbed) => ({
+  loading: createEmbed({
     color: Colors.Yellow,
-    description: `<a:hanakoeating:1121884717290094652> ${description ?? 'Loading...'}`,
-    ...rest,
+    appendStart: '<a:hanakoeating:1121884717290094652>',
   }),
-  success: (description?: string, rest?: APIEmbed) => ({
+  success: createEmbed({
     color: Colors.Green,
-    description: `<a:raio:1121849523854118973> ${description}`,
-    ...rest,
+    appendStart: '<a:raio:1121849523854118973>',
   }),
 } as const;

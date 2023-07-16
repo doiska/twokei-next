@@ -1,4 +1,4 @@
-import { GuildMember } from 'discord.js';
+import { type GuildMember } from 'discord.js';
 import { container } from '@sapphire/framework';
 
 import { FriendlyException } from '@/structures/exceptions/FriendlyException';
@@ -11,7 +11,7 @@ export const setLoopState = async (
   member: GuildMember,
   loopState?: LoopStates,
 ): Promise<LoopStates> => {
-  const player = await container.xiao.getPlayer(member);
+  const player = container.xiao.getPlayer(member);
 
   if (!player) {
     throw new FriendlyException('No player found');

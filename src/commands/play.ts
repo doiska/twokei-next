@@ -18,7 +18,7 @@ import { createPlayEmbed } from '@/constants/music/create-play-embed';
   cooldownDelay: 1_000,
 })
 export class PlayCommand extends Command {
-  registerApplicationCommands(registry: Command.Registry) {
+  registerApplicationCommands (registry: Command.Registry) {
     registry.registerChatInputCommand((builder) => builder
       .setName(this.name)
       .setDescription(this.description)
@@ -29,7 +29,7 @@ export class PlayCommand extends Command {
       ));
   }
 
-  public override async chatInputRun(
+  public override async chatInputRun (
     interaction: Command.ChatInputCommandInteraction,
   ) {
     const search = interaction.options.getString('search');
@@ -49,7 +49,7 @@ export class PlayCommand extends Command {
     await container.client.replyTo(
       interaction,
       {
-        description: t(getRandomLoadingMessage()) as string,
+        description: t(getRandomLoadingMessage()),
       },
       15,
     );

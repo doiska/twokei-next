@@ -1,5 +1,5 @@
-import type { Resource } from 'i18next';
 import tutorial from '@/locales/pt_br/tutorial';
+import profile from '@/locales/pt_br/profile';
 import player from '@/locales/pt_br/player';
 import messages from '@/locales/pt_br/messages';
 import error from '@/locales/pt_br/error';
@@ -13,8 +13,5 @@ export default {
   tutorial,
   commands,
   messages,
-} as Resource & {
-  common: typeof common;
-  error: typeof error;
-  player: typeof player;
+  profile,
 };

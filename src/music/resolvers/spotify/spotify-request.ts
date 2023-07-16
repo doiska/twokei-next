@@ -13,12 +13,12 @@ export class SpotifyRequest {
 
   private readonly authorization: string = '';
 
-  constructor({
+  constructor ({
     clientId,
     clientSecret,
   }: {
-    clientId: string;
-    clientSecret: string;
+    clientId: string
+    clientSecret: string
   }) {
     this.authorization = `Basic ${Buffer.from(
       `${clientId}:${clientSecret}`,
@@ -54,16 +54,16 @@ export class SpotifyRequest {
 
     this.currentApiStatus.requests += 1;
 
-    const data = await request.json();
+    const data = await request.json() as { error: { message: string } } & T;
 
-    if (data.error) {
+    if (data?.error) {
       throw new Error(data.error.message);
     }
 
     return data as T;
   }
 
-  private async refresh() {
+  private async refresh () {
     const request = await fetch(AUTH_URL, {
       method: 'POST',
       headers: {
@@ -72,16 +72,16 @@ export class SpotifyRequest {
       },
     });
 
-    const { access_token, expires_in } = (await request.json()) as {
-      access_token: string;
-      expires_in: number;
+    const { access_token: accessToken, expires_in: expiresIn } = (await request.json()) as {
+      access_token: string
+      expires_in: number
     };
 
-    if (!access_token) {
+    if (!accessToken) {
       throw new Error('Failed to refresh token');
     }
 
-    this.token = access_token;
-    this.expiresAt = Date.now() + expires_in * 1000;
+    this.token = accessToken;
+    this.expiresAt = Date.now() + expiresIn * 1000;
   }
 }

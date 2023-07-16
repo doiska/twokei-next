@@ -10,22 +10,22 @@ const sourcesUrl = [
   'https://raw.githubusercontent.com/DarrenOfficial/lavalink-list/master/docs/SSL/lavalink-with-ssl.md',
 ];
 
-export async function getWebNodes() {
+export async function getWebNodes () {
   const sources = await Promise.all(
-    sourcesUrl.map(async (source) => fetch(source)
-      .then((res) => res.text())),
+    sourcesUrl.map(async (source) => await fetch(source)
+      .then(async (res) => await res.text())),
   );
 
   return sources.map((source) => {
     const regex = /```bash([\s\S]*?)```/g;
-    const matches = source.match(regex) || [];
+    const matches = source.match(regex) ?? [];
 
     return matches.map((match) => {
       const filtered = match.slice(7, -3)
         .trim()
         .split('\n');
 
-      const parsed = filtered.reduce((acc, curr) => {
+      const parsed = filtered.reduce<Record<string, string | boolean>>((acc, curr) => {
         const [key, value] = curr
           .split(':')
           .map((str) => str.replace(/"/g, '')
@@ -38,7 +38,7 @@ export async function getWebNodes() {
         }
 
         return acc;
-      }, {} as Record<string, string | boolean>);
+      }, {});
 
       return {
         name: parsed.host,

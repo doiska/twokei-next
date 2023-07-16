@@ -13,13 +13,13 @@ import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
   cooldownDelay: 1_000,
 })
 export class PlayCommand extends Command {
-  public registerApplicationCommands(registry: Command.Registry) {
+  public registerApplicationCommands (registry: Command.Registry) {
     registry.registerChatInputCommand((builder) => builder
       .setName(this.name)
       .setDescription(this.description));
   }
 
-  public override async chatInputRun(
+  public override async chatInputRun (
     interaction: Command.ChatInputCommandInteraction,
   ) {
     if (!interaction.guild || !isGuildMember(interaction.member)) {
@@ -29,17 +29,17 @@ export class PlayCommand extends Command {
     const player = container.xiao.getPlayer(interaction.guild);
 
     if (!player) {
-      return container.client.replyTo(
+      await container.client.replyTo(
         interaction,
         {
           description: await resolveKey(
             interaction.guild,
             ErrorCodes.NO_PLAYER_FOUND,
             { ns: 'error', defaultValue: 'No player found' },
-          ) as string,
+          ) satisfies string ?? '',
         },
         15,
-      );
+      ); return;
     }
 
     const { queue } = player;
@@ -47,14 +47,14 @@ export class PlayCommand extends Command {
     const trackList = queue
       .filter(Boolean)
       .map(
-        (track, index) => `${index + 1}. [${track?.title}](${queue.current?.uri || ''})`,
+        (track, index) => `${index + 1}. [${track?.title}](${queue.current?.uri ?? ''})`,
       );
 
-    container.client.replyTo(interaction, {
-      title: queue.current?.title || '',
-      url: queue.current?.uri || '',
+    void container.client.replyTo(interaction, {
+      title: queue.current?.title ?? '',
+      url: queue.current?.uri ?? '',
       thumbnail: {
-        url: queue.current?.thumbnail || '',
+        url: queue.current?.thumbnail ?? '',
       },
       description: trackList.join('\n'),
     }, 20);

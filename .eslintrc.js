@@ -27,6 +27,8 @@ module.exports = {
     '@typescript-eslint/comma-dangle': [2, 'always-multiline'],
     '@typescript-eslint/semi': [2, 'always'],
     '@typescript-eslint/no-use-before-define': ['off'],
+    '@typescript-eslint/explicit-function-return-type': ['off'],
+    '@typescript-eslint/method-signature-style': ['off'],
     'newline-per-chained-call': ['error', { ignoreChainWithDepth: 1 }],
     'function-call-argument-newline': ['error', 'consistent'],
     'function-paren-newline': ['error', 'consistent'],

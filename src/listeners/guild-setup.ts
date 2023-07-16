@@ -1,11 +1,11 @@
-import { Events, Guild } from 'discord.js';
+import { Events, type Guild } from 'discord.js';
 import { Listener } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
 
 import { FriendlyException } from '@/structures/exceptions/FriendlyException';
 import { logger } from '@/modules/logger-transport';
 import { setupNewChannel } from '@/modules/config/setup-new-channel';
-import { guilds } from '@/db/schemas/Guild';
+import { guilds } from '@/db/schemas/guild';
 import { kil } from '@/db/Kil';
 
 @ApplyOptions<Listener.Options>({
@@ -13,13 +13,15 @@ import { kil } from '@/db/Kil';
   event: Events.GuildCreate,
 })
 export class GuildSetup extends Listener<Events.GuildCreate> {
-  public async run(guild: Guild) {
+  public async run (guild: Guild) {
     if (process.env.NODE_ENV !== 'production') {
       await guild.channels.fetch()
         .then((channels) => {
           channels
             .filter((channel) => channel?.name?.includes('song-requests'))
-            .forEach((channel) => channel?.delete());
+            .forEach((channel) => {
+              void channel?.delete();
+            });
         });
     }
 

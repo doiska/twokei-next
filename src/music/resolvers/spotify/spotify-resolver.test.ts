@@ -32,7 +32,7 @@ describe('SpotifyResolver', () => {
 
   describe('resolve - getTrack', () => {
     it('should resolve a track successfully', async () => {
-      await expect(
+      expect(
         resolver.resolve(
           'https://open.spotify.com/track/7mykoq6R3BArsSpNDjFQTm',
         ),

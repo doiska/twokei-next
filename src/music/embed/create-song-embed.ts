@@ -1,19 +1,19 @@
 import {
   ActionRowBuilder,
-  APIEmbed,
-  ButtonBuilder,
+  type APIEmbed,
+  type ButtonBuilder,
   ButtonStyle,
   Colors,
   formatEmoji,
-  Guild,
+  type Guild,
   StringSelectMenuBuilder,
   userMention,
 } from 'discord.js';
 
 import { fetchT } from 'twokei-i18next';
-import { TrackQueue } from '@/music/structures/TrackQueue';
+import { type TrackQueue } from '@/music/structures/TrackQueue';
 import { parseTracksToMenuItem } from '@/music/embed/guild-embed-manager-helper';
-import { EmbedButtons, Menus, PlayerButtons } from '@/constants/buttons/player-buttons';
+import { EmbedButtons, Menus, PlayerButtons } from '@/constants/music/player-buttons';
 import { Twokei } from '@/app/Twokei';
 
 const arts = [
@@ -47,7 +47,7 @@ export const createDefaultSongEmbed = async (guild: Guild): Promise<APIEmbed> =>
     joinArrays: '\n',
     returnObjects: true,
     ...translations,
-  }) as string;
+  });
 
   return {
     description: description
@@ -71,17 +71,19 @@ export const createDefaultSongEmbed = async (guild: Guild): Promise<APIEmbed> =>
 };
 
 export const createSelectMenu = (tracks?: TrackQueue) => {
-  const options = tracks ? parseTracksToMenuItem(tracks) : [
-    {
-      default: true,
-      label: 'Add more songs to use the select-menu!',
-      value: 'add-more-songs',
-      emoji: {
-        name: 'light',
-        id: '1069597636950249523',
-      },
-    },
-  ];
+  const options = tracks
+    ? parseTracksToMenuItem(tracks)
+    : [
+        {
+          default: true,
+          label: 'Add more songs to use the select-menu!',
+          value: 'add-more-songs',
+          emoji: {
+            name: 'light',
+            id: '1069597636950249523',
+          },
+        },
+      ];
 
   return new ActionRowBuilder<StringSelectMenuBuilder>({
     components: [
@@ -96,12 +98,12 @@ export const createSelectMenu = (tracks?: TrackQueue) => {
   });
 };
 
-type UsableButton = { style: ButtonStyle, customId: EmbedButtons | PlayerButtons, emoji: string };
+interface UsableButton { style: ButtonStyle, customId: EmbedButtons | PlayerButtons, emoji: string }
 
-export async function useButtons(
+export async function useButtons (
   buttonRows: UsableButton[][],
   guild: Guild,
-): Promise<ActionRowBuilder<ButtonBuilder>[]> {
+): Promise<Array<ActionRowBuilder<ButtonBuilder>>> {
   const t = await fetchT(guild);
 
   return buttonRows.map((buttons) => {
@@ -129,7 +131,7 @@ export const staticPrimaryButtons = [
   },
   {
     style: ButtonStyle.Secondary,
-    customId: EmbedButtons.SYNC_PLAYLIST,
+    customId: EmbedButtons.VIEW_PROFILE,
     emoji: ':spotify_dark:1077441343456018463',
   },
 ];

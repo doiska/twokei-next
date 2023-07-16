@@ -1,34 +1,34 @@
-import { User } from 'discord.js';
+import { type User } from 'discord.js';
 
 import {
-  PlaylistTracks,
-  SpotifyPlaylistResponse,
-  SpotifySearchResponse,
-  SpotifyTrackResponse,
+  type PlaylistTracks,
+  type SpotifyPlaylistResponse,
+  type SpotifySearchResponse,
+  type SpotifyTrackResponse,
 } from './spotify.types';
 import { SpotifyRequestManager } from './spotify-request-manager';
-import { TrackResolver } from '../resolver';
+import { type TrackResolver } from '../resolver';
 import { ResolvableTrack } from '../../structures/ResolvableTrack';
 import {
   LoadType,
-  XiaoSearchOptions,
-  XiaoSearchResult,
+  type XiaoSearchOptions,
+  type XiaoSearchResult,
 } from '../../interfaces/player.types';
 
 interface SpotifyClient {
-  clientId: string;
-  clientSecret: string;
+  clientId: string
+  clientSecret: string
 }
 
 export interface SpotifyResolverOptions {
-  clients: SpotifyClient[];
-  region: string;
+  clients: SpotifyClient[]
+  region: string
   limits: {
-    search: number;
-    playlists: number;
-    tracks: number;
-    albums: number;
-  };
+    search: number
+    playlists: number
+    tracks: number
+    albums: number
+  }
 }
 
 const SPOTIFY_URL = /(?:https?:\/\/open\.spotify\.com\/|spotify:)(?:.+)?(track|playlist|album|artist)[/:]([A-Za-z0-9]+)/;
@@ -36,11 +36,11 @@ const SPOTIFY_URL = /(?:https?:\/\/open\.spotify\.com\/|spotify:)(?:.+)?(track|p
 export class SpotifyResolver implements TrackResolver {
   readonly name = 'spotify';
 
-  private requestManager: SpotifyRequestManager;
+  private readonly requestManager: SpotifyRequestManager;
 
-  private options: SpotifyResolverOptions;
+  private readonly options: SpotifyResolverOptions;
 
-  constructor() {
+  constructor () {
     const defaultOptions = {
       region: 'BR',
       limits: {
@@ -60,11 +60,11 @@ export class SpotifyResolver implements TrackResolver {
     this.requestManager = new SpotifyRequestManager(defaultOptions);
   }
 
-  public matches(url: string): boolean {
+  public matches (url: string): boolean {
     return SPOTIFY_URL.test(url);
   }
 
-  public async resolve(
+  public async resolve (
     query: string,
     options?: XiaoSearchOptions,
   ): Promise<XiaoSearchResult> {
@@ -75,9 +75,9 @@ export class SpotifyResolver implements TrackResolver {
 
       switch (type) {
         case 'track':
-          return this.getTrack(id, options?.requester);
+          return await this.getTrack(id, options?.requester);
         case 'playlist':
-          return this.getPlaylist(id, options?.requester);
+          return await this.getPlaylist(id, options?.requester);
       }
     }
 
@@ -87,7 +87,7 @@ export class SpotifyResolver implements TrackResolver {
     };
   }
 
-  public async search(
+  public async search (
     query: string,
     requester?: User,
   ): Promise<XiaoSearchResult> {
@@ -98,7 +98,7 @@ export class SpotifyResolver implements TrackResolver {
       endpoint,
     );
 
-    if (!resolved || !resolved.tracks || resolved.tracks?.items?.length === 0) {
+    if (!resolved?.tracks || resolved.tracks?.items?.length === 0) {
       return {
         tracks: [],
         type: LoadType.NO_MATCHES,
@@ -111,7 +111,7 @@ export class SpotifyResolver implements TrackResolver {
     };
   }
 
-  public async getPlaylist(
+  public async getPlaylist (
     id: string,
     requester?: User,
   ): Promise<XiaoSearchResult> {
@@ -160,10 +160,10 @@ export class SpotifyResolver implements TrackResolver {
     };
   }
 
-  public async validate(url: string): Promise<{
-    type: LoadType;
-    playlistName?: string;
-    amount?: number;
+  public async validate (url: string): Promise<{
+    type: LoadType
+    playlistName?: string
+    amount?: number
   }> {
     const spotifyUrl = SPOTIFY_URL.exec(url);
 
@@ -200,7 +200,7 @@ export class SpotifyResolver implements TrackResolver {
     };
   }
 
-  public async getTrack(
+  public async getTrack (
     id: string,
     requester?: User,
   ): Promise<XiaoSearchResult> {
@@ -221,13 +221,11 @@ export class SpotifyResolver implements TrackResolver {
     };
   }
 
-  private parseTrack(
+  private parseTrack (
     spotifyTrack: SpotifyTrackResponse,
     requester?: User,
     thumbnail?: string,
   ) {
-    console.log(`[SPOTIFY] ${spotifyTrack.name} - ${requester?.tag}`);
-
     return new ResolvableTrack(
       {
         track: '',

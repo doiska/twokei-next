@@ -16,7 +16,7 @@ import { logger } from '@/modules/logger-transport';
 import pt_br from '@/locales/pt_br';
 import { DEFAULT_LOCALE, isValidLocale } from '@/locales/i18n';
 import en_us from '@/locales/en_us';
-import { guilds } from '@/db/schemas/Guild';
+import { guilds } from '@/db/schemas/guild';
 import { kil } from '@/db/Kil';
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
@@ -91,4 +91,4 @@ const main = async () => {
     });
 };
 
-main();
+void main();

@@ -1,4 +1,4 @@
-import { Events, VoiceState } from 'discord.js';
+import { Events, type VoiceState } from 'discord.js';
 import { container, Listener } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
 
@@ -17,12 +17,12 @@ type VoiceChannelUpdateTypes =
   event: Events.VoiceStateUpdate,
 })
 export class VoiceChannelUpdate extends Listener {
-  public async run(oldState: VoiceState, newState: VoiceState) {
+  public async run (oldState: VoiceState, newState: VoiceState) {
     const guild = newState.guild || oldState.guild;
     const self = guild.members.me;
     const selfVoice = self?.voice;
 
-    const channel = newState.channel || oldState.channel;
+    const channel = newState.channel ?? oldState.channel;
     const isConnected = channel?.id === selfVoice?.channel?.id;
 
     const updateType = this.getUpdateType(oldState, newState);
@@ -32,7 +32,7 @@ export class VoiceChannelUpdate extends Listener {
         try {
           await container.xiao.destroyPlayer(guild);
         } catch (e) {
-          self?.voice?.disconnect();
+          void self?.voice?.disconnect();
         }
       }
 
@@ -40,8 +40,8 @@ export class VoiceChannelUpdate extends Listener {
         return;
       }
 
-      const isEmpty = oldState.channel?.members.filter((member) => !member.user.bot).size
-              === 0;
+      const isEmpty = oldState.channel?.members.filter((member) => !member.user.bot).size ===
+              0;
 
       if (!isEmpty) {
         return;
@@ -50,12 +50,12 @@ export class VoiceChannelUpdate extends Listener {
       try {
         await container.xiao.destroyPlayer(newState.guild);
       } catch (e) {
-        newState.guild.members.me?.voice?.disconnect();
+        void newState.guild.members.me?.voice?.disconnect();
       }
     }
   }
 
-  private getUpdateType(
+  private getUpdateType (
     oldState: VoiceState,
     newState: VoiceState,
   ): VoiceChannelUpdateTypes {

@@ -7,11 +7,11 @@
     "node": "18"
   },
   "scripts": {
-    "dev": "tsx ./scripts/dev.ts",
-    "build": "swc src -d dist",
-    "watch:build": "swc src -d dist --watch",
-    "watch:dev": "nodemon --watch src --ext ts --exec node ./dist/single-shard.js",
     "start": "node --watch dist/single-shard.js",
+    "build": "swc src -d dist",
+    "dev": "pnpm run \/watch:*\/",
+    "watch:build": "swc src -d dist --watch",
+    "watch:start": "nodemon --watch src --ext ts --exec node ./dist/single-shard.js",
     "lint": "eslint --fix src --ext .ts",
     "migrations": "npx drizzle-kit generate:pg"
   },

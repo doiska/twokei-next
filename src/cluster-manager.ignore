@@ -1,4 +1,4 @@
-import { Worker as Worker_Thread } from 'worker_threads';
+import { type Worker as Worker_Thread } from 'worker_threads';
 import { bold, red } from 'kleur';
 import { config } from 'dotenv';
 import {
@@ -6,7 +6,7 @@ import {
   HeartbeatManager,
   ReClusterManager,
 } from 'discord-hybrid-sharding';
-import { ChildProcess } from 'child_process';
+import { type ChildProcess } from 'child_process';
 
 import { logger } from './modules/logger-transport';
 
@@ -25,7 +25,7 @@ shardingManager.extend(
 );
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+// @ts-expect-error
 const isChildProcess = (process: unknown): process is ChildProcess => process?.send !== undefined;
 
 const getPid = (thread?: Worker_Thread | ChildProcess | null) => {

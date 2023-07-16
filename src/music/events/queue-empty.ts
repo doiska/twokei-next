@@ -2,7 +2,7 @@ import { container } from '@sapphire/framework';
 
 import { reset } from '@/music/events/manual-update';
 
-import { Events } from '../interfaces/player.types';
+import { type Events } from '../interfaces/player.types';
 import type { XiaoEvents } from '../controllers/Xiao';
 
 export const playerDestroy: XiaoEvents[Events.PlayerDestroy] = () => {
@@ -10,6 +10,11 @@ export const playerDestroy: XiaoEvents[Events.PlayerDestroy] = () => {
 };
 
 export const queueEmpty: XiaoEvents[Events.QueueEmpty] = (venti) => {
-  container.xiao.destroyPlayer(venti.guild);
-  reset(venti);
+  reset(venti)
+    .then(async () => {
+      await container.xiao.destroyPlayer(venti.guild);
+    })
+    .catch((error) => {
+      container.logger.error(error);
+    });
 };

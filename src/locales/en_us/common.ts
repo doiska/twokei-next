@@ -1,4 +1,4 @@
-import { ResourceLanguage } from 'i18next';
+import { type ResourceLanguage } from 'i18next';
 
 export default {
   name: 'Twokei',
@@ -30,4 +30,4 @@ export default {
       '',
     ],
   },
-} as ResourceLanguage;
+} satisfies ResourceLanguage;

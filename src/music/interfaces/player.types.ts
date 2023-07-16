@@ -1,9 +1,9 @@
-import { Guild, Message, Snowflake, User } from 'discord.js';
+import { type Guild, type Message, type Snowflake, type User } from 'discord.js';
 
-import { Maybe } from '@/utils/utils';
+import { type Maybe } from '@/utils/utils';
 
-import { ResolvableTrack } from '../structures/ResolvableTrack';
-import { Locale } from '../../locales/i18n';
+import { type ResolvableTrack } from '../structures/ResolvableTrack';
+import { type Locale } from '../../locales/i18n';
 
 export enum LoadType {
   TRACK_LOADED = 'TRACK_LOADED',
@@ -19,55 +19,55 @@ export interface XiaoInitOptions {
   /**
    * Default search engine if none is specified, defaults to "YouTube".
    */
-  defaultSearchEngine: SearchEngines;
+  defaultSearchEngine: SearchEngines
 
   /**
    * Send to guild's shard
    */
-  send: (guildId: Snowflake, payload: Payload) => void;
+  send: (guildId: Snowflake, payload: Payload) => void
 }
 
 export interface XiaoSearchOptions {
-  requester?: User;
-  engine?: SearchEngines;
-  nodeName?: string;
-  searchType?: 'track' | 'playlist';
-  resolve?: boolean;
+  requester?: User
+  engine?: SearchEngines
+  nodeName?: string
+  searchType?: 'track' | 'playlist'
+  resolve?: boolean
 }
 
 export interface XiaoSearchResult {
-  type: LoadType;
-  playlistName?: string;
-  tracks: ResolvableTrack[];
+  type: LoadType
+  playlistName?: string
+  tracks: ResolvableTrack[]
 }
 
 export interface VentiInitOptions {
-  guild: Guild;
-  voiceChannel: Snowflake;
-  embedMessage?: Message;
-  lang: Locale;
-  deaf?: boolean;
-  mute?: boolean;
-  shardId?: number;
-  balancer?: boolean;
-  nodeName?: string;
+  guild: Guild
+  voiceChannel: Snowflake
+  embedMessage?: Message
+  lang: Locale
+  deaf?: boolean
+  mute?: boolean
+  shardId?: number
+  balancer?: boolean
+  nodeName?: string
 }
 
 export interface PlayOptions {
-  pause?: boolean;
-  startTime?: number;
-  endTime?: number;
-  replace?: boolean;
+  pause?: boolean
+  startTime?: number
+  endTime?: number
+  replace?: boolean
 }
 
 export interface Payload {
-  op: number;
+  op: number
   d: {
-    guild_id: string;
-    channel_id: Maybe<string>;
-    self_mute: Maybe<boolean>;
-    self_deaf: Maybe<boolean>;
-  };
+    guild_id: string
+    channel_id: Maybe<string>
+    self_mute: Maybe<boolean>
+    self_deaf: Maybe<boolean>
+  }
 }
 
 export enum Events {

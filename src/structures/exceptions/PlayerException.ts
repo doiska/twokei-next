@@ -1,7 +1,7 @@
 import { logger } from '@/modules/logger-transport';
 
 export class PlayerException extends Error {
-  constructor(message: string) {
+  constructor (message: string) {
     super(message);
     this.name = 'PlayerException';
 

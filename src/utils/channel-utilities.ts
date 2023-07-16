@@ -1,11 +1,11 @@
-import { Guild, TextChannel } from 'discord.js';
+import { type Guild, type TextChannel } from 'discord.js';
 import {
   isGuildBasedChannel,
   isTextChannel,
   canSendMessages,
 } from '@sapphire/discord.js-utilities';
 
-import { Maybe } from '@/utils/utils';
+import { type Maybe } from '@/utils/utils';
 
 import { logger } from '../modules/logger-transport';
 

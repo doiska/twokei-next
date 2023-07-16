@@ -1,15 +1,15 @@
-import { Guild, Message, Snowflake } from 'discord.js';
+import { type Guild, type Message, type Snowflake } from 'discord.js';
 
 import {
-  Player,
-  PlayerUpdate,
-  PlayOptions as ShoukakuPlayOptions,
-  TrackStuckEvent,
-  WebSocketClosedEvent,
+  type Player,
+  type PlayerUpdate,
+  type PlayOptions as ShoukakuPlayOptions,
+  type TrackStuckEvent,
+  type WebSocketClosedEvent,
 } from 'shoukaku';
-import { Maybe } from '@/utils/utils';
+import { type Maybe } from '@/utils/utils';
 import { logger } from '@/modules/logger-transport';
-import { Locale } from '@/locales/i18n';
+import { type Locale } from '@/locales/i18n';
 
 import type { Xiao, XiaoEvents } from './Xiao';
 import { TrackQueue } from '../structures/TrackQueue';
@@ -17,8 +17,8 @@ import { ResolvableTrack } from '../structures/ResolvableTrack';
 import {
   Events,
   PlayerState,
-  PlayOptions,
-  VentiInitOptions,
+  type PlayOptions,
+  type VentiInitOptions,
 } from '../interfaces/player.types';
 
 export enum LoopStates {
@@ -90,7 +90,7 @@ export class Venti {
    * The player's options.
    * @private
    */
-  private options: VentiInitOptions;
+  private readonly options: VentiInitOptions;
 
   /**
     * The SongChannel embed message.
@@ -98,7 +98,7 @@ export class Venti {
    */
   public embedMessage?: Message;
 
-  constructor(xiao: Xiao, player: Player, options: VentiInitOptions) {
+  constructor (xiao: Xiao, player: Player, options: VentiInitOptions) {
     this.xiao = xiao;
     this.options = options;
     this.instance = player;
@@ -119,13 +119,14 @@ export class Venti {
 
     this.instance.on('end', (data) => {
       if (
-        this.state === PlayerState.DESTROYING
-        || this.state === PlayerState.DESTROYED
+        this.state === PlayerState.DESTROYING ||
+        this.state === PlayerState.DESTROYED
       ) {
-        return this.emit(
+        this.emit(
           Events.Debug,
           `Player destroyed for guild ${this.guildId} - skipping end event`,
         );
+        return;
       }
 
       if (data.reason === 'REPLACED') {
@@ -138,7 +139,8 @@ export class Venti {
         this.playing = false;
 
         if (!this.queue.totalSize) {
-          return this.emit(Events.QueueEmpty, this);
+          this.emit(Events.QueueEmpty, this);
+          return;
         }
 
         if (this.queue.current) {
@@ -147,7 +149,8 @@ export class Venti {
 
         this.queue.current = undefined;
 
-        return this.play();
+        void this.play();
+        return;
       }
 
       const currentSong = this.queue.current;
@@ -169,10 +172,11 @@ export class Venti {
         }
       } else {
         this.playing = false;
-        return this.emit(Events.QueueEmpty, this);
+        this.emit(Events.QueueEmpty, this);
+        return;
       }
 
-      return this.play();
+      void this.play();
     });
 
     this.instance.on('closed', (data: WebSocketClosedEvent) => {
@@ -190,7 +194,7 @@ export class Venti {
     this.instance.on('resumed', () => this.emit(Events.PlayerResumed, this));
   }
 
-  public async play(track?: ResolvableTrack, userPlayOptions?: PlayOptions) {
+  public async play (track?: ResolvableTrack, userPlayOptions?: PlayOptions) {
     const playOptions = {
       replace: false,
       ...userPlayOptions,
@@ -249,18 +253,19 @@ export class Venti {
         );
         this.instance.playTrack(shoukakuPlayOptions);
       })
-      .catch((err) => {
+      .catch((err: Error) => {
         this.emit(
           Events.Debug,
-          `Error while resolving track for guild ${this.guildId} - ${err}`,
+          `Error while resolving track for guild ${this.guildId}} ${err.message}`,
         );
+
         logger.error(
-          `Error while resolving track for guild ${this.guildId} - ${err}`,
+          `Error while resolving track for guild ${this.guildId} - ${err.message}`,
           err.stack,
         );
 
         if (this.queue.length) {
-          this.play();
+          void this.play();
         } else {
           this.emit(Events.QueueEmpty, this);
         }
@@ -272,7 +277,7 @@ export class Venti {
    * Skip the current track (or more) and play the next one.
    * @param amount
    */
-  public async skip(amount = 1): Promise<Venti> {
+  public async skip (amount = 1): Promise<Venti> {
     if (this.state === PlayerState.DESTROYED) {
       throw new Error('Player is destroyed');
     }
@@ -299,14 +304,15 @@ export class Venti {
     logger.debug(
       `Skipping ${amount} tracks for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`,
     );
-    logger.debug(`Current track is ${this.queue.current?.title}`);
+
+    logger.debug(`Current track is ${this.queue.current?.title ?? 'none'}`);
     logger.debug(`Next track will be ${this.queue[0]?.title}`);
 
     this.instance.stopTrack();
     return this;
   }
 
-  public pause(state?: boolean) {
+  public pause (state?: boolean) {
     if (typeof state !== 'boolean') {
       // eslint-disable-next-line no-param-reassign
       state = !this.paused;
@@ -332,7 +338,7 @@ export class Venti {
    * Switch loop state.
    * @param loop
    */
-  public setLoop(loop?: LoopStates) {
+  public setLoop (loop?: LoopStates) {
     if (this.state === PlayerState.DESTROYED) {
       throw new Error('Player is destroyed');
     }
@@ -343,7 +349,7 @@ export class Venti {
       [LoopStates.TRACK]: LoopStates.NONE,
     };
 
-    const newLoopState = loop || nextState[this.loop];
+    const newLoopState = loop ?? nextState[this.loop];
 
     this.loop = newLoopState;
 
@@ -354,7 +360,7 @@ export class Venti {
   /**
    * Disconnects the player from the voice channel.
    */
-  public disconnect() {
+  public disconnect () {
     if (this.state === PlayerState.DISCONNECTED || !this.voiceId) {
       throw new Error('Player is already disconnected');
     }
@@ -382,10 +388,10 @@ export class Venti {
   /**
    * Destroy the player and remove it from the cache.
    */
-  public destroy(): Venti {
+  public destroy (): Venti {
     if (
-      this.state === PlayerState.DESTROYING
-      || this.state === PlayerState.DESTROYED
+      this.state === PlayerState.DESTROYING ||
+      this.state === PlayerState.DESTROYED
     ) {
       throw new Error('Player is already destroyed');
     }
@@ -409,7 +415,7 @@ export class Venti {
    * @param voiceId Voice channel Id
    * @returns Venti
    */
-  public setVoiceChannel(voiceId: Snowflake): Venti {
+  public setVoiceChannel (voiceId: Snowflake): Venti {
     if (this.state === PlayerState.DESTROYED) {
       throw new Error('Player is already destroyed');
     }

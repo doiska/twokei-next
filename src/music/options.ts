@@ -1,4 +1,4 @@
-import { NodeOption, ShoukakuOptions } from 'shoukaku';
+import { type NodeOption, type ShoukakuOptions } from 'shoukaku';
 
 export type OptionWithActive = NodeOption & { active?: boolean };
 
