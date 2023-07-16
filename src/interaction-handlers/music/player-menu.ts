@@ -1,13 +1,13 @@
-import { SelectMenuInteraction } from 'discord.js';
-import { Awaitable } from '@sapphire/utilities';
-import { InteractionHandler, InteractionHandlerTypes, Option } from '@sapphire/framework';
+import { type SelectMenuInteraction } from 'discord.js';
+import { type Awaitable } from '@sapphire/utilities';
+import { InteractionHandler, InteractionHandlerTypes, type Option } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
 
 import { resolveKey } from 'twokei-i18next';
 import { getRandomLoadingMessage } from '@/utils/utils';
 import { Embed } from '@/utils/messages';
 import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
-import { Menus } from '@/constants/buttons/player-buttons';
+import { Menus } from '@/constants/music/player-buttons';
 
 @ApplyOptions<InteractionHandler.Options>({
   name: 'player-menu',
@@ -15,7 +15,7 @@ import { Menus } from '@/constants/buttons/player-buttons';
   interactionHandlerType: InteractionHandlerTypes.SelectMenu,
 })
 export class PlayerMenu extends InteractionHandler {
-  public override parse(interaction: SelectMenuInteraction): Awaitable<Option<string | number>> {
+  public override parse (interaction: SelectMenuInteraction): Awaitable<Option<string | number>> {
     const [value] = interaction.values ?? [];
 
     if (interaction.customId !== Menus.SelectSongMenu) {
@@ -39,19 +39,23 @@ export class PlayerMenu extends InteractionHandler {
     return this.some(songId);
   }
 
-  public override async run(
+  public override async run (
     interaction: SelectMenuInteraction,
     option: InteractionHandler.ParseResult<this>,
   ) {
-    const player = this.container.xiao.getPlayer(interaction.guildId!);
+    if (!interaction.guildId) {
+      return;
+    }
 
-    if (!player || !player.voiceId) {
+    const player = this.container.xiao.getPlayer(interaction.guildId);
+
+    if (!player?.voiceId) {
       return;
     }
 
     await interaction.reply({
       ephemeral: true,
-      embeds: [Embed.success(await resolveKey(interaction, getRandomLoadingMessage()) as string)],
+      embeds: [Embed.success(await resolveKey(interaction, getRandomLoadingMessage()))],
     });
 
     try {

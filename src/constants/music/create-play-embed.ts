@@ -1,7 +1,6 @@
-import { ActionRowBuilder, APIEmbed, ButtonBuilder, ButtonStyle } from 'discord.js';
-import type { GuildMember } from 'discord.js';
+import { ActionRowBuilder, type APIEmbed, ButtonBuilder, ButtonStyle, type GuildMember } from 'discord.js';
 
-import { TFunction } from 'twokei-i18next';
+import { type TFunction } from 'twokei-i18next';
 import { Embed } from '@/utils/messages';
 import type { XiaoSearchResult } from '@/music/interfaces/player.types';
 
@@ -55,7 +54,7 @@ export const createPlayEmbed = (t: TFunction, member: GuildMember, result: XiaoS
       length: rest.length,
     },
     returnObjects: true,
-  }) as APIEmbed;
+  }) satisfies APIEmbed;
 
   if (!rest.length) {
     delete embedTranslation.description;

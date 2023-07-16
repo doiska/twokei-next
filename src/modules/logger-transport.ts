@@ -1,7 +1,7 @@
-import { CliConfigSetLevels } from 'winston/lib/winston/config';
+import { type CliConfigSetLevels } from 'winston/lib/winston/config';
 import { createLogger, format, transports } from 'winston';
 import {
-  blue, Color, cyan, green, red, reset, yellow,
+  blue, type Color, cyan, green, red, reset, yellow,
 } from 'kleur';
 //
 const colors: Record<keyof CliConfigSetLevels, Color> = {
@@ -22,9 +22,9 @@ const consoleTransportInstance = new transports.Console({
         stack,
         defaultPrefix = 'CORE',
         ...rest
-      } = info;
+      } = info as Record<string, string>;
 
-      const content = stack ? '' : reset(message);
+      const content = stack || reset(message);
 
       const color = colors[info.level] ?? blue;
 

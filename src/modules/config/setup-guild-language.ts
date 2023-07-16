@@ -6,17 +6,17 @@ import {
   ButtonStyle,
   ComponentType,
   EmbedBuilder,
-  GuildTextBasedChannel,
-  PermissionsBitField,
+  type GuildTextBasedChannel,
+  type PermissionsBitField,
 } from 'discord.js';
 
 import { fetchT } from 'twokei-i18next';
-import { Locale, LocaleFlags, VALID_LOCALES } from '@/locales/i18n';
-import { guilds } from '@/db/schemas/Guild';
+import { type Locale, LocaleFlags, VALID_LOCALES } from '@/locales/i18n';
+import { guilds } from '@/db/schemas/guild';
 import { kil } from '@/db/Kil';
 import { Twokei } from '@/app/Twokei';
 
-export async function setupGuildLanguage(channel: GuildTextBasedChannel) {
+export async function setupGuildLanguage (channel: GuildTextBasedChannel) {
   const { guild } = channel;
 
   const language: Locale = guild.preferredLocale === 'pt-BR' ? 'pt_br' : 'en_us';
@@ -56,7 +56,7 @@ export async function setupGuildLanguage(channel: GuildTextBasedChannel) {
     .catch(() => null);
 
   if (interaction) {
-    interaction.deferUpdate();
+    void interaction.deferUpdate();
   }
 
   await message.delete();

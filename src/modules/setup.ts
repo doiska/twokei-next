@@ -10,7 +10,6 @@ import '@sapphire/plugin-logger/register';
 import '@sapphire/plugin-subcommands/register';
 import { inspect } from 'util';
 import { join } from 'path';
-import * as colorette from 'colorette';
 import { setup, type ArrayString } from '@skyra/env-utilities';
 
 process.env.NODE_ENV ??= 'development';
@@ -29,11 +28,8 @@ setup({ path: join(srcDir, '.env') });
 // Set default inspection depth
 inspect.defaultOptions.depth = 1;
 
-// Enable colorette
-colorette.createColors({ useColor: true });
-
 declare module '@skyra/env-utilities' {
   interface Env {
-    OWNERS: ArrayString;
+    OWNERS: ArrayString
   }
 }

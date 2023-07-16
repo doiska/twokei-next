@@ -1,8 +1,8 @@
-import { APIEmbed, ButtonInteraction, GuildMember } from 'discord.js';
+import { type ButtonInteraction } from 'discord.js';
 import {
   container,
   InteractionHandler,
-  InteractionHandlerTypes, Option,
+  InteractionHandlerTypes, type Option,
 } from '@sapphire/framework';
 import { isGuildMember } from '@sapphire/discord.js-utilities';
 import { ApplyOptions } from '@sapphire/decorators';
@@ -18,7 +18,8 @@ import { setLoopState } from '@/music/heizou/set-loop-state';
 import { previousSong } from '@/music/heizou/previous-song';
 import { pauseSong } from '@/music/heizou/pause-song';
 import { destroyPlayerInstance } from '@/music/heizou/destroy-player-instance';
-import { PlayerButtons } from '@/constants/buttons/player-buttons';
+import { PlayerButtons } from '@/constants/music/player-buttons';
+import { noop } from '@sapphire/utilities';
 
 @ApplyOptions<InteractionHandler.Options>({
   name: 'buttons-player',
@@ -26,7 +27,7 @@ import { PlayerButtons } from '@/constants/buttons/player-buttons';
   interactionHandlerType: InteractionHandlerTypes.Button,
 })
 export class PlayerButtonsInteraction extends InteractionHandler {
-  public async run(
+  public async run (
     interaction: ButtonInteraction,
     button: PlayerButtons,
   ) {
@@ -41,16 +42,19 @@ export class PlayerButtonsInteraction extends InteractionHandler {
     }
 
     if (player.voiceId !== interaction.member?.voice?.channelId) {
-      interaction.reply({
+      await interaction.reply({
         ephemeral: true,
         embeds: [
           Embed.error(
-            await resolveKey(interaction, ErrorCodes.NOT_SAME_VC) as string,
-          ) as APIEmbed,
+            await resolveKey(interaction, ErrorCodes.NOT_SAME_VC),
+          ),
         ],
-      })
-        .then(() => setTimeout(() => interaction.deleteReply()
-          .catch(() => {}), 8000));
+      });
+
+      setTimeout(() => {
+        interaction.deleteReply()
+          .catch(noop);
+      }, 8000);
       return;
     }
 
@@ -61,13 +65,9 @@ export class PlayerButtonsInteraction extends InteractionHandler {
       [PlayerButtons.SKIP]: skipSong,
       [PlayerButtons.SHUFFLE]: shuffleQueue,
       [PlayerButtons.LOOP]: setLoopState,
-    } as {
-      [key in PlayerButtons]: (
-        member: GuildMember
-      ) => Promise<never>;
-    };
+    } as const;
 
-    const action = actions?.[button];
+    const action = actions?.[button as keyof typeof actions];
 
     if (!action) {
       return;
@@ -80,7 +80,7 @@ export class PlayerButtonsInteraction extends InteractionHandler {
         ephemeral: true,
         embeds: [
           {
-            description: await resolveKey(interaction, getRandomLoadingMessage()) as string,
+            description: (await resolveKey(interaction, getRandomLoadingMessage()) satisfies string) ?? '',
           },
         ],
       });
@@ -90,7 +90,7 @@ export class PlayerButtonsInteraction extends InteractionHandler {
       await interaction.reply({
         ephemeral: true,
         embeds: [
-          Embed.error(readable) as APIEmbed,
+          Embed.error(readable),
         ],
       });
     } finally {
@@ -101,8 +101,8 @@ export class PlayerButtonsInteraction extends InteractionHandler {
     }
   }
 
-  public override parse(interaction: ButtonInteraction): Option<PlayerButtons> {
-    const customId = interaction.customId as string;
+  public override parse (interaction: ButtonInteraction): Option<PlayerButtons> {
+    const customId = interaction.customId;
     const buttons = Object.keys(PlayerButtons);
 
     const button = buttons.find((b) => b === customId);
