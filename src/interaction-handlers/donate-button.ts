@@ -1,7 +1,7 @@
 import {
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonInteraction,
+  type ButtonInteraction,
   ButtonStyle,
   Colors,
   ComponentType,
@@ -9,13 +9,13 @@ import {
 } from 'discord.js';
 import {
   InteractionHandler,
-  InteractionHandlerTypes, None, Option,
+  InteractionHandlerTypes, type None, type Option,
 } from '@sapphire/framework';
 import { isGuildMember } from '@sapphire/discord.js-utilities';
 import { ApplyOptions } from '@sapphire/decorators';
 
 import { fetchT } from 'twokei-i18next';
-import { EmbedButtons } from '@/constants/buttons/player-buttons';
+import { EmbedButtons } from '@/constants/music/player-buttons';
 
 @ApplyOptions<InteractionHandler.Options>({
   name: 'donate-button',
@@ -23,7 +23,7 @@ import { EmbedButtons } from '@/constants/buttons/player-buttons';
   interactionHandlerType: InteractionHandlerTypes.Button,
 })
 export class PlayerButtonsInteraction extends InteractionHandler {
-  public async run(
+  public async run (
     interaction: ButtonInteraction,
   ) {
     if (!interaction.guild || !isGuildMember(interaction.member)) {
@@ -71,22 +71,22 @@ export class PlayerButtonsInteraction extends InteractionHandler {
       time: 60000,
     });
 
-    collector.then((i) => {
+    void collector.then((i) => {
       const pixEmbed = new EmbedBuilder()
         .setDescription(t('donate.pix.description', { ns: 'common' }))
         .setImage('https://cdn.discordapp.com/attachments/1122869530302087220/1127698486515732500/Screenshot_2023-07-09_173032.png');
 
-      i.update({
+      void i.update({
         embeds: [pixEmbed],
         components: [row.setComponents([paypalButton, voteButton])],
       });
     });
 
-    collector.catch(() => interaction.deleteReply());
+    collector.catch(async () => { await interaction.deleteReply(); });
   }
 
-  public override parse(interaction: ButtonInteraction): Option<None> {
-    const customId = interaction.customId as string;
+  public override parse (interaction: ButtonInteraction): Option<None> {
+    const customId = interaction.customId;
 
     console.log(customId);
 

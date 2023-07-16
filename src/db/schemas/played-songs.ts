@@ -6,7 +6,7 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 
-import { users } from './Users';
+import { users } from './users';
 
 export const playedSongs = pgSchema(process.env.PGSCHEMA ?? 'app')
   .table(

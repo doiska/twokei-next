@@ -1,5 +1,5 @@
 import {
-  ChannelType, Guild, PermissionFlagsBits, PermissionsBitField,
+  ChannelType, type Guild, PermissionFlagsBits, PermissionsBitField,
 } from 'discord.js';
 import { container } from '@sapphire/framework';
 import { canSendMessages } from '@sapphire/discord.js-utilities';
