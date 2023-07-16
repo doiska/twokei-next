@@ -3,58 +3,32 @@ module.exports = {
     browser: true,
     es2021: true,
   },
-  extends: ['airbnb-base', 'airbnb-typescript/base', 'prettier/prettier'],
+  extends: 'standard-with-typescript',
   overrides: [
     {
       env: {
         node: true,
       },
-      files: ['.eslintrc.{js,cjs}'],
+      files: [
+        '.eslintrc.{js,cjs}',
+      ],
       parserOptions: {
         sourceType: 'script',
       },
     },
   ],
-  parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
     project: './tsconfig.eslint.json',
   },
-  plugins: ['@typescript-eslint', 'eslint-plugin-import-helpers'],
   rules: {
-    'max-len': ['error', {
-      code: 120,
-      ignoreComments: true,
-      ignoreStrings: true,
-      ignoreTemplateLiterals: true,
-    }],
-    'object-curly-newline': ['error', {
-      consistent: true,
-      multiline: true,
-    }],
+    '@typescript-eslint/strict-boolean-expressions': 'off',
+    '@typescript-eslint/comma-dangle': [2, 'always-multiline'],
+    '@typescript-eslint/semi': [2, 'always'],
+    '@typescript-eslint/no-use-before-define': ['off'],
     'newline-per-chained-call': ['error', { ignoreChainWithDepth: 1 }],
     'function-call-argument-newline': ['error', 'consistent'],
     'function-paren-newline': ['error', 'consistent'],
-    '@typescript-eslint/no-use-before-define': ['off'],
-    'class-methods-use-this': ['off'],
-    'consistent-return': ['off'],
-    'import/extensions': ['off'],
-    'import/no-unresolved': ['off'],
-    'import/prefer-default-export': ['off'],
-    'import-helpers/order-imports': [
-      'warn',
-      {
-        newlinesBetween: 'always',
-        groups: [
-          ['/^node:/', '/^drizzle-orm/'],
-          ['/^@sapphire/', '/^discord.js/'],
-          'module',
-          '/^@shared/',
-          ['parent', 'sibling', 'index'],
-        ],
-        alphabetize: { order: 'desc', ignoreCase: true },
-      },
-    ],
   },
 };
