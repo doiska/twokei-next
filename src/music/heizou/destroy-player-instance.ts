@@ -1,4 +1,4 @@
-import { GuildMember } from 'discord.js';
+import { type GuildMember } from 'discord.js';
 
 import { FriendlyException } from '@/structures/exceptions/FriendlyException';
 import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
@@ -12,5 +12,5 @@ export const destroyPlayerInstance = async (member: GuildMember) => {
     throw new FriendlyException(ErrorCodes.NOT_IN_VC);
   }
 
-  return xiao.destroyPlayer(member.guild);
+  await xiao.destroyPlayer(member.guild);
 };

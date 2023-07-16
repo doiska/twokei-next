@@ -1,5 +1,5 @@
 import {
-  Events, Message,
+  Events, type Message,
 } from 'discord.js';
 import { container, Listener } from '@sapphire/framework';
 import { isGuildBasedChannel, isTextChannel } from '@sapphire/discord.js-utilities';
@@ -18,7 +18,7 @@ import { createPlayEmbed } from '@/constants/music/create-play-embed';
   event: Events.MessageCreate,
 })
 export class PlayMessage extends Listener<typeof Events.MessageCreate> {
-  public override async run(message: Message): Promise<void | undefined> {
+  public override async run (message: Message) {
     const self = this.container.client.id;
 
     const {
@@ -59,7 +59,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
             defaultValue: ErrorCodes.MISSING_MESSAGE,
           });
 
-        container.client.replyTo(message, Embed.error(response));
+        void container.client.replyTo(message, Embed.error(response));
         return;
       }
 
@@ -76,7 +76,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
     }
   }
 
-  private async validateSongChannel(message: Message) {
+  private async validateSongChannel (message: Message) {
     const self = this.container.client.id;
     const { channel: typedChannel, guild } = message;
 
@@ -98,8 +98,8 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
           ErrorCodes.USE_SONG_CHANNEL,
           {
             ns: 'error',
-            song_channel: `<#${songChannel?.channelId}>`,
-          }) as string,
+            song_channel: `<#${songChannel?.channelId ?? ''}>`,
+          }),
       ));
     }
 

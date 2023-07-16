@@ -4,6 +4,7 @@ export default {
   song_added: '**{{track}}** adicionado à fila',
   playlist_added:
     '**{{track}}** adicionado à fila com outras {{track_count}} tracks.',
+  requested_by: 'Solicitado por: {{name}}',
   embed: {
     description: [
       '## <a:raio:1121849523854118973> [Twokei Music](https://twokei.com)',
@@ -44,10 +45,29 @@ export default {
       auto_play: 'Autoplay',
       select_language: 'Alterar idioma',
       load_playlist: 'Carregar playlist',
-      sync_playlist: 'Ver meu Perfil',
+      view_profile: 'Ver meu Perfil',
       save_playlist: 'Salvar playlist atual',
       your_playlists: 'Saved playlists',
-      donate: 'Carregar playlist',
+      donate: 'Apoie o desenvolvedor',
+    },
+  },
+  play: {
+    embed: {
+      title: '{{track.title}} ({{track.author}})',
+      url: '{{- track.uri}}',
+      author: {
+        name: 'Solicitado por {{- member.name}}!',
+        icon_url: '{{- member.avatarUrl}}',
+      },
+      description: 'Com outras {{queue.length}} faixas.',
+      thumbnail: {
+        url: '{{- track.thumbnail}}',
+      },
+    },
+    buttons: {
+      like: 'Like',
+      dislike: 'Dislike',
+      view_source: 'Ver no {{source}}',
     },
   },
   player: {

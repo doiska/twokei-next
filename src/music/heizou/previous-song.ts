@@ -1,10 +1,10 @@
-import { GuildResolvable } from 'discord.js';
+import { type GuildResolvable } from 'discord.js';
 
 import { FriendlyException } from '@/structures/exceptions/FriendlyException';
-import { xiao } from '@/app/Xiao';
+import { container } from '@sapphire/framework';
 
 export const previousSong = async (guild: GuildResolvable): Promise<void> => {
-  const player = await xiao.getPlayer(guild);
+  const player = container.xiao.getPlayer(guild);
 
   if (!player) {
     throw new FriendlyException('No player found');
@@ -14,5 +14,5 @@ export const previousSong = async (guild: GuildResolvable): Promise<void> => {
     throw new FriendlyException('No previous song found');
   }
 
-  player.play(player.queue.previous, { replace: true });
+  await player.play(player.queue.previous, { replace: true });
 };

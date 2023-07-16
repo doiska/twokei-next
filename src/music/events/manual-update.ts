@@ -12,10 +12,10 @@ import type { Venti } from '@/music/controllers/Venti';
 import { LoopStates } from '@/music/controllers/Venti';
 import { logger } from '@/modules/logger-transport';
 
-import { Events } from '../interfaces/player.types';
+import { type Events } from '../interfaces/player.types';
 import type { XiaoEvents } from '../controllers/Xiao';
 
-export async function reset(venti: Venti) {
+export async function reset (venti: Venti) {
   const message = venti.embedMessage;
 
   if (!message) {
@@ -29,7 +29,7 @@ export async function reset(venti: Venti) {
   });
 }
 
-export async function refresh(venti: Venti, update: { embed: boolean, menu: boolean, buttons: boolean }) {
+export async function refresh (venti: Venti, update: { embed: boolean, menu: boolean, buttons: boolean }) {
   const message = venti.embedMessage;
 
   if (!message) {
@@ -56,7 +56,7 @@ export async function refresh(venti: Venti, update: { embed: boolean, menu: bool
       defaultValue: '',
       joinArrays: '\n',
     });
-    newEmbed.setDescription(defaultEmbed.description!.concat(appendDescription));
+    newEmbed.setDescription(defaultEmbed.description?.concat(appendDescription) ?? '');
   }
 
   const buttons = await useButtons([
@@ -78,7 +78,7 @@ export const manualUpdate: XiaoEvents[Events.ManualUpdate] = (
   venti,
   update,
 ) => {
-  refresh(venti!, {
+  void refresh(venti, {
     embed: update?.embed ?? false,
     menu: update?.components ?? false,
     buttons: update?.components ?? false,

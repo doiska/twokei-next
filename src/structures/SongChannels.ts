@@ -1,19 +1,15 @@
 import { eq } from 'drizzle-orm';
 
-import { GuildResolvable } from 'discord.js';
+import { type GuildResolvable } from 'discord.js';
 import { container } from '@sapphire/framework';
 
-import { SongChannel, songChannels } from '@/db/schemas/SongChannels';
+import { type SongChannel, songChannels } from '@/db/schemas/song-channels';
 import { kil } from '@/db/Kil';
 
 export class SongChannelManager {
-  private cache: Map<string, SongChannel>;
+  private readonly cache = new Map<string, SongChannel>();
 
-  public constructor() {
-    this.cache = new Map();
-  }
-
-  public async set(
+  public async set (
     guildId: string,
     channelId: string,
     messageId: string,
@@ -38,7 +34,7 @@ export class SongChannelManager {
     return result;
   }
 
-  public async get(guild: GuildResolvable): Promise<SongChannel | undefined> {
+  public async get (guild: GuildResolvable): Promise<SongChannel | undefined> {
     const guildId = container.client.guilds.resolveId(guild);
 
     if (!guildId) {

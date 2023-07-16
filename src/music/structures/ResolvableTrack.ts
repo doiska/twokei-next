@@ -1,12 +1,12 @@
-import { User } from 'discord.js';
+import { type User } from 'discord.js';
 
-import { Track } from 'shoukaku';
+import { type Track } from 'shoukaku';
 import { escapeRegExp } from '@/utils/utils';
 
 import { xiao } from '../../app/Xiao';
 
 interface ResolvableTrackOptions {
-  requester?: User;
+  requester?: User
 }
 
 export class ResolvableTrack {
@@ -53,7 +53,7 @@ export class ResolvableTrack {
 
   public resolvedBySource = false;
 
-  public constructor(
+  public constructor (
     track: Track & { thumbnail?: string },
     options?: ResolvableTrackOptions,
   ) {
@@ -79,20 +79,20 @@ export class ResolvableTrack {
     this.realUri = ['youtube'].includes(this.sourceName) ? this.uri : null;
   }
 
-  get isReadyToPlay(): boolean {
+  get isReadyToPlay (): boolean {
     return (
-      !!this.track
-      && !!this.sourceName
-      && !!this.identifier
-      && !!this.author
-      && !!this.length
-      && !!this.title
-      && !!this.uri
-      && !!this.realUri
+      !!this.track &&
+      !!this.sourceName &&
+      !!this.identifier &&
+      !!this.author &&
+      !!this.length &&
+      !!this.title &&
+      !!this.uri &&
+      !!this.realUri
     );
   }
 
-  public async resolve(overwrite = false): Promise<ResolvableTrack> {
+  public async resolve (overwrite = false): Promise<ResolvableTrack> {
     if (this.isReadyToPlay) {
       return this;
     }
@@ -120,7 +120,7 @@ export class ResolvableTrack {
     return this;
   }
 
-  public getRaw(): Track {
+  public getRaw (): Track {
     return {
       track: this.track,
       info: {
@@ -128,16 +128,16 @@ export class ResolvableTrack {
         isSeekable: this.isSeekable,
         uri: this.uri,
         title: this.title,
-        length: this.length || 0,
-        author: this.author || '',
+        length: this.length ?? 0,
+        author: this.author ?? '',
         isStream: this.isStream,
-        position: this.position || 0,
+        position: this.position ?? 0,
         sourceName: this.sourceName,
       },
     };
   }
 
-  private async getTrack() {
+  private async getTrack () {
     const source = 'yt';
     const query = [this.title, this.author].filter(Boolean)
       .join(' - ');
@@ -147,7 +147,7 @@ export class ResolvableTrack {
       engine: source,
     });
 
-    if (!response || !response.tracks.length) {
+    if (!response?.tracks.length) {
       return;
     }
 
@@ -158,8 +158,8 @@ export class ResolvableTrack {
 
       const officialTrack = tracks.find(
         (track) => author.some((name) => new RegExp(`^${escapeRegExp(name)}$`, 'i')
-          .test(track.info.author))
-          || new RegExp(`^${escapeRegExp(this.title)}$`, 'i')
+          .test(track.info.author)) ||
+          new RegExp(`^${escapeRegExp(this.title)}$`, 'i')
             .test(
               track.info.title,
             ),
@@ -172,8 +172,8 @@ export class ResolvableTrack {
 
     if (this.length) {
       const sameDuration = tracks.find(
-        (track) => track.info.length >= (this.length ? this.length : 0) - 2000
-          && track.info.length <= (this.length ? this.length : 0) + 2000,
+        (track) => track.info.length >= (this.length ? this.length : 0) - 2000 &&
+          track.info.length <= (this.length ? this.length : 0) + 2000,
       );
 
       if (sameDuration) {
@@ -184,7 +184,7 @@ export class ResolvableTrack {
     return tracks[0];
   }
 
-  private parseResolvableToTrack(resolvable: Track | ResolvableTrack): Track {
+  private parseResolvableToTrack (resolvable: Track | ResolvableTrack): Track {
     if ((resolvable as Track).info) {
       return resolvable as Track;
     }

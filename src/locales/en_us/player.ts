@@ -42,7 +42,7 @@ export default {
       loop_queue: 'Loop: Queue',
       auto_play: 'Autoplay',
       select_language: 'Select language',
-      sync_playlist: 'Import Spotify playlist',
+      view_profile: 'View My Profile',
       save_playlist: 'Save current queue',
       your_playlists: 'Saved playlists',
       donate: 'Contribute with the development',

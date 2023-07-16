@@ -1,30 +1,32 @@
 import {
-  BaseMessageOptions,
-  ClientOptions,
+  type BaseMessageOptions,
+  type ClientOptions,
   EmbedBuilder,
-  EmbedData, InteractionReplyOptions,
-  Message,
-  RepliableInteraction,
+  type EmbedData, type InteractionReplyOptions,
+  type Message,
+  type RepliableInteraction,
+  type APIEmbed,
 } from 'discord.js';
-import type { APIEmbed } from 'discord.js';
-import { Awaitable, noop } from '@sapphire/utilities';
+import { type Awaitable, noop } from '@sapphire/utilities';
 import { send } from '@sapphire/plugin-editable-commands';
 import { container, SapphireClient } from '@sapphire/framework';
 import { isAnyInteractableInteraction } from '@sapphire/discord.js-utilities';
 
-import { fetchLanguage, Target } from 'twokei-i18next';
+import { fetchLanguage, type Target } from 'twokei-i18next';
 import { isEmbed } from '@/utils/embed-utils';
-import { SongChannelManager } from '@/music/song-channels/SongChannels';
-import { Locale } from '@/locales/i18n';
+import { SongProfileManager } from '@/structures/SongProfile';
+import { SongChannelManager } from '@/structures/SongChannels';
+import { type Locale } from '@/locales/i18n';
 
 export class TwokeiClient extends SapphireClient {
-  public constructor(options: ClientOptions) {
+  public constructor (options: ClientOptions) {
     super(options);
 
     container.sc = new SongChannelManager();
+    container.profiles = new SongProfileManager();
   }
 
-  async parseContent(
+  async parseContent (
     content: BaseMessageOptions | EmbedBuilder | string,
   ) {
     if (typeof content === 'string') {
@@ -41,19 +43,19 @@ export class TwokeiClient extends SapphireClient {
     return content as BaseMessageOptions;
   }
 
-  async replyTo(
+  async replyTo (
     interaction: Message | RepliableInteraction,
     content: BaseMessageOptions | EmbedBuilder | string | InteractionReplyOptions,
     deleteInSeconds = 15,
   ) {
     if (isAnyInteractableInteraction(interaction)) {
-      return this.replyToInteraction(interaction, content, deleteInSeconds);
+      await this.replyToInteraction(interaction, content, deleteInSeconds); return;
     }
 
-    return this.replyToMessage(interaction, content, deleteInSeconds);
+    await this.replyToMessage(interaction, content, deleteInSeconds);
   }
 
-  private async replyToMessage(
+  private async replyToMessage (
     message: Message,
     content: BaseMessageOptions | EmbedBuilder | string,
     deleteInSeconds = 15,
@@ -70,7 +72,7 @@ export class TwokeiClient extends SapphireClient {
     }
   }
 
-  private async replyToInteraction(
+  private async replyToInteraction (
     interaction: RepliableInteraction,
     content: BaseMessageOptions | EmbedBuilder | string | InteractionReplyOptions,
     deleteInSeconds = 15,
@@ -95,7 +97,7 @@ export class TwokeiClient extends SapphireClient {
     }
   }
 
-  fetchLanguage(context: Target): Awaitable<Locale> {
+  fetchLanguage (context: Target): Awaitable<Locale> {
     return fetchLanguage(context) as Awaitable<Locale>;
   }
 }
@@ -106,8 +108,8 @@ declare module '@sapphire/framework' {
       interaction: Message | RepliableInteraction,
       content: EmbedBuilder | BaseMessageOptions | string | EmbedData | APIEmbed | InteractionReplyOptions,
       deleteInSeconds?: number,
-    ): Promise<void>;
+    ): Promise<void>
 
-    fetchLanguage(context: Target): Awaitable<Locale>;
+    fetchLanguage (context: Target): Awaitable<Locale>
   }
 }

@@ -1,4 +1,4 @@
-import { Guild } from 'discord.js';
+import { type Guild } from 'discord.js';
 import { container } from '@sapphire/framework';
 import {
   isGuildBasedChannel,
@@ -7,15 +7,15 @@ import {
 } from '@sapphire/discord.js-utilities';
 
 import { fetchLanguage } from 'twokei-i18next';
-import { VentiInitOptions } from '@/music/interfaces/player.types';
+import { type VentiInitOptions } from '@/music/interfaces/player.types';
 import { xiao } from '@/app/Xiao';
 
 interface InitOptions {
-  guild: Guild;
-  voiceChannel: string;
+  guild: Guild
+  voiceChannel: string
 }
 
-export async function createPlayerInstance({
+export async function createPlayerInstance ({
   guild,
   voiceChannel,
 }: InitOptions) {
@@ -49,5 +49,5 @@ export async function createPlayerInstance({
     }
   }
 
-  return xiao.createPlayer(playerOptions);
+  return await xiao.createPlayer(playerOptions);
 }

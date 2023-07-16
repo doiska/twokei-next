@@ -1,14 +1,14 @@
-import { APIEmbed, EmbedBuilder, SelectMenuComponentOptionData } from 'discord.js';
+import { type APIEmbed, EmbedBuilder, type SelectMenuComponentOptionData } from 'discord.js';
 import { isNullish } from '@sapphire/utilities';
 import { EmbedLimits, SelectMenuLimits } from '@sapphire/discord.js-utilities';
 
-export function isEmbed(embed: unknown): embed is APIEmbed {
+export function isEmbed (embed: unknown): embed is APIEmbed {
   const isEmbedBuilder = embed instanceof EmbedBuilder;
   const isEmbedObject = !!embed && typeof embed === 'object' && 'description' in embed;
 
   return (
-    !isNullish(embed)
-    && (isEmbedBuilder || isEmbedObject)
+    !isNullish(embed) &&
+    (isEmbedBuilder || isEmbedObject)
   );
 }
 

@@ -1,21 +1,21 @@
-import { Maybe } from '@/utils/utils';
+import { type Maybe } from '@/utils/utils';
 
-import { ResolvableTrack } from './ResolvableTrack';
+import { type ResolvableTrack } from './ResolvableTrack';
 
 export class TrackQueue<T = ResolvableTrack> extends Array<T> {
   public current: Maybe<T>;
 
   public previous: Maybe<T>;
 
-  get totalSize(): number {
+  get totalSize (): number {
     return this.length;
   }
 
-  add(...item: T[]): void {
+  add (...item: T[]): void {
     this.push(...item);
   }
 
-  remove(item: T | number): void {
+  remove (item: T | number): void {
     if (typeof item === 'number') {
       this.removeAt(item);
     } else {
@@ -26,23 +26,23 @@ export class TrackQueue<T = ResolvableTrack> extends Array<T> {
     }
   }
 
-  removeAt(index: number, count = 1): void {
+  removeAt (index: number, count = 1): void {
     this.splice(index, count);
   }
 
-  get(index: number): T | undefined {
+  get (index: number): T | undefined {
     return this.at(index);
   }
 
-  isEmpty(): boolean {
+  isEmpty (): boolean {
     return this.length === 0;
   }
 
-  clear(): void {
+  clear (): void {
     this.splice(0, this.length);
   }
 
-  shuffle(): void {
+  shuffle (): void {
     this.sort(() => Math.random() - 0.5);
   }
 }

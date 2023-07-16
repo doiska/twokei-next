@@ -1,11 +1,11 @@
-import { GuildMember } from 'discord.js';
+import { type GuildMember } from 'discord.js';
 import { container } from '@sapphire/framework';
 
 import { FriendlyException } from '@/structures/exceptions/FriendlyException';
 import { isConnectedTo } from '@/preconditions/vc-conditions';
 
 export const skipSong = async (member: GuildMember, amount = 1) => {
-  const player = await container.xiao.getPlayer(member);
+  const player = container.xiao.getPlayer(member);
 
   if (!player) {
     throw new FriendlyException('No player found.');
@@ -23,5 +23,5 @@ export const skipSong = async (member: GuildMember, amount = 1) => {
     throw new FriendlyException('There are not enough songs in the queue.');
   }
 
-  return player.skip(amount);
+  return await player.skip(amount);
 };

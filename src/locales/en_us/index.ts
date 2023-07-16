@@ -11,4 +11,4 @@ export default {
   player,
   tutorial,
   messages,
-} as Resource;
+} satisfies Resource;

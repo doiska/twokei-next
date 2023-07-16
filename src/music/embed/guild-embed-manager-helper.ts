@@ -1,15 +1,15 @@
-import { APISelectMenuOption } from 'discord.js';
+import { type SelectMenuComponentOptionData } from 'discord.js';
 
 import { assertMenuSize } from '@/utils/embed-utils';
 
-import { TrackQueue } from '../structures/TrackQueue';
+import { type TrackQueue } from '../structures/TrackQueue';
 
 export const parseTracksToMenuItem = (tracks: TrackQueue) => {
-  const items = tracks.map((track, index) => ({
+  const items: SelectMenuComponentOptionData[] = tracks.map((track, index) => ({
     label: track.title,
     value: index.toString(),
     description: track.author,
-  } as APISelectMenuOption));
+  }));
 
   const { current } = tracks;
   const { previous } = tracks;

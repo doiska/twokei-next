@@ -1,8 +1,8 @@
 import {
-  BaseMessageOptions, Message,
+  type BaseMessageOptions, Message,
 } from 'discord.js';
 import { send } from '@sapphire/plugin-editable-commands';
-import { Command } from '@sapphire/framework';
+import { type Command } from '@sapphire/framework';
 
 import { RandomMessages } from '@/constants/random-messages';
 
@@ -13,7 +13,7 @@ export const noop = () => {};
 
 export async function reply<
   T extends Message | Command.ChatInputCommandInteraction,
->(interaction: T, replyOptions: BaseMessageOptions | string, deleteAfterSeconds = 0) {
+> (interaction: T, replyOptions: BaseMessageOptions | string, deleteAfterSeconds = 0) {
   const isMessage = interaction instanceof Message;
 
   if (isMessage) {
@@ -25,12 +25,12 @@ export async function reply<
   }
 
   if (deleteAfterSeconds) {
-    setTimeout(async () => {
+    setTimeout(() => {
       if (isMessage) {
-        await interaction.delete()
+        interaction.delete()
           .catch(noop);
       } else {
-        await interaction.deleteReply()
+        interaction.deleteReply()
           .catch(noop);
       }
     }, (deleteAfterSeconds * 1000) + 1000);
@@ -43,3 +43,8 @@ export const getRandomLoadingMessage = () => {
 };
 
 export type Maybe<T> = T | null | undefined;
+
+export function capitalizeFirst (string: string) {
+  return string.charAt(0)
+    .toUpperCase() + string.slice(1);
+}

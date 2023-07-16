@@ -1,4 +1,4 @@
-import { Guild } from 'discord.js';
+import { type Guild } from 'discord.js';
 
 import { fetchT } from 'twokei-i18next';
 import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
@@ -7,7 +7,7 @@ import { logger } from '@/modules/logger-transport';
 import { PlayerException } from '../PlayerException';
 import { FriendlyException } from '../FriendlyException';
 
-export const getReadableException = async (error: unknown, guild?: Guild | null) => {
+export const getReadableException = async (error: unknown, guild?: Guild | null): Promise<string> => {
   if (error instanceof FriendlyException || error instanceof PlayerException) {
     logger.debug('Handling readable exception', { error });
 

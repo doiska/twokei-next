@@ -1,4 +1,4 @@
-import { GuildMember } from 'discord.js';
+import { type GuildMember } from 'discord.js';
 import { canJoinVoiceChannel, isVoiceChannel } from '@sapphire/discord.js-utilities';
 
 import { PlayerException } from '@/structures/exceptions/PlayerException';
@@ -9,7 +9,7 @@ import { xiao } from '@/app/Xiao';
 import { createPlayerInstance } from './create-player-instance';
 import { Events } from '../interfaces/player.types';
 
-export async function addNewSong(input: string, member: GuildMember) {
+export async function addNewSong (input: string, member: GuildMember) {
   const { guild } = member;
 
   if (!guild || !member || !member?.guild) {
@@ -26,7 +26,11 @@ export async function addNewSong(input: string, member: GuildMember) {
 
   const currentVoiceId = xiao.getPlayer(guild.id)?.voiceId;
 
-  if (currentVoiceId && isConnectedTo(member, currentVoiceId)) {
+  if (!currentVoiceId) {
+    throw new PlayerException(ErrorCodes.NO_PLAYER_FOUND);
+  }
+
+  if (currentVoiceId && !isConnectedTo(member, currentVoiceId)) {
     throw new PlayerException(ErrorCodes.NOT_SAME_VC);
   }
 
