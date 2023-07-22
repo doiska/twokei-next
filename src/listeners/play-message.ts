@@ -42,6 +42,8 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         .replace(/<@!?\d+>/g, '')
         .trim();
 
+      console.log(hasMentions, contentOnly);
+
       if (!(await this.validateSongChannel(message))) {
         return;
       }

@@ -206,4 +206,13 @@ export class ResolvableTrack {
       },
     };
   }
+
+  public short () {
+    return {
+      title: this.title,
+      uri: this.uri,
+      author: this.author,
+      source: this.sourceName,
+    };
+  }
 }

@@ -17,6 +17,7 @@ import { isEmbed } from '@/utils/embed-utils';
 import { SongProfileManager } from '@/structures/SongProfile';
 import { SongChannelManager } from '@/structures/SongChannels';
 import { type Locale } from '@/locales/i18n';
+import { Analytics } from '@/structures/Analytics';
 
 export class TwokeiClient extends SapphireClient {
   public constructor (options: ClientOptions) {
@@ -24,6 +25,7 @@ export class TwokeiClient extends SapphireClient {
 
     container.sc = new SongChannelManager();
     container.profiles = new SongProfileManager();
+    container.analytics = new Analytics();
   }
 
   async parseContent (

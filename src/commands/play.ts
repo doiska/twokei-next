@@ -49,7 +49,7 @@ export class PlayCommand extends Command {
     await container.client.replyTo(
       interaction,
       {
-        description: t(getRandomLoadingMessage()),
+        description: t(getRandomLoadingMessage()) ?? 'Loading...',
       },
       15,
     );

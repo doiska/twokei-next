@@ -26,10 +26,6 @@ export async function addNewSong (input: string, member: GuildMember) {
 
   const currentVoiceId = xiao.getPlayer(guild.id)?.voiceId;
 
-  if (!currentVoiceId) {
-    throw new PlayerException(ErrorCodes.NO_PLAYER_FOUND);
-  }
-
   if (currentVoiceId && !isConnectedTo(member, currentVoiceId)) {
     throw new PlayerException(ErrorCodes.NOT_SAME_VC);
   }
