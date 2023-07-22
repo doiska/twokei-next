@@ -1,4 +1,5 @@
 import {
+  ComponentType,
   Events, type Message,
 } from 'discord.js';
 import { container, Listener } from '@sapphire/framework';
@@ -12,6 +13,8 @@ import { getReadableException } from '@/structures/exceptions/utils/get-readable
 import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
 import { addNewSong } from '@/music/heizou/add-new-song';
 import { createPlayEmbed } from '@/constants/music/create-play-embed';
+import {noop} from "@sapphire/utilities";
+import {send} from "@sapphire/plugin-editable-commands";
 
 @ApplyOptions<Listener.Options>({
   name: 'play-message-event',
@@ -71,7 +74,27 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
 
       const embedResult = createPlayEmbed(t, member, result);
 
-      await container.client.replyTo(message, embedResult);
+      const replied = await send(message, embedResult);
+
+      replied.awaitMessageComponent({
+        filter: (i) => i.user.id === member.id && ['like', 'dislike'].includes(i.customId),
+        componentType: ComponentType.Button,
+        time: 15000,
+      })
+          .then(async response => {
+            await container.analytics.track({
+              userId: member.user.id,
+              event: response.customId === 'like' ? 'like_song' : 'dislike_song',
+              source: 'Guild',
+              properties: {
+                track: result.tracks?.[0].short()
+              }
+            });
+
+            response.deferUpdate();
+          })
+          .catch(noop);
+
     } catch (e) {
       const readableException = await getReadableException(e, guild);
       await container.client.replyTo(message, Embed.error(readableException));
@@ -96,12 +119,12 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
       }
 
       await container.client.replyTo(message, Embed.error(
-        await resolveKey(message,
-          ErrorCodes.USE_SONG_CHANNEL,
-          {
-            ns: 'error',
-            song_channel: `<#${songChannel?.channelId ?? ''}>`,
-          }),
+          await resolveKey(message,
+              ErrorCodes.USE_SONG_CHANNEL,
+              {
+                  ns: 'error',
+                  song_channel: `<#${songChannel?.channelId ?? ''}>`,
+              }),
       ));
     }
 
