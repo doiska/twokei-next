@@ -1,0 +1,1 @@
+ALTER TABLE "played_songs" RENAME COLUMN "count" TO "amount";
