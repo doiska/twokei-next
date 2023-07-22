@@ -25,7 +25,7 @@ ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
 export const Twokei = new TwokeiClient({
   api: {
     listenOptions: {
-      port: 5000,
+      port: 3000,
     },
   },
   caseInsensitiveCommands: true,

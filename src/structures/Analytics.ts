@@ -1,11 +1,11 @@
-import type { UserEvent } from '@/db/schemas/user-events';
+import type { UserEvent } from '@/db/schemas/user-song-events';
 import { kil } from '@/db/Kil';
-import { userEvents } from '@/db/schemas/user-events';
+import { userSongEvents } from '@/db/schemas/user-song-events';
 import { logger } from '@/modules/logger-transport';
 
 export class Analytics {
   public async track (userEvent: UserEvent | UserEvent[]) {
-    await kil.insert(userEvents)
+    await kil.insert(userSongEvents)
       .values(Array.isArray(userEvent) ? userEvent : [userEvent])
       .catch(err => {
         logger.error(err);

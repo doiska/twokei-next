@@ -224,6 +224,12 @@ export class Xiao extends EventEmitter {
   }
 
   public async destroyPlayer (guild: Guild): Promise<void> {
+
+    playerLogger.info(`Destroying player for guild ${guild.id}`, {
+        guildId: guild.id,
+        guildName: guild.name,
+    });
+
     this.players.delete(guild.id);
 
     await guild.members.me?.voice?.disconnect();

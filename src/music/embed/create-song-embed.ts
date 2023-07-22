@@ -45,15 +45,12 @@ export const createDefaultSongEmbed = async (guild: Guild): Promise<APIEmbed> =>
 
   const description = t('player:embed.description', {
     joinArrays: '\n',
-    returnObjects: true,
+    returnObjects: false,
     ...translations,
   });
 
   return {
-    description: description
-      .split('\n')
-      .map((line) => line.trim())
-      .join('\n'),
+    description: description,
     color: Colors.Blurple,
     image: {
       url: randomArt.url,
@@ -175,5 +172,6 @@ export const secondaryPlayerEmbedButtons = [
     style: ButtonStyle.Secondary,
     emoji: '⭐',
     customId: EmbedButtons.SAVE_PLAYLIST,
+    disabled: true
   },
 ];
