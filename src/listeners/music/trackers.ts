@@ -14,7 +14,7 @@ export class SongUserTracker extends Listener {
   public async run (venti: Venti) {
     const current = venti.queue.current;
     const user = current?.requester;
-
+ 
     if (!current || !user) {
       logger.info('Untrackable song');
       return;
