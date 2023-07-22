@@ -33,14 +33,14 @@ function createEmbed (defaultData: APIEmbed & { appendStart?: string }) {
 export const Embed = {
   error: createEmbed({
     color: Colors.Red,
-    appendStart: '<:hanakin:1121884455225786478>',
+    appendStart: '### <:hanakin:1121884455225786478>',
   }),
   loading: createEmbed({
     color: Colors.Yellow,
-    appendStart: '<a:hanakoeating:1121884717290094652>',
+    appendStart: '### <a:hanakoeating:1121884717290094652>',
   }),
   success: createEmbed({
     color: Colors.Green,
-    appendStart: '<a:raio:1121849523854118973>',
+    appendStart: '### <a:raio:1121849523854118973>',
   }),
 } as const;

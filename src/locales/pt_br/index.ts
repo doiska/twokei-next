@@ -5,6 +5,7 @@ import messages from '@/locales/pt_br/messages';
 import error from '@/locales/pt_br/error';
 import common from '@/locales/pt_br/common';
 import commands from '@/locales/pt_br/commands';
+import type { Resource } from 'i18next';
 
 export default {
   common,
@@ -14,4 +15,4 @@ export default {
   commands,
   messages,
   profile,
-};
+} satisfies Resource;

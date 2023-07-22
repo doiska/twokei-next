@@ -12,8 +12,8 @@ import type { Venti } from '@/music/controllers/Venti';
 import { LoopStates } from '@/music/controllers/Venti';
 import { logger } from '@/modules/logger-transport';
 
-import { type Events } from '../interfaces/player.types';
-import type { XiaoEvents } from '../controllers/Xiao';
+import { type Events } from '../../interfaces/player.types';
+import type { XiaoEvents } from '../../controllers/Xiao';
 
 export async function reset (venti: Venti) {
   const message = venti.embedMessage;

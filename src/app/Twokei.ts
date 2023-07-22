@@ -12,7 +12,6 @@ import {
 } from '@sapphire/framework';
 
 import { TwokeiClient } from '@/structures/TwokeiClient';
-import { logger } from '@/modules/logger-transport';
 import pt_br from '@/locales/pt_br';
 import { DEFAULT_LOCALE, isValidLocale } from '@/locales/i18n';
 import en_us from '@/locales/en_us';
@@ -29,11 +28,9 @@ export const Twokei = new TwokeiClient({
       port: 5000,
     },
   },
-  defaultPrefix: '*',
-  regexPrefix: /^(hey +)?bot[,! ]/i,
   caseInsensitiveCommands: true,
   logger: {
-    level: LogLevel.Debug,
+    level: LogLevel.Error,
   },
   shards: 'auto',
   intents: [
@@ -43,7 +40,7 @@ export const Twokei = new TwokeiClient({
   ],
   partials: [Partials.Channel],
   loadMessageCommandListeners: true,
-  enableLoaderTraceLoggings: true,
+  enableLoaderTraceLoggings: false,
   i18n: {
     i18next: {
       fallbackLng: 'pt_br',
@@ -81,14 +78,7 @@ export const Twokei = new TwokeiClient({
 });
 
 const main = async () => {
-  await Twokei.login(process.env.DISCORD_TOKEN)
-    .then(() => {
-      logger.info('Logged in!');
-    })
-    .catch((error) => {
-      logger.error(error);
-      process.exit(1);
-    });
+  await Twokei.login(process.env.DISCORD_TOKEN);
 };
 
 void main();

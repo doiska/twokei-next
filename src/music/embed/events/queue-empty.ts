@@ -1,9 +1,9 @@
 import { container } from '@sapphire/framework';
 
-import { reset } from '@/music/events/manual-update';
+import { reset } from '@/music/embed/events/manual-update';
 
-import { type Events } from '../interfaces/player.types';
-import type { XiaoEvents } from '../controllers/Xiao';
+import { type Events } from '../../interfaces/player.types';
+import type { XiaoEvents } from '../../controllers/Xiao';
 
 export const playerDestroy: XiaoEvents[Events.PlayerDestroy] = () => {
   // container.xiao.embedManager.destroy(guildId);

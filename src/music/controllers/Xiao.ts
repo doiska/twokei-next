@@ -27,8 +27,8 @@ import {
   type XiaoSearchOptions,
   type XiaoSearchResult,
 } from '../interfaces/player.types';
-import { playerDestroy, queueEmpty } from '../events/queue-empty';
-import { manualUpdate } from '../events/manual-update';
+import { playerDestroy, queueEmpty } from '@/music/embed/events/queue-empty';
+import { manualUpdate } from '@/music/embed/events/manual-update';
 
 export interface XiaoEvents {
   /**
