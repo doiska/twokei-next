@@ -3,7 +3,7 @@ import {
   Events, type Message,
 } from 'discord.js';
 import { container, Listener } from '@sapphire/framework';
-import { isGuildBasedChannel, isTextChannel } from '@sapphire/discord.js-utilities';
+import { isGuildBasedChannel, isGuildMember, isTextChannel } from '@sapphire/discord.js-utilities';
 import { ApplyOptions } from '@sapphire/decorators';
 
 import { fetchT, resolveKey } from 'twokei-i18next';
@@ -13,8 +13,8 @@ import { getReadableException } from '@/structures/exceptions/utils/get-readable
 import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
 import { addNewSong } from '@/music/heizou/add-new-song';
 import { createPlayEmbed } from '@/constants/music/create-play-embed';
-import {noop} from "@sapphire/utilities";
-import {send} from "@sapphire/plugin-editable-commands";
+import { noop } from '@sapphire/utilities';
+import { send } from '@sapphire/plugin-editable-commands';
 
 @ApplyOptions<Listener.Options>({
   name: 'play-message-event',
@@ -81,20 +81,20 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         componentType: ComponentType.Button,
         time: 15000,
       })
-          .then(async response => {
+        .then(async response => {
+          if (isGuildMember(response.member)) {
             await container.analytics.track({
-              userId: member.user.id,
+              userId: response.member.id,
               event: response.customId === 'like' ? 'like_song' : 'dislike_song',
               source: 'Guild',
               properties: {
-                track: result.tracks?.[0].short()
-              }
+                track: result.tracks?.[0].short(),
+              },
             });
-
-            response.deferUpdate();
-          })
-          .catch(noop);
-
+          }
+          void response.deferUpdate();
+        })
+        .catch(noop);
     } catch (e) {
       const readableException = await getReadableException(e, guild);
       await container.client.replyTo(message, Embed.error(readableException));
@@ -119,12 +119,12 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
       }
 
       await container.client.replyTo(message, Embed.error(
-          await resolveKey(message,
-              ErrorCodes.USE_SONG_CHANNEL,
-              {
-                  ns: 'error',
-                  song_channel: `<#${songChannel?.channelId ?? ''}>`,
-              }),
+        await resolveKey(message,
+          ErrorCodes.USE_SONG_CHANNEL,
+          {
+            ns: 'error',
+            song_channel: `<#${songChannel?.channelId ?? ''}>`,
+          }),
       ));
     }
 
