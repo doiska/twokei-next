@@ -314,7 +314,6 @@ export class Venti {
 
   public pause (state?: boolean) {
     if (typeof state !== 'boolean') {
-      // eslint-disable-next-line no-param-reassign
       state = !this.paused;
     }
 
@@ -323,8 +322,8 @@ export class Venti {
     }
 
     this.paused = state;
-    this.instance.setPaused(state);
     this.playing = !state;
+    this.instance.setPaused(state);
 
     logger.debug(
       `Player for guild ${this.guildId} is now ${state ? 'paused' : 'playing'}`,
@@ -388,7 +387,7 @@ export class Venti {
   /**
    * Destroy the player and remove it from the cache.
    */
-  public destroy (): Venti {
+  public destroy () {
     if (
       this.state === PlayerState.DESTROYING ||
       this.state === PlayerState.DESTROYED

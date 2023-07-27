@@ -223,14 +223,11 @@ export class Xiao extends EventEmitter {
     return this.players.get(resolvedGuildId);
   }
 
-  public async destroyPlayer (guild: Guild): Promise<void> {
-
+  public async destroyPlayer (guild: Guild) {
     playerLogger.info(`Destroying player for guild ${guild.id}`, {
-        guildId: guild.id,
-        guildName: guild.name,
+      guildId: guild.id,
+      guildName: guild.name,
     });
-
-    this.players.delete(guild.id);
 
     await guild.members.me?.voice?.disconnect();
 
@@ -241,6 +238,8 @@ export class Xiao extends EventEmitter {
     }
 
     player.destroy();
+
+    this.players.delete(guild.id);
   }
 
   public async search (
