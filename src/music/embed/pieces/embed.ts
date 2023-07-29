@@ -1,17 +1,13 @@
 import {
-  ActionRowBuilder,
   type APIEmbed,
   Colors,
   formatEmoji,
   type Guild,
-  StringSelectMenuBuilder,
   userMention,
 } from 'discord.js';
 
 import { fetchT } from 'twokei-i18next';
-import { type TrackQueue } from '@/music/structures/TrackQueue';
-import { parseTracksToMenuItem } from '@/music/embed/guild-embed-manager-helper';
-import { Menus } from '@/constants/music/player-buttons';
+
 import { Twokei } from '@/app/Twokei';
 
 const arts = [
@@ -60,34 +56,4 @@ export const createDefaultSongEmbed = async (guild: Guild): Promise<APIEmbed> =>
       text: `Art: ${randomArt.author} - ${randomArt.authorUrl}`,
     },
   };
-};
-
-export const createSelectMenu = (tracks?: TrackQueue) => {
-  const noTrack = tracks?.length === 0 && !tracks.current && !tracks.previous;
-
-  const options = tracks
-    ? parseTracksToMenuItem(tracks)
-    : [
-        {
-          default: true,
-          label: 'Add more songs to use the select-menu!',
-          value: 'add-more-songs',
-          emoji: {
-            name: 'light',
-            id: '1069597636950249523',
-          },
-        },
-      ];
-
-  return new ActionRowBuilder<StringSelectMenuBuilder>({
-    components: [
-      new StringSelectMenuBuilder()
-        .setCustomId(Menus.SelectSongMenu)
-        .setPlaceholder('Select a song')
-        .setMinValues(0)
-        .setMaxValues(1)
-        .setDisabled(noTrack)
-        .setOptions(options),
-    ],
-  });
 };
