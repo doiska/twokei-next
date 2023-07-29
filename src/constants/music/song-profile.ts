@@ -22,20 +22,20 @@ export function createSongProfileEmbed (
   requester: User,
   target: User,
   t: TFunction,
-  profile: SongProfileWithSources,
+  profile?: SongProfileWithSources,
 ) {
-  const sourcesWithEmojis = profile.sources.map((s) => {
+  const sourcesWithEmojis = profile?.sources.map((s) => {
     const source = Sources[s.source.toLowerCase() as keyof typeof Sources];
     return `[<${source.emoji ?? ''}> ${source.name ?? s.source}](${s.sourceUrl})`;
-  });
+  }) ?? [];
 
   const isMyProfile = requester.id === target.id;
 
   const description = t('profile:embed.description', {
-    tag: profile.displayName || target.tag,
-    rank: 1,
-    rankEmoji: '🔥',
-    followers: 123456,
+    tag: profile?.displayName ?? target.tag,
+    rank: profile?.ranking.position,
+    rankEmoji: (profile?.ranking?.likes ?? 0) > 2 ? '🔥' : '',
+    followers: profile?.ranking?.likes,
     joinArrays: '\n',
   });
 
@@ -46,7 +46,7 @@ export function createSongProfileEmbed (
     .setFields([
       {
         name: 'Connected profiles',
-        value: sourcesWithEmojis.join('\n'),
+        value: sourcesWithEmojis.length ? sourcesWithEmojis.join('\n') : 'None yet :(',
         inline: true,
       },
       {
@@ -76,7 +76,7 @@ export function createSongProfileEmbed (
     buttons.push(new ButtonBuilder()
       .setLabel(`Like ${target.username}!`)
       .setStyle(ButtonStyle.Primary)
-      .setCustomId('view-profile'));
+      .setCustomId('like-profile'));
   }
 
   buttons.push(

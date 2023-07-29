@@ -72,6 +72,7 @@ export async function createDynamicButtons (venti: Venti) {
       style: ButtonStyle.Secondary,
       emoji: '️<:shuffle:976599781742886912>',
       customId: PlayerButtons.SHUFFLE,
+      disabled: venti.queue.length <= 2,
     },
     {
       style: venti.loop === LoopStates.NONE ? ButtonStyle.Secondary : ButtonStyle.Primary,
