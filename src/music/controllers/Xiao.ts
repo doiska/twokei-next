@@ -27,7 +27,7 @@ import {
   type XiaoSearchOptions,
   type XiaoSearchResult,
 } from '../interfaces/player.types';
-import { playerDestroy, queueEmpty } from '@/music/embed/events/queue-empty';
+import { queueEmpty } from '@/music/embed/events/queue-empty';
 import { manualUpdate } from '@/music/embed/events/manual-update';
 
 export interface XiaoEvents {
@@ -172,7 +172,7 @@ export class Xiao extends EventEmitter {
     this.on(Events.TrackAdd, (venti) => { manualUpdate(venti, { embed: true, components: true }); });
     this.on(Events.TrackPause, (venti) => { manualUpdate(venti, { embed: true, components: true }); });
 
-    this.on(Events.PlayerDestroy, playerDestroy);
+    this.on(Events.PlayerDestroy, queueEmpty);
     this.on(Events.QueueEmpty, queueEmpty);
 
     this.on(Events.ManualUpdate, manualUpdate);
