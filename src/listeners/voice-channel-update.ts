@@ -27,31 +27,25 @@ export class VoiceChannelUpdate extends Listener {
 
     const updateType = this.getUpdateType(oldState, newState);
 
-    if (updateType === 'voiceChannelLeave') {
-      if (!isConnected) {
-        try {
-          await container.xiao.destroyPlayer(guild);
-        } catch (e) {
-          void self?.voice?.disconnect();
-        }
-      }
+    if (updateType !== 'voiceChannelLeave') {
+      return;
+    }
 
-      if (!selfVoice || !isConnected) {
-        return;
-      }
+    if (!selfVoice || !isConnected) {
+      return;
+    }
 
-      const isEmpty = oldState.channel?.members.filter((member) => !member.user.bot).size ===
-              0;
+    const isEmpty = oldState.channel?.members
+      .filter((member) => !member.user.bot).size === 0;
 
-      if (!isEmpty) {
-        return;
-      }
+    if (!isEmpty) {
+      return;
+    }
 
-      try {
-        await container.xiao.destroyPlayer(newState.guild);
-      } catch (e) {
-        void newState.guild.members.me?.voice?.disconnect();
-      }
+    try {
+      await container.xiao.destroyPlayer(newState.guild);
+    } catch (e) {
+      await newState.guild.members.me?.voice?.disconnect();
     }
   }
 
