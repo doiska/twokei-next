@@ -26,4 +26,4 @@ export const songSource = pgSchema(process.env.PGSCHEMA ?? 'app')
 
 export type SongSource = Omit<InferModel<typeof songSource>, 'userId'>;
 
-export type SongProfileWithSources = SongProfile & { sources: SongSource[] };
+export type SongProfileWithSources = SongProfile & { sources: SongSource[], ranking: { position: number, likes: number } };

@@ -64,7 +64,7 @@ export const Twokei = new TwokeiClient({
       }
 
       const [guild] = await kil
-        .select()
+        .select({ locale: guilds.locale })
         .from(guilds)
         .where(eq(guilds.guildId, context.guild.id));
 

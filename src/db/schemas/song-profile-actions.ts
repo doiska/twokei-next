@@ -10,7 +10,6 @@ export const songProfileActions = pgSchema(process.env.PGSCHEMA ?? 'app')
     'song_profile_actions',
     {
       userId: varchar('user_id')
-        .primaryKey()
         .notNull()
         .references(() => users.userId),
       targetId: varchar('target_id')
