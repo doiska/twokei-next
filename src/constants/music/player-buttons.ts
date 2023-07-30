@@ -28,3 +28,10 @@ export enum EmbedButtons {
   DONATE = 'DONATE',
   SAVE_PLAYLIST = 'SAVE_PLAYLIST',
 }
+
+export enum SongProfileButtons {
+  LIKE_PROFILE = 'like_profile',
+  FOLLOW_PROFILE = 'follow_profile',
+  VIEW_PLAYLISTS = 'view_playlists',
+  VIEW_ALBUMS = 'view_albums',
+}

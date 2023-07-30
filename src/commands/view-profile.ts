@@ -1,8 +1,7 @@
-import { type ApplicationCommandRegistry, Command, container } from '@sapphire/framework';
+import { type ApplicationCommandRegistry, Command } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
 import type { Awaitable } from '@sapphire/utilities';
-import { createSongProfileEmbed } from '@/constants/music/song-profile';
-import { fetchT } from 'twokei-i18next';
+import { createSongProfileEmbed } from '@/features/song-profile/show-song-profile';
 import { ApplicationCommandType } from 'discord.js';
 import { isGuildMember, isTextChannel } from '@sapphire/discord.js-utilities';
 
@@ -40,12 +39,8 @@ export class ViewProfile extends Command {
       return;
     }
 
-    const t = await fetchT(interaction.guild);
-
-    const profile = await container.profiles.get(user);
-
     await interaction.reply(
-      createSongProfileEmbed(interaction.user, user, t, profile),
+      await createSongProfileEmbed(interaction.user, user),
     );
   }
 
@@ -58,11 +53,7 @@ export class ViewProfile extends Command {
 
     const target = interaction.targetUser;
 
-    const t = await fetchT(interaction);
-
-    const profile = await container.profiles.get(target);
-
-    const reply = createSongProfileEmbed(interaction.user, target, t, profile);
+    const reply = await createSongProfileEmbed(interaction.user, target);
 
     if (interaction.channel && isTextChannel(interaction.channel)) {
       await interaction.reply(reply);
