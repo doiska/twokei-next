@@ -1,13 +1,13 @@
 import type { ButtonInteraction } from 'discord.js';
 import { type Awaitable } from '@sapphire/utilities';
-import { container, InteractionHandler, InteractionHandlerTypes, type Option } from '@sapphire/framework';
+import { InteractionHandler, InteractionHandlerTypes, type Option } from '@sapphire/framework';
 import { isGuildMember } from '@sapphire/discord.js-utilities';
 import { ApplyOptions } from '@sapphire/decorators';
 
 import { fetchT } from 'twokei-i18next';
 import { getRandomLoadingMessage } from '@/utils/utils';
 import { Embed } from '@/utils/messages';
-import { createSongProfileEmbed } from '@/constants/music/song-profile';
+import { createSongProfileEmbed } from '@/features/song-profile/show-song-profile';
 import { EmbedButtons } from '@/constants/music/player-buttons';
 
 @ApplyOptions<InteractionHandler.Options>({
@@ -35,14 +35,10 @@ export class ProfileSync extends InteractionHandler {
       embeds: [Embed.loading(t(getRandomLoadingMessage()) ?? 'Loading...')],
     });
 
-    const profile = await container.profiles.get(buttonInteraction.user);
-
     await buttonInteraction.editReply(
-      createSongProfileEmbed(
+      await createSongProfileEmbed(
         buttonInteraction.user,
         buttonInteraction.user,
-        t,
-        profile,
       ),
     );
   }
