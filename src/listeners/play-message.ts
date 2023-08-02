@@ -2,19 +2,20 @@ import {
   ComponentType,
   Events, type Message,
 } from 'discord.js';
-import { container, Listener } from '@sapphire/framework';
-import { isGuildBasedChannel, isGuildMember, isTextChannel } from '@sapphire/discord.js-utilities';
 import { ApplyOptions } from '@sapphire/decorators';
+import { isGuildBasedChannel, isGuildMember, isTextChannel } from '@sapphire/discord.js-utilities';
+import { container, Listener } from '@sapphire/framework';
+import { send } from '@sapphire/plugin-editable-commands';
+import { noop } from '@sapphire/utilities';
+
+import { createPlayEmbed } from '@/constants/music/create-play-embed';
+import { addNewSong } from '@/music/heizou/add-new-song';
+import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
+import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
+import { Embed } from '@/utils/messages';
+import { getRandomLoadingMessage } from '@/utils/utils';
 
 import { fetchT, resolveKey } from 'twokei-i18next';
-import { getRandomLoadingMessage } from '@/utils/utils';
-import { Embed } from '@/utils/messages';
-import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
-import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
-import { addNewSong } from '@/music/heizou/add-new-song';
-import { createPlayEmbed } from '@/constants/music/create-play-embed';
-import { noop } from '@sapphire/utilities';
-import { send } from '@sapphire/plugin-editable-commands';
 
 @ApplyOptions<Listener.Options>({
   name: 'play-message-event',
@@ -45,8 +46,6 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         .replace(/<@!?\d+>/g, '')
         .trim();
 
-      console.log(hasMentions, contentOnly);
-
       if (!(await this.validateSongChannel(message))) {
         return;
       }
@@ -64,11 +63,11 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
             defaultValue: ErrorCodes.MISSING_MESSAGE,
           });
 
-        void container.client.replyTo(message, Embed.error(response));
+        void container.reply(message, Embed.error(response));
         return;
       }
 
-      await container.client.replyTo(message, Embed.loading(getRandomLoadingMessage()));
+      await container.reply(message, Embed.loading(getRandomLoadingMessage()));
 
       const result = await addNewSong(contentOnly, member);
 
@@ -97,7 +96,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         .catch(noop);
     } catch (e) {
       const readableException = await getReadableException(e, guild);
-      await container.client.replyTo(message, Embed.error(readableException));
+      await container.reply(message, Embed.error(readableException));
     }
   }
 
@@ -118,7 +117,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         return false;
       }
 
-      await container.client.replyTo(message, Embed.error(
+      await container.reply(message, Embed.error(
         await resolveKey(message,
           ErrorCodes.USE_SONG_CHANNEL,
           {

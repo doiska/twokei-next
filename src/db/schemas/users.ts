@@ -1,3 +1,4 @@
+import type { InferModel } from 'drizzle-orm';
 import { pgSchema, timestamp, varchar } from 'drizzle-orm/pg-core';
 
 export const users = pgSchema(process.env.PGSCHEMA ?? 'app')
@@ -16,3 +17,5 @@ export const users = pgSchema(process.env.PGSCHEMA ?? 'app')
       .notNull()
       .defaultNow(),
   });
+
+export type RegisteredUser = InferModel<typeof users>;

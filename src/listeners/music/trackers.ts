@@ -1,8 +1,9 @@
-import { container, Listener } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
-import { Events } from '@/music/interfaces/player.types';
-import type { Venti } from '@/music/controllers/Venti';
+import { container, Listener } from '@sapphire/framework';
+
 import { logger } from '@/modules/logger-transport';
+import type { Venti } from '@/music/controllers/Venti';
+import { Events } from '@/music/interfaces/player.types';
 
 @ApplyOptions<Listener.Options>({
   name: 'song-user-tracker',
@@ -14,7 +15,7 @@ export class SongUserTracker extends Listener {
   public async run (venti: Venti) {
     const current = venti.queue.current;
     const user = current?.requester;
- 
+
     if (!current || !user) {
       logger.info('Untrackable song');
       return;

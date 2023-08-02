@@ -1,7 +1,7 @@
 import { type ModalSubmitInteraction } from 'discord.js';
-import { type Awaitable } from '@sapphire/utilities';
-import { InteractionHandler, InteractionHandlerTypes, type Option } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
+import { InteractionHandler, InteractionHandlerTypes, type Option } from '@sapphire/framework';
+import { type Awaitable } from '@sapphire/utilities';
 
 import { Modals } from '@/constants/music/player-buttons';
 

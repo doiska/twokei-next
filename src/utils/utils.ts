@@ -1,42 +1,57 @@
-import {
-  type BaseMessageOptions, Message,
+import type {
+  InteractionReplyOptions, Message,
+  ModalSubmitInteraction,
+  RepliableInteraction, ReplyOptions,
 } from 'discord.js';
-import { send } from '@sapphire/plugin-editable-commands';
-import { type Command } from '@sapphire/framework';
+import { container } from '@sapphire/framework';
 
 import { RandomMessages } from '@/constants/random-messages';
+import { Embed } from '@/utils/messages';
+
+import { resolveKey } from 'twokei-i18next';
 
 export const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-export const noop = () => {};
+type PredefinedMessages = 'loading' | 'success' | 'error';
 
-export async function reply<
-  T extends Message | Command.ChatInputCommandInteraction,
-> (interaction: T, replyOptions: BaseMessageOptions | string, deleteAfterSeconds = 0) {
-  const isMessage = interaction instanceof Message;
+const embedTypes = {
+  success: Embed.success,
+  error: Embed.error,
+  // info: Embed.info,
+  // warning: Embed.warning,
+  loading: Embed.loading,
+} as const;
 
-  if (isMessage) {
-    await send(interaction, replyOptions);
-  } else if (interaction.replied) {
-    await interaction.editReply(replyOptions);
-  } else {
-    await interaction.reply(replyOptions);
-  }
+type PresetMessageFn<T = Exclude<RepliableInteraction, ModalSubmitInteraction> | Message> = {
+  interaction: T
+  preset: PredefinedMessages
+  message?: string
+  deleteIn?: number
+} & (T extends Message ? ReplyOptions : InteractionReplyOptions);
 
-  if (deleteAfterSeconds) {
-    setTimeout(() => {
-      if (isMessage) {
-        interaction.delete()
-          .catch(noop);
-      } else {
-        interaction.deleteReply()
-          .catch(noop);
-      }
-    }, (deleteAfterSeconds * 1000) + 1000);
-  }
+export async function sendPresetMessage ({
+  interaction,
+  preset,
+  message,
+  deleteIn,
+  ...props
+}: PresetMessageFn) {
+  const found = await resolveKey(
+    interaction,
+    message ?? `messages:${preset}`,
+    message ? { joinArrays: '\n' } : { returnObjects: true },
+  );
+
+  const randomMessage = Array.isArray(found) ? found[Math.floor(Math.random() * found.length)] : found;
+  const embed = embedTypes[preset](randomMessage);
+
+  await container.reply(interaction, {
+    embeds: [embed],
+    ...props,
+  }, deleteIn);
 }
 
+// TODO: usar novo meio para gerar as mensagens aleatórias de sucesso e erro
 export const getRandomLoadingMessage = () => {
   const random = Math.floor(Math.random() * Object.keys(RandomMessages).length);
   return `messages:${Object.values(RandomMessages)[random]}`;

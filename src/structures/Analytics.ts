@@ -1,5 +1,5 @@
-import type { UserEvent } from '@/db/schemas/user-song-events';
 import { kil } from '@/db/Kil';
+import type { UserEvent } from '@/db/schemas/user-song-events';
 import { userSongEvents } from '@/db/schemas/user-song-events';
 import { logger } from '@/modules/logger-transport';
 

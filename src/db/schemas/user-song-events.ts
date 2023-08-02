@@ -1,6 +1,7 @@
-import { jsonb, pgEnum, pgSchema, timestamp, varchar } from 'drizzle-orm/pg-core';
 import { users } from '@/db/schemas/users';
+
 import type { InferModel } from 'drizzle-orm';
+import { jsonb, pgEnum, pgSchema, timestamp, varchar } from 'drizzle-orm/pg-core';
 
 export type UserEvent = InferModel<typeof userSongEvents, 'insert'> & {
   properties: UserEventProperties

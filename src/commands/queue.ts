@@ -1,9 +1,9 @@
-import { Command, container } from '@sapphire/framework';
-import { isGuildMember } from '@sapphire/discord.js-utilities';
 import { ApplyOptions } from '@sapphire/decorators';
+import { isGuildMember } from '@sapphire/discord.js-utilities';
+import { Command, container } from '@sapphire/framework';
 
-import { resolveKey } from 'twokei-i18next';
 import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
+import { sendPresetMessage } from '@/utils/utils';
 
 @ApplyOptions<Command.Options>({
   name: 'queue',
@@ -29,17 +29,12 @@ export class PlayCommand extends Command {
     const player = container.xiao.getPlayer(interaction.guild);
 
     if (!player) {
-      await container.client.replyTo(
+      await sendPresetMessage({
+        message: ErrorCodes.NO_PLAYER_FOUND,
+        preset: 'error',
         interaction,
-        {
-          description: await resolveKey(
-            interaction.guild,
-            ErrorCodes.NO_PLAYER_FOUND,
-            { ns: 'error', defaultValue: 'No player found' },
-          ) satisfies string ?? '',
-        },
-        15,
-      ); return;
+      });
+      return;
     }
 
     const { queue } = player;
@@ -50,7 +45,7 @@ export class PlayCommand extends Command {
         (track, index) => `${index + 1}. [${track?.title}](${queue.current?.uri ?? ''})`,
       );
 
-    void container.client.replyTo(interaction, {
+    await container.reply(interaction, {
       title: queue.current?.title ?? '',
       url: queue.current?.uri ?? '',
       thumbnail: {

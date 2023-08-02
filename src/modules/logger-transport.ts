@@ -1,8 +1,8 @@
-import { type CliConfigSetLevels } from 'winston/lib/winston/config';
-import { createLogger, format, transports } from 'winston';
 import {
   blue, type Color, cyan, green, red, reset, yellow,
 } from 'kleur';
+import { createLogger, format, transports } from 'winston';
+import { type CliConfigSetLevels } from 'winston/lib/winston/config';
 //
 const colors: Record<keyof CliConfigSetLevels, Color> = {
   error: red,

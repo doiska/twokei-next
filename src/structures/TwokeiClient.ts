@@ -1,23 +1,29 @@
 import {
+  type APIEmbed,
   type BaseMessageOptions,
   type ClientOptions,
   EmbedBuilder,
-  type EmbedData, type InteractionReplyOptions,
+  type InteractionReplyOptions,
   type Message,
-  type RepliableInteraction,
-  type APIEmbed,
+  type ModalSubmitInteraction, type RepliableInteraction,
 } from 'discord.js';
-import { type Awaitable, noop } from '@sapphire/utilities';
-import { send } from '@sapphire/plugin-editable-commands';
+import {
+  isAnyInteractableInteraction,
+} from '@sapphire/discord.js-utilities';
 import { container, SapphireClient } from '@sapphire/framework';
-import { isAnyInteractableInteraction } from '@sapphire/discord.js-utilities';
+import { send } from '@sapphire/plugin-editable-commands';
+import { type Awaitable, noop } from '@sapphire/utilities';
 
-import { fetchLanguage, type Target } from 'twokei-i18next';
-import { isEmbed } from '@/utils/embed-utils';
-import { SongProfileManager } from '@/structures/SongProfile';
-import { SongChannelManager } from '@/structures/SongChannels';
+import { SongProfileManager } from '@/features/song-profile/SongProfileManager';
 import { type Locale } from '@/locales/i18n';
 import { Analytics } from '@/structures/Analytics';
+import { SongChannelManager } from '@/structures/SongChannels';
+import { isEmbed } from '@/utils/embed-utils';
+
+import { fetchLanguage, type Target } from 'twokei-i18next';
+
+type AnyRepliableContext = Exclude<RepliableInteraction, ModalSubmitInteraction> | Message;
+type RepliableContent = APIEmbed | BaseMessageOptions | EmbedBuilder | string | InteractionReplyOptions;
 
 export class TwokeiClient extends SapphireClient {
   public constructor (options: ClientOptions) {
@@ -26,10 +32,13 @@ export class TwokeiClient extends SapphireClient {
     container.sc = new SongChannelManager();
     container.profiles = new SongProfileManager();
     container.analytics = new Analytics();
+
+    // TODO: move outside
+    container.reply = this.reply.bind(this);
   }
 
   async parseContent (
-    content: BaseMessageOptions | EmbedBuilder | string,
+    content: RepliableContent,
   ) {
     if (typeof content === 'string') {
       return content;
@@ -45,21 +54,21 @@ export class TwokeiClient extends SapphireClient {
     return content as BaseMessageOptions;
   }
 
-  async replyTo (
-    interaction: Message | RepliableInteraction,
-    content: BaseMessageOptions | EmbedBuilder | string | InteractionReplyOptions,
+  async reply<T extends AnyRepliableContext>(
+    interaction: T,
+    content: RepliableContent,
     deleteInSeconds = 15,
   ) {
     if (isAnyInteractableInteraction(interaction)) {
-      await this.replyToInteraction(interaction, content, deleteInSeconds); return;
+      return await this.replyToInteraction(interaction, content, deleteInSeconds);
     }
 
-    await this.replyToMessage(interaction, content, deleteInSeconds);
+    return await this.replyToMessage(interaction, content, deleteInSeconds);
   }
 
   private async replyToMessage (
     message: Message,
-    content: BaseMessageOptions | EmbedBuilder | string,
+    content: RepliableContent,
     deleteInSeconds = 15,
   ) {
     const contentParsed = await this.parseContent(content);
@@ -72,30 +81,28 @@ export class TwokeiClient extends SapphireClient {
           .catch(noop);
       }, deleteInSeconds * 1000);
     }
+
+    return response;
   }
 
   private async replyToInteraction (
-    interaction: RepliableInteraction,
-    content: BaseMessageOptions | EmbedBuilder | string | InteractionReplyOptions,
+    interaction: Exclude<RepliableInteraction, ModalSubmitInteraction>,
+    content: RepliableContent,
     deleteInSeconds = 15,
   ) {
     const contentParsed = await this.parseContent(content);
-
-    console.log(interaction.replied);
-    console.log(interaction.deferred);
-
-    if (interaction.replied || interaction.deferred) {
-      await interaction.editReply(contentParsed);
-    } else {
-      await interaction.reply(contentParsed);
-    }
-
     if (deleteInSeconds) {
       setTimeout(() => {
         interaction
           .deleteReply()
           .catch(noop);
       }, deleteInSeconds * 1000);
+    }
+
+    if (interaction.replied || interaction.deferred) {
+      return await interaction.editReply(contentParsed);
+    } else {
+      return await interaction.reply(contentParsed);
     }
   }
 
@@ -104,14 +111,8 @@ export class TwokeiClient extends SapphireClient {
   }
 }
 
-declare module '@sapphire/framework' {
-  interface SapphireClient {
-    replyTo(
-      interaction: Message | RepliableInteraction,
-      content: EmbedBuilder | BaseMessageOptions | string | EmbedData | APIEmbed | InteractionReplyOptions,
-      deleteInSeconds?: number,
-    ): Promise<void>
-
-    fetchLanguage (context: Target): Awaitable<Locale>
+declare module '@sapphire/pieces' {
+  interface Container {
+    reply: TwokeiClient['reply']
   }
 }

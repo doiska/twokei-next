@@ -7,15 +7,16 @@ import {
   ComponentType,
   EmbedBuilder,
 } from 'discord.js';
+import { ApplyOptions } from '@sapphire/decorators';
+import { isGuildMember } from '@sapphire/discord.js-utilities';
 import {
   InteractionHandler,
   InteractionHandlerTypes, type None, type Option,
 } from '@sapphire/framework';
-import { isGuildMember } from '@sapphire/discord.js-utilities';
-import { ApplyOptions } from '@sapphire/decorators';
+
+import { EmbedButtons } from '@/constants/music/player-buttons';
 
 import { fetchT } from 'twokei-i18next';
-import { EmbedButtons } from '@/constants/music/player-buttons';
 
 @ApplyOptions<InteractionHandler.Options>({
   name: 'donate-button',

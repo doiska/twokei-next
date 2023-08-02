@@ -1,14 +1,12 @@
 import type { ButtonInteraction } from 'discord.js';
-import { type Awaitable } from '@sapphire/utilities';
-import { InteractionHandler, InteractionHandlerTypes, type Option } from '@sapphire/framework';
-import { isGuildMember } from '@sapphire/discord.js-utilities';
 import { ApplyOptions } from '@sapphire/decorators';
+import { isGuildMember } from '@sapphire/discord.js-utilities';
+import { InteractionHandler, InteractionHandlerTypes, type Option } from '@sapphire/framework';
+import { type Awaitable } from '@sapphire/utilities';
 
-import { fetchT } from 'twokei-i18next';
-import { getRandomLoadingMessage } from '@/utils/utils';
-import { Embed } from '@/utils/messages';
-import { createSongProfileEmbed } from '@/features/song-profile/show-song-profile';
 import { EmbedButtons } from '@/constants/music/player-buttons';
+import { createSongProfileEmbed } from '@/features/song-profile/show-song-profile';
+import { sendPresetMessage } from '@/utils/utils';
 
 @ApplyOptions<InteractionHandler.Options>({
   name: 'profile-sync',
@@ -29,10 +27,9 @@ export class ProfileSync extends InteractionHandler {
       return;
     }
 
-    const t = await fetchT(buttonInteraction);
-
-    await buttonInteraction.reply({
-      embeds: [Embed.loading(t(getRandomLoadingMessage()) ?? 'Loading...')],
+    await sendPresetMessage({
+      interaction: buttonInteraction,
+      preset: 'loading',
     });
 
     await buttonInteraction.editReply(

@@ -1,9 +1,9 @@
 import { type GuildMember } from 'discord.js';
 
-import { FriendlyException } from '@/structures/exceptions/FriendlyException';
-import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
-import { isConnectedTo } from '@/preconditions/vc-conditions';
 import { xiao } from '@/app/Xiao';
+import { isConnectedTo } from '@/preconditions/vc-conditions';
+import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
+import { FriendlyException } from '@/structures/exceptions/FriendlyException';
 
 export const destroyPlayerInstance = async (member: GuildMember) => {
   const player = xiao.getPlayer(member.guild.id);

@@ -1,6 +1,6 @@
 import { type APIEmbed, EmbedBuilder, type SelectMenuComponentOptionData } from 'discord.js';
-import { isNullish } from '@sapphire/utilities';
 import { EmbedLimits, SelectMenuLimits } from '@sapphire/discord.js-utilities';
+import { isNullish } from '@sapphire/utilities';
 
 export function isEmbed (embed: unknown): embed is APIEmbed {
   const isEmbedBuilder = embed instanceof EmbedBuilder;

@@ -4,13 +4,14 @@ import {
   RegisterBehavior,
 } from '@sapphire/framework';
 
+import { type ArrayString, setup } from '@skyra/env-utilities';
+
 import '@sapphire/plugin-api/register';
 import '@sapphire/plugin-editable-commands/register';
 import '@sapphire/plugin-logger/register';
 import '@sapphire/plugin-subcommands/register';
-import { inspect } from 'util';
 import { join } from 'path';
-import { setup, type ArrayString } from '@skyra/env-utilities';
+import { inspect } from 'util';
 
 process.env.NODE_ENV ??= 'development';
 

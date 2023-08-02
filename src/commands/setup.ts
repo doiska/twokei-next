@@ -1,16 +1,16 @@
-import { Command, container } from '@sapphire/framework';
-import { isGuildMember } from '@sapphire/discord.js-utilities';
-import { ApplyOptions } from '@sapphire/decorators';
-
-import { fetchT } from 'twokei-i18next';
-import { Embed } from '@/utils/messages';
-import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
 import { PermissionFlagsBits } from 'discord.js';
-import { setupNewChannel } from '@/modules/config/setup-new-channel';
-import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
+import { ApplyOptions } from '@sapphire/decorators';
+import { isGuildMember } from '@sapphire/discord.js-utilities';
+import { Command } from '@sapphire/framework';
+
 import { setupGuildLanguage } from '@/modules/config/setup-guild-language';
+import { setupNewChannel } from '@/modules/config/setup-new-channel';
 import { setupSongMessage } from '@/modules/config/setup-song-message';
-import { getRandomLoadingMessage } from '@/utils/utils';
+import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
+import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
+import { sendPresetMessage } from '@/utils/utils';
+
+import { resolveKey } from 'twokei-i18next';
 
 @ApplyOptions<Command.Options>({
   name: 'setup',
@@ -35,35 +35,46 @@ export class PlayCommand extends Command {
       return;
     }
 
-    const t = await fetchT(interaction);
-
     const isAdmin = member.permissions.has(PermissionFlagsBits.Administrator);
 
     if (!isAdmin) {
-      await container.client.replyTo(
+      await sendPresetMessage({
         interaction,
-        Embed.error(t(ErrorCodes.MISSING_ADMIN_PERMISSIONS, { ns: 'error' }) ?? 'Missing permissions'),
-        15,
-      );
+        preset: 'error',
+        message: ErrorCodes.MISSING_ADMIN_PERMISSIONS,
+      });
       return;
     }
 
-    await container.client.replyTo(interaction, t(getRandomLoadingMessage()) ?? 'Loading...');
+    await sendPresetMessage({
+      preset: 'loading',
+      interaction,
+    });
 
     try {
       const response = await setupNewChannel(guild);
       const channelId = `<#${response.id}>`;
 
-      await container.client.replyTo(
+      await sendPresetMessage({
         interaction,
-        Embed.success(t('commands:setup.channel_created', { channel: channelId }) ?? 'Success'),
-        15,
-      );
+        preset: 'success',
+        message: await resolveKey<string>(
+          interaction,
+          'commands:setup.channel_created',
+          {
+            channel: channelId,
+          },
+        ) ?? 'Success',
+      });
 
       await setupGuildLanguage(response);
       await setupSongMessage(guild, response);
     } catch (error) {
-      await container.client.replyTo(interaction, Embed.error(await getReadableException(error)), 15);
+      await sendPresetMessage({
+        interaction,
+        preset: 'error',
+        message: await getReadableException(error),
+      });
     }
   }
 }

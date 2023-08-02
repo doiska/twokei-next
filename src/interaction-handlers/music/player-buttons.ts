@@ -1,25 +1,23 @@
 import { type ButtonInteraction } from 'discord.js';
+import { ApplyOptions } from '@sapphire/decorators';
+import { isGuildMember } from '@sapphire/discord.js-utilities';
 import {
   container,
   InteractionHandler,
   InteractionHandlerTypes, type Option,
 } from '@sapphire/framework';
-import { isGuildMember } from '@sapphire/discord.js-utilities';
-import { ApplyOptions } from '@sapphire/decorators';
 
-import { resolveKey } from 'twokei-i18next';
-import { getRandomLoadingMessage } from '@/utils/utils';
-import { Embed } from '@/utils/messages';
-import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
-import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
-import { skipSong } from '@/music/heizou/skip-song';
-import { shuffleQueue } from '@/music/heizou/shuffle-queue';
-import { setLoopState } from '@/music/heizou/set-loop-state';
-import { previousSong } from '@/music/heizou/previous-song';
-import { pauseSong } from '@/music/heizou/pause-song';
-import { destroyPlayerInstance } from '@/music/heizou/destroy-player-instance';
 import { PlayerButtons } from '@/constants/music/player-buttons';
-import { noop } from '@sapphire/utilities';
+import { destroyPlayerInstance } from '@/music/heizou/destroy-player-instance';
+import { pauseSong } from '@/music/heizou/pause-song';
+import { previousSong } from '@/music/heizou/previous-song';
+import { setLoopState } from '@/music/heizou/set-loop-state';
+import { shuffleQueue } from '@/music/heizou/shuffle-queue';
+import { skipSong } from '@/music/heizou/skip-song';
+import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
+import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
+import { Embed } from '@/utils/messages';
+import { sendPresetMessage } from '@/utils/utils';
 
 @ApplyOptions<InteractionHandler.Options>({
   name: 'buttons-player',
@@ -38,23 +36,18 @@ export class PlayerButtonsInteraction extends InteractionHandler {
     const player = container.xiao.getPlayer(interaction.guild);
 
     if (!player) {
+      await container.sc.reset(interaction.guild);
       return;
     }
 
     if (player.voiceId !== interaction.member?.voice?.channelId) {
-      await interaction.reply({
+      await sendPresetMessage({
+        interaction,
+        message: ErrorCodes.NOT_SAME_VC,
         ephemeral: true,
-        embeds: [
-          Embed.error(
-            await resolveKey(interaction, ErrorCodes.NOT_SAME_VC),
-          ),
-        ],
+        preset: 'error',
+        deleteIn: 8,
       });
-
-      setTimeout(() => {
-        interaction.deleteReply()
-          .catch(noop);
-      }, 8000);
       return;
     }
 
@@ -74,16 +67,12 @@ export class PlayerButtonsInteraction extends InteractionHandler {
     }
 
     try {
-      await action(interaction.member);
-
-      await interaction.reply({
-        ephemeral: true,
-        embeds: [
-          {
-            description: (await resolveKey(interaction, getRandomLoadingMessage()) satisfies string) ?? '',
-          },
-        ],
+      await sendPresetMessage({
+        preset: 'loading',
+        interaction,
       });
+
+      await action(interaction.member);
     } catch (e) {
       const readable = await getReadableException(e, interaction.guild);
 

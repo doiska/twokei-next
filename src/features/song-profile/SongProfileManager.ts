@@ -1,17 +1,16 @@
-import { and, eq, sql } from 'drizzle-orm';
-
 import { type User } from 'discord.js';
 
+import { and, eq, sql } from 'drizzle-orm';
+import { kil } from '@/db/Kil';
+import { songProfileActions } from '@/db/schemas/song-profile-actions';
 import {
   songSource,
 } from '@/db/schemas/song-source';
-import { songProfileActions } from '@/db/schemas/song-profile-actions';
-import { songProfile, type SongProfile } from '@/db/schemas/song-profile';
-import { kil } from '@/db/Kil';
-import { users } from '@/db/schemas/users';
-import { DEFAULT_LOCALE } from '@/locales/i18n';
-import { SongProfileActionManager } from '@/features/song-profile/SongProfileActionManager';
 import { userSongEvents } from '@/db/schemas/user-song-events';
+import { type RegisteredUser, users } from '@/db/schemas/users';
+
+import { SongProfileActionManager } from '@/features/song-profile/SongProfileActionManager';
+import { DEFAULT_LOCALE } from '@/locales/i18n';
 
 export class SongProfileManager {
   public actions: SongProfileActionManager;
@@ -52,11 +51,11 @@ export class SongProfileManager {
     };
   }
 
-  private async getProfile (user: User): Promise<SongProfile> {
+  private async getProfile (user: User): Promise<RegisteredUser> {
     const [profile] = await kil
       .select()
-      .from(songProfile)
-      .where(eq(songProfile.userId, user.id))
+      .from(users)
+      .where(eq(users.userId, user.id))
       .limit(1);
 
     if (!profile) {
@@ -70,10 +69,10 @@ export class SongProfileManager {
         .onConflictDoNothing();
 
       const result = await kil
-        .insert(songProfile)
+        .insert(users)
         .values({
           userId: user.id,
-          displayName: user.username,
+          name: user.username,
         })
         .returning();
 

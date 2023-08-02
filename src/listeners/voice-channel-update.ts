@@ -1,6 +1,6 @@
 import { Events, type VoiceState } from 'discord.js';
-import { container, Listener } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
+import { container, Listener } from '@sapphire/framework';
 
 type VoiceChannelUpdateTypes =
     | 'voiceChannelJoin'

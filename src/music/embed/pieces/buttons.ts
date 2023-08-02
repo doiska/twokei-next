@@ -6,10 +6,11 @@ import {
   type Guild,
   type InteractionButtonComponentData,
 } from 'discord.js';
+
 import { EmbedButtons, PlayerButtons } from '@/constants/music/player-buttons';
-import { fetchT, type TFunction } from 'twokei-i18next';
 import type { Venti } from '@/music/controllers/Venti';
-import { LoopStates } from '@/music/controllers/Venti';
+
+import { fetchT, type TFunction } from 'twokei-i18next';
 
 function parseButtonLabel<T> (t: TFunction, button: T & { label?: string, customId: string }): T & { label: string, customId: string } {
   return {
@@ -24,6 +25,10 @@ export async function createStaticButtons (guild: Guild) {
 
   return new ActionRowBuilder<ButtonBuilder>({
     components: [
+      {
+        style: ButtonStyle.Primary,
+        customId: EmbedButtons.HOW_TO_USE,
+      },
       {
         style: ButtonStyle.Secondary,
         customId: EmbedButtons.DONATE,
@@ -57,8 +62,8 @@ export async function createDynamicButtons (venti: Venti) {
       style: venti.playing ? ButtonStyle.Secondary : ButtonStyle.Primary,
       emoji: '⏸️',
       customId: PlayerButtons.PAUSE,
+      label: venti.playing ? t('player:embed.buttons.pause') : t('player:embed.buttons.resume'),
     },
-
     {
       style: ButtonStyle.Secondary,
       emoji: '⏭️',
@@ -75,7 +80,7 @@ export async function createDynamicButtons (venti: Venti) {
       disabled: venti.queue.length <= 2,
     },
     {
-      style: venti.loop === LoopStates.NONE ? ButtonStyle.Secondary : ButtonStyle.Primary,
+      style: venti.loop === 'none' ? ButtonStyle.Secondary : ButtonStyle.Primary,
       emoji: '🔁',
       label: t(`player:embed.buttons.loop.${venti.loop.toLowerCase()}`),
       customId: PlayerButtons.LOOP,

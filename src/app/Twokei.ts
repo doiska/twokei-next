@@ -2,8 +2,6 @@ import 'reflect-metadata';
 import '../modules/setup';
 import 'twokei-i18next/register';
 
-import { eq } from 'drizzle-orm';
-
 import { GatewayIntentBits, Partials } from 'discord.js';
 import {
   ApplicationCommandRegistries,
@@ -11,12 +9,14 @@ import {
   RegisterBehavior,
 } from '@sapphire/framework';
 
-import { TwokeiClient } from '@/structures/TwokeiClient';
-import pt_br from '@/locales/pt_br';
-import { DEFAULT_LOCALE, isValidLocale } from '@/locales/i18n';
-import en_us from '@/locales/en_us';
-import { guilds } from '@/db/schemas/guild';
+import { eq } from 'drizzle-orm';
 import { kil } from '@/db/Kil';
+import { guilds } from '@/db/schemas/guild';
+
+import en_us from '@/locales/en_us';
+import { DEFAULT_LOCALE, isValidLocale } from '@/locales/i18n';
+import pt_br from '@/locales/pt_br';
+import { TwokeiClient } from '@/structures/TwokeiClient';
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
   RegisterBehavior.BulkOverwrite,
@@ -55,10 +55,13 @@ export const Twokei = new TwokeiClient({
           mention: '@Twokei',
         },
       },
-      joinArrays: '\n',
     },
     defaultLanguageDirectory: './src/locales',
     fetchLanguage: async (context) => {
+      if (context.user) {
+        return 'pt_br';
+      }
+
       if (!context.guild?.id) {
         return 'pt_br';
       }

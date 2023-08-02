@@ -1,5 +1,5 @@
-import { pgSchema, varchar } from 'drizzle-orm/pg-core';
 import { type InferModel } from 'drizzle-orm';
+import { pgSchema, varchar } from 'drizzle-orm/pg-core';
 
 export const songChannels = pgSchema(process.env.PGSCHEMA ?? 'app')
   .table(

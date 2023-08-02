@@ -1,9 +1,10 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import '@total-typescript/ts-reset';
-import { type SongProfileManager } from '@/structures/SongProfile';
-import { type SongChannelManager } from '@/structures/SongChannels';
+import { type SongProfileManager } from '@/features/song-profile/SongProfileManager';
 import { type Xiao } from '@/music/controllers/Xiao';
 import { type Analytics } from '@/structures/Analytics';
+import { type SongChannelManager } from '@/structures/SongChannels';
+
+import '@total-typescript/ts-reset';
 
 declare module '@sapphire/pieces' {
   interface Container {

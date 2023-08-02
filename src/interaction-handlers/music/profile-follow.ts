@@ -1,17 +1,18 @@
+import type { ButtonInteraction } from 'discord.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import type { Option } from '@sapphire/framework';
-import { InteractionHandlerTypes, InteractionHandler, container } from '@sapphire/framework';
-import type { ButtonInteraction } from 'discord.js';
+import { container, InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework';
 import type { Awaitable } from '@sapphire/utilities';
+
 import { SongProfileButtons } from '@/constants/music/player-buttons';
-import { Embed } from '@/utils/messages';
 import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
-import { getRandomLoadingMessage } from '@/utils/utils';
-import { fetchT } from 'twokei-i18next';
+import { Embed } from '@/utils/messages';
+import { sendPresetMessage } from '@/utils/utils';
 
 @ApplyOptions<InteractionHandler.Options>({
   name: 'song-profile-interactions',
   interactionHandlerType: InteractionHandlerTypes.Button,
+  enabled: false,
 })
 export class SongProfileInteractionsHandler extends InteractionHandler {
   public async run (
@@ -22,11 +23,9 @@ export class SongProfileInteractionsHandler extends InteractionHandler {
       return;
     }
 
-    const t = await fetchT(interaction);
-
-    await interaction.reply({
-      embeds: [Embed.loading(t(getRandomLoadingMessage()) ?? 'Loading...')],
-      ephemeral: true,
+    await sendPresetMessage({
+      interaction,
+      preset: 'loading',
     });
 
     try {

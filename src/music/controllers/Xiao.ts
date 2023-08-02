@@ -1,5 +1,4 @@
 import { type Guild, type GuildResolvable } from 'discord.js';
-
 import {
   type Connector,
   type NodeOption,
@@ -10,15 +9,12 @@ import {
   type TrackStuckEvent,
   type WebSocketClosedEvent,
 } from 'shoukaku';
-import { EventEmitter } from 'events';
-import { type Maybe } from '@/utils/utils';
-import { logger, playerLogger } from '@/modules/logger-transport';
-import { Twokei } from '@/app/Twokei';
 
-import { Venti } from './Venti';
-import { ResolvableTrack } from '../structures/ResolvableTrack';
-import { SpotifyResolver } from '../resolvers/spotify/spotify-resolver';
-import { type TrackResolver } from '../resolvers/resolver';
+import { Twokei } from '@/app/Twokei';
+import { logger, playerLogger } from '@/modules/logger-transport';
+import { manualUpdate } from '@/music/embed/events/manual-update';
+import { queueEmpty } from '@/music/embed/events/queue-empty';
+import { type Maybe } from '@/utils/utils';
 import {
   Events,
   LoadType,
@@ -27,8 +23,12 @@ import {
   type XiaoSearchOptions,
   type XiaoSearchResult,
 } from '../interfaces/player.types';
-import { queueEmpty } from '@/music/embed/events/queue-empty';
-import { manualUpdate } from '@/music/embed/events/manual-update';
+import { type TrackResolver } from '../resolvers/resolver';
+import { SpotifyResolver } from '../resolvers/spotify/spotify-resolver';
+import { ResolvableTrack } from '../structures/ResolvableTrack';
+import { Venti } from './Venti';
+
+import { EventEmitter } from 'events';
 
 export interface XiaoEvents {
   /**
@@ -164,7 +164,9 @@ export class Xiao extends EventEmitter {
     this.shoukaku.on('close', (name, code, reason) => playerLogger.debug(
       `[Shoukaku] Node ${name} closed with code ${code} and reason ${reason}`,
     ));
+
     this.shoukaku.on('error', (name, error) => playerLogger.error(`[Shoukaku] Node ${name} emitted error: ${error.message}`, { error }));
+    this.shoukaku.on('debug', (name, info) => playerLogger.debug(`${name} ${info}`));
 
     this.on(Events.Debug, (message) => logger.debug(message));
 

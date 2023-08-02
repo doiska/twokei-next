@@ -3,12 +3,9 @@ import {
   Colors,
   formatEmoji,
   type Guild,
-  userMention,
 } from 'discord.js';
 
 import { fetchT } from 'twokei-i18next';
-
-import { Twokei } from '@/app/Twokei';
 
 const arts = [
   {
@@ -20,7 +17,7 @@ const arts = [
 ];
 
 export const createDefaultSongEmbed = async (guild: Guild): Promise<APIEmbed> => {
-  const mention = Twokei.user?.id ? userMention(Twokei.user.id) : '@Twokei';
+  const mention = guild.members.me?.toString() ?? '@Twokei';
 
   const lightEmoji = formatEmoji('1069597636950249523');
   const randomArt = arts[Math.floor(Math.random() * arts.length)];

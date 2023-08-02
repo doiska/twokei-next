@@ -1,13 +1,12 @@
 import { type GuildMember } from 'discord.js';
 import { canJoinVoiceChannel, isVoiceChannel } from '@sapphire/discord.js-utilities';
 
-import { PlayerException } from '@/structures/exceptions/PlayerException';
-import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
-import { isConnectedTo } from '@/preconditions/vc-conditions';
 import { xiao } from '@/app/Xiao';
-
-import { createPlayerInstance } from './create-player-instance';
+import { isConnectedTo } from '@/preconditions/vc-conditions';
+import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
+import { PlayerException } from '@/structures/exceptions/PlayerException';
 import { Events } from '../interfaces/player.types';
+import { createPlayerInstance } from './create-player-instance';
 
 export async function addNewSong (input: string, member: GuildMember) {
   const { guild } = member;

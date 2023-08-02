@@ -1,12 +1,11 @@
 import { type Guild, type TextChannel } from 'discord.js';
 import {
+  canSendMessages,
   isGuildBasedChannel,
   isTextChannel,
-  canSendMessages,
 } from '@sapphire/discord.js-utilities';
 
 import { type Maybe } from '@/utils/utils';
-
 import { logger } from '../modules/logger-transport';
 
 export const findAnyUsableChannel = async (

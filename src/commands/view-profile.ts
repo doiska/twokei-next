@@ -1,9 +1,11 @@
-import { type ApplicationCommandRegistry, Command } from '@sapphire/framework';
+import { ApplicationCommandType, ComponentType, type User } from 'discord.js';
 import { ApplyOptions } from '@sapphire/decorators';
+import { isGuildMember } from '@sapphire/discord.js-utilities';
+import { type ApplicationCommandRegistry, Command, container } from '@sapphire/framework';
 import type { Awaitable } from '@sapphire/utilities';
+import { noop } from '@sapphire/utilities';
+
 import { createSongProfileEmbed } from '@/features/song-profile/show-song-profile';
-import { ApplicationCommandType } from 'discord.js';
-import { isGuildMember, isTextChannel } from '@sapphire/discord.js-utilities';
 
 @ApplyOptions<Command.Options>({
   name: 'profile',
@@ -21,7 +23,8 @@ export class ViewProfile extends Command {
         .addUserOption((option) =>
           option
             .setName('user')
-            .setDescription('The user to view the profile of')));
+            .setDescription('The user to view the profile of')
+            .setRequired(false)));
 
     registry.registerContextMenuCommand((builder) =>
       builder.setName('View music profile')
@@ -29,7 +32,7 @@ export class ViewProfile extends Command {
   }
 
   public async chatInputRun (interaction: Command.ChatInputCommandInteraction) {
-    const user = interaction.options.getUser('user', true) ?? interaction.user;
+    const user = interaction.options.getUser('user', false) ?? interaction.user;
 
     if (!interaction.guild) {
       await interaction.reply({
@@ -53,12 +56,44 @@ export class ViewProfile extends Command {
 
     const target = interaction.targetUser;
 
-    const reply = await createSongProfileEmbed(interaction.user, target);
+    await this.sendEmbed(
+      interaction,
+      target,
+    );
+  }
 
-    if (interaction.channel && isTextChannel(interaction.channel)) {
-      await interaction.reply(reply);
-    } else {
-      await interaction.user.send(reply);
+  private async sendEmbed (
+    interaction: Command.ContextMenuCommandInteraction | Command.ChatInputCommandInteraction,
+    target: User,
+  ) {
+    if (!interaction.isRepliable()) {
+      return;
     }
+
+    const duration = 30;
+
+    const replyContent = await createSongProfileEmbed(interaction.user, target);
+
+    const response = await container.reply(interaction, {
+      ...replyContent,
+      ephemeral: interaction.user.id !== target.id,
+    }, duration);
+
+    const collector = response.createMessageComponentCollector({
+      componentType: ComponentType.Button,
+      filter: i => i.user.id === interaction.user.id,
+      time: duration * 1000,
+    });
+
+    collector.on('collect', async buttonInteraction => {
+      await buttonInteraction.deferUpdate();
+      await container.profiles.actions.toggleLike(interaction.user.id, target.id);
+      await interaction.editReply(await createSongProfileEmbed(interaction.user, target));
+    });
+
+    collector.on('end', async () => {
+      await interaction.deleteReply()
+        .catch(noop);
+    });
   }
 }

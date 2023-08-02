@@ -1,19 +1,19 @@
 import { type User } from 'discord.js';
 
 import {
+  LoadType,
+  type XiaoSearchOptions,
+  type XiaoSearchResult,
+} from '../../interfaces/player.types';
+import { ResolvableTrack } from '../../structures/ResolvableTrack';
+import { type TrackResolver } from '../resolver';
+import {
   type PlaylistTracks,
   type SpotifyPlaylistResponse,
   type SpotifySearchResponse,
   type SpotifyTrackResponse,
 } from './spotify.types';
 import { SpotifyRequestManager } from './spotify-request-manager';
-import { type TrackResolver } from '../resolver';
-import { ResolvableTrack } from '../../structures/ResolvableTrack';
-import {
-  LoadType,
-  type XiaoSearchOptions,
-  type XiaoSearchResult,
-} from '../../interfaces/player.types';
 
 interface SpotifyClient {
   clientId: string

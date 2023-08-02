@@ -1,9 +1,8 @@
-import type { Venti } from '@/music/controllers/Venti';
 import { logger } from '@/modules/logger-transport';
-
-import { type Events } from '../../interfaces/player.types';
-import type { XiaoEvents } from '../../controllers/Xiao';
+import type { Venti } from '@/music/controllers/Venti';
 import { createDefaultEmbed, createSongEmbed } from '@/music/embed/pieces';
+import type { XiaoEvents } from '../../controllers/Xiao';
+import { type Events } from '../../interfaces/player.types';
 
 export async function reset (venti: Venti) {
   await venti.embedMessage?.edit(await createDefaultEmbed(venti.guild))
