@@ -1,14 +1,10 @@
 import { type Guild } from 'discord.js';
 import { container } from '@sapphire/framework';
-import {
-  isGuildBasedChannel,
-  isMessageInstance,
-  isTextChannel,
-} from '@sapphire/discord.js-utilities';
+
+import { xiao } from '@/app/Xiao';
+import { type VentiInitOptions } from '@/music/interfaces/player.types';
 
 import { fetchLanguage } from 'twokei-i18next';
-import { type VentiInitOptions } from '@/music/interfaces/player.types';
-import { xiao } from '@/app/Xiao';
 
 interface InitOptions {
   guild: Guild
@@ -31,22 +27,13 @@ export async function createPlayerInstance ({
     lang: await fetchLanguage(guild) as 'en_us' | 'pt_br',
   };
 
-  const songChannel = await container.sc.get(guild.id);
+  const {
+    message,
+    channel,
+  } = await container.sc.getEmbed(guild) ?? {};
 
-  if (songChannel) {
-    const channel = await guild.channels
-      .fetch(songChannel.channelId)
-      .catch(() => null);
-
-    if (isGuildBasedChannel(channel) && isTextChannel(channel)) {
-      const message = await channel.messages
-        .fetch(songChannel.messageId)
-        .catch(() => null);
-
-      if (message && isMessageInstance(message)) {
-        playerOptions.embedMessage = message;
-      }
-    }
+  if (message && channel) {
+    playerOptions.embedMessage = message;
   }
 
   return await xiao.createPlayer(playerOptions);

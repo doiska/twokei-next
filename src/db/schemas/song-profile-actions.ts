@@ -1,6 +1,5 @@
-import { pgEnum, pgSchema, timestamp, varchar } from 'drizzle-orm/pg-core';
 import { type InferModel } from 'drizzle-orm';
-
+import { pgEnum, pgSchema, timestamp, varchar } from 'drizzle-orm/pg-core';
 import { users } from '@/db/schemas/users';
 
 const actionsEnum = pgEnum('song_profile_action', ['follow', 'like']);

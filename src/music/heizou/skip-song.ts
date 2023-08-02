@@ -1,8 +1,8 @@
 import { type GuildMember } from 'discord.js';
 import { container } from '@sapphire/framework';
 
-import { FriendlyException } from '@/structures/exceptions/FriendlyException';
 import { isConnectedTo } from '@/preconditions/vc-conditions';
+import { FriendlyException } from '@/structures/exceptions/FriendlyException';
 
 export const skipSong = async (member: GuildMember, amount = 1) => {
   const player = container.xiao.getPlayer(member);

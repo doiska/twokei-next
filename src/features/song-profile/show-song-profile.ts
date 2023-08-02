@@ -1,9 +1,10 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Colors, EmbedBuilder, type User } from 'discord.js';
-
-import { fetchT } from 'twokei-i18next';
 import { container } from '@sapphire/framework';
-import { match } from 'ts-pattern';
+
 import { SongProfileButtons } from '@/constants/music/player-buttons';
+
+import { match } from 'ts-pattern';
+import { fetchT } from 'twokei-i18next';
 
 const Sources = {
   youtube: {
@@ -125,5 +126,6 @@ export async function createSongProfileEmbed (
   return {
     embeds: [profileEmbed],
     components: [row],
+    ephemeral: true,
   };
 }

@@ -1,9 +1,8 @@
 import { type User } from 'discord.js';
-
+import { container } from '@sapphire/framework';
 import { type Track } from 'shoukaku';
-import { escapeRegExp } from '@/utils/utils';
 
-import { xiao } from '../../app/Xiao';
+import { escapeRegExp } from '@/utils/utils';
 
 interface ResolvableTrackOptions {
   requester?: User
@@ -142,7 +141,7 @@ export class ResolvableTrack {
     const query = [this.title, this.author].filter(Boolean)
       .join(' - ');
 
-    const response = await xiao.search(query, {
+    const response = await container.xiao.search(query, {
       requester: this.requester,
       engine: source,
     });

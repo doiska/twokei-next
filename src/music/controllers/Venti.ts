@@ -1,5 +1,4 @@
 import { type Guild, type Message, type Snowflake } from 'discord.js';
-
 import {
   type Player,
   type PlayerUpdate,
@@ -7,19 +6,19 @@ import {
   type TrackStuckEvent,
   type WebSocketClosedEvent,
 } from 'shoukaku';
-import { type Maybe } from '@/utils/utils';
-import { logger } from '@/modules/logger-transport';
-import { type Locale } from '@/locales/i18n';
 
-import type { Xiao, XiaoEvents } from './Xiao';
-import { TrackQueue } from '../structures/TrackQueue';
-import { ResolvableTrack } from '../structures/ResolvableTrack';
+import { type Locale } from '@/locales/i18n';
+import { logger, playerLogger } from '@/modules/logger-transport';
+import { type Maybe } from '@/utils/utils';
 import {
   Events,
   PlayerState,
   type PlayOptions,
   type VentiInitOptions,
 } from '../interfaces/player.types';
+import { ResolvableTrack } from '../structures/ResolvableTrack';
+import { TrackQueue } from '../structures/TrackQueue';
+import type { Xiao, XiaoEvents } from './Xiao';
 
 export enum LoopStates {
   NONE = 'none',
@@ -40,11 +39,6 @@ export class Venti {
   public readonly guild: Guild;
 
   public readonly guildId: Snowflake;
-
-  /*
-
-   */
-
   /**
    * The voice channel id.
    */
@@ -295,18 +289,18 @@ export class Venti {
       amount = this.queue.totalSize;
     }
 
-    if (this.loop === LoopStates.TRACK) {
-      this.loop = LoopStates.NONE;
-    }
+    // if (this.loop === LoopStates.TRACK) {
+    //   this.loop = LoopStates.NONE;
+    // }
 
     this.queue.removeAt(0, amount - 1);
 
-    logger.debug(
+    playerLogger.debug(
       `Skipping ${amount} tracks for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`,
     );
 
-    logger.debug(`Current track is ${this.queue.current?.title ?? 'none'}`);
-    logger.debug(`Next track will be ${this.queue[0]?.title}`);
+    playerLogger.debug(`Current track: ${this.queue.current?.title ?? 'none'}`);
+    playerLogger.debug(`Next track: ${this.queue[0]?.title ?? 'none'}`);
 
     this.instance.stopTrack();
     return this;
@@ -328,6 +322,7 @@ export class Venti {
     logger.debug(
       `Player for guild ${this.guildId} is now ${state ? 'paused' : 'playing'}`,
     );
+
     this.emit(Events.TrackPause, this);
 
     return this.paused;

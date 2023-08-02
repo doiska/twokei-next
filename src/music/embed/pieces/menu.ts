@@ -1,6 +1,7 @@
-import { type TrackQueue } from '@/music/structures/TrackQueue';
 import { ActionRowBuilder, type SelectMenuComponentOptionData, StringSelectMenuBuilder } from 'discord.js';
+
 import { Menus } from '@/constants/music/player-buttons';
+import { type TrackQueue } from '@/music/structures/TrackQueue';
 import { assertMenuSize } from '@/utils/embed-utils';
 
 export const createSelectMenu = (tracks?: TrackQueue) => {

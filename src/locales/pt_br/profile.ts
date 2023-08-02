@@ -1,10 +1,12 @@
 export default {
   embed: {
+    ranking_world: '#{{rank.position}} no mundo',
+    title_ranked: '## {{tag}} {{rank.emoji}} $t(profile:embed.ranking_world)',
+    title_unranked: '## {{tag}} - Sem rank :(',
+    premium: '# <a:premium:1129096922943197300> Premium',
     description: [
-      '# <a:premium:1129096922943197300> Premium',
-      '## {{tag}} (#{{rank}} no mundo {{rankEmoji}})',
-      '- ⭐ **Seguidores:** {{followers}} pessoas',
-      '- 🎧 **Músicas ouvidas:** {{listened}}',
+      '- ⭐ {{likes}} curtidas',
+      '- 🎧 {{listened}} músicas ouvidas',
     ],
   },
 };

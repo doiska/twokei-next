@@ -1,12 +1,12 @@
 import { Events, type Guild } from 'discord.js';
-import { Listener } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
+import { Listener } from '@sapphire/framework';
 
-import { FriendlyException } from '@/structures/exceptions/FriendlyException';
-import { logger } from '@/modules/logger-transport';
-import { setupNewChannel } from '@/modules/config/setup-new-channel';
-import { guilds } from '@/db/schemas/guild';
 import { kil } from '@/db/Kil';
+import { guilds } from '@/db/schemas/guild';
+import { setupNewChannel } from '@/modules/config/setup-new-channel';
+import { logger } from '@/modules/logger-transport';
+import { FriendlyException } from '@/structures/exceptions/FriendlyException';
 
 @ApplyOptions<Listener.Options>({
   name: 'guild-setup-event',

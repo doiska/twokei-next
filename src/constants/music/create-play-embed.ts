@@ -1,8 +1,9 @@
 import { ActionRowBuilder, type APIEmbed, ButtonBuilder, ButtonStyle, type GuildMember } from 'discord.js';
 
-import { type TFunction } from 'twokei-i18next';
-import { Embed } from '@/utils/messages';
 import type { XiaoSearchResult } from '@/music/interfaces/player.types';
+import { Embed } from '@/utils/messages';
+
+import { type TFunction } from 'twokei-i18next';
 
 export const createPlayEmbed = (t: TFunction, member: GuildMember, result: XiaoSearchResult) => {
   const [track, ...rest] = result.tracks;

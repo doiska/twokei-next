@@ -1,7 +1,7 @@
 import type { Client } from 'discord.js';
 import { Events } from 'discord.js';
-import { Listener } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
+import { Listener } from '@sapphire/framework';
 
 import { logger } from '@/modules/logger-transport';
 

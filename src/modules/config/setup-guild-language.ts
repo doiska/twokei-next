@@ -1,5 +1,3 @@
-import { eq } from 'drizzle-orm';
-
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -10,11 +8,13 @@ import {
   type PermissionsBitField,
 } from 'discord.js';
 
-import { fetchT } from 'twokei-i18next';
-import { type Locale, LocaleFlags, VALID_LOCALES } from '@/locales/i18n';
-import { guilds } from '@/db/schemas/guild';
-import { kil } from '@/db/Kil';
 import { Twokei } from '@/app/Twokei';
+import { kil } from '@/db/Kil';
+import { guilds } from '@/db/schemas/guild';
+import { type Locale, LocaleFlags, VALID_LOCALES } from '@/locales/i18n';
+
+import { eq } from 'drizzle-orm';
+import { fetchT } from 'twokei-i18next';
 
 export async function setupGuildLanguage (channel: GuildTextBasedChannel) {
   const { guild } = channel;

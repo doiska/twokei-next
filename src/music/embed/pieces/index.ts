@@ -1,8 +1,9 @@
 import type { Guild } from 'discord.js';
-import { createDefaultSongEmbed } from '@/music/embed/pieces/embed';
-import { createDynamicButtons, createStaticButtons } from '@/music/embed/pieces/buttons';
-import { createSelectMenu } from '@/music/embed/pieces/menu';
+
 import type { Venti } from '@/music/controllers/Venti';
+import { createDynamicButtons, createStaticButtons } from '@/music/embed/pieces/buttons';
+import { createDefaultSongEmbed } from '@/music/embed/pieces/embed';
+import { createSelectMenu } from '@/music/embed/pieces/menu';
 
 export async function createDefaultEmbed (guild: Guild) {
   return {

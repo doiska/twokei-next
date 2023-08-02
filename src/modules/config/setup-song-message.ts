@@ -1,5 +1,6 @@
 import type { Guild, TextChannel } from 'discord.js';
 import { container } from '@sapphire/framework';
+
 import { createDefaultEmbed } from '@/music/embed/pieces';
 
 export async function setupSongMessage (guild: Guild, channel: TextChannel) {

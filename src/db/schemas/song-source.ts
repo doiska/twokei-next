@@ -1,8 +1,6 @@
-import { pgEnum, pgSchema, timestamp, varchar } from 'drizzle-orm/pg-core';
 import { type InferModel } from 'drizzle-orm';
-
-import { users } from '@/db/schemas/users';
-import { type SongProfile } from '@/db/schemas/song-profile';
+import { pgEnum, pgSchema, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { type RegisteredUser, users } from '@/db/schemas/users';
 
 const sourcesEnum = pgEnum('source', ['YouTube', 'Deezer', 'Spotify']);
 
@@ -26,4 +24,4 @@ export const songSource = pgSchema(process.env.PGSCHEMA ?? 'app')
 
 export type SongSource = Omit<InferModel<typeof songSource>, 'userId'>;
 
-export type SongProfileWithSources = SongProfile & { sources: SongSource[], ranking: { position: number, likes: number } };
+export type SongProfileWithSources = RegisteredUser & { sources: SongSource[], ranking: { position: number, likes: number } };

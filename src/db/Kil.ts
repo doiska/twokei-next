@@ -1,7 +1,7 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-
-import { Pool } from 'pg';
 import { queryLogger } from '@/modules/logger-transport';
+
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 
 const dbClient = new Pool({
   connectionString: process.env.DATABASE_URL,

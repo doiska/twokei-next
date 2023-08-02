@@ -1,7 +1,7 @@
 import { type GuildResolvable } from 'discord.js';
+import { container } from '@sapphire/framework';
 
 import { FriendlyException } from '@/structures/exceptions/FriendlyException';
-import { container } from '@sapphire/framework';
 
 export const pauseSong = async (guild: GuildResolvable) => {
   const player = container.xiao.getPlayer(guild);

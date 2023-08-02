@@ -1,13 +1,14 @@
 import { type SelectMenuInteraction } from 'discord.js';
-import { type Awaitable } from '@sapphire/utilities';
-import { InteractionHandler, InteractionHandlerTypes, type Option } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
+import { InteractionHandler, InteractionHandlerTypes, type Option } from '@sapphire/framework';
+import { type Awaitable } from '@sapphire/utilities';
+
+import { Menus } from '@/constants/music/player-buttons';
+import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
+import { Embed } from '@/utils/messages';
+import { getRandomLoadingMessage } from '@/utils/utils';
 
 import { resolveKey } from 'twokei-i18next';
-import { getRandomLoadingMessage } from '@/utils/utils';
-import { Embed } from '@/utils/messages';
-import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
-import { Menus } from '@/constants/music/player-buttons';
 
 @ApplyOptions<InteractionHandler.Options>({
   name: 'player-menu',

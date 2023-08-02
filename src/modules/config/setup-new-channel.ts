@@ -1,12 +1,12 @@
 import {
   ChannelType, type Guild, PermissionFlagsBits, PermissionsBitField,
 } from 'discord.js';
-import { container } from '@sapphire/framework';
 import { canSendMessages } from '@sapphire/discord.js-utilities';
+import { container } from '@sapphire/framework';
+import { noop } from '@sapphire/utilities';
 
-import { noop } from '@/utils/utils';
-import { FriendlyException } from '@/structures/exceptions/FriendlyException';
 import { Twokei } from '@/app/Twokei';
+import { FriendlyException } from '@/structures/exceptions/FriendlyException';
 
 export const setupNewChannel = async (guild: Guild) => {
   const self = guild.members.me;

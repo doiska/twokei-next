@@ -1,9 +1,9 @@
 import { container } from '@sapphire/framework';
-
 import { Connectors } from 'shoukaku';
-import { Nodes, shoukakuOptions } from '@/music/options';
-import { Xiao } from '@/music/controllers/Xiao';
+
 import { Twokei } from '@/app/Twokei';
+import { Xiao } from '@/music/controllers/Xiao';
+import { Nodes, shoukakuOptions } from '@/music/options';
 
 const sourcesUrl = [
   'https://raw.githubusercontent.com/DarrenOfficial/lavalink-list/master/docs/NoSSL/lavalink-without-ssl.md',
