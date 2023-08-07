@@ -13,7 +13,7 @@ import { addNewSong } from '@/music/heizou/add-new-song';
 import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
 import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
 import { Embed } from '@/utils/messages';
-import { getRandomLoadingMessage } from '@/utils/utils';
+import { sendPresetMessage } from '@/utils/utils';
 
 import { fetchT, resolveKey } from 'twokei-i18next';
 
@@ -55,19 +55,18 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
       const t = await fetchT(message);
 
       if (!hasMentions) {
-        const response = t(ErrorCodes.MISSING_MESSAGE,
-          {
-            joinArrays: '\n',
-            ns: 'error',
-            mention: this.container.client.user?.toString(),
-            defaultValue: ErrorCodes.MISSING_MESSAGE,
-          });
-
-        void container.reply(message, Embed.error(response));
+        await sendPresetMessage({
+          interaction: message,
+          message: ErrorCodes.MISSING_MESSAGE,
+          preset: 'error',
+        });
         return;
       }
 
-      await container.reply(message, Embed.loading(getRandomLoadingMessage()));
+      await sendPresetMessage({
+        interaction: message,
+        preset: 'loading',
+      });
 
       const result = await addNewSong(contentOnly, member);
 
@@ -91,7 +90,8 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
               },
             });
           }
-          void response.deferUpdate();
+
+          await response.deferUpdate();
         })
         .catch(noop);
     } catch (e) {
