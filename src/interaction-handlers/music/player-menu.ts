@@ -1,14 +1,11 @@
-import { type SelectMenuInteraction } from 'discord.js';
+import { type StringSelectMenuInteraction } from 'discord.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { InteractionHandler, InteractionHandlerTypes, type Option } from '@sapphire/framework';
 import { type Awaitable } from '@sapphire/utilities';
 
 import { Menus } from '@/constants/music/player-buttons';
 import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
-import { Embed } from '@/utils/messages';
-import { getRandomLoadingMessage } from '@/utils/utils';
-
-import { resolveKey } from 'twokei-i18next';
+import { sendPresetMessage } from '@/utils/utils';
 
 @ApplyOptions<InteractionHandler.Options>({
   name: 'player-menu',
@@ -16,7 +13,7 @@ import { resolveKey } from 'twokei-i18next';
   interactionHandlerType: InteractionHandlerTypes.SelectMenu,
 })
 export class PlayerMenu extends InteractionHandler {
-  public override parse (interaction: SelectMenuInteraction): Awaitable<Option<string | number>> {
+  public override parse (interaction: StringSelectMenuInteraction): Awaitable<Option<string | number>> {
     const [value] = interaction.values ?? [];
 
     if (interaction.customId !== Menus.SelectSongMenu) {
@@ -41,7 +38,7 @@ export class PlayerMenu extends InteractionHandler {
   }
 
   public override async run (
-    interaction: SelectMenuInteraction,
+    interaction: StringSelectMenuInteraction,
     option: InteractionHandler.ParseResult<this>,
   ) {
     if (!interaction.guildId) {
@@ -54,9 +51,10 @@ export class PlayerMenu extends InteractionHandler {
       return;
     }
 
-    await interaction.reply({
+    await sendPresetMessage({
+      interaction,
+      preset: 'loading',
       ephemeral: true,
-      embeds: [Embed.success(await resolveKey(interaction, getRandomLoadingMessage()))],
     });
 
     try {
@@ -67,12 +65,13 @@ export class PlayerMenu extends InteractionHandler {
       } else if (typeof option === 'number') {
         await player.skip(option + 1);
       }
-    } catch (error) {
-      await interaction.editReply({
-        embeds: [Embed.error(await getReadableException(error, interaction.guild))],
-      });
-    } finally {
       await interaction.deleteReply();
+    } catch (error) {
+      await sendPresetMessage({
+        interaction,
+        message: await getReadableException(error, interaction.guild),
+        preset: 'error',
+      });
     }
   }
 }

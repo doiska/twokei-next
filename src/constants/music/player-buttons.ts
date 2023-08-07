@@ -31,6 +31,7 @@ export enum EmbedButtons {
 }
 
 export enum SongProfileButtons {
+  EDIT_PROFILE = 'edit-profile',
   LIKE_PROFILE = 'like_profile',
   FOLLOW_PROFILE = 'follow_profile',
   VIEW_PLAYLISTS = 'view_playlists',

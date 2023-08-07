@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import '../modules/setup';
+import '../utils/setup';
 import 'twokei-i18next/register';
 
 import { GatewayIntentBits, Partials } from 'discord.js';
@@ -55,6 +55,7 @@ export const Twokei = new TwokeiClient({
           mention: '@Twokei',
         },
       },
+      joinArrays: '\n',
     },
     defaultLanguageDirectory: './src/locales',
     fetchLanguage: async (context) => {
