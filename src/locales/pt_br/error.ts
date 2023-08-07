@@ -12,13 +12,14 @@ export default {
   [ErrorCodes.NO_PLAYER_FOUND]:
     'There is no player in this server, use the `play` command to start playing music.',
   [ErrorCodes.MISSING_PERMISSIONS_JOIN_VC]: 'Eu não tenho permissão para entrar no canal de voz.',
-  [ErrorCodes.PLAYER_MISSING_INPUT]: 'Você deve informar o nome da música.',
+  [ErrorCodes.PLAYER_MISSING_INPUT]: 'Você deve informar o nome/link da música.',
   [ErrorCodes.MISSING_MESSAGE]: [
     '## Mencione o bot e a música.',
     '### {{- mention}} <link/nome>',
     '',
-    'Isso ocorre devido a uma limitação do `Discord`',
+    'Isso ocorre devido a uma limitação do `Discord`.',
     'Para usar este canal você precisa enviar uma mensagem mencionando o bot.',
+    'Ou utilize o comando ``/play``',
   ],
   [ErrorCodes.MISSING_SONG_CHANNEL]: 'O canal de música não foi definido neste servidor, use /setup e garanta que o bot tenha as permissões necessárias.',
   [ErrorCodes.USE_SONG_CHANNEL]: 'Envie a mensagem no {{- song_channel}} para que eu possa tocar a música.',

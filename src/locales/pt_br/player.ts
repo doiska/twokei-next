@@ -53,13 +53,14 @@ export default {
   },
   play: {
     embed: {
-      title: '{{track.title}} ({{track.author}})',
-      url: '{{- track.uri}}',
       author: {
         name: 'Solicitado por {{- member.name}}!',
         icon_url: '{{- member.avatarUrl}}',
       },
-      description: 'Com outras {{queue.length}} faixas.',
+      description: [
+        '### [{{track.title}}]({{- track.uri}})',
+        '### ({{track.author}})',
+      ].join('\n'),
       thumbnail: {
         url: '{{- track.thumbnail}}',
       },

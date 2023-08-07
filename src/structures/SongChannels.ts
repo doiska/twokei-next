@@ -2,11 +2,11 @@ import { type Guild, type GuildResolvable } from 'discord.js';
 import { isGuildBasedChannel, isTextChannel } from '@sapphire/discord.js-utilities';
 import { container } from '@sapphire/framework';
 
+import { eq } from 'drizzle-orm';
 import { kil } from '@/db/Kil';
 import { type SongChannel, songChannels } from '@/db/schemas/song-channels';
-import { createDefaultEmbed } from '@/music/embed/pieces';
 
-import { eq } from 'drizzle-orm';
+import { createDefaultEmbed } from '@/music/embed/pieces';
 
 export class SongChannelManager {
   private readonly cache = new Map<string, SongChannel>();
