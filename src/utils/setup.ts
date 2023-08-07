@@ -1,4 +1,9 @@
 // Unless explicitly defined, set NODE_ENV as development:
+import '@sapphire/plugin-api/register';
+import '@sapphire/plugin-editable-commands/register';
+import '@sapphire/plugin-logger/register';
+import '@sapphire/plugin-subcommands/register';
+
 import {
   ApplicationCommandRegistries,
   RegisterBehavior,
@@ -6,10 +11,6 @@ import {
 
 import { type ArrayString, setup } from '@skyra/env-utilities';
 
-import '@sapphire/plugin-api/register';
-import '@sapphire/plugin-editable-commands/register';
-import '@sapphire/plugin-logger/register';
-import '@sapphire/plugin-subcommands/register';
 import { join } from 'path';
 import { inspect } from 'util';
 

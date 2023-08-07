@@ -3,28 +3,47 @@ import { Colors } from 'discord.js';
 
 function createEmbed (defaultData: APIEmbed & { appendStart?: string }) {
   // eslint-disable-next-line func-names
-  return function (data: string | string[] | APIEmbed): APIEmbed {
+  return function (rawContent: string | string[] | APIEmbed): APIEmbed {
     const {
       appendStart = '',
       ...defaultEmbed
     } = defaultData;
 
-    if (typeof data === 'string') {
+    if (typeof rawContent === 'string') {
+      const [firstLine, ...rest] = rawContent.split('\n');
+      console.log(`First line ${firstLine}`);
+
+      const lastHashPosition = firstLine.lastIndexOf('#');
+
+      console.log(lastHashPosition);
+
+      if (lastHashPosition !== -1) {
+        const prefix = firstLine.substring(0, lastHashPosition + 1);
+        const restOfFirstLine = firstLine.substring(lastHashPosition + 2);
+
+        const content = `${prefix} ${appendStart} ${restOfFirstLine}`;
+
+        return {
+          description: [content, ...rest].join('\n'),
+          ...defaultEmbed,
+        };
+      }
+
       return {
-        ...(data !== '' && { description: `${appendStart} ${data}` }),
+        ...(rawContent !== '' && { description: rawContent }),
         ...defaultEmbed,
       };
     }
 
-    if (Array.isArray(data)) {
+    if (Array.isArray(rawContent)) {
       return {
-        description: data.join('\n'),
+        description: rawContent.join('\n'),
         ...defaultEmbed,
       };
     }
 
     return {
-      ...data,
+      ...rawContent,
       ...defaultEmbed,
     };
   };
@@ -33,14 +52,14 @@ function createEmbed (defaultData: APIEmbed & { appendStart?: string }) {
 export const Embed = {
   error: createEmbed({
     color: Colors.Red,
-    appendStart: '### <:hanakin:1121884455225786478>',
+    appendStart: '<:hanakin:1121884455225786478>',
   }),
   loading: createEmbed({
     color: Colors.Yellow,
-    appendStart: '### ✨',
+    appendStart: '✨',
   }),
   success: createEmbed({
     color: Colors.Green,
-    appendStart: '### <a:raio:1121849523854118973>',
+    appendStart: '<a:raio:1121849523854118973>',
   }),
 } as const;
