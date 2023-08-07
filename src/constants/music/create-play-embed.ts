@@ -41,6 +41,7 @@ export const createPlayEmbed = (t: TFunction, member: GuildMember, result: XiaoS
   });
 
   const embedTranslation = t('player:play.embed', {
+    type: result.type === 'TRACK_LOADED' ? 'Track' : 'Playlist',
     track: {
       title: track.title,
       author: track.author,
@@ -56,6 +57,15 @@ export const createPlayEmbed = (t: TFunction, member: GuildMember, result: XiaoS
     },
     returnObjects: true,
   }) satisfies APIEmbed;
+
+  if (rest.length && embedTranslation.description) {
+    embedTranslation.description = [
+      ...embedTranslation.description.split('\n'),
+      t('player:with_songs', {
+        amount: rest.length,
+      }),
+    ].join('\n');
+  }
 
   const responseEmbed = Embed.success(embedTranslation);
 

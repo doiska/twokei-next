@@ -24,6 +24,6 @@ export const getReadableException = async (error: unknown, guild?: Guild | null)
     }) ?? 'An unexpected error occurred, please try again later.';
   }
 
-  logger.error(error);
+  logger.error('An unhandled exception occurred', { error, guild: guild ?? {} });
   return 'An unexpected error occurred, please try again later.';
 };

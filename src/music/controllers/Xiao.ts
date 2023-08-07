@@ -1,4 +1,5 @@
 import { type Guild, type GuildResolvable } from 'discord.js';
+import { type Awaitable, noop } from '@sapphire/utilities';
 import {
   type Connector,
   type NodeOption,
@@ -13,6 +14,7 @@ import {
 import { Twokei } from '@/app/Twokei';
 import { logger, playerLogger } from '@/modules/logger-transport';
 import { manualUpdate } from '@/music/embed/events/manual-update';
+import { handlePlayerException } from '@/music/embed/events/player-exception';
 import { queueEmpty } from '@/music/embed/events/queue-empty';
 import { type Maybe } from '@/utils/utils';
 import {
@@ -79,7 +81,7 @@ export interface XiaoEvents {
   /**
    * Emitted when a player got an exception.
    */
-  [Events.PlayerException]: (venti: Venti, data: TrackExceptionEvent) => void
+  [Events.PlayerException]: (venti: Venti, data: TrackExceptionEvent) => Awaitable<void>
 
   /**
    * Emitted when a player updated.
@@ -168,7 +170,7 @@ export class Xiao extends EventEmitter {
     this.shoukaku.on('error', (name, error) => playerLogger.error(`[Shoukaku] Node ${name} emitted error: ${error.message}`, { error }));
     this.shoukaku.on('debug', (name, info) => playerLogger.debug(`${name} ${info}`));
 
-    this.on(Events.Debug, (message) => logger.debug(message));
+    this.on(Events.Debug, (message) => playerLogger.debug(message));
 
     this.on(Events.TrackStart, (venti) => { manualUpdate(venti, { embed: true, components: true }); });
     this.on(Events.TrackAdd, (venti) => { manualUpdate(venti, { embed: true, components: true }); });
@@ -178,6 +180,8 @@ export class Xiao extends EventEmitter {
     this.on(Events.QueueEmpty, queueEmpty);
 
     this.on(Events.ManualUpdate, manualUpdate);
+
+    this.on(Events.PlayerException, handlePlayerException);
 
     void this.loadNodes();
   }
@@ -231,7 +235,8 @@ export class Xiao extends EventEmitter {
       guildName: guild.name,
     });
 
-    await guild.members.me?.voice?.disconnect();
+    await guild.members.me?.voice?.disconnect()
+      .catch(noop);
 
     const player = this.players.get(guild.id);
 

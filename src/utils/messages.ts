@@ -13,7 +13,7 @@ function createEmbed (defaultData: APIEmbed & { appendStart?: string }) {
       const [firstLine, ...rest] = rawContent.split('\n');
       console.log(`First line ${firstLine}`);
 
-      const lastHashPosition = firstLine.lastIndexOf('#');
+      const lastHashPosition = firstLine.lastIndexOf('#', 4);
 
       console.log(lastHashPosition);
 

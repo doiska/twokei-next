@@ -66,24 +66,22 @@ export class PlayerButtonsInteraction extends InteractionHandler {
       ephemeral: true,
     });
 
-    const collector = interactionResponse.awaitMessageComponent({
+    await interactionResponse.awaitMessageComponent({
       componentType: ComponentType.Button,
       filter: (i) => i.user.id === interaction.user.id && i.customId === 'pix',
       time: 60000,
-    });
+    })
+      .then((i) => {
+        const pixEmbed = new EmbedBuilder()
+          .setDescription(t('donate.pix.description', { ns: 'common' }))
+          .setImage('https://cdn.discordapp.com/attachments/1122869530302087220/1127698486515732500/Screenshot_2023-07-09_173032.png');
 
-    void collector.then((i) => {
-      const pixEmbed = new EmbedBuilder()
-        .setDescription(t('donate.pix.description', { ns: 'common' }))
-        .setImage('https://cdn.discordapp.com/attachments/1122869530302087220/1127698486515732500/Screenshot_2023-07-09_173032.png');
-
-      void i.update({
-        embeds: [pixEmbed],
-        components: [row.setComponents([paypalButton, voteButton])],
-      });
-    });
-
-    collector.catch(async () => { await interaction.deleteReply(); });
+        void i.update({
+          embeds: [pixEmbed],
+          components: [row.setComponents([paypalButton, voteButton])],
+        });
+      })
+      .catch(async () => { await interaction.deleteReply(); });
   }
 
   public override parse (interaction: ButtonInteraction): Option<None> {

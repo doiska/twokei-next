@@ -20,6 +20,8 @@ import { ResolvableTrack } from '../structures/ResolvableTrack';
 import { TrackQueue } from '../structures/TrackQueue';
 import type { Xiao, XiaoEvents } from './Xiao';
 
+import { inspect } from 'node:util';
+
 export enum LoopStates {
   NONE = 'none',
   TRACK = 'track',
@@ -440,6 +442,8 @@ export class Venti {
     event: U,
     ...args: Parameters<XiaoEvents[U]>
   ): boolean {
+    playerLogger.debug(`[Venti] Emitting ${event} ${inspect(args.slice(1), false, 2, true)}`);
+
     return this.xiao.emit(event, ...args);
   }
 }

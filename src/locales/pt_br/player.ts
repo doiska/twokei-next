@@ -58,13 +58,15 @@ export default {
         icon_url: '{{- member.avatarUrl}}',
       },
       description: [
-        '### [{{track.title}}]({{- track.uri}})',
-        '### ({{track.author}})',
+        '### {{type}} adicionada!',
+        '[{{- track.title}}]({{- track.uri}})',
+        '({{track.author}})',
       ].join('\n'),
       thumbnail: {
         url: '{{- track.thumbnail}}',
       },
     },
+    with_songs: 'Com outras {{amount}} faixas',
     buttons: {
       like: 'Like',
       dislike: 'Dislike',
