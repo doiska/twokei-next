@@ -1,18 +1,18 @@
-import type { Guild } from 'discord.js';
+import type { Guild, MessageReplyOptions } from 'discord.js';
 
 import type { Venti } from '@/music/controllers/Venti';
 import { createDynamicButtons, createStaticButtons } from '@/music/embed/pieces/buttons';
 import { createDefaultSongEmbed } from '@/music/embed/pieces/embed';
 import { createSelectMenu } from '@/music/embed/pieces/menu';
 
-export async function createDefaultEmbed (guild: Guild) {
+export async function createDefaultEmbed (guild: Guild): Promise<MessageReplyOptions> {
   return {
-    embed: [await createDefaultSongEmbed(guild)],
+    embeds: [await createDefaultSongEmbed(guild)],
     components: [await createStaticButtons(guild)],
   };
 }
 
-export async function createSongEmbed (venti: Venti) {
+export async function createSongEmbed (venti: Venti): Promise<MessageReplyOptions> {
   const [
     newEmbed,
     staticButtons,
@@ -29,7 +29,7 @@ export async function createSongEmbed (venti: Venti) {
   const menu = createSelectMenu(venti.queue);
 
   return {
-    embed: [newEmbed],
+    embeds: [newEmbed],
     components: [staticButtons, primary, secondary, menu],
   };
 }

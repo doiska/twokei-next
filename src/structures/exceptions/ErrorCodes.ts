@@ -1,4 +1,4 @@
-const RawErrorCodes = {
+export const RawErrorCodes = {
   UNKNOWN: 'unknown',
   NOT_IN_VC: 'not-in-vc',
   NOT_SAME_VC: 'not-same-vc',
