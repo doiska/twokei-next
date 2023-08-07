@@ -3,14 +3,13 @@ import { ApplyOptions } from '@sapphire/decorators';
 import { isGuildMember } from '@sapphire/discord.js-utilities';
 import { Command } from '@sapphire/framework';
 
-import { setupGuildLanguage } from '@/modules/config/setup-guild-language';
-import { setupNewChannel } from '@/modules/config/setup-new-channel';
-import { setupSongMessage } from '@/modules/config/setup-song-message';
+import { setupGuildLanguage } from '@/features/song-channel/setup-guild-language';
+import { setupNewChannel } from '@/features/song-channel/setup-new-channel';
+import { setupSongMessage } from '@/features/song-channel/setup-song-message';
+import { logger } from '@/modules/logger-transport';
 import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
 import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
 import { sendPresetMessage } from '@/utils/utils';
-
-import { resolveKey } from 'twokei-i18next';
 
 @ApplyOptions<Command.Options>({
   name: 'setup',
@@ -58,17 +57,16 @@ export class PlayCommand extends Command {
       await sendPresetMessage({
         interaction,
         preset: 'success',
-        message: await resolveKey<string>(
-          interaction,
-          'commands:setup.channel_created',
-          {
-            channel: channelId,
-          },
-        ) ?? 'Success',
+        message: 'commands:setup.channel_created',
+        i18n: {
+          channel: channelId,
+        },
       });
 
-      await setupGuildLanguage(response);
-      await setupSongMessage(guild, response);
+      await setupGuildLanguage(response)
+        .catch(() => logger.info('Error while setupGuildLanguage'));
+      await setupSongMessage(guild, response)
+        .catch(() => logger.info('Error while setupSongMessage'));
     } catch (error) {
       await sendPresetMessage({
         interaction,

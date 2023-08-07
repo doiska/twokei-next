@@ -13,8 +13,8 @@ export default {
       '- **Mencione** o bot com o nome/url da música para adicionar à fila.',
       '- Exemplo: "**{{- mention}} lofi hiphop**"',
       '- Use **Spotify ou Youtube**, você escolhe!',
-      '### <:spotify:1121851501715931187> Spotify Sync',
-      '- Traga suas playlists do Spotify & Deezer para o Twokei!',
+      '### <:spotify:1121851501715931187> Profile Sync',
+      '- **Traga suas playlists do ``Spotify & Deezer`` para o Twokei!**',
       '- Clique no botão **Ver Perfil** abaixo.',
     ],
     description_playing: [

@@ -1,4 +1,4 @@
-import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
+import { RawErrorCodes as ErrorCodes } from '@/structures/exceptions/ErrorCodes';
 
 export default {
   [ErrorCodes.UNKNOWN]:

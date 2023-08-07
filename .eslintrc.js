@@ -56,6 +56,7 @@ module.exports = {
         ],
       },
     ],
+    '@typescript-eslint/return-await': 'off',
     '@typescript-eslint/strict-boolean-expressions': 'off',
     '@typescript-eslint/comma-dangle': [2, 'always-multiline'],
     '@typescript-eslint/semi': [2, 'always'],
