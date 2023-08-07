@@ -57,10 +57,6 @@ export const createPlayEmbed = (t: TFunction, member: GuildMember, result: XiaoS
     returnObjects: true,
   }) satisfies APIEmbed;
 
-  if (!rest.length) {
-    delete embedTranslation.description;
-  }
-
   const responseEmbed = Embed.success(embedTranslation);
 
   return {

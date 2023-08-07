@@ -59,6 +59,9 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
           interaction: message,
           message: ErrorCodes.MISSING_MESSAGE,
           preset: 'error',
+          i18n: {
+            mention: container.client.user?.toString() ?? '@Twokei',
+          },
         });
         return;
       }
