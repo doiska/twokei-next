@@ -33,7 +33,7 @@ export async function createSongProfileEmbed (
     return `[<${source.emoji ?? ''}> ${source.name ?? s.source}](${s.sourceUrl})`;
   }) ?? [];
 
-  const targetName = profile?.displayName ?? target.tag;
+  const targetName = profile?.name ?? target.tag;
   const isMyProfile = requester.id === target.id;
 
   const rankingEmoji = match(Number(profile?.ranking?.position))
@@ -49,7 +49,7 @@ export async function createSongProfileEmbed (
 
   const title = t(`profile:embed.title_${hasRanking ? 'ranked' : 'unranked'}`,
     {
-      tag: profile?.displayName ?? target.tag,
+      tag: profile?.name ?? target.tag,
       rank: {
         emoji: rankingEmoji,
         position: profile?.ranking?.position,
@@ -81,15 +81,16 @@ export async function createSongProfileEmbed (
         value: '\u200b',
         inline: true,
       },
-      {
-        name: 'Favorites',
-        value: [
-          '⭐ Song: [No Grey](https://www.youtube.com/watch?v=dQw4w9WgXcQ)',
-          '💿 Album: [Hurry!](https://www.youtube.com/watch?v=dQw4w9WgXcQ)',
-          '🎨 Artist: [Birocratic](https://www.youtube.com/watch?v=dQw4w9WgXcQ)',
-        ].join('\n'),
-        inline: true,
-      },
+      // TODO: Favorites?
+      // {
+      //   name: 'Favorites',
+      //   value: [
+      //     '⭐ Song: [No Grey](https://www.youtube.com/watch?v=dQw4w9WgXcQ)',
+      //     '💿 Album: [Hurry!](https://www.youtube.com/watch?v=dQw4w9WgXcQ)',
+      //     '🎨 Artist: [Birocratic](https://www.youtube.com/watch?v=dQw4w9WgXcQ)',
+      //   ].join('\n'),
+      //   inline: true,
+      // },
     ]);
 
   const buttons = [];
@@ -98,7 +99,7 @@ export async function createSongProfileEmbed (
     buttons.push(new ButtonBuilder()
       .setLabel('Edit profile')
       .setStyle(ButtonStyle.Primary)
-      .setCustomId('edit-profile'));
+      .setCustomId(SongProfileButtons.EDIT_PROFILE));
   } else {
     const isLiked = await container.profiles.actions.isLiked(requester.id, target.id);
 

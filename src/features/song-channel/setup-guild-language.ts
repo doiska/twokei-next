@@ -8,12 +8,13 @@ import {
   type PermissionsBitField,
 } from 'discord.js';
 
-import { Twokei } from '@/app/Twokei';
+import { eq } from 'drizzle-orm';
 import { kil } from '@/db/Kil';
 import { guilds } from '@/db/schemas/guild';
+
+import { Twokei } from '@/app/Twokei';
 import { type Locale, LocaleFlags, VALID_LOCALES } from '@/locales/i18n';
 
-import { eq } from 'drizzle-orm';
 import { fetchT } from 'twokei-i18next';
 
 export async function setupGuildLanguage (channel: GuildTextBasedChannel) {

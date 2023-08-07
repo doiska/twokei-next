@@ -6,6 +6,7 @@ import { container } from '@sapphire/framework';
 import { noop } from '@sapphire/utilities';
 
 import { Twokei } from '@/app/Twokei';
+import { logger } from '@/modules/logger-transport';
 import { FriendlyException } from '@/structures/exceptions/FriendlyException';
 
 export const setupNewChannel = async (guild: Guild) => {
@@ -19,9 +20,11 @@ export const setupNewChannel = async (guild: Guild) => {
 
   const selfPermissions = self.permissions;
 
-  const createChannelPermissions = [PermissionsBitField.Flags.ManageChannels,
+  const createChannelPermissions = [
+    PermissionsBitField.Flags.ManageChannels,
     PermissionsBitField.Flags.ManageMessages,
-    PermissionsBitField.Flags.SendMessages];
+    PermissionsBitField.Flags.SendMessages,
+  ];
 
   const canCreateChannel = createChannelPermissions.every((permission) => {
     return selfPermissions.has(permission);
@@ -38,8 +41,11 @@ export const setupNewChannel = async (guild: Guild) => {
       .fetch(currentChannel.channelId)
     // eslint-disable-next-line no-void
       .then((channel) => void channel?.delete())
-      .catch(noop);
+      .catch(noop)
+      .finally(() => logger.info(`Deleted old ${guild.name} (${guild.id}) song channel.`));
   }
+
+  logger.info('Creating new song channel', { guild: { name: guild.name, id: guild.id } });
 
   const newChannel = await guild.channels.create({
     name: 'song-requests',
