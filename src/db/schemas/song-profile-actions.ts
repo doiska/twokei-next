@@ -10,10 +10,10 @@ export const songProfileActions = pgSchema(process.env.PGSCHEMA ?? 'app')
     {
       userId: varchar('user_id')
         .notNull()
-        .references(() => users.userId),
+        .references(() => users.id),
       targetId: varchar('target_id')
         .notNull()
-        .references(() => users.userId),
+        .references(() => users.id),
       action: actionsEnum('action')
         .notNull(),
       createdAt: timestamp('created_at')

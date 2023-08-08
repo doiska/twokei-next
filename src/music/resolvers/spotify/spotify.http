@@ -24,3 +24,8 @@ Content-Type: application/x-www-form-urlencoded
 GET https://api.spotify.com/v1/users/smedjan/playlists
 Accept: application/json
 Authorization: Bearer {{spotify_token}}
+
+
+### Teste lavaplayer
+GET http://15.228.220.230:2333/v3/stats
+Authorization: youshallnotpass

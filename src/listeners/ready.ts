@@ -18,12 +18,5 @@ export class ReadyListener extends Listener {
     }
 
     logger.info(`Successfully logged in as ${username} (${id})`);
-    //
-    // const guild = client.guilds.cache.find(s => s.id === '926643164201234533');
-    // if (!guild) {
-    //
-    // }
-    //
-    // // client.emit('guildCreate', guild);
   }
 }

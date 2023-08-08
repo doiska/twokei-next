@@ -3,7 +3,7 @@ import { pgSchema, timestamp, varchar } from 'drizzle-orm/pg-core';
 
 export const users = pgSchema(process.env.PGSCHEMA ?? 'app')
   .table('users', {
-    userId: varchar('user_id')
+    id: varchar('user_id')
       .primaryKey()
       .notNull(),
     name: varchar('name'),

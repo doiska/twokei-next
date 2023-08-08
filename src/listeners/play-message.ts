@@ -1,4 +1,5 @@
 import {
+  channelMention,
   ComponentType,
   Events, type Message,
 } from 'discord.js';
@@ -12,10 +13,7 @@ import { createPlayEmbed } from '@/constants/music/create-play-embed';
 import { addNewSong } from '@/music/heizou/add-new-song';
 import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
 import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
-import { Embed } from '@/utils/messages';
 import { sendPresetMessage } from '@/utils/utils';
-
-import { fetchT, resolveKey } from 'twokei-i18next';
 
 @ApplyOptions<Listener.Options>({
   name: 'play-message-event',
@@ -52,8 +50,6 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
 
       await message.delete();
 
-      const t = await fetchT(message);
-
       if (!hasMentions) {
         await sendPresetMessage({
           interaction: message,
@@ -73,7 +69,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
 
       const result = await addNewSong(contentOnly, member);
 
-      const embedResult = createPlayEmbed(t, member, result);
+      const embedResult = await createPlayEmbed(member, result);
 
       const replied = await send(message, embedResult);
 
@@ -98,8 +94,11 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         })
         .catch(noop);
     } catch (e) {
-      const readableException = await getReadableException(e, guild);
-      await container.reply(message, Embed.error(readableException));
+      await sendPresetMessage({
+        interaction: message,
+        preset: 'error',
+        message: getReadableException(e),
+      });
     }
   }
 
@@ -120,16 +119,16 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         return false;
       }
 
-      await container.reply(message, Embed.error(
-        await resolveKey(message,
-          ErrorCodes.USE_SONG_CHANNEL,
-          {
-            ns: 'error',
-            song_channel: `<#${songChannel?.channelId ?? ''}>`,
-          }),
-      ));
+      await sendPresetMessage({
+        interaction: message,
+        preset: 'error',
+        message: ErrorCodes.USE_SONG_CHANNEL,
+        i18n: {
+          song_channel: songChannel?.channelId ? channelMention(songChannel.channelId) : '',
+        },
+      });
+      return false;
     }
-
     return true;
   }
 }

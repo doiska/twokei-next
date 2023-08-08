@@ -34,8 +34,10 @@ export class SongProfileInteractionsHandler extends InteractionHandler {
         embeds: [Embed.success('All good!')],
       });
     } catch (e) {
-      await interaction.editReply({
-        embeds: [Embed.error(await getReadableException(e))],
+      await sendPresetMessage({
+        interaction,
+        preset: 'error',
+        message: getReadableException(e),
       });
     }
   }

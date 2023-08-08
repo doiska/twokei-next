@@ -1,16 +1,14 @@
-import { ComponentType } from 'discord.js';
+import { ComponentType, type Message } from 'discord.js';
 import { ApplyOptions } from '@sapphire/decorators';
-import { isGuildMember } from '@sapphire/discord.js-utilities';
+import { isGuildMember, isTextChannel } from '@sapphire/discord.js-utilities';
 import { Command, container } from '@sapphire/framework';
 import { noop } from '@sapphire/utilities';
 
 import { createPlayEmbed } from '@/constants/music/create-play-embed';
 import { addNewSong } from '@/music/heizou/add-new-song';
+import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
 import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
-import { Embed } from '@/utils/messages';
 import { sendPresetMessage } from '@/utils/utils';
-
-import { fetchT } from 'twokei-i18next';
 
 @ApplyOptions<Command.Options>({
   name: 'play',
@@ -37,9 +35,9 @@ export class PlayCommand extends Command {
   ) {
     const search = interaction.options.getString('search');
 
-    const { member } = interaction;
+    const { member, guild } = interaction;
 
-    if (!member || !isGuildMember(member)) {
+    if (!member || !isGuildMember(member) || !guild) {
       return;
     }
 
@@ -47,48 +45,88 @@ export class PlayCommand extends Command {
       return;
     }
 
-    const t = await fetchT(interaction);
-
     await sendPresetMessage({
       interaction,
       preset: 'loading',
     });
 
+    const { channelId } = await container.sc.get(guild) ?? {};
+
+    if (!channelId) {
+      await sendPresetMessage({
+        interaction,
+        preset: 'error',
+        message: ErrorCodes.MISSING_SONG_CHANNEL,
+      });
+
+      return;
+    }
+
+    const songChannel = await guild.channels.fetch(channelId)
+      .catch(() => null);
+
+    const isSongChannel = interaction.channel?.id === channelId;
+
+    if (!songChannel || !isTextChannel(songChannel)) {
+      await sendPresetMessage({
+        interaction,
+        preset: 'error',
+        message: ErrorCodes.MISSING_SONG_CHANNEL,
+      });
+
+      return;
+    }
+
     try {
       const result = await addNewSong(search, member);
-      const embedResult = createPlayEmbed(t, member, result);
-      const replied = await interaction.editReply({ ...embedResult });
 
-      replied.awaitMessageComponent({
-        filter: (i) => i.user.id === interaction.user.id && ['like', 'dislike'].includes(i.customId),
-        componentType: ComponentType.Button,
-        time: 15000,
-      })
-        .then(async response => {
-          await container.analytics.track({
-            userId: interaction.user.id,
-            event: response.customId === 'like' ? 'like_song' : 'dislike_song',
-            source: 'Guild',
-            properties: {
-              track: result.tracks?.[0].short(),
-            },
-          });
-
-          await sendPresetMessage({
-            interaction,
-            preset: 'success',
-          });
-        })
-        .catch(noop)
-        .finally(() => {
-          interaction.deleteReply()
-            .catch(noop);
+      if (!isSongChannel) {
+        await sendPresetMessage({
+          interaction,
+          preset: 'success',
+          message: 'Acompanhe e controle a música no canal #song-requests',
         });
+      }
+
+      const playMessage = await songChannel.send(await createPlayEmbed(member, result));
+      const feedback = await this.showFeedbackButtons(playMessage);
+
+      if (['liked', 'disliked'].includes(feedback)) {
+        await container.analytics.track({
+          userId: interaction.user.id,
+          event: feedback === 'liked' ? 'like_song' : 'dislike_song',
+          source: 'Guild',
+          properties: {
+            track: result.tracks?.[0].short(),
+          },
+        });
+
+        await sendPresetMessage({
+          interaction,
+          preset: 'success',
+        });
+      }
+
+      await interaction.deleteReply()
+        .catch(noop);
+
+      await playMessage.delete();
     } catch (error) {
-      await container.reply(
+      await sendPresetMessage({
         interaction,
-        Embed.error(await getReadableException(error, interaction.guild)),
-      );
+        preset: 'error',
+        message: getReadableException(error),
+      });
     }
+  }
+
+  private async showFeedbackButtons (message: Message) {
+    return message.awaitMessageComponent({
+      filter: (i) => ['like', 'dislike'].includes(i.customId),
+      componentType: ComponentType.Button,
+      time: 15000,
+    })
+      .then(i => i.customId === 'like' ? 'liked' : 'disliked')
+      .catch(() => 'unanswered');
   }
 }
