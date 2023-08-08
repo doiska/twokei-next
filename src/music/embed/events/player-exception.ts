@@ -12,6 +12,6 @@ export async function handlePlayerException (venti: Venti, exception: TrackExcep
   await sendPresetMessage({
     interaction: venti.embedMessage,
     preset: 'error',
-    message: await getReadableException(exception),
+    message: getReadableException(exception),
   });
 }

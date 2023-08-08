@@ -69,7 +69,7 @@ export class PlayerMenu extends InteractionHandler {
     } catch (error) {
       await sendPresetMessage({
         interaction,
-        message: await getReadableException(error, interaction.guild),
+        message: getReadableException(error),
         preset: 'error',
       });
     }

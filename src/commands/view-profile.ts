@@ -9,11 +9,10 @@ import { createSongProfileEmbed } from '@/features/song-profile/show-song-profil
 
 @ApplyOptions<Command.Options>({
   name: 'profile',
-  aliases: ['viewprofile'],
   description: 'View yours or another users profile',
 })
 export class ViewProfile extends Command {
-  public registerApplicationCommands (
+  public override registerApplicationCommands (
     registry: ApplicationCommandRegistry,
   ): Awaitable<void> {
     registry.registerChatInputCommand((builder) =>

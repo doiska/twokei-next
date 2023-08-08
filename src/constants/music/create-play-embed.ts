@@ -3,9 +3,10 @@ import { ActionRowBuilder, type APIEmbed, ButtonBuilder, ButtonStyle, type Guild
 import type { XiaoSearchResult } from '@/music/interfaces/player.types';
 import { Embed } from '@/utils/messages';
 
-import { type TFunction } from 'twokei-i18next';
+import { fetchT } from 'twokei-i18next';
 
-export const createPlayEmbed = (t: TFunction, member: GuildMember, result: XiaoSearchResult) => {
+export const createPlayEmbed = async (member: GuildMember, result: XiaoSearchResult) => {
+  const t = await fetchT(member.user);
   const [track, ...rest] = result.tracks;
 
   const capitalizedSource = track.sourceName

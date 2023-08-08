@@ -54,6 +54,10 @@ export const Embed = {
     color: Colors.Red,
     appendStart: '<:hanakin:1121884455225786478>',
   }),
+  info: createEmbed({
+    color: Colors.Blue,
+    appendStart: '<:hanakin:1121884455225786478>',
+  }),
   loading: createEmbed({
     color: Colors.Yellow,
     appendStart: '✨',

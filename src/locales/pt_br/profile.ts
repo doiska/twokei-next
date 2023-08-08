@@ -9,4 +9,5 @@ export default {
       '- 🎧 {{listened}} músicas ouvidas',
     ],
   },
+  suggestion: 'Você pode ver o perfil de outras pessoas usando {{- command_profile}} <username/id>',
 };

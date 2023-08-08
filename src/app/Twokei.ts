@@ -12,6 +12,7 @@ import {
 import { eq } from 'drizzle-orm';
 import { kil } from '@/db/Kil';
 import { guilds } from '@/db/schemas/guild';
+import { users } from '@/db/schemas/users';
 
 import en_us from '@/locales/en_us';
 import { DEFAULT_LOCALE, isValidLocale } from '@/locales/i18n';
@@ -19,7 +20,7 @@ import pt_br from '@/locales/pt_br';
 import { TwokeiClient } from '@/structures/TwokeiClient';
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
-  RegisterBehavior.BulkOverwrite,
+  RegisterBehavior.VerboseOverwrite,
 );
 
 export const Twokei = new TwokeiClient({
@@ -60,11 +61,15 @@ export const Twokei = new TwokeiClient({
     defaultLanguageDirectory: './src/locales',
     fetchLanguage: async (context) => {
       if (context.user) {
-        return 'pt_br';
+        const [{ locale }] = await kil.select({ locale: users.locale })
+          .from(users)
+          .where(eq(users.id, context.user.id));
+
+        return locale ?? DEFAULT_LOCALE;
       }
 
       if (!context.guild?.id) {
-        return 'pt_br';
+        return DEFAULT_LOCALE;
       }
 
       const [guild] = await kil

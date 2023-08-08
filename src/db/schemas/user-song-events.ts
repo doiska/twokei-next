@@ -36,7 +36,7 @@ export const userSongEvents = pgSchema(process.env.PGSCHEMA ?? 'app')
   .table('song_user_events', {
     userId: varchar('user_id')
       .notNull()
-      .references(() => users.userId),
+      .references(() => users.id),
     source: sourcesEnum('source')
       .notNull(),
     event: eventsEnum('event')

@@ -9,7 +9,7 @@ export const songSource = pgSchema(process.env.PGSCHEMA ?? 'app')
     userId: varchar('user_id')
       .primaryKey()
       .notNull()
-      .references(() => users.userId),
+      .references(() => users.id),
     source: sourcesEnum('source')
       .notNull(),
     sourceUrl: varchar('source_url')

@@ -55,14 +55,14 @@ export class SongProfileManager {
     const [profile] = await kil
       .select()
       .from(users)
-      .where(eq(users.userId, user.id))
+      .where(eq(users.id, user.id))
       .limit(1);
 
     if (!profile) {
       await kil
         .insert(users)
         .values({
-          userId: user.id,
+          id: user.id,
           name: user.username,
           locale: DEFAULT_LOCALE,
         })
@@ -71,7 +71,7 @@ export class SongProfileManager {
       const result = await kil
         .insert(users)
         .values({
-          userId: user.id,
+          id: user.id,
           name: user.username,
         })
         .returning();

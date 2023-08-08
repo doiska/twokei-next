@@ -12,15 +12,12 @@ import {
 } from '@sapphire/discord.js-utilities';
 import { container, SapphireClient } from '@sapphire/framework';
 import { send } from '@sapphire/plugin-editable-commands';
-import { type Awaitable, noop } from '@sapphire/utilities';
+import { noop } from '@sapphire/utilities';
 
 import { SongProfileManager } from '@/features/song-profile/SongProfileManager';
-import { type Locale } from '@/locales/i18n';
 import { Analytics } from '@/structures/Analytics';
 import { SongChannelManager } from '@/structures/SongChannels';
 import { isEmbed } from '@/utils/embed-utils';
-
-import { fetchLanguage, type Target } from 'twokei-i18next';
 
 type AnyRepliableContext = Exclude<RepliableInteraction, ModalSubmitInteraction> | Message;
 type RepliableContent = APIEmbed | BaseMessageOptions | EmbedBuilder | string | InteractionReplyOptions;
@@ -104,10 +101,6 @@ export class TwokeiClient extends SapphireClient {
     } else {
       return await interaction.reply(contentParsed);
     }
-  }
-
-  fetchLanguage (context: Target): Awaitable<Locale> {
-    return fetchLanguage(context) as Awaitable<Locale>;
   }
 }
 

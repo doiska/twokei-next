@@ -74,7 +74,7 @@ export class PlayerButtonsInteraction extends InteractionHandler {
 
       await action(interaction.member);
     } catch (e) {
-      const readable = await getReadableException(e, interaction.guild);
+      const readable = getReadableException(e);
 
       await interaction.reply({
         ephemeral: true,

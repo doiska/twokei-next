@@ -18,8 +18,6 @@ export class ProfileModal extends InteractionHandler {
       return this.none();
     }
 
-    console.log(modalInteraction.fields);
-
     return this.some(modalInteraction.fields);
   }
 
