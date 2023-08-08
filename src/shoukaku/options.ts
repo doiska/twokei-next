@@ -13,7 +13,6 @@ export const Nodes: OptionWithActive[] = [
 
 export const shoukakuOptions: ShoukakuOptions = {
   moveOnDisconnect: true,
-  resume: true
   // resume: true,
   // resumeByLibrary: true
 }
