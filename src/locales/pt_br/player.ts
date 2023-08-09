@@ -47,7 +47,7 @@ export default {
       view_profile: 'Ver Perfil',
       save_playlist: 'Salvar playlist atual',
       your_playlists: 'Saved playlists',
-      how_to_use: 'Ajuda',
+      invite: 'Invite',
       donate: 'Apoiar desenvolvimento',
     },
   },
@@ -57,11 +57,11 @@ export default {
         name: 'Solicitado por {{- member.name}}!',
         icon_url: '{{- member.avatarUrl}}',
       },
-      description: [
-        '### {{type}} adicionada!',
-        '[{{- track.title}}]({{- track.uri}})',
-        '({{track.author}})',
+      description_track: [
+        '### Track adicionada!',
+        '{{track.author}} - [{{- track.title}}]({{- track.uri}})',
       ].join('\n'),
+      description_playlist: '### {{playlist.name}} adicionada com {{playlist.amount}} músicas',
       thumbnail: {
         url: '{{- track.thumbnail}}',
       },

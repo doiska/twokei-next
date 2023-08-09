@@ -155,48 +155,15 @@ export class SpotifyResolver implements TrackResolver {
 
     return {
       tracks,
-      playlistName: playlist.name,
+      playlist: {
+        name: playlist.name,
+        url: playlist.href,
+        owner: {
+          name: playlist.owner.display_name,
+          url: playlist.owner.href,
+        },
+      },
       type: LoadType.PLAYLIST_LOADED,
-    };
-  }
-
-  public async validate (url: string): Promise<{
-    type: LoadType
-    playlistName?: string
-    amount?: number
-  }> {
-    const spotifyUrl = SPOTIFY_URL.exec(url);
-
-    if (!spotifyUrl) {
-      return {
-        type: LoadType.NO_MATCHES,
-      };
-    }
-
-    const [, type, id] = spotifyUrl;
-
-    if (type !== 'playlist') {
-      throw new Error('Invalid type');
-    }
-
-    const playlist = await this.requestManager.request<SpotifyPlaylistResponse>(
-      `/playlists/${id}?market=${this.options.region}`,
-    );
-
-    const tracks = playlist?.tracks?.items
-      .filter(Boolean)
-      .map((item) => this.parseTrack(item.track));
-
-    if (!playlist || tracks.length === 0) {
-      return {
-        type: LoadType.NO_MATCHES,
-      };
-    }
-
-    return {
-      playlistName: playlist.name,
-      type: LoadType.PLAYLIST_LOADED,
-      amount: playlist.tracks.total,
     };
   }
 

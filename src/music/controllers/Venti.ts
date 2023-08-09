@@ -8,7 +8,7 @@ import {
 } from 'shoukaku';
 
 import { type Locale } from '@/locales/i18n';
-import { logger, playerLogger } from '@/modules/logger-transport';
+import { createLogger } from '@/modules/logger-transport';
 import { type Maybe } from '@/utils/utils';
 import {
   Events,
@@ -21,6 +21,7 @@ import { TrackQueue } from '../structures/TrackQueue';
 import type { Xiao, XiaoEvents } from './Xiao';
 
 import { inspect } from 'node:util';
+import type { Logger } from 'winston';
 
 export enum LoopStates {
   NONE = 'none',
@@ -94,6 +95,8 @@ export class Venti {
    */
   public embedMessage?: Message;
 
+  private readonly logger: Logger;
+
   constructor (xiao: Xiao, player: Player, options: VentiInitOptions) {
     this.xiao = xiao;
     this.options = options;
@@ -105,6 +108,8 @@ export class Venti {
     this.embedMessage = options.embedMessage;
 
     this.queue = new TrackQueue();
+
+    this.logger = createLogger('Venti');
 
     this.instance.on('start', () => {
       this.playing = true;
@@ -205,7 +210,7 @@ export class Venti {
     }
 
     if (track && !playOptions.replace && this.queue.current) {
-      logger.debug(`Queueing track ${track.title} for guild ${this.guildId}`);
+      this.logger.debug(`Queueing track ${track.title} for guild ${this.guildId}`);
       this.queue.unshift(this.queue.current);
     }
 
@@ -216,7 +221,7 @@ export class Venti {
     const nextTrack = track ?? this.queue.current ?? this.queue.shift();
 
     if (!nextTrack) {
-      logger.debug(
+      this.logger.debug(
         `No current track for guild ${this.guildId} - skipping play`,
       );
 
@@ -244,9 +249,10 @@ export class Venti {
           },
         };
 
-        logger.debug(
+        this.logger.debug(
           `Playing track ${this.queue.current.title} for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`,
         );
+
         this.instance.playTrack(shoukakuPlayOptions);
       })
       .catch((err: Error) => {
@@ -255,7 +261,7 @@ export class Venti {
           `Error while resolving track for guild ${this.guildId}} ${err.message}`,
         );
 
-        logger.error(
+        this.logger.error(
           `Error while resolving track for guild ${this.guildId} - ${err.message}`,
           err.stack,
         );
@@ -297,12 +303,12 @@ export class Venti {
 
     this.queue.removeAt(0, amount - 1);
 
-    playerLogger.debug(
+    this.logger.debug(
       `Skipping ${amount} tracks for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`,
     );
 
-    playerLogger.debug(`Current track: ${this.queue.current?.title ?? 'none'}`);
-    playerLogger.debug(`Next track: ${this.queue[0]?.title ?? 'none'}`);
+    this.logger.debug(`Current track: ${this.queue.current?.title ?? 'none'}`);
+    this.logger.debug(`Next track: ${this.queue[0]?.title ?? 'none'}`);
 
     this.instance.stopTrack();
     return this;
@@ -321,7 +327,7 @@ export class Venti {
     this.playing = !state;
     this.instance.setPaused(state);
 
-    logger.debug(
+    this.logger.debug(
       `Player for guild ${this.guildId} is now ${state ? 'paused' : 'playing'}`,
     );
 
@@ -442,7 +448,18 @@ export class Venti {
     event: U,
     ...args: Parameters<XiaoEvents[U]>
   ): boolean {
-    playerLogger.debug(`[Venti] Emitting ${event} ${inspect(args.slice(1), false, 2, true)}`);
+    if (args?.[0] instanceof Venti) {
+      const { instance } = args[0];
+
+      this.logger.info('[Venti] Instance info', {
+        node: instance.node,
+        rest: instance.ping,
+        connection: instance.connection.state,
+
+      });
+    }
+
+    this.logger.debug(`[Venti] Emitting ${event} ${inspect(args.slice(1), false, 2, true)}`);
 
     return this.xiao.emit(event, ...args);
   }
