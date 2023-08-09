@@ -1,7 +1,6 @@
 import {
   blue, type Color, cyan, green, red, reset, yellow,
 } from 'kleur';
-import { inspect } from 'node:util';
 import {
   createLogger as createWinstonLogger,
   format,
