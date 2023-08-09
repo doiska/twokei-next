@@ -14,6 +14,6 @@ export const getReadableException = (error: unknown) => {
     return ErrorCodes.UNKNOWN;
   }
 
-  logger.error('An unhandled exception occurred', { error });
+  logger.error('An unhandled exception occurred', { error, stack: error.stack });
   return 'An unexpected error occurred, please try again later.';
 };

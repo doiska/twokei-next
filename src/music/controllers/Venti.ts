@@ -452,10 +452,12 @@ export class Venti {
       const { instance } = args[0];
 
       this.logger.info('[Venti] Instance info', {
-        node: instance.node,
+        node: {
+          name: instance.node.name,
+          url: instance.node.stats,
+        },
         rest: instance.ping,
         connection: instance.connection.state,
-
       });
     }
 
