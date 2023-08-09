@@ -65,7 +65,7 @@ export const createPlayEmbed = async (member: GuildMember, result: XiaoSearchRes
         amount: result.tracks.length,
       },
     }))
-    .setThumbnail(track.thumbnail ?? '');
+    .setThumbnail(track.thumbnail ?? null);
 
   const responseEmbed = Embed.success(embed.data);
 

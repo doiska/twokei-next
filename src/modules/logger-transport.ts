@@ -1,6 +1,7 @@
 import {
   blue, type Color, cyan, green, red, reset, yellow,
 } from 'kleur';
+import { inspect } from 'node:util';
 import {
   createLogger as createWinstonLogger,
   format,
@@ -37,6 +38,12 @@ const consoleTransportInstance = new transports.Console({
 
       const trace = stack ? `\n${stack.replace(/\n/g, `\n${prefix}`)}` : '';
 
+      // {
+      //         compact: true,
+      //         showProxy: false,
+      //         showHidden: false,
+      //         depth: null,
+      //       }
       const stringify = JSON.stringify(rest, null, 2);
 
       const stringifyWithColors = stringify.split('\n')
