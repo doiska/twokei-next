@@ -1,0 +1,22 @@
+- Performance:
+    - Transformar profile ranking em uma view;
+
+- Botões:
+    - Adicionar funcionalidade ao botão invite;
+    - Finalizar "Apoiar desenvolvimento"
+    - Revisar "Like" / "Dislike"
+    - Mensagens dos botões serem ephemeral (evitar poluir);
+    - Adicionar Vote no Bot
+
+- Profile:
+    - Adicionar modal de customização de perfil;
+    - Adicionar Spotify Sync;
+
+- Isolar configurações para o banco de dados:
+    - Selecionar configurações do Shoukaku;
+    - Selecionar Nodes;
+    - Adicionar comando de reload;
+
+
+- Premium:
+    - Remover Youtube do Bot? Tornar funcionalidade Premium em um bot isolado;
