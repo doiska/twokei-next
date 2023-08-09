@@ -1,4 +1,4 @@
-import { logger } from '../../../modules/logger-transport';
+import { logger } from '@/modules/logger-transport';
 import { SpotifyRequest } from './spotify-request';
 import { type SpotifyResolverOptions } from './spotify-resolver';
 
@@ -15,9 +15,7 @@ export class SpotifyRequestManager {
   public async request<T>(endpoint: string, useUri = false): Promise<T> {
     const requester = this.mode === 'single' ? this.requests[0] : this.getLeastUsedRequest();
 
-    logger.info(
-      `Requesting ${endpoint} with ${requester.currentApiStatus.requests} requests made.`,
-    );
+    logger.info(`Requesting ${endpoint} with ${requester.currentApiStatus.requests} requests made.`);
 
     return await requester.request(endpoint, useUri);
   }

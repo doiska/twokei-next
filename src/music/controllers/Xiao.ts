@@ -12,7 +12,7 @@ import {
 } from 'shoukaku';
 
 import { Twokei } from '@/app/Twokei';
-import { logger, playerLogger } from '@/modules/logger-transport';
+import { createLogger } from '@/modules/logger-transport';
 import { manualUpdate } from '@/music/embed/events/manual-update';
 import { handlePlayerException } from '@/music/embed/events/player-exception';
 import { queueEmpty } from '@/music/embed/events/queue-empty';
@@ -31,6 +31,7 @@ import { ResolvableTrack } from '../structures/ResolvableTrack';
 import { Venti } from './Venti';
 
 import { EventEmitter } from 'events';
+import type { Logger } from 'winston';
 
 export interface XiaoEvents {
   /**
@@ -144,6 +145,8 @@ export class Xiao extends EventEmitter {
 
   public resolvers: TrackResolver[] = [new SpotifyResolver()];
 
+  private readonly logger: Logger;
+
   /**
    * @param options Xiao options
    * @param nodes Shoukaku nodes
@@ -158,19 +161,26 @@ export class Xiao extends EventEmitter {
   ) {
     super();
 
+    this.logger = createLogger('Xiao');
+
     this.shoukaku = new Shoukaku(connector, nodes, optionsShoukaku);
 
     this.players = new Map<string, Venti>();
 
-    this.shoukaku.on('ready', (name) => playerLogger.info(`[Shoukaku] Node ${name} is now connected`));
-    this.shoukaku.on('close', (name, code, reason) => playerLogger.debug(
+    this.shoukaku.on('ready', (name) => this.logger.info(`[Shoukaku] Node ${name} is now connected`));
+
+    this.shoukaku.on('close', (name, code, reason) => this.logger.debug(
       `[Shoukaku] Node ${name} closed with code ${code} and reason ${reason}`,
     ));
 
-    this.shoukaku.on('error', (name, error) => playerLogger.error(`[Shoukaku] Node ${name} emitted error: ${error.message}`, { error }));
-    this.shoukaku.on('debug', (name, info) => playerLogger.debug(`${name} ${info}`));
+    this.shoukaku.on(
+      'error',
+      (name, error) => this.logger.error(`[Shoukaku] Node ${name} emitted error: ${error.message}`, { error }),
+    );
 
-    this.on(Events.Debug, (message) => playerLogger.debug(message));
+    this.shoukaku.on('debug', (name, info) => this.logger.debug(`${name} ${info}`));
+
+    this.on(Events.Debug, (message) => this.logger.debug(message));
 
     this.on(Events.TrackStart, (venti) => { manualUpdate(venti, { embed: true, components: true }); });
     this.on(Events.TrackAdd, (venti) => { manualUpdate(venti, { embed: true, components: true }); });
@@ -230,7 +240,7 @@ export class Xiao extends EventEmitter {
   }
 
   public async destroyPlayer (guild: Guild) {
-    playerLogger.info(`Destroying player for guild ${guild.id}`, {
+    this.logger.info(`Destroying player for guild ${guild.id}`, {
       guildId: guild.id,
       guildName: guild.name,
     });
@@ -264,7 +274,7 @@ export class Xiao extends EventEmitter {
     if (options?.resolve ?? true) {
       const resolver = this.resolvers.find((trackResolver) => trackResolver.matches(query));
 
-      logger.debug(
+      this.logger.debug(
         `Resolving ${query} with ${resolver?.name ?? 'default resolver'}`,
       );
 
@@ -297,21 +307,19 @@ export class Xiao extends EventEmitter {
             requester: options?.requester,
           }),
         ],
-        playlistName: result.playlistInfo?.name,
       };
     }
 
     return {
       type: LoadType.PLAYLIST_LOADED,
+      playlist: {
+        name: result.playlistInfo.name ?? 'Playlist',
+        url: query,
+      },
       tracks: result.tracks.map(
         (track) => new ResolvableTrack(track, { requester: options?.requester }),
       ),
-      playlistName: result.playlistInfo?.name,
     };
-  }
-
-  public getMatchingResolver (query: string): TrackResolver | undefined {
-    return this.resolvers.find((resolver) => resolver.matches(query));
   }
 
   private async loadNodes () {

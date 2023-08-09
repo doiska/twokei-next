@@ -22,7 +22,6 @@ module.exports = {
   plugins: [
     'eslint-plugin-import',
     'eslint-plugin-simple-import-sort',
-    'unused-imports',
   ],
   parserOptions: {
     ecmaVersion: 'latest',
@@ -57,7 +56,6 @@ module.exports = {
         ],
       },
     ],
-    'unused-imports/no-unused-imports': 'error',
     '@typescript-eslint/return-await': 'off',
     '@typescript-eslint/strict-boolean-expressions': 'off',
     '@typescript-eslint/comma-dangle': [2, 'always-multiline'],

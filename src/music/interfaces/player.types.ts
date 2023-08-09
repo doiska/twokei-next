@@ -34,11 +34,25 @@ export interface XiaoSearchOptions {
   resolve?: boolean
 }
 
-export interface XiaoSearchResult {
-  type: LoadType
-  playlistName?: string
+interface PlaylistLoaded {
+  type: LoadType.PLAYLIST_LOADED
+  playlist: {
+    name: string
+    owner?: {
+      name: string
+      url: string
+    }
+    url: string
+  }
+  tracks: ResolvableTrack[]
+};
+
+interface TrackLoaded {
+  type: Exclude<LoadType, LoadType.PLAYLIST_LOADED>
   tracks: ResolvableTrack[]
 }
+
+export type XiaoSearchResult = PlaylistLoaded | TrackLoaded;
 
 export interface VentiInitOptions {
   guild: Guild

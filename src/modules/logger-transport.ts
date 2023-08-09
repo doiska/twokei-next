@@ -1,9 +1,14 @@
 import {
   blue, type Color, cyan, green, red, reset, yellow,
 } from 'kleur';
-import { createLogger, format, transports } from 'winston';
+import {
+  createLogger as createWinstonLogger,
+  format,
+  type LoggerOptions,
+  transports,
+} from 'winston';
 import { type CliConfigSetLevels } from 'winston/lib/winston/config';
-//
+
 const colors: Record<keyof CliConfigSetLevels, Color> = {
   error: red,
   info: blue,
@@ -45,7 +50,7 @@ const consoleTransportInstance = new transports.Console({
   ),
 });
 
-const defaultOptions = {
+const defaultLoggerOptions = {
   level: 'debug',
   format: format.combine(
     format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
@@ -55,18 +60,16 @@ const defaultOptions = {
   transports: [consoleTransportInstance],
 };
 
-export const logger = createLogger({ ...defaultOptions });
+export const logger = createLogger('CORE');
+export const playerLogger = createLogger('PLAYER');
+export const queryLogger = createLogger('QUERY');
 
-export const playerLogger = createLogger({
-  ...defaultOptions,
-  defaultMeta: {
-    defaultPrefix: 'PLAYER',
-  },
-});
-
-export const queryLogger = createLogger({
-  ...defaultOptions,
-  defaultMeta: {
-    defaultPrefix: 'QUERY',
-  },
-});
+export function createLogger (prefix: string, options?: LoggerOptions) {
+  return createWinstonLogger({
+    ...defaultLoggerOptions,
+    ...options,
+    defaultMeta: {
+      defaultPrefix: prefix.toUpperCase(),
+    },
+  });
+}

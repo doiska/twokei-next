@@ -1,5 +1,4 @@
 import {
-  type LoadType,
   type XiaoSearchOptions,
   type XiaoSearchResult,
 } from '../interfaces/player.types';
@@ -17,10 +16,4 @@ export interface TrackResolver {
   getPlaylist: (id: string) => Promise<XiaoSearchResult>
 
   getTrack: (id: string) => Promise<XiaoSearchResult>
-
-  validate: (id: string) => Promise<{
-    type: LoadType
-    playlistName?: string
-    amount?: number
-  }>
 }

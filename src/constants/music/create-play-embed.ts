@@ -1,4 +1,4 @@
-import { ActionRowBuilder, type APIEmbed, ButtonBuilder, ButtonStyle, type GuildMember } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, type GuildMember } from 'discord.js';
 
 import type { XiaoSearchResult } from '@/music/interfaces/player.types';
 import { Embed } from '@/utils/messages';
@@ -7,7 +7,7 @@ import { fetchT } from 'twokei-i18next';
 
 export const createPlayEmbed = async (member: GuildMember, result: XiaoSearchResult) => {
   const t = await fetchT(member.user);
-  const [track, ...rest] = result.tracks;
+  const [track] = result.tracks;
 
   const capitalizedSource = track.sourceName
     .charAt(0)
@@ -41,34 +41,33 @@ export const createPlayEmbed = async (member: GuildMember, result: XiaoSearchRes
     ],
   });
 
-  const embedTranslation = t('player:play.embed', {
-    type: result.type === 'TRACK_LOADED' ? 'Track' : 'Playlist',
-    track: {
-      title: track.title,
-      author: track.author,
-      uri: track.uri,
-      thumbnail: track.thumbnail ?? '',
-    },
-    member: {
-      name: member.user.tag,
-      avatarUrl: member.user.displayAvatarURL(),
-    },
-    queue: {
-      length: rest.length,
-    },
-    returnObjects: true,
-  }) satisfies APIEmbed;
+  console.log(result.type);
 
-  if (rest.length && embedTranslation.description) {
-    embedTranslation.description = [
-      ...embedTranslation.description.split('\n'),
-      t('player:with_songs', {
-        amount: rest.length,
-      }),
-    ].join('\n');
-  }
+  const resultType = ['TRACK_LOADED', 'SEARCH_RESULT'].includes(result.type) ? 'track' : 'playlist';
 
-  const responseEmbed = Embed.success(embedTranslation);
+  const embed = new EmbedBuilder()
+    .setAuthor(t('player:play.embed.author', {
+      returnObjects: true,
+      member: {
+        name: member.user.tag,
+        avatarUrl: member.user.displayAvatarURL(),
+      },
+    }))
+    .setDescription(t(`player:play.embed.description_${resultType}`, {
+      track: {
+        title: track.title,
+        author: track.author,
+        uri: track.uri,
+        thumbnail: track.thumbnail ?? '',
+      },
+      playlist: {
+        name: result.type === 'PLAYLIST_LOADED' ? result.playlist.name : 'Playlist',
+        amount: result.tracks.length,
+      },
+    }))
+    .setThumbnail(track.thumbnail ?? '');
+
+  const responseEmbed = Embed.success(embed.data);
 
   return {
     embeds: [responseEmbed],

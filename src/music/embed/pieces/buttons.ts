@@ -27,7 +27,7 @@ export async function createStaticButtons (guild: Guild) {
     components: [
       {
         style: ButtonStyle.Primary,
-        customId: EmbedButtons.HOW_TO_USE,
+        customId: EmbedButtons.INVITE,
       },
       {
         style: ButtonStyle.Secondary,

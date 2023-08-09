@@ -27,7 +27,7 @@ export enum EmbedButtons {
   VIEW_PROFILE = 'VIEW_PROFILE',
   DONATE = 'DONATE',
   SAVE_PLAYLIST = 'SAVE_PLAYLIST',
-  HOW_TO_USE = 'HOW_TO_USE',
+  INVITE = 'INVITE',
 }
 
 export enum SongProfileButtons {
