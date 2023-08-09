@@ -60,28 +60,30 @@ export const Twokei = new TwokeiClient({
     },
     defaultLanguageDirectory: './src/locales',
     fetchLanguage: async (context) => {
-      if (context.user) {
-        const [{ locale }] = await kil.select({ locale: users.locale })
-          .from(users)
-          .where(eq(users.id, context.user.id));
-
-        return locale ?? DEFAULT_LOCALE;
-      }
-
-      if (!context.guild?.id) {
-        return DEFAULT_LOCALE;
-      }
-
-      const [guild] = await kil
-        .select({ locale: guilds.locale })
-        .from(guilds)
-        .where(eq(guilds.guildId, context.guild.id));
-
-      if (!guild || !isValidLocale(guild.locale)) {
-        return DEFAULT_LOCALE;
-      }
-
-      return guild.locale;
+      return DEFAULT_LOCALE;
+      //
+      // if (context.user) {
+      //   const [{ locale }] = await kil.select({ locale: users.locale })
+      //     .from(users)
+      //     .where(eq(users.id, context.user.id));
+      //
+      //   return locale ?? DEFAULT_LOCALE;
+      // }
+      //
+      // if (!context.guild?.id) {
+      //   return DEFAULT_LOCALE;
+      // }
+      //
+      // const [guild] = await kil
+      //   .select({ locale: guilds.locale })
+      //   .from(guilds)
+      //   .where(eq(guilds.guildId, context.guild.id));
+      //
+      // if (!guild || !isValidLocale(guild.locale)) {
+      //   return DEFAULT_LOCALE;
+      // }
+      //
+      // return guild.locale;
     },
   },
 });
