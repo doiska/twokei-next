@@ -1,5 +1,10 @@
 import type { InferModel } from 'drizzle-orm';
-import { pgSchema, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { pgEnum, pgSchema, timestamp, varchar } from 'drizzle-orm/pg-core';
+
+const roleEnum = pgEnum('role_enum', [
+  'dev',
+  'premium',
+]);
 
 export const users = pgSchema(process.env.PGSCHEMA ?? 'app')
   .table('users', {
@@ -8,8 +13,8 @@ export const users = pgSchema(process.env.PGSCHEMA ?? 'app')
       .notNull(),
     name: varchar('name'),
     locale: varchar('locale')
-      .notNull()
-      .default('en_us'),
+      .default('pt_br'),
+    role: roleEnum('role'),
     created_at: timestamp('created_at')
       .notNull()
       .defaultNow(),

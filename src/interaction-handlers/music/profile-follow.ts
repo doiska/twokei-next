@@ -12,7 +12,7 @@ import { sendPresetMessage } from '@/utils/utils';
 @ApplyOptions<InteractionHandler.Options>({
   name: 'song-profile-interactions',
   interactionHandlerType: InteractionHandlerTypes.Button,
-  enabled: false,
+  enabled: true,
 })
 export class SongProfileInteractionsHandler extends InteractionHandler {
   public async run (
@@ -26,6 +26,7 @@ export class SongProfileInteractionsHandler extends InteractionHandler {
     await sendPresetMessage({
       interaction,
       preset: 'loading',
+      ephemeral: true,
     });
 
     try {
@@ -38,6 +39,7 @@ export class SongProfileInteractionsHandler extends InteractionHandler {
         interaction,
         preset: 'error',
         message: getReadableException(e),
+        ephemeral: true,
       });
     }
   }

@@ -16,7 +16,6 @@ import { shuffleQueue } from '@/music/heizou/shuffle-queue';
 import { skipSong } from '@/music/heizou/skip-song';
 import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
 import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
-import { Embed } from '@/utils/messages';
 import { sendPresetMessage } from '@/utils/utils';
 
 @ApplyOptions<InteractionHandler.Options>({
@@ -70,23 +69,18 @@ export class PlayerButtonsInteraction extends InteractionHandler {
       await sendPresetMessage({
         preset: 'loading',
         interaction,
+        ephemeral: true,
       });
 
       await action(interaction.member);
     } catch (e) {
       const readable = getReadableException(e);
-
-      await interaction.reply({
+      await sendPresetMessage({
+        preset: 'error',
+        interaction,
         ephemeral: true,
-        embeds: [
-          Embed.error(readable),
-        ],
+        message: readable,
       });
-    } finally {
-      setTimeout(() => {
-        interaction.deleteReply()
-          .catch(() => {});
-      }, 8000);
     }
   }
 

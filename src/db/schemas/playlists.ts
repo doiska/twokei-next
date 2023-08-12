@@ -2,7 +2,7 @@ import { pgSchema, timestamp, varchar } from 'drizzle-orm/pg-core';
 
 export const playlists = pgSchema(process.env.PGSCHEMA ?? 'app')
   .table(
-    'users_playlists',
+    'song_user_playlists',
     {
       userId: varchar('user_id')
         .primaryKey()

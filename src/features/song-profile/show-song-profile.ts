@@ -33,7 +33,7 @@ export async function createSongProfileEmbed (
     return `[<${source.emoji ?? ''}> ${source.name ?? s.source}](${s.sourceUrl})`;
   }) ?? [];
 
-  const targetName = profile?.name ?? target.tag;
+  const targetName = profile.name ?? target.username;
   const isMyProfile = requester.id === target.id;
 
   const rankingEmoji = match(Number(profile?.ranking?.position))
@@ -43,9 +43,6 @@ export async function createSongProfileEmbed (
     .otherwise(() => '-');
 
   const hasRanking = !!profile.ranking?.position;
-
-  // TODO: add premium
-  const premium = t('profile:embed.premium');
 
   const title = t(`profile:embed.title_${hasRanking ? 'ranked' : 'unranked'}`,
     {
@@ -57,19 +54,22 @@ export async function createSongProfileEmbed (
     });
 
   const description = t('profile:embed.description', {
-    likes: profile?.ranking?.likes ?? 0,
-    listened: profile.analytics.listenedSongs,
+    listened: profile?.ranking?.listened ?? 0,
+    followers: profile.analytics.followers,
     joinArrays: '\n',
   });
+
+  const isPremium = !!profile?.role;
 
   const profileEmbed = new EmbedBuilder()
     .setThumbnail(target.displayAvatarURL())
     .setColor(Colors.Gold)
     .setDescription([
-      premium,
+      isPremium && t('profile:embed.premium'),
       title,
       description,
-    ].join('\n'))
+    ].filter(Boolean)
+      .join('\n'))
     .setFields([
       {
         name: 'Connected profiles',
@@ -104,7 +104,7 @@ export async function createSongProfileEmbed (
     const isLiked = await container.profiles.actions.isLiked(requester.id, target.id);
 
     buttons.push(new ButtonBuilder()
-      .setLabel(`${isLiked ? 'Unlike' : 'Like'} ${targetName}!`)
+      .setLabel(`${isLiked ? 'Unfollow' : 'Follow'} ${targetName}!`)
       .setStyle(isLiked ? ButtonStyle.Danger : ButtonStyle.Success)
       .setCustomId(`${SongProfileButtons.LIKE_PROFILE}-${target.id}`));
   }
@@ -114,11 +114,6 @@ export async function createSongProfileEmbed (
       .setLabel('(Soon) View playlists')
       .setStyle(ButtonStyle.Secondary)
       .setCustomId('view-playlists')
-      .setDisabled(true),
-    new ButtonBuilder()
-      .setLabel('(Soon) View albums')
-      .setStyle(ButtonStyle.Secondary)
-      .setCustomId('view-albums')
       .setDisabled(true),
   );
 
