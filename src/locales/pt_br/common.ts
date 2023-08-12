@@ -1,3 +1,5 @@
+import { hyperlink } from 'discord.js';
+
 import { type ResourceLanguage } from 'i18next';
 
 export default {
@@ -52,4 +54,10 @@ export default {
       vote: 'Votar',
     },
   },
+  invite_embed: [
+    '## Convide o Twokei para seu servidor! :)',
+    `### Clique no botão ou copie o link: ${hyperlink('twokei.com', 'https://twokei.com/?utm_campaign=invite_button&utm_medium=discord&utm_source=bot', 'Site do Twokei')}`,
+    'Ouça música em alta qualidade no próprio Discord.',
+    'Sem anúncios ou interrupções!',
+  ],
 } satisfies ResourceLanguage;

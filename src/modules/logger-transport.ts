@@ -1,3 +1,5 @@
+import { DiscordTransport } from '@/modules/transport-discord';
+
 import {
   blue, type Color, cyan, green, red, reset, yellow,
 } from 'kleur';
@@ -37,12 +39,6 @@ const consoleTransportInstance = new transports.Console({
 
       const trace = stack ? `\n${stack.replace(/\n/g, `\n${prefix}`)}` : '';
 
-      // {
-      //         compact: true,
-      //         showProxy: false,
-      //         showHidden: false,
-      //         depth: null,
-      //       }
       const stringify = JSON.stringify(rest, null, 2);
 
       const stringifyWithColors = stringify.split('\n')
@@ -63,11 +59,13 @@ const defaultLoggerOptions = {
     format.errors({ stack: true }),
     format.json(),
   ),
-  transports: [consoleTransportInstance],
+  transports: [consoleTransportInstance, new DiscordTransport()],
 };
 
 export const logger = createLogger('CORE');
+
 export const playerLogger = createLogger('PLAYER');
+
 export const queryLogger = createLogger('QUERY');
 
 export function createLogger (prefix: string, options?: LoggerOptions) {

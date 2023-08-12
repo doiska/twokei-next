@@ -12,7 +12,6 @@ import {
 import { eq } from 'drizzle-orm';
 import { kil } from '@/db/Kil';
 import { guilds } from '@/db/schemas/guild';
-import { users } from '@/db/schemas/users';
 
 import en_us from '@/locales/en_us';
 import { DEFAULT_LOCALE, isValidLocale } from '@/locales/i18n';
@@ -60,30 +59,20 @@ export const Twokei = new TwokeiClient({
     },
     defaultLanguageDirectory: './src/locales',
     fetchLanguage: async (context) => {
-      return DEFAULT_LOCALE;
-      //
-      // if (context.user) {
-      //   const [{ locale }] = await kil.select({ locale: users.locale })
-      //     .from(users)
-      //     .where(eq(users.id, context.user.id));
-      //
-      //   return locale ?? DEFAULT_LOCALE;
-      // }
-      //
-      // if (!context.guild?.id) {
-      //   return DEFAULT_LOCALE;
-      // }
-      //
-      // const [guild] = await kil
-      //   .select({ locale: guilds.locale })
-      //   .from(guilds)
-      //   .where(eq(guilds.guildId, context.guild.id));
-      //
-      // if (!guild || !isValidLocale(guild.locale)) {
-      //   return DEFAULT_LOCALE;
-      // }
-      //
-      // return guild.locale;
+      if (!context.guild?.id) {
+        return DEFAULT_LOCALE;
+      }
+
+      const [guild] = await kil
+        .select({ locale: guilds.locale })
+        .from(guilds)
+        .where(eq(guilds.guildId, context.guild.id));
+
+      if (!guild || !isValidLocale(guild.locale)) {
+        return DEFAULT_LOCALE;
+      }
+
+      return guild.locale;
     },
   },
 });

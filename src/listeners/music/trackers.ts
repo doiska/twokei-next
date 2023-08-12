@@ -1,6 +1,10 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { container, Listener } from '@sapphire/framework';
 
+import { eq } from 'drizzle-orm';
+import { kil } from '@/db/Kil';
+import { users } from '@/db/schemas/users';
+
 import { logger } from '@/modules/logger-transport';
 import type { Venti } from '@/music/controllers/Venti';
 import { Events } from '@/music/interfaces/player.types';
@@ -21,7 +25,20 @@ export class SongUserTracker extends Listener {
       return;
     }
 
-    logger.info(`[SONG-USER-TRACKER] ${current?.title} was added to the queue by ${user.tag} (${user.id})`);
+    logger.info(`[TRACKER] ${current?.title} was added to the queue by ${user.tag} (${user.id})`);
+
+    await kil.insert(users)
+      .values({
+        id: user.id,
+        name: user.username,
+      })
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          name: user.username,
+        },
+        where: eq(users.id, user.id),
+      });
 
     await container.analytics.track({
       userId: user.id,

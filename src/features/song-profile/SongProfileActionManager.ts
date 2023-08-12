@@ -1,7 +1,6 @@
+import { and, eq } from 'drizzle-orm';
 import { kil } from '@/db/Kil';
 import { songProfileActions } from '@/db/schemas/song-profile-actions';
-
-import { and, eq } from 'drizzle-orm';
 
 export class SongProfileActionManager {
   public async toggleLike (requester: string, target: string) {

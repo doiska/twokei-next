@@ -3,14 +3,11 @@ import { type User } from 'discord.js';
 import { and, eq, sql } from 'drizzle-orm';
 import { kil } from '@/db/Kil';
 import { songProfileActions } from '@/db/schemas/song-profile-actions';
-import {
-  songSource,
-} from '@/db/schemas/song-source';
-import { userSongEvents } from '@/db/schemas/user-song-events';
-import { type RegisteredUser, users } from '@/db/schemas/users';
+import { songRanking } from '@/db/schemas/song-ranking';
+import { songSource } from '@/db/schemas/song-source';
+import { users } from '@/db/schemas/users';
 
 import { SongProfileActionManager } from '@/features/song-profile/SongProfileActionManager';
-import { DEFAULT_LOCALE } from '@/locales/i18n';
 
 export class SongProfileManager {
   public actions: SongProfileActionManager;
@@ -19,17 +16,19 @@ export class SongProfileManager {
     this.actions = new SongProfileActionManager();
   }
 
-  public async get (user: User) {
+  public async get (target: User) {
     const [profile, ranking] = await Promise.all([
-      this.getProfile(user),
-      this.getUserRanking(user),
+      this.getProfile(target),
+      this.getUserRanking(target),
     ]);
 
-    const [listenedTo] = await kil.select({
-      count: sql<number>`COUNT(*)`.as('count'),
-    })
-      .from(userSongEvents)
-      .where(and(eq(userSongEvents.userId, user.id), eq(userSongEvents.event, 'play_song')));
+    const [followers] = await kil.select({
+      amount: sql<number>`COUNT(*)`,
+    }).from(songProfileActions)
+      .where(
+        and(eq(songProfileActions.targetId, target.id), eq(songProfileActions.action, 'like')),
+      )
+      .groupBy(songProfileActions.targetId);
 
     const sources = await kil
       .select({
@@ -39,91 +38,71 @@ export class SongProfileManager {
         updatedAt: songSource.updatedAt,
       })
       .from(songSource)
-      .where(eq(songSource.userId, user.id));
+      .where(eq(songSource.userId, target.id));
 
     return {
       ...profile,
       sources: sources ?? [],
       ranking,
       analytics: {
-        listenedSongs: listenedTo?.count ?? 0,
+        followers: followers?.amount ?? 0,
       },
     };
   }
 
-  private async getProfile (user: User): Promise<RegisteredUser> {
-    const [profile] = await kil
-      .select()
+  private async getProfile (user: User) {
+    const [profile] = await kil.select()
       .from(users)
-      .where(eq(users.id, user.id))
-      .limit(1);
+      .where(eq(users.id, user.id));
 
-    if (!profile) {
-      await kil
-        .insert(users)
-        .values({
-          id: user.id,
-          name: user.username,
-          locale: DEFAULT_LOCALE,
-        })
-        .onConflictDoNothing();
-
-      const result = await kil
-        .insert(users)
-        .values({
-          id: user.id,
-          name: user.username,
-        })
-        .returning();
-
-      return result?.[0];
+    if (profile) {
+      return profile;
     }
 
-    return profile;
+    const [result] = await kil
+      .insert(users)
+      .values({
+        id: user.id,
+        name: user.username,
+      })
+      .onConflictDoNothing()
+      .returning();
+
+    return result;
   }
 
   private async getUserRanking (user: User) {
-    const ranking = kil.$with('rank')
-      .as(
-        kil.select({
-          targetId: songProfileActions.targetId,
-          likeCount: sql<number>`COUNT(*)`.as('like_count'),
-          position: sql<number>`RANK() OVER (ORDER BY COUNT(*) DESC)`
-            .as('position'),
-        })
-          .from(songProfileActions)
-          .groupBy(songProfileActions.targetId),
-      );
+    const [ranking] = await kil.select().from(songRanking)
+      .where(eq(songRanking.userId, user.id));
 
-    const [userRanking] = await kil.with(ranking)
-      .select({
-        likes: ranking.likeCount,
-        position: ranking.position,
-      })
-      .from(ranking)
-      .where(eq(ranking.targetId, user.id));
-
-    return userRanking;
+    return ranking;
   }
 
-  // private async getTopRanking (max = 5) {
-  //   const subQuery = kil
-  //     .select({
-  //       targetId: songProfileActions.targetId,
-  //       likeCount: sql<number>`COUNT(*)`.as('like_count'),
-  //     })
-  //     .from(songProfileActions)
-  //     .groupBy(songProfileActions.targetId)
-  //     .as('sq');
+  // User Ranking by like
+  // private async getUserRanking (user: User) {
+  //   const ranking = kil.$with('rank')
+  //     .as(
+  //       kil
+  //         .select({
+  //           targetId: songProfileActions.targetId,
+  //           likeCount: sql<number>`COUNT(*)`.as('like_count'),
+  //           position: sql<number>`RANK() OVER (ORDER BY COUNT(*) DESC)`.as(
+  //             'position',
+  //           ),
+  //         })
+  //         .from(songProfileActions)
+  //         .groupBy(songProfileActions.targetId),
+  //     );
   //
-  //   const ranking = await kil
+  //   const [userRanking] = await kil
+  //     .with(ranking)
   //     .select({
-  //       likes: subQuery.likeCount,
-  //       position: sql<number>`RANK() OVER (ORDER BY like_count DESC) as position`,
+  //       likes: ranking.likeCount,
+  //       position: ranking.position,
   //     })
-  //     .from(subQuery)
-  //     .limit(max);
+  //     .from(ranking)
+  //     .where(eq(ranking.targetId, user.id));
   //
-  //   console.log(ranking);
+  //   return userRanking;
   // }
 }

@@ -1,5 +1,5 @@
 import { type Guild, type GuildResolvable } from 'discord.js';
-import { type Awaitable, noop } from '@sapphire/utilities';
+import { type Awaitable, isObject, noop } from '@sapphire/utilities';
 import {
   type Connector,
   type NodeOption,
@@ -10,6 +10,10 @@ import {
   type TrackStuckEvent,
   type WebSocketClosedEvent,
 } from 'shoukaku';
+
+import { eq } from 'drizzle-orm';
+import { kil } from '@/db/Kil';
+import { settings } from '@/db/schemas/settings';
 
 import { Twokei } from '@/app/Twokei';
 import { createLogger } from '@/modules/logger-transport';
@@ -323,11 +327,49 @@ export class Xiao extends EventEmitter {
   }
 
   private async loadNodes () {
-    // const webNodes = getWebNodes();
-    //
-    // if (webNodes) {
-    //   console.log('Web nodes found, loading...');
-    //   console.log(webNodes);
-    // }
+    await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (!this.shoukaku.id) {
+          reject(new Error('Shoukaku could not be loaded in time.'));
+        }
+      }, 10000);
+
+      const interval = setInterval(() => {
+        if (this.shoukaku.id) {
+          this.logger.info('Shoukaku is ready! Loading nodes...');
+          clearInterval(interval);
+          resolve(true);
+        }
+      }, 300);
+    });
+
+    const [rawNodes] = await kil.select({ value: settings.value })
+      .from(settings)
+      .where(eq(settings.name, 'Nodes'));
+
+    if (!rawNodes?.value) {
+      this.logger.error('Could not retrieve Nodes from the Database');
+      return;
+    }
+
+    rawNodes?.value.forEach(node => {
+      if (!this.isNode(node)) {
+        this.logger.error('Trying to insert invalid Node.', { node });
+        return;
+      }
+
+      this.shoukaku.addNode(node);
+    });
+  }
+
+  isNode (value: unknown): value is NodeOption {
+    const requiredKeys = ['name', 'url', 'auth'];
+
+    if (!isObject(value)) {
+      return false;
+    }
+
+    return requiredKeys
+      .every(key => Object.keys(value).includes(key));
   }
 }

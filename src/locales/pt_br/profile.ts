@@ -5,7 +5,7 @@ export default {
     title_unranked: '## {{tag}} - Sem rank :(',
     premium: '# <a:premium:1129096922943197300> Premium',
     description: [
-      '- ⭐ {{likes}} curtidas',
+      '- ⭐ {{followers}} seguidores',
       '- 🎧 {{listened}} músicas ouvidas',
     ],
   },

@@ -11,11 +11,8 @@ function createEmbed (defaultData: APIEmbed & { appendStart?: string }) {
 
     if (typeof rawContent === 'string') {
       const [firstLine, ...rest] = rawContent.split('\n');
-      console.log(`First line ${firstLine}`);
 
       const lastHashPosition = firstLine.lastIndexOf('#', 4);
-
-      console.log(lastHashPosition);
 
       if (lastHashPosition !== -1) {
         const prefix = firstLine.substring(0, lastHashPosition + 1);

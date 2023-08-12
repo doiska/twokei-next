@@ -2,7 +2,7 @@ import type { InferModel } from 'drizzle-orm';
 import { jsonb, pgEnum, pgSchema, timestamp, varchar } from 'drizzle-orm/pg-core';
 import { users } from '@/db/schemas/users';
 
-export type UserEvent = InferModel<typeof userSongEvents, 'insert'> & {
+export type UserEvent = InferModel<typeof songUserEvents, 'insert'> & {
   properties: UserEventProperties
 };
 
@@ -32,7 +32,7 @@ const sourcesEnum = pgEnum('song_user_events_source', [
   'Web',
 ]);
 
-export const userSongEvents = pgSchema(process.env.PGSCHEMA ?? 'app')
+export const songUserEvents = pgSchema(process.env.PGSCHEMA ?? 'app')
   .table('song_user_events', {
     userId: varchar('user_id')
       .notNull()

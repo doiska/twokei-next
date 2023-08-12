@@ -25,6 +25,9 @@ type PresetMessageFn<T = Exclude<RepliableInteraction, ModalSubmitInteraction> |
   message?: string
   i18n?: TOptions & { joinArrays?: string | boolean }
   deleteIn?: number
+  embed?: {
+    appendStart?: string
+  }
 } & (T extends Message ? ReplyOptions : InteractionReplyOptions);
 
 export async function sendPresetMessage ({
@@ -36,8 +39,6 @@ export async function sendPresetMessage ({
   ...props
 }: PresetMessageFn) {
   const defaultOptions = message ? { joinArrays: '\n' } : { joinArrays: false, returnObjects: true };
-
-  console.log(defaultOptions);
 
   const found = await resolveKey(
     interaction,
