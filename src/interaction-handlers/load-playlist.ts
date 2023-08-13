@@ -61,7 +61,7 @@ export class LoadPlaylist extends InteractionHandler {
             url: item.owner.href ?? 'href',
           })
           .setThumbnail(interaction.user.avatarURL({ size: 512 }))
-          .setImage(item.images[0].url ?? ''),
+          .setImage(item?.images[0]?.url ?? null),
       ],
     }) satisfies PaginatedMessagePage));
 
