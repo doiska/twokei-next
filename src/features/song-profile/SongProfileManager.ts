@@ -3,8 +3,8 @@ import { type User } from 'discord.js';
 import { and, eq, sql } from 'drizzle-orm';
 import { kil } from '@/db/Kil';
 import { songProfileActions } from '@/db/schemas/song-profile-actions';
+import { songProfileSources } from '@/db/schemas/song-profile-sources';
 import { songRanking } from '@/db/schemas/song-ranking';
-import { songSource } from '@/db/schemas/song-source';
 import { users } from '@/db/schemas/users';
 
 import { SongProfileActionManager } from '@/features/song-profile/SongProfileActionManager';
@@ -32,13 +32,13 @@ export class SongProfileManager {
 
     const sources = await kil
       .select({
-        source: songSource.source,
-        sourceUrl: songSource.sourceUrl,
-        createdAt: songSource.createdAt,
-        updatedAt: songSource.updatedAt,
+        source: songProfileSources.source,
+        sourceUrl: songProfileSources.sourceUrl,
+        createdAt: songProfileSources.createdAt,
+        updatedAt: songProfileSources.updatedAt,
       })
-      .from(songSource)
-      .where(eq(songSource.userId, target.id));
+      .from(songProfileSources)
+      .where(eq(songProfileSources.userId, target.id));
 
     return {
       ...profile,

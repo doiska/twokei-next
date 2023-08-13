@@ -1,6 +1,7 @@
+import type { InferModel } from 'drizzle-orm';
 import { pgSchema, timestamp, varchar } from 'drizzle-orm/pg-core';
 
-export const playlists = pgSchema(process.env.PGSCHEMA ?? 'app')
+export const songProfilePlaylists = pgSchema(process.env.PGSCHEMA ?? 'app')
   .table(
     'song_user_playlists',
     {
@@ -15,3 +16,5 @@ export const playlists = pgSchema(process.env.PGSCHEMA ?? 'app')
         .defaultNow(),
     },
   );
+
+export type SongProfilePlaylist = InferModel<typeof songProfilePlaylists>;

@@ -23,10 +23,16 @@ export enum PlayerButtons {
   LOOP = 'LOOP',
 }
 
+export enum OnPlayButtons {
+  LIKE = 'LIKE_SONG',
+  DISLIKE = 'DISLIKE_SONG',
+}
+
 export enum EmbedButtons {
   VIEW_PROFILE = 'VIEW_PROFILE',
   DONATE = 'DONATE',
   SAVE_PLAYLIST = 'SAVE_PLAYLIST',
+  LOAD_PLAYLIST = 'LOAD_PLAYLIST',
   INVITE = 'INVITE',
 }
 

@@ -1,7 +1,16 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, type GuildMember } from 'discord.js';
+import {
+  ActionRowBuilder,
+  ButtonBuilder, type ButtonInteraction,
+  ButtonStyle, ComponentType,
+  EmbedBuilder,
+  type GuildMember,
+  type Message,
+} from 'discord.js';
 
+import { OnPlayButtons } from '@/constants/music/player-buttons';
 import type { XiaoSearchResult } from '@/music/interfaces/player.types';
 import { Embed } from '@/utils/messages';
+import { sendPresetMessage } from '@/utils/utils';
 
 import { fetchT } from 'twokei-i18next';
 
@@ -13,18 +22,19 @@ export const createPlayEmbed = async (member: GuildMember, result: XiaoSearchRes
     .charAt(0)
     .toUpperCase() + track.sourceName.slice(1);
 
-  const [like,
+  const [
+    like,
     dislike,
     viewSource,
   ] = ['like', 'dislike', 'view_source'].map((button) => t(`player:play.buttons.${button}`, { source: capitalizedSource }));
 
   const likeButton = new ButtonBuilder()
-    .setCustomId('like')
+    .setCustomId(OnPlayButtons.LIKE)
     .setLabel(like)
     .setStyle(ButtonStyle.Primary);
 
   const dislikeButton = new ButtonBuilder()
-    .setCustomId('dislike')
+    .setCustomId(OnPlayButtons.DISLIKE)
     .setLabel(dislike)
     .setStyle(ButtonStyle.Danger);
 
@@ -33,15 +43,13 @@ export const createPlayEmbed = async (member: GuildMember, result: XiaoSearchRes
     .setLabel(viewSource)
     .setURL(track.uri);
 
-  const row = new ActionRowBuilder<ButtonBuilder>({
+  const feedbackRow = new ActionRowBuilder<ButtonBuilder>({
     components: [
       likeButton,
       dislikeButton,
       viewOnSource,
     ],
   });
-
-  console.log(result.type);
 
   const resultType = ['TRACK_LOADED', 'SEARCH_RESULT'].includes(result.type) ? 'track' : 'playlist';
 
@@ -71,6 +79,25 @@ export const createPlayEmbed = async (member: GuildMember, result: XiaoSearchRes
 
   return {
     embeds: [responseEmbed],
-    components: [row],
+    components: [feedbackRow],
   };
 };
+
+export async function waitFeedback (message: Message) {
+  const collector = message.createMessageComponentCollector({
+    filter: (i: ButtonInteraction) => [OnPlayButtons.LIKE, OnPlayButtons.DISLIKE].includes(i.customId),
+    componentType: ComponentType.Button,
+    time: 60000,
+  });
+
+  collector.on('collect', async (i: ButtonInteraction) => {
+    await sendPresetMessage({
+      interaction: i,
+      preset: 'success',
+      message: 'player:play.feedback',
+      ephemeral: true,
+    });
+  });
+
+  return collector;
+}

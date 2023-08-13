@@ -17,17 +17,6 @@ import { logger } from '@/modules/logger-transport';
 })
 export class GuildSetup extends Listener<Events.GuildCreate> {
   public async run (guild: Guild) {
-    if (process.env.NODE_ENV !== 'production') {
-      await guild.channels.fetch()
-        .then((channels) => {
-          channels
-            .filter((channel) => channel?.name?.includes('song-requests'))
-            .forEach((channel) => {
-              void channel?.delete();
-            });
-        });
-    }
-
     logger.info(`Joined guild ${guild.name} (${guild.id})`);
 
     await kil

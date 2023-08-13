@@ -17,7 +17,7 @@ import { resolveKey } from 'twokei-i18next';
   enabled: true,
   interactionHandlerType: InteractionHandlerTypes.Button,
 })
-export class ProfileSync extends InteractionHandler {
+export class ProfileView extends InteractionHandler {
   public override parse (buttonInteraction: ButtonInteraction): Awaitable<Option<unknown>> {
     if (buttonInteraction.customId !== EmbedButtons.VIEW_PROFILE) {
       return this.none();

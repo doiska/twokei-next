@@ -16,12 +16,6 @@ export interface SpotifyTrack {
   uri: string
 }
 
-export interface Tracks {
-  href: string
-  items: SpotifyTrack[]
-  next: string | null
-}
-
 export interface PlaylistTracks {
   href: string
   items: SpecialTracks[]
@@ -38,18 +32,8 @@ export interface SpecialTracks {
   primary_color: string | null
   track: SpotifyTrack
 }
-
-export interface Copyright {
-  text: string
-  type: string
-}
-
 export interface ExternalUrls {
   spotify: string
-}
-
-export interface ExternalIds {
-  isrc: string
 }
 
 export interface Album {
@@ -122,6 +106,15 @@ interface Owner {
 export interface Followers {
   href: string | null
   total: number
+}
+
+export interface SpotifyProfileResponse {
+  href: string
+  items: SpotifyPlaylistResponse[]
+  limit: number
+  total: number
+  previous: string | null
+  next: string | null
 }
 
 export interface SpotifyPlaylistResponse {

@@ -1,16 +1,13 @@
 import {
   channelMention,
-  ComponentType,
   Events, type Message,
 } from 'discord.js';
 import { ApplyOptions } from '@sapphire/decorators';
-import { isGuildBasedChannel, isGuildMember, isTextChannel } from '@sapphire/discord.js-utilities';
+import { isGuildBasedChannel, isTextChannel } from '@sapphire/discord.js-utilities';
 import { container, Listener } from '@sapphire/framework';
-import { send } from '@sapphire/plugin-editable-commands';
 import { noop } from '@sapphire/utilities';
 
-import { createPlayEmbed } from '@/constants/music/create-play-embed';
-import { addNewSong } from '@/music/heizou/add-new-song';
+import { playSong } from '@/features/music/play-song';
 import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
 import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
 import { sendPresetMessage } from '@/utils/utils';
@@ -48,7 +45,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         return;
       }
 
-      await message.delete();
+      await message.delete().catch(noop);
 
       if (!hasMentions) {
         await sendPresetMessage({
@@ -62,37 +59,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         return;
       }
 
-      await sendPresetMessage({
-        interaction: message,
-        preset: 'loading',
-      });
-
-      const result = await addNewSong(contentOnly, member);
-
-      const embedResult = await createPlayEmbed(member, result);
-
-      const replied = await send(message, embedResult);
-
-      replied.awaitMessageComponent({
-        filter: (i) => i.user.id === member.id && ['like', 'dislike'].includes(i.customId),
-        componentType: ComponentType.Button,
-        time: 15000,
-      })
-        .then(async response => {
-          if (isGuildMember(response.member)) {
-            await container.analytics.track({
-              userId: response.member.id,
-              event: response.customId === 'like' ? 'like_song' : 'dislike_song',
-              source: 'Guild',
-              properties: {
-                track: result.tracks?.[0].short(),
-              },
-            });
-          }
-
-          await response.deferUpdate();
-        })
-        .catch(noop);
+      await playSong(message, contentOnly);
     } catch (e) {
       await sendPresetMessage({
         interaction: message,
