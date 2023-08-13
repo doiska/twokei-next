@@ -4,7 +4,7 @@ import { type RegisteredUser, users } from '@/db/schemas/users';
 
 const sourcesEnum = pgEnum('source', ['YouTube', 'Deezer', 'Spotify']);
 
-export const songSource = pgSchema(process.env.PGSCHEMA ?? 'app')
+export const songProfileSources = pgSchema(process.env.PGSCHEMA ?? 'app')
   .table('song_profile_sources', {
     userId: varchar('user_id')
       .primaryKey()
@@ -22,6 +22,6 @@ export const songSource = pgSchema(process.env.PGSCHEMA ?? 'app')
       .defaultNow(),
   });
 
-export type SongSource = Omit<InferModel<typeof songSource>, 'userId'>;
+export type SongSource = Omit<InferModel<typeof songProfileSources>, 'userId'>;
 
 export type SongProfileWithSources = RegisteredUser & { sources: SongSource[], ranking: { position: number, likes: number } };

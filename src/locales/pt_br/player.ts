@@ -15,7 +15,7 @@ export default {
       '- Use **Spotify ou Youtube**, você escolhe!',
       '### <:spotify:1121851501715931187> Profile Sync',
       '- **Traga suas playlists do ``Spotify & Deezer`` para o Twokei!**',
-      '- Clique no botão **Ver Perfil** abaixo.',
+      '- Clique no botão **Meu Perfil** abaixo.',
     ],
     description_playing: [
       ' ',
@@ -43,11 +43,11 @@ export default {
       },
       auto_play: 'Autoplay',
       select_language: 'Alterar idioma',
-      load_playlist: 'Carregar playlist',
       view_profile: 'Ver Perfil',
+      load_playlist: 'Playlists',
       save_playlist: 'Salvar playlist atual',
       your_playlists: 'Saved playlists',
-      invite: 'Invite',
+      invite: 'Convite',
       donate: 'Apoiar desenvolvimento',
     },
   },
@@ -72,6 +72,10 @@ export default {
       dislike: 'Dislike',
       view_source: 'Ver no {{source}}',
     },
+    feedback: [
+      'Obrigado pelo feedback!',
+      'Ajustaremos suas recomendações :)',
+    ],
   },
   player: {
     now_playing: 'Now playing 🎶',

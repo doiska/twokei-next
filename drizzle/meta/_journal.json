@@ -57,6 +57,34 @@
       "when": 1691083125738,
       "tag": "0007_complex_tiger_shark",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1691860891014,
+      "tag": "0008_white_stark_industries",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1691862109927,
+      "tag": "0009_crazy_matthew_murdock",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1691872561819,
+      "tag": "0010_living_prowler",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1691878572538,
+      "tag": "0011_wandering_loners",
+      "breakpoints": true
     }
   ]
 }

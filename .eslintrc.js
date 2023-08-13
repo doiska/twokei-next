@@ -63,7 +63,7 @@ module.exports = {
     '@typescript-eslint/no-use-before-define': ['off'],
     '@typescript-eslint/explicit-function-return-type': ['off'],
     '@typescript-eslint/method-signature-style': ['off'],
-    'newline-per-chained-call': ['error', { ignoreChainWithDepth: 1 }],
+    'newline-per-chained-call': ['error', { ignoreChainWithDepth: 2 }],
     'function-call-argument-newline': ['error', 'consistent'],
     'function-paren-newline': ['error', 'consistent'],
   },

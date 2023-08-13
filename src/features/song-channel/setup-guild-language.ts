@@ -7,6 +7,7 @@ import {
   type GuildTextBasedChannel,
   type PermissionsBitField,
 } from 'discord.js';
+import { noop } from '@sapphire/utilities';
 
 import { eq } from 'drizzle-orm';
 import { kil } from '@/db/Kil';
@@ -60,7 +61,7 @@ export async function setupGuildLanguage (channel: GuildTextBasedChannel) {
     void interaction.deferUpdate();
   }
 
-  await message.delete();
+  await message.delete().catch(noop);
 
   const newLocale = interaction?.customId.split('-')?.[1] ?? language;
 

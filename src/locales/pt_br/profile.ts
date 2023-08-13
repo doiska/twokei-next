@@ -9,5 +9,9 @@ export default {
       '- 🎧 {{listened}} músicas ouvidas',
     ],
   },
-  suggestion: 'Você pode ver o perfil de outras pessoas usando {{- command_profile}} <username/id>',
+  suggestion: [
+    '### Veja o perfil de outros ouvintes!',
+    'Clique com o **botão direito no usuário > Apps > Ver perfil de música**',
+    'Ou digite o comando {{- command_profile}} @usuário',
+  ].join('\n'),
 };

@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import '../utils/setup';
 import 'twokei-i18next/register';
 
-import { GatewayIntentBits, Partials } from 'discord.js';
+import { ActivityType, GatewayIntentBits, Partials } from 'discord.js';
 import {
   ApplicationCommandRegistries,
   LogLevel,
@@ -79,6 +79,15 @@ export const Twokei = new TwokeiClient({
 
 const main = async () => {
   await Twokei.login(process.env.DISCORD_TOKEN);
+  Twokei?.user?.setPresence({
+    activities: [
+      {
+        name: 'twokei.com',
+        type: ActivityType.Listening,
+        url: 'https://twokei.com',
+      },
+    ],
+  });
 };
 
 void main();

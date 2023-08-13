@@ -39,10 +39,12 @@ export const setupNewChannel = async (guild: Guild) => {
   if (currentChannel) {
     await guild.channels
       .fetch(currentChannel.channelId)
-    // eslint-disable-next-line no-void
-      .then((channel) => void channel?.delete())
+      .then(async (channel) => {
+        await channel?.delete();
+      })
       .catch(noop)
-      .finally(() => logger.info(`Deleted old ${guild.name} (${guild.id}) song channel.`));
+      .finally(() =>
+        logger.info(`Deleted old ${guild.name} (${guild.id}) song channel.`));
   }
 
   logger.info('Creating new song channel', { guild: { name: guild.name, id: guild.id } });

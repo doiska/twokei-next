@@ -1,11 +1,15 @@
+- Fix:
+    - Inserir usuário na tabela users / OK
+
 - Performance:
     - Transformar profile ranking em uma view;
 
 - Botões:
-    - Adicionar funcionalidade ao botão invite;
+    - Adicionar funcionalidade ao botão invite; / OK
     - Finalizar "Apoiar desenvolvimento"
-    - Revisar "Like" / "Dislike"
-    - Mensagens dos botões serem ephemeral (evitar poluir);
+    - Revisar "Like" e "Dislike" / OK
+    - Revisar Follow do Perfil / OK
+    - Mensagens dos botões serem ephemeral (evitar poluir) / OK
     - Adicionar Vote no Bot
 
 - Profile:
@@ -13,10 +17,9 @@
     - Adicionar Spotify Sync;
 
 - Isolar configurações para o banco de dados:
-    - Selecionar configurações do Shoukaku;
-    - Selecionar Nodes;
+    - Selecionar configurações do Shoukaku; / OK
+    - Selecionar Nodes; / OK
     - Adicionar comando de reload;
-
 
 - Premium:
     - Remover Youtube do Bot? Tornar funcionalidade Premium em um bot isolado;

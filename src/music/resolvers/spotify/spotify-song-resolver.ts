@@ -13,7 +13,7 @@ import {
   type SpotifySearchResponse,
   type SpotifyTrackResponse,
 } from './spotify.types';
-import { SpotifyRequestManager } from './spotify-request-manager';
+import { spotifyRequestManager } from './spotify-request-manager';
 
 interface SpotifyClient {
   clientId: string
@@ -33,31 +33,13 @@ export interface SpotifyResolverOptions {
 
 const SPOTIFY_URL = /(?:https?:\/\/open\.spotify\.com\/|spotify:)(?:.+)?(track|playlist|album|artist)[/:]([A-Za-z0-9]+)/;
 
-export class SpotifyResolver implements TrackResolver {
+export class SpotifySongResolver implements TrackResolver {
   readonly name = 'spotify';
-
-  private readonly requestManager: SpotifyRequestManager;
 
   private readonly options: SpotifyResolverOptions;
 
   constructor () {
-    const defaultOptions = {
-      region: 'BR',
-      limits: {
-        search: 5,
-        playlists: 5,
-        tracks: 5,
-        albums: 10,
-      },
-      clients: [
-        {
-          clientId: process.env.SPOTIFY_CLIENT_ID ?? '',
-          clientSecret: process.env.SPOTIFY_CLIENT_SECRET ?? '',
-        },
-      ],
-    };
-    this.options = defaultOptions;
-    this.requestManager = new SpotifyRequestManager(defaultOptions);
+    this.options = spotifyRequestManager.options;
   }
 
   public matches (url: string): boolean {
@@ -94,7 +76,7 @@ export class SpotifyResolver implements TrackResolver {
     const searchLimit = Math.min(this.options.limits.search, 15);
     const encodedQuery = encodeURIComponent(query);
     const endpoint = `/search?q=${encodedQuery}&type=track&limit=${searchLimit}&market=${this.options.region}`;
-    const resolved = await this.requestManager.request<SpotifySearchResponse>(
+    const resolved = await spotifyRequestManager.request<SpotifySearchResponse>(
       endpoint,
     );
 
@@ -115,7 +97,7 @@ export class SpotifyResolver implements TrackResolver {
     id: string,
     requester?: User,
   ): Promise<XiaoSearchResult> {
-    const playlist = await this.requestManager.request<SpotifyPlaylistResponse>(
+    const playlist = await spotifyRequestManager.request<SpotifyPlaylistResponse>(
       `/playlists/${id}?market=${this.options.region}`,
     );
 
@@ -134,7 +116,7 @@ export class SpotifyResolver implements TrackResolver {
     let page = 1;
 
     while (next && page < this.options.limits.playlists) {
-      const nextTracks = await this.requestManager.request<PlaylistTracks>(
+      const nextTracks = await spotifyRequestManager.request<PlaylistTracks>(
         next,
         true,
       );
@@ -171,7 +153,7 @@ export class SpotifyResolver implements TrackResolver {
     id: string,
     requester?: User,
   ): Promise<XiaoSearchResult> {
-    const response = await this.requestManager.request<SpotifyTrackResponse>(
+    const response = await spotifyRequestManager.request<SpotifyTrackResponse>(
       `/tracks/${id}`,
     );
 

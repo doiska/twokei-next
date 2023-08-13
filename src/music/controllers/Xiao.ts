@@ -30,7 +30,7 @@ import {
   type XiaoSearchResult,
 } from '../interfaces/player.types';
 import { type TrackResolver } from '../resolvers/resolver';
-import { SpotifyResolver } from '../resolvers/spotify/spotify-resolver';
+import { SpotifySongResolver } from '../resolvers/spotify/spotify-song-resolver';
 import { ResolvableTrack } from '../structures/ResolvableTrack';
 import { Venti } from './Venti';
 
@@ -147,7 +147,7 @@ export class Xiao extends EventEmitter {
    */
   public readonly players = new Map<string, Venti>();
 
-  public resolvers: TrackResolver[] = [new SpotifyResolver()];
+  public resolvers: TrackResolver[] = [new SpotifySongResolver()];
 
   private readonly logger: Logger;
 
