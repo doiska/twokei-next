@@ -1,11 +1,14 @@
 import { type GuildMember } from 'discord.js';
-import { canJoinVoiceChannel, isVoiceChannel } from '@sapphire/discord.js-utilities';
+import {
+  canJoinVoiceChannel,
+  isVoiceChannel,
+} from '@sapphire/discord.js-utilities';
 
 import { xiao } from '@/app/Xiao';
 import { isConnectedTo } from '@/preconditions/vc-conditions';
 import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
 import { PlayerException } from '@/structures/exceptions/PlayerException';
-import { Events } from '../interfaces/player.types';
+import { Events, LoadType } from '../interfaces/player.types';
 import { createPlayerInstance } from './create-player-instance';
 
 export async function addNewSong (input: string, member: GuildMember) {
@@ -48,7 +51,12 @@ export async function addNewSong (input: string, member: GuildMember) {
     throw new PlayerException(ErrorCodes.PLAYER_NO_TRACKS_FOUND);
   }
 
-  player.queue.add(...result.tracks);
+  if (result.type === LoadType.PLAYLIST_LOADED) {
+    result.tracks.sort(() => Math.random() - 0.5);
+    player.queue.add(...result.tracks);
+  } else {
+    player.queue.add(...result.tracks);
+  }
 
   if (!player.playing) {
     await player.play();
