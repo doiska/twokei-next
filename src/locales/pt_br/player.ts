@@ -11,12 +11,12 @@ export default {
     description: [
       '## <a:raio:1121849523854118973> [Twokei Music](https://twokei.com)',
       ' ',
-      '### <:hanakin:1121884455225786478> Como usar?',
+      `### <${Icons.Hanakin}> Como usar?`,
       '- **Mencione** o bot com o nome/url da música para adicionar à fila.',
       '- Exemplo: "**{{- mention}} lofi hiphop**"',
       '- Use **Spotify ou Youtube**, você escolhe!',
-      `### ${Icons.SpotifyLogo} Profile Sync`,
-      '- **Traga suas playlists do ``Spotify & Deezer`` para o Twokei!**',
+      `### <${Icons.SpotifyLogo}> Profile Sync (Beta)`,
+      '- **Traga suas playlists do ``Spotify`` para o Twokei!**',
       '- Clique no botão **Meu Perfil** abaixo.',
     ],
     description_playing: [
