@@ -12,6 +12,7 @@ import {
   type None,
   type Option,
 } from '@sapphire/framework';
+import { noop } from '@sapphire/utilities';
 
 import { and, eq } from 'drizzle-orm';
 import { kil } from '@/db/Kil';
@@ -22,6 +23,7 @@ import { EmbedButtons } from '@/constants/music/player-buttons';
 import { playSong } from '@/features/music/play-song';
 import type { ProfileWithPlaylists } from '@/music/resolvers/resolver';
 import { spotifyProfileResolver } from '@/music/resolvers/spotify/spotify-profile-resolver';
+import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
 import { capitalizeFirst, sendPresetMessage } from '@/utils/utils';
 
 @ApplyOptions<InteractionHandler.Options>({
@@ -95,7 +97,7 @@ export class LoadPlaylist extends InteractionHandler {
       });
     }
 
-    await paginatedMessage.run(interaction);
+    await paginatedMessage.run(interaction, interaction.user);
   }
 
   public parse (buttonInteraction: ButtonInteraction): Option<None> {
@@ -171,8 +173,18 @@ export class LoadPlaylist extends InteractionHandler {
             return;
           }
 
-          await interaction.deleteReply();
-          await playSong(interaction, playlist.href);
+          await playSong(interaction, playlist.href)
+            .catch(async (response) => {
+              const readable = getReadableException(response);
+
+              return interaction.followUp({
+                content: readable,
+                ephemeral: true,
+              });
+            })
+            .finally(() => {
+              interaction.deleteReply().catch(noop);
+            });
         },
       },
       {
