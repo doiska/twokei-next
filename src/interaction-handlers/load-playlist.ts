@@ -173,7 +173,7 @@ export class LoadPlaylist extends InteractionHandler {
             return;
           }
 
-          await playSong(interaction, playlist.href)
+          await playSong(interaction, playlist.uri)
             .catch(async (response) => {
               const readable = getReadableException(response);
 

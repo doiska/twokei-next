@@ -27,7 +27,7 @@ export interface ProfileWithPlaylists {
     description: string
     name: string
     owner: Profile
-    href: string
+    uri: string
     tracks: {
       total: number
       href: string
