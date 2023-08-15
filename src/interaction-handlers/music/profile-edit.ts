@@ -2,7 +2,6 @@ import { ActionRowBuilder, type ButtonInteraction, TextInputStyle } from 'discor
 import { ModalBuilder, TextInputBuilder } from 'discord.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { InteractionHandler, InteractionHandlerTypes, type None, type Option } from '@sapphire/framework';
-import type { Awaitable } from '@sapphire/utilities';
 
 import { Modals, SongProfileButtons } from '@/constants/music/player-buttons';
 
@@ -14,7 +13,8 @@ export class ProfileEdit extends InteractionHandler {
   async run (interaction: ButtonInteraction) {
     const spotify = new TextInputBuilder()
       .setCustomId('spotify')
-      .setLabel('Spotify')
+      .setLabel('Spotify Profile Url')
+      .setPlaceholder('https://open.spotify.com/user/31cwujt4j433skqn5kledywywxge?si=6a3cb8890cc54e76')
       .setStyle(TextInputStyle.Short);
 
     const row = new ActionRowBuilder<TextInputBuilder>({

@@ -30,7 +30,7 @@ import {
   type XiaoSearchResult,
 } from '../interfaces/player.types';
 import { type TrackResolver } from '../resolvers/resolver';
-import { SpotifySongResolver } from '../resolvers/spotify/spotify-song-resolver';
+import { spotifyTrackResolver } from '../resolvers/spotify/spotify-track-resolver';
 import { ResolvableTrack } from '../structures/ResolvableTrack';
 import { Venti } from './Venti';
 
@@ -147,7 +147,7 @@ export class Xiao extends EventEmitter {
    */
   public readonly players = new Map<string, Venti>();
 
-  public resolvers: TrackResolver[] = [new SpotifySongResolver()];
+  public resolvers: TrackResolver[] = [spotifyTrackResolver];
 
   private readonly logger: Logger;
 
@@ -332,7 +332,7 @@ export class Xiao extends EventEmitter {
         if (!this.shoukaku.id) {
           reject(new Error('Shoukaku could not be loaded in time.'));
         }
-      }, 10000);
+      }, 20000);
 
       const interval = setInterval(() => {
         if (this.shoukaku.id) {

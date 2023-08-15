@@ -1,4 +1,8 @@
+- Linter:
+    - Usar typescript-eslint
+
 - Fix:
+    - Apagar mensagem de load-playlist após selecionar uma /
     - Inserir usuário na tabela users / OK
 
 - Performance:

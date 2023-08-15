@@ -1,6 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Colors, EmbedBuilder, type User } from 'discord.js';
 import { container } from '@sapphire/framework';
 
+import { Icons } from '@/constants/icons';
 import { SongProfileButtons } from '@/constants/music/player-buttons';
 
 import { match } from 'ts-pattern';
@@ -9,15 +10,15 @@ import { fetchT } from 'twokei-i18next';
 const Sources = {
   youtube: {
     name: 'YouTube',
-    emoji: ':youtube_logo:1129098179288240139',
+    emoji: Icons.YoutubeLogo,
   },
   deezer: {
     name: 'Deezer',
-    emoji: ':deezer_logo:1129098175467241492',
+    emoji: Icons.DeezerLogo,
   },
   spotify: {
     name: 'Spotify',
-    emoji: ':spotify_logo:1129098176968806440',
+    emoji: Icons.SpotifyLogo,
   },
 };
 

@@ -28,6 +28,7 @@ export async function createStaticButtons (guild: Guild) {
       {
         style: ButtonStyle.Primary,
         customId: EmbedButtons.LOAD_PLAYLIST,
+        emoji: ':a:nitro_black:1141002291076403280',
       },
       {
         style: ButtonStyle.Secondary,
@@ -37,7 +38,7 @@ export async function createStaticButtons (guild: Guild) {
       {
         style: ButtonStyle.Secondary,
         customId: EmbedButtons.VIEW_PROFILE,
-        emoji: ':spotify_dark:1077441343456018463',
+        emoji: ':new:1140994146941812847',
       },
     ].map(button => parseButtonLabel(t, button)) as InteractionButtonComponentData[],
   });

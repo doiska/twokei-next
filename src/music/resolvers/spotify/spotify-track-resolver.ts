@@ -7,13 +7,14 @@ import {
 } from '../../interfaces/player.types';
 import { ResolvableTrack } from '../../structures/ResolvableTrack';
 import { type TrackResolver } from '../resolver';
+import { spotifyRequestManager } from './spotify-request-manager';
 import {
   type PlaylistTracks,
-  type SpotifyPlaylistResponse,
-  type SpotifySearchResponse,
-  type SpotifyTrackResponse,
-} from './spotify.types';
-import { spotifyRequestManager } from './spotify-request-manager';
+} from './types/spotify.types';
+import type {
+  SpotifyPlaylistResponse,
+  SpotifySearchResponse, SpotifyTrackResponse,
+} from './types/spotify-response.types';
 
 interface SpotifyClient {
   clientId: string
@@ -33,7 +34,7 @@ export interface SpotifyResolverOptions {
 
 const SPOTIFY_URL = /(?:https?:\/\/open\.spotify\.com\/|spotify:)(?:.+)?(track|playlist|album|artist)[/:]([A-Za-z0-9]+)/;
 
-export class SpotifySongResolver implements TrackResolver {
+class SpotifyTrackResolver implements TrackResolver {
   readonly name = 'spotify';
 
   private readonly options: SpotifyResolverOptions;
@@ -197,3 +198,5 @@ export class SpotifySongResolver implements TrackResolver {
     );
   }
 }
+
+export const spotifyTrackResolver = new SpotifyTrackResolver();
