@@ -17,7 +17,7 @@ export class SpotifyProfileResolver implements ProfileResolver {
         description: item.description,
         name: item.name,
         images: item.images,
-        href: item.href,
+        uri: item.uri,
         owner: {
           id: item.owner.id,
           name: item.owner.display_name,
