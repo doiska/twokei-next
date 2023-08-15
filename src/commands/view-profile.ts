@@ -6,6 +6,7 @@ import type { Awaitable } from '@sapphire/utilities';
 import { noop } from '@sapphire/utilities';
 
 import { createSongProfileEmbed } from '@/features/song-profile/show-song-profile';
+import { sendPresetMessage } from '@/utils/utils';
 
 @ApplyOptions<Command.Options>({
   name: 'profile',
@@ -73,10 +74,12 @@ export class ViewProfile extends Command {
 
     const replyContent = await createSongProfileEmbed(interaction.user, target);
 
-    const response = await container.reply(interaction, {
+    const response = await sendPresetMessage({
+      interaction,
+      preset: 'success',
+      deleteIn: duration,
       ...replyContent,
-      ephemeral: interaction.user.id !== target.id,
-    }, duration);
+    });
 
     const collector = response.createMessageComponentCollector({
       componentType: ComponentType.Button,

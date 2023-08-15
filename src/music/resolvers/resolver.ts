@@ -1,8 +1,41 @@
-import { type SpotifyProfileResponse } from '@/music/resolvers/spotify/spotify.types';
 import {
   type XiaoSearchOptions,
   type XiaoSearchResult,
 } from '../interfaces/player.types';
+
+interface Image {
+  url: string
+  height: number
+  width: number
+}
+
+interface Profile {
+  id: string
+  name: string
+  description?: string | null
+  href: string
+  followers?: number
+  images?: Image[]
+}
+
+export interface ProfileWithPlaylists {
+  userId: string
+  total: number
+  href: string
+  items: Array<{
+    id: string
+    description: string
+    name: string
+    owner: Profile
+    href: string
+    tracks: {
+      total: number
+      href: string
+    }
+    images: Image[]
+  }>
+  source: string
+}
 
 export interface TrackResolver {
   name: string
@@ -16,12 +49,7 @@ export interface TrackResolver {
   getTrack: (id: string) => Promise<XiaoSearchResult>
 }
 
-interface Profile {
-  displayName: string
-  uri: string
-}
-
 export interface ProfileResolver {
   // getProfile: (profileId: string) => Promise<Profile>
-  getPlaylists: (profileId: string) => Promise<SpotifyProfileResponse>
+  getPlaylists: (profileId: string) => Promise<ProfileWithPlaylists>
 }

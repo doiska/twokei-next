@@ -1,5 +1,5 @@
 import { SpotifyRequest } from './spotify-request';
-import { type SpotifyResolverOptions } from './spotify-song-resolver';
+import { type SpotifyResolverOptions } from './spotify-track-resolver';
 
 class SpotifyRequestManager {
   private readonly mode: 'single' | 'multiple' = 'single';

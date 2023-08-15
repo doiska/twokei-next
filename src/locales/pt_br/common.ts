@@ -1,5 +1,7 @@
 import { hyperlink } from 'discord.js';
 
+import { Icons } from '@/constants/icons';
+
 import { type ResourceLanguage } from 'i18next';
 
 export default {
@@ -23,7 +25,7 @@ export default {
   },
   donate: {
     description: [
-      '## <a:hanakoeating:1121884717290094652> Como me ajudar no desenvolvimento?',
+      `## ${Icons.HanakoEating} Como me ajudar no desenvolvimento?`,
       '- O desenvolvimento é feito por uma única pessoa.',
       '- Você pode me ajudar com uma doação (clicando no botão abaixo).',
       '- Votando no **Twokei** em: [top.gg](https://top.gg/bot/804289482624587274/vote).',
@@ -31,7 +33,7 @@ export default {
       '### O que eu ganho com isso?',
       '- Você me ajuda a continuar desenvolvendo.',
       '- E desbloqueia acesso ao **Spotify Sync**.',
-      '### <:spotify:1121851501715931187> Spotify Sync',
+      `### ${Icons.SpotifyLogo} Spotify Sync`,
       '- Sincroniza suas playlists públicas do Spotify com o bot.',
       '- Assim você pode ouvir suas músicas favoritas no Discord.',
       '- E ainda pode compartilhar com seus amigos.',

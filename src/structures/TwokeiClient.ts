@@ -15,6 +15,7 @@ import { send } from '@sapphire/plugin-editable-commands';
 import { noop } from '@sapphire/utilities';
 
 import { SongProfileManager } from '@/features/song-profile/SongProfileManager';
+import { logger } from '@/modules/logger-transport';
 import { Analytics } from '@/structures/Analytics';
 import { SongChannelManager } from '@/structures/SongChannels';
 import { isEmbed } from '@/utils/embed-utils';
@@ -71,6 +72,8 @@ export class TwokeiClient extends SapphireClient {
     const contentParsed = await this.parseContent(content);
     const response = await send(message, contentParsed);
 
+    logger.debug('Reply to message', response.id);
+
     if (deleteInSeconds) {
       setTimeout(() => {
         response
@@ -87,6 +90,8 @@ export class TwokeiClient extends SapphireClient {
     content: RepliableContent,
     deleteInSeconds = 15,
   ) {
+    logger.debug('Reply to interaction', interaction.id);
+
     const contentParsed = await this.parseContent(content);
     if (deleteInSeconds) {
       setTimeout(() => {

@@ -87,8 +87,6 @@ export class PlayerButtonsInteraction extends InteractionHandler {
   public override parse (interaction: ButtonInteraction): Option<None> {
     const customId = interaction.customId;
 
-    console.log(customId);
-
     if (customId !== EmbedButtons.DONATE) {
       return this.none();
     }

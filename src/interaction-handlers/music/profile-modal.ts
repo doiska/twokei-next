@@ -9,6 +9,7 @@ import { songProfileSources } from '@/db/schemas/song-profile-sources';
 
 import { Modals } from '@/constants/music/player-buttons';
 import { playerLogger } from '@/modules/logger-transport';
+import { sendPresetMessage } from '@/utils/utils';
 
 @ApplyOptions<InteractionHandler.Options>({
   name: 'profile-modal',
@@ -33,6 +34,15 @@ export class ProfileModal extends InteractionHandler {
 
     const spotifyRegex = /^https:\/\/open\.spotify\.com\/user\/([^?]+)/;
     const [, userId] = spotifyRegex.exec(field) ?? [];
+
+    if (!userId) {
+      await sendPresetMessage({
+        interaction,
+        preset: 'error',
+        message: 'Invalid Spotify URL',
+      });
+      return;
+    }
 
     await kil.insert(songProfileSources).values({
       userId: interaction.user.id,

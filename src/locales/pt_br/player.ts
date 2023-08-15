@@ -1,3 +1,5 @@
+import { Icons } from '@/constants/icons';
+
 export default {
   track_one: 'faixa',
   track_others: 'faixas',
@@ -13,7 +15,7 @@ export default {
       '- **Mencione** o bot com o nome/url da música para adicionar à fila.',
       '- Exemplo: "**{{- mention}} lofi hiphop**"',
       '- Use **Spotify ou Youtube**, você escolhe!',
-      '### <:spotify:1121851501715931187> Profile Sync',
+      `### ${Icons.SpotifyLogo} Profile Sync`,
       '- **Traga suas playlists do ``Spotify & Deezer`` para o Twokei!**',
       '- Clique no botão **Meu Perfil** abaixo.',
     ],
