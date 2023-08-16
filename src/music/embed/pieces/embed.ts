@@ -24,15 +24,11 @@ export const createDefaultSongEmbed = async (guild: Guild): Promise<APIEmbed> =>
 
   const t = await fetchT(guild);
 
-  const translations = {
-    emoji: lightEmoji,
-    mention,
-  };
-
   const description = t('player:embed.description', {
     joinArrays: '\n',
     returnObjects: false,
-    ...translations,
+    emoji: lightEmoji,
+    mention,
   });
 
   return {
@@ -47,7 +43,7 @@ export const createDefaultSongEmbed = async (guild: Guild): Promise<APIEmbed> =>
     },
     author: {
       name: 'Feito por: doiska.dev',
-      url: 'https://doiska.dev/contact',
+      url: 'https://twitter.com/dois2ka',
     },
     footer: {
       text: `Art: ${randomArt.author} - ${randomArt.authorUrl}`,

@@ -7,6 +7,7 @@ import {
   type InteractionButtonComponentData,
 } from 'discord.js';
 
+import { RawIcons } from '@/constants/icons';
 import { EmbedButtons, PlayerButtons } from '@/constants/music/player-buttons';
 import type { Venti } from '@/music/controllers/Venti';
 
@@ -27,18 +28,18 @@ export async function createStaticButtons (guild: Guild) {
     components: [
       {
         style: ButtonStyle.Primary,
-        customId: EmbedButtons.LOAD_PLAYLIST,
-        emoji: ':a:nitro_black:1141002291076403280',
+        customId: EmbedButtons.NEWS,
+        emoji: RawIcons.News,
       },
       {
-        style: ButtonStyle.Secondary,
-        customId: EmbedButtons.DONATE,
-        emoji: '<:pray:1077449609447751791>',
+        style: ButtonStyle.Primary,
+        customId: EmbedButtons.LOAD_PLAYLIST,
+        emoji: RawIcons.NitroBlack,
       },
       {
         style: ButtonStyle.Secondary,
         customId: EmbedButtons.VIEW_PROFILE,
-        emoji: ':new:1140994146941812847',
+        emoji: RawIcons.Premium,
       },
     ].map(button => parseButtonLabel(t, button)) as InteractionButtonComponentData[],
   });
@@ -88,8 +89,8 @@ export async function createDynamicButtons (venti: Venti) {
     },
     {
       style: ButtonStyle.Secondary,
-      emoji: '⭐',
-      customId: EmbedButtons.SAVE_PLAYLIST,
+      emoji: ':a:premium:1129096922943197300',
+      customId: EmbedButtons.IA_MODE,
       disabled: true,
     },
   ].map(button => parseButtonLabel(t, button));

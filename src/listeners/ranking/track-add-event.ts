@@ -15,7 +15,7 @@ import { Events } from '@/music/interfaces/player.types';
   emitter: container.xiao,
   enabled: true,
 })
-export class SongUserTracker extends Listener {
+export class TrackAddEvent extends Listener {
   public async run (venti: Venti) {
     const current = venti.queue.current;
     const user = current?.requester;
@@ -42,7 +42,7 @@ export class SongUserTracker extends Listener {
 
     await container.analytics.track({
       userId: user.id,
-      event: 'play_song',
+      event: 'add_song',
       source: 'Guild',
       properties: {
         guildId: venti.guildId,

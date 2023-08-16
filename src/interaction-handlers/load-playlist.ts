@@ -45,7 +45,7 @@ export class LoadPlaylist extends InteractionHandler {
       await sendPresetMessage({
         interaction,
         preset: 'error',
-        message: 'Parece que você não configurou seu perfil ainda, clique em **Ver perfil**',
+        message: 'profile:profile_not_setup',
         ephemeral: true,
       });
       return;
@@ -72,7 +72,7 @@ export class LoadPlaylist extends InteractionHandler {
     if (!profiles.length) {
       await sendPresetMessage({
         interaction,
-        message: 'Não encontramos nenhuma playlist pública em suas fontes.',
+        message: 'commands:load-playlist.not_found',
         preset: 'error',
       });
       return;
@@ -84,7 +84,7 @@ export class LoadPlaylist extends InteractionHandler {
       const validPlaylists = profile.items.filter((s) => s.tracks.total);
 
       paginatedMessage.addPages(this.getPages(profile.source, validPlaylists, interaction.user));
-      paginatedMessage.setActions(this.getActions(profile));
+      paginatedMessage.setActions(this.getActions({ ...profile, items: validPlaylists }));
     });
 
     const playlistsSum = profiles.reduce((acc, cur) => acc + cur.items.length, 0);
@@ -93,7 +93,10 @@ export class LoadPlaylist extends InteractionHandler {
       await sendPresetMessage({
         interaction,
         preset: 'error',
-        message: `Vocé possui mais de ${SelectMenuLimits.MaximumMaxValuesSize} playlists, por isso não podemos exibir todas no menu.`,
+        message: 'commands:load-playlist.too_many_playlists',
+        i18n: {
+          max: SelectMenuLimits.MaximumMaxValuesSize,
+        },
       });
     }
 
@@ -114,16 +117,16 @@ export class LoadPlaylist extends InteractionHandler {
         ({
           embeds: [
             new EmbedBuilder()
-              .setTitle(`${source} - ${item.name}`.substring(0, EmbedLimits.MaximumTitleLength))
+              .setTitle(`${item.name}`.substring(0, EmbedLimits.MaximumTitleLength))
               .setAuthor({
                 name: item.owner.name ?? 'No display',
-                url: item.owner.href ?? 'href',
+                url: item.owner.href,
               })
               .setColor(Colors.Aqua)
               .setFooter({
-                text: `Playlist - ${item.tracks.total} musicas | Twokei`,
+                text: `${capitalizeFirst(source)} Playlist - ${item.tracks.total} músicas | https://twokei.com`,
               })
-              .setThumbnail(user.avatarURL({ size: 512 }))
+              .setThumbnail(item?.owner.images?.[0].url ?? user.displayAvatarURL() ?? null)
               .setImage(item?.images[0]?.url ?? null),
           ],
         } satisfies PaginatedMessagePage),

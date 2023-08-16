@@ -66,7 +66,7 @@ export interface XiaoEvents {
   /**
    * Emitted when a track ends.
    */
-  [Events.TrackEnd]: (venti: Venti, track: Maybe<ResolvableTrack>) => void
+  [Events.TrackEnd]: (venti: Venti, track: Maybe<ResolvableTrack>, reason?: 'Replaced' | 'Error' | 'Ended') => void
 
   /**
    * Emitted when a player got empty.
@@ -289,10 +289,6 @@ export class Xiao extends EventEmitter {
 
     const engine = options?.engine ?? 'yt';
     const searchType = options?.searchType ?? 'track';
-
-    if (!['yt', 'youtube_music', 'soundcloud'].includes(engine)) {
-      throw new Error('Invalid engine');
-    }
 
     const isUrl = /^https?:\/\//.test(query);
     const search = !isUrl ? `${engine}search:${query}` : query;

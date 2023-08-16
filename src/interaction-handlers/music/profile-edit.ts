@@ -14,7 +14,7 @@ export class ProfileEdit extends InteractionHandler {
     const spotify = new TextInputBuilder()
       .setCustomId('spotify')
       .setLabel('Spotify Profile Url')
-      .setPlaceholder('https://open.spotify.com/user/31cwujt4j433skqn5kledywywxge?si=6a3cb8890cc54e76')
+      .setPlaceholder('https://open.spotify.com/user/31cwujt4j433skqn5kledywywxge')
       .setStyle(TextInputStyle.Short);
 
     const row = new ActionRowBuilder<TextInputBuilder>({
@@ -22,7 +22,7 @@ export class ProfileEdit extends InteractionHandler {
     });
 
     const modal = new ModalBuilder()
-      .setTitle('Profile Edit')
+      .setTitle('Profile')
       .setCustomId(Modals.ProfileModal)
       .setComponents(row);
 

@@ -1,7 +1,7 @@
 import { type Guild, type Message, type Snowflake, type User } from 'discord.js';
 
+import { type Locale } from '@/locales/i18n';
 import { type Maybe } from '@/utils/utils';
-import { type Locale } from '../../locales/i18n';
 import { type ResolvableTrack } from '../structures/ResolvableTrack';
 
 export enum LoadType {

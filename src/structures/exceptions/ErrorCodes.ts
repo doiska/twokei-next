@@ -3,6 +3,8 @@ export const RawErrorCodes = {
   NOT_IN_VC: 'not-in-vc',
   NOT_SAME_VC: 'not-same-vc',
   NO_PLAYER_FOUND: 'no-player-found',
+  NO_AVAILABLE_NODES: 'no-available-nodes',
+  YOUTUBE_NO_LONGER_ACTIVE: 'youtube-no-longer-active',
   MISSING_PERMISSIONS_JOIN_VC: 'missing-permissions-join-vc',
   MISSING_ADMIN_PERMISSIONS: 'missing-admin-permissions',
   SOMETHING_WENT_REALLY_WRONG: 'something-went-really-wrong',
