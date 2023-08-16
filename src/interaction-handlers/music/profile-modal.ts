@@ -44,23 +44,31 @@ export class ProfileModal extends InteractionHandler {
       return;
     }
 
-    await kil.insert(songProfileSources).values({
-      userId: interaction.user.id,
-      source: 'Spotify',
-      sourceUrl: userId,
-    })
-      .onConflictDoUpdate({
-        set: {
+    const [alreadyExists] = await kil.select({ userId: songProfileSources.userId })
+      .from(songProfileSources)
+      .where(and(
+        eq(songProfileSources.userId, interaction.user.id),
+        eq(songProfileSources.source, 'Spotify'),
+      ));
+    if (alreadyExists) {
+      await kil.update(songProfileSources)
+        .set({
           sourceUrl: userId,
-        },
-        where: and(
+        })
+        .where(and(
           eq(songProfileSources.userId, interaction.user.id),
           eq(songProfileSources.source, 'Spotify'),
-        ),
-        target: [songProfileSources.userId, songProfileSources.source],
+        ));
+      playerLogger.info(`[Sync] ${interaction.user.tag} updated their Spotify profile to ${field}`);
+      return;
+    } else {
+      await kil.insert(songProfileSources).values({
+        userId: interaction.user.id,
+        source: 'Spotify',
+        sourceUrl: userId,
       });
-
-    playerLogger.info(`[Sync] ${interaction.user.tag} set their Spotify profile to ${field}`);
+      playerLogger.info(`[Sync] ${interaction.user.tag} set their Spotify profile to ${field}`);
+    }
 
     await interaction.editReply({
       content: 'Synced!',
