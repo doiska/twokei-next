@@ -1,21 +1,16 @@
 import { Icons } from '@/constants/icons';
 
 export default {
-  track_one: 'faixa',
-  track_others: 'faixas',
-  song_added: '**{{track}}** adicionado à fila',
-  playlist_added:
-    '**{{track}}** adicionado à fila com outras {{track_count}} tracks.',
-  requested_by: 'Solicitado por: {{name}}',
   embed: {
     description: [
+      '## Nova versão disponível!',
       '## <a:raio:1121849523854118973> [Twokei Music](https://twokei.com)',
       ' ',
-      `### <${Icons.Hanakin}> Como usar?`,
+      `### ${Icons.Hanakin} Como usar?`,
       '- **Mencione** o bot com o nome/url da música para adicionar à fila.',
       '- Exemplo: "**{{- mention}} lofi hiphop**"',
       '- Use **Spotify ou Youtube**, você escolhe!',
-      `### <${Icons.SpotifyLogo}> Profile Sync (Beta)`,
+      `### ${Icons.SpotifyLogo} Profile Sync (Beta)`,
       '- **Traga suas playlists do ``Spotify`` para o Twokei!**',
       '- Clique no botão **Meu Perfil** abaixo.',
     ],
@@ -45,12 +40,12 @@ export default {
       },
       auto_play: 'Autoplay',
       select_language: 'Alterar idioma',
-      view_profile: 'Ver Perfil',
-      load_playlist: 'Playlists',
-      save_playlist: 'Salvar playlist atual',
-      your_playlists: 'Saved playlists',
+      view_profile: 'Meu Perfil',
+      load_playlist: 'Playlist Sync',
+      ia_mode: 'Modo IA (Premium)',
       invite: 'Convite',
       donate: 'Apoiar desenvolvimento',
+      news: 'Ver Novidades',
     },
   },
   play: {
@@ -63,7 +58,10 @@ export default {
         '### Track adicionada!',
         '{{track.author}} - [{{- track.title}}]({{- track.uri}})',
       ].join('\n'),
-      description_playlist: '### {{playlist.name}} adicionada com {{playlist.amount}} músicas',
+      description_playlist: [
+        '### {{playlist.name}} adicionada com {{playlist.amount}} músicas',
+        '- Perk do servidor: Auto-Shuffle habilitado!',
+      ].join('\n'),
       thumbnail: {
         url: '{{- track.thumbnail}}',
       },

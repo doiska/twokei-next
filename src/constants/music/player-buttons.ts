@@ -31,9 +31,14 @@ export enum OnPlayButtons {
 export enum EmbedButtons {
   VIEW_PROFILE = 'VIEW_PROFILE',
   DONATE = 'DONATE',
-  SAVE_PLAYLIST = 'SAVE_PLAYLIST',
   LOAD_PLAYLIST = 'LOAD_PLAYLIST',
   INVITE = 'INVITE',
+  NEWS = 'news',
+  IA_MODE = 'IA_MODE',
+}
+
+export enum NewsButtons {
+  DONATE = 'DONATOR_BUTTON',
 }
 
 export enum SongProfileButtons {
