@@ -51,14 +51,6 @@ export class LoadPlaylist extends InteractionHandler {
       return;
     }
 
-    const response = await sendPresetMessage({
-      interaction,
-      preset: 'loading',
-      message: 'Carregando playlists...',
-      ephemeral: true,
-      deleteIn: 0,
-    });
-
     const promises = await Promise.all(sources.map(async source => {
       if (source.source.toLowerCase() === 'spotify') {
         return spotifyProfileResolver.getPlaylists(source.sourceUrl);
@@ -112,7 +104,7 @@ export class LoadPlaylist extends InteractionHandler {
       });
     }
 
-    await paginatedMessage.run(response as Message, interaction.user);
+    await paginatedMessage.run(interaction, interaction.user);
   }
 
   public parse (buttonInteraction: ButtonInteraction): Option<None> {
