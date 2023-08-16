@@ -1,4 +1,4 @@
-import type { ButtonInteraction, User } from 'discord.js';
+import type { ButtonInteraction, Message, User } from 'discord.js';
 import { ButtonStyle, Colors, ComponentType, EmbedBuilder } from 'discord.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import {
@@ -51,7 +51,7 @@ export class LoadPlaylist extends InteractionHandler {
       return;
     }
 
-    await sendPresetMessage({
+    const response = await sendPresetMessage({
       interaction,
       preset: 'loading',
       message: 'Carregando playlists...',
@@ -78,6 +78,18 @@ export class LoadPlaylist extends InteractionHandler {
       return;
     }
 
+    const hasAnyTrack = profiles.filter(profile => profile.items.filter(s => s.tracks.total).length > 0);
+
+    if (!hasAnyTrack) {
+      await sendPresetMessage({
+        interaction,
+        message: 'Você não possui playlists com músicas.',
+        preset: 'error',
+      });
+
+      return;
+    }
+
     const paginatedMessage = new PaginatedMessage();
 
     profiles.forEach(profile => {
@@ -100,7 +112,7 @@ export class LoadPlaylist extends InteractionHandler {
       });
     }
 
-    await paginatedMessage.run(interaction, interaction.user);
+    await paginatedMessage.run(response as Message, interaction.user);
   }
 
   public parse (buttonInteraction: ButtonInteraction): Option<None> {
@@ -166,28 +178,30 @@ export class LoadPlaylist extends InteractionHandler {
         customId: 'play',
         type: ComponentType.Button,
         style: ButtonStyle.Primary,
-        run: async ({ interaction, handler }) => {
+        run: async ({ collector, interaction: selectInteraction, handler }) => {
           const index = handler.index;
 
           const playlist = response.items?.[index];
 
           if (!playlist) {
-            await interaction.followUp('Playlist not found');
+            await selectInteraction.followUp('Playlist not found');
             return;
           }
 
-          await playSong(interaction, playlist.uri)
+          await playSong(selectInteraction, playlist.uri)
             .catch(async (response) => {
               const readable = getReadableException(response);
 
-              return interaction.followUp({
+              return selectInteraction.followUp({
                 content: readable,
                 ephemeral: true,
               });
             })
             .finally(() => {
-              interaction.deleteReply().catch(noop);
+              selectInteraction.deleteReply().catch(noop);
             });
+
+          collector.stop();
         },
       },
       {
