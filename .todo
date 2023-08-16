@@ -1,28 +1,29 @@
--- PRIO
---- fix play function from venti, its not updating previous song correctly - OK
+- Linter:
+    - Usar typescript-eslint
 
--- Select menu to select song - OK
--- Buttons to control the player
+- Fix:
+    - Apagar mensagem de load-playlist após selecionar uma /
+    - Inserir usuário na tabela users / OK
 
-- Translation everywhere (maybe a custom exception with translation?)
-- Maybe release then add translation later?
+- Performance:
+    - Transformar profile ranking em uma view;
 
--- add option to return MessageBuilder to createCommand and it send automatically - ok
+- Botões:
+    - Adicionar funcionalidade ao botão invite; / OK
+    - Finalizar "Apoiar desenvolvimento"
+    - Revisar "Like" e "Dislike" / OK
+    - Revisar Follow do Perfil / OK
+    - Mensagens dos botões serem ephemeral (evitar poluir) / OK
+    - Adicionar Vote no Bot
 
+- Profile:
+    - Adicionar modal de customização de perfil;
+    - Adicionar Spotify Sync;
 
-Create custom Track to:
-- Get thumbnail
-- Separate Sources
-- Get duration
+- Isolar configurações para o banco de dados:
+    - Selecionar configurações do Shoukaku; / OK
+    - Selecionar Nodes; / OK
+    - Adicionar comando de reload;
 
--- Want to import a song from a playlist?
---- Import all songs from playlist
---- Want to load it now?
----- Load it now
----- Keep save
----- Save this playlist
-
---- When insert spotify playlist, ask if want to import
---- Save all playlists and keep recent list
-
--- Maybe split messages?
+- Premium:
+    - Remover Youtube do Bot? Tornar funcionalidade Premium em um bot isolado;

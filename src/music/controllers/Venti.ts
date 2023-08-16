@@ -1,35 +1,36 @@
-import { Xiao, XiaoEvents } from './Xiao';
-import { Player, PlayerUpdate, Track, TrackStuckEvent, WebSocketClosedEvent } from 'shoukaku';
-import { Events, VentiInitOptions, PlayerState, PlayOptions } from '../interfaces/player.types';
-import { Snowflake } from 'discord.js';
-import { Maybe } from '../../utils/type-guards';
-import { TrackQueue } from '../managers/TrackQueue';
-import { PlayOptions as ShoukakuPlayOptions } from 'shoukaku';
-import { logger } from '../../modules/logger-transport';
-import { ResolvableTrack } from '../managers/ResolvableTrack';
-import { Locale } from '../../translation/i18n';
+import { type Guild, type Message, type Snowflake } from 'discord.js';
+import {
+  type Player,
+  type PlayerUpdate,
+  type PlayOptions as ShoukakuPlayOptions,
+  type TrackStuckEvent,
+  type WebSocketClosedEvent,
+} from 'shoukaku';
+
+import { type Locale } from '@/locales/i18n';
+import { createLogger, playerLogger } from '@/modules/logger-transport';
+import { type Maybe } from '@/utils/utils';
+import {
+  Events,
+  PlayerState,
+  type PlayOptions,
+  type VentiInitOptions,
+} from '../interfaces/player.types';
+import { ResolvableTrack } from '../structures/ResolvableTrack';
+import { TrackQueue } from '../structures/TrackQueue';
+import type { Xiao, XiaoEvents } from './Xiao';
+
+import { inspect } from 'node:util';
+import type { Logger } from 'winston';
 
 export enum LoopStates {
   NONE = 'none',
   TRACK = 'track',
-  QUEUE = 'queue'
+  QUEUE = 'queue',
 }
 
 // Player
 export class Venti {
-
-  /**
-   * The Xiao instance.
-   * @private
-   */
-  private readonly xiao: Xiao;
-
-  /**
-   * The player's options.
-   * @private
-   */
-  private options: VentiInitOptions;
-
   /**
    * The Shoukaku Player instance.
    */
@@ -38,8 +39,9 @@ export class Venti {
   /**
    * The guild ID of the player.
    */
-  public readonly guildId: Snowflake;
+  public readonly guild: Guild;
 
+  public readonly guildId: Snowflake;
   /**
    * The voice channel id.
    */
@@ -53,7 +55,7 @@ export class Venti {
   /**
    * If the player is connected to a voice channel and playing.
    */
-  public playing: boolean = false;
+  public playing = false;
 
   /**
    * The player's state.
@@ -63,7 +65,7 @@ export class Venti {
   /**
    * Pause state of the player.
    */
-  public paused: boolean = false;
+  public paused = false;
 
   /**
    * Song queue.
@@ -75,50 +77,83 @@ export class Venti {
    */
   public locale: Locale;
 
-  constructor(xiao: Xiao, player: Player, options: VentiInitOptions) {
+  /**
+   * The Xiao instance.
+   * @private
+   */
+  private readonly xiao: Xiao;
+
+  /**
+   * The player's options.
+   * @private
+   */
+  private readonly options: VentiInitOptions;
+
+  /**
+    * The SongChannel embed message.
+    * @private
+   */
+  public embedMessage?: Message;
+
+  private readonly logger: Logger;
+
+  constructor (xiao: Xiao, player: Player, options: VentiInitOptions) {
     this.xiao = xiao;
     this.options = options;
     this.instance = player;
-    this.guildId = options.guild;
+    this.guild = options.guild;
+    this.guildId = options.guild.id;
     this.voiceId = options.voiceChannel;
     this.locale = options.lang;
+    this.embedMessage = options.embedMessage;
 
     this.queue = new TrackQueue();
 
+    this.logger = createLogger('Venti');
+
     this.instance.on('start', () => {
-      this.playing = true
+      this.playing = true;
       if (this.queue.current) {
         this.emit(Events.TrackStart, this, this.queue.current);
       }
     });
 
     this.instance.on('end', (data) => {
-      if (this.state === PlayerState.DESTROYING || this.state === PlayerState.DESTROYED) {
-        return this.emit(Events.Debug, `Player destroyed for guild ${this.guildId} - skipping end event`);
+      if (
+        this.state === PlayerState.DESTROYING ||
+        this.state === PlayerState.DESTROYED
+      ) {
+        this.emit(
+          Events.Debug,
+          `Player destroyed for guild ${this.guildId} - skipping end event`,
+        );
+        return;
       }
 
       if (data.reason === 'REPLACED') {
-        console.log(`Track replaced for guild ${this.guildId} - skipping end event`);
-        this.emit(Events.TrackEnd, this, this.queue.current!);
+        this.emit(Events.TrackEnd, this, this.queue?.current, 'Replaced');
         return;
       }
 
       if (['LOAD_FAILED', 'CLEAN_UP'].includes(data.reason)) {
-
         this.queue.previous = this.queue.current;
         this.playing = false;
 
+        playerLogger.info('Track ended with reason LOAD_FAILED or CLEAN_UP', { reason: data.reason, guild: this.guildId, track: this.queue?.current?.title });
+
         if (!this.queue.totalSize) {
-          return this.emit(Events.QueueEmpty, this);
+          this.emit(Events.QueueEmpty, this);
+          return;
         }
 
         if (this.queue.current) {
-          this.emit(Events.TrackEnd, this, this.queue.current);
+          this.emit(Events.TrackEnd, this, this.queue.current, 'Error');
         }
 
         this.queue.current = undefined;
 
-        return this.play();
+        void this.play();
+        return;
       }
 
       const currentSong = this.queue.current;
@@ -131,22 +166,20 @@ export class Venti {
         }
       }
 
+      if (currentSong) {
+        this.emit(Events.TrackEnd, this, currentSong);
+      }
+
       this.queue.previous = currentSong;
       this.queue.current = null;
 
-      console.log(`Track ended for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`);
-      console.log(`Current is null and previous is ${this.queue.previous?.title}`)
-
-      if (this.queue.length) {
-        if (currentSong) {
-          this.emit(Events.TrackEnd, this, currentSong);
-        }
-      } else {
+      if (!this.queue.length) {
         this.playing = false;
-        return this.emit(Events.QueueEmpty, this);
+        this.emit(Events.QueueEmpty, this);
+        return;
       }
 
-      return this.play();
+      void this.play();
     });
 
     this.instance.on('closed', (data: WebSocketClosedEvent) => {
@@ -164,12 +197,11 @@ export class Venti {
     this.instance.on('resumed', () => this.emit(Events.PlayerResumed, this));
   }
 
-  public async play(track?: ResolvableTrack, playOptions?: PlayOptions) {
-
-    playOptions = {
+  public async play (track?: ResolvableTrack, userPlayOptions?: PlayOptions) {
+    const playOptions = {
       replace: false,
-      ...playOptions
-    }
+      ...userPlayOptions,
+    };
 
     if (this.state === PlayerState.DESTROYED) {
       throw new Error('Player is destroyed');
@@ -180,7 +212,7 @@ export class Venti {
     }
 
     if (track && !playOptions.replace && this.queue.current) {
-      logger.debug(`Queueing track ${track.title} for guild ${this.guildId}`);
+      this.logger.debug(`Queueing track ${track.title} for guild ${this.guildId}`);
       this.queue.unshift(this.queue.current);
     }
 
@@ -191,37 +223,57 @@ export class Venti {
     const nextTrack = track ?? this.queue.current ?? this.queue.shift();
 
     if (!nextTrack) {
-      logger.debug(`No current track for guild ${this.guildId} - skipping play`);
+      this.logger.debug(
+        `No current track for guild ${this.guildId} - skipping play`,
+      );
 
-      this.emit(Events.Debug, `No current track for guild ${this.guildId} - skipping play`);
+      this.emit(
+        Events.Debug,
+        `No current track for guild ${this.guildId} - skipping play`,
+      );
       throw new Error('No track found');
     }
 
-    if(!this.xiao.search) {
+    if (!this.xiao.search) {
       throw new Error('No search provider found');
     }
 
-    nextTrack.resolve().then(resolvedTrack => {
-      this.queue.current = resolvedTrack;
+    nextTrack
+      .resolve()
+      .then((resolvedTrack) => {
+        this.queue.current = resolvedTrack;
 
-      const shoukakuPlayOptions: ShoukakuPlayOptions = {
-        track: resolvedTrack.track,
-        options: {
-          ...playOptions,
-          noReplace: !playOptions?.replace
+        const shoukakuPlayOptions: ShoukakuPlayOptions = {
+          track: resolvedTrack.track,
+          options: {
+            ...playOptions,
+            noReplace: !playOptions?.replace,
+          },
+        };
+
+        this.logger.debug(
+          `Playing track ${this.queue.current.title} for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`,
+        );
+
+        this.instance.playTrack(shoukakuPlayOptions);
+      })
+      .catch((err: Error) => {
+        this.emit(
+          Events.Debug,
+          `Error while resolving track for guild ${this.guildId}} ${err.message}`,
+        );
+
+        this.logger.error(
+          `Error while resolving track for guild ${this.guildId} - ${err.message}`,
+          err.stack,
+        );
+
+        if (this.queue.length) {
+          void this.play();
+        } else {
+          this.emit(Events.QueueEmpty, this);
         }
-      }
-
-      logger.debug(`Playing track ${this.queue.current.title} for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`);
-
-      this.instance.playTrack(shoukakuPlayOptions);
-    }).catch(err => {
-      console.error(err)
-      this.emit(Events.Debug, `Error while resolving track for guild ${this.guildId} - ${err}`);
-      logger.error(`Error while resolving track for guild ${this.guildId} - ${err}`, err.stack);
-      this.queue.length ? this.play() : this.emit(Events.QueueEmpty, this);
-    })
-
+      });
     return this;
   }
 
@@ -229,7 +281,7 @@ export class Venti {
    * Skip the current track (or more) and play the next one.
    * @param amount
    */
-  public async skip(amount = 1): Promise<Venti> {
+  public async skip (amount = 1): Promise<Venti> {
     if (this.state === PlayerState.DESTROYED) {
       throw new Error('Player is destroyed');
     }
@@ -243,25 +295,28 @@ export class Venti {
     }
 
     if (amount > this.queue.totalSize) {
+      // eslint-disable-next-line no-param-reassign
       amount = this.queue.totalSize;
     }
 
-    if(this.loop === LoopStates.TRACK) {
-      this.loop = LoopStates.NONE;
-    }
+    // if (this.loop === LoopStates.TRACK) {
+    //   this.loop = LoopStates.NONE;
+    // }
 
     this.queue.removeAt(0, amount - 1);
 
-    logger.debug(`Skipping ${amount} tracks for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`);
-    logger.debug(`Current track is ${this.queue.current?.title}`);
-    logger.debug(`Next track will be ${this.queue[0]?.title}`);
+    this.logger.debug(
+      `Skipping ${amount} tracks for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`,
+    );
+
+    this.logger.debug(`Current track: ${this.queue.current?.title ?? 'none'}`);
+    this.logger.debug(`Next track: ${this.queue[0]?.title ?? 'none'}`);
 
     this.instance.stopTrack();
     return this;
   }
 
-
-  public pause(state?: boolean) {
+  public pause (state?: boolean) {
     if (typeof state !== 'boolean') {
       state = !this.paused;
     }
@@ -271,10 +326,13 @@ export class Venti {
     }
 
     this.paused = state;
-    this.instance.setPaused(state);
     this.playing = !state;
+    this.instance.setPaused(state);
 
-    logger.debug(`Player for guild ${this.guildId} is now ${state ? 'paused' : 'playing'}`);
+    this.logger.debug(
+      `Player for guild ${this.guildId} is now ${state ? 'paused' : 'playing'}`,
+    );
+
     this.emit(Events.TrackPause, this);
 
     return this.paused;
@@ -284,7 +342,7 @@ export class Venti {
    * Switch loop state.
    * @param loop
    */
-  public setLoop(loop?: LoopStates) {
+  public setLoop (loop?: LoopStates) {
     if (this.state === PlayerState.DESTROYED) {
       throw new Error('Player is destroyed');
     }
@@ -292,10 +350,10 @@ export class Venti {
     const nextState = {
       [LoopStates.NONE]: LoopStates.QUEUE,
       [LoopStates.QUEUE]: LoopStates.TRACK,
-      [LoopStates.TRACK]: LoopStates.NONE
-    }
+      [LoopStates.TRACK]: LoopStates.NONE,
+    };
 
-    const newLoopState = loop || nextState[this.loop];
+    const newLoopState = loop ?? nextState[this.loop];
 
     this.loop = newLoopState;
 
@@ -306,7 +364,7 @@ export class Venti {
   /**
    * Disconnects the player from the voice channel.
    */
-  public disconnect() {
+  public disconnect () {
     if (this.state === PlayerState.DISCONNECTED || !this.voiceId) {
       throw new Error('Player is already disconnected');
     }
@@ -319,8 +377,8 @@ export class Venti {
         guild_id: this.guildId,
         channel_id: null,
         self_deaf: false,
-        self_mute: false
-      }
+        self_mute: false,
+      },
     });
 
     this.voiceId = null;
@@ -334,8 +392,11 @@ export class Venti {
   /**
    * Destroy the player and remove it from the cache.
    */
-  public destroy(): Venti {
-    if (this.state === PlayerState.DESTROYING || this.state === PlayerState.DESTROYED) {
+  public destroy () {
+    if (
+      this.state === PlayerState.DESTROYING ||
+      this.state === PlayerState.DESTROYED
+    ) {
       throw new Error('Player is already destroyed');
     }
 
@@ -358,7 +419,7 @@ export class Venti {
    * @param voiceId Voice channel Id
    * @returns Venti
    */
-  public setVoiceChannel(voiceId: Snowflake): Venti {
+  public setVoiceChannel (voiceId: Snowflake): Venti {
     if (this.state === PlayerState.DESTROYED) {
       throw new Error('Player is already destroyed');
     }
@@ -373,16 +434,39 @@ export class Venti {
         guild_id: this.guildId,
         channel_id: this.voiceId,
         self_mute: false,
-        self_deaf: this.options.deaf
-      }
+        self_deaf: this.options.deaf,
+      },
     });
 
-    this.emit(Events.Debug, `Player ${this.guildId} moved to voice channel ${voiceId}`);
+    this.emit(
+      Events.Debug,
+      `Player ${this.guildId} moved to voice channel ${voiceId}`,
+    );
 
     return this;
   }
 
-  public emit<U extends keyof XiaoEvents>(event: U, ...args: Parameters<XiaoEvents[U]>): boolean {
+  public emit<U extends keyof XiaoEvents>(
+    event: U,
+    ...args: Parameters<XiaoEvents[U]>
+  ): boolean {
+    if (event !== 'playerUpdate') {
+      if (args?.[0] instanceof Venti) {
+        const { instance } = args[0];
+
+        this.logger.info('[Venti] Instance info', {
+          node: {
+            name: instance.node.name,
+            url: instance.node.stats,
+          },
+          rest: instance.ping,
+          connection: instance.connection.state,
+        });
+      }
+
+      this.logger.debug(`[Venti] Emitting ${event} ${inspect(args.slice(1), false, 2, true)}`);
+    }
+
     return this.xiao.emit(event, ...args);
   }
 }

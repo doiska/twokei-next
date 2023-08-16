@@ -1,0 +1,1 @@
+ALTER TABLE "played_songs" ALTER COLUMN "song_length" SET DATA TYPE integer;

@@ -1,36 +1,57 @@
-import { APIEmbed, EmbedData, SelectMenuComponentOptionData, StringSelectMenuComponentData } from 'discord.js';
-import { EmbedLimits, SelectMenuLimits } from './limits';
+import { type APIEmbed, EmbedBuilder, type SelectMenuComponentOptionData } from 'discord.js';
+import { EmbedLimits, SelectMenuLimits } from '@sapphire/discord.js-utilities';
+import { isNullish } from '@sapphire/utilities';
 
-export const assertEmbedSize = (embed: APIEmbed): APIEmbed => {
-  return {
-    ...embed,
-    title: embed.title?.substring(0, EmbedLimits.MaximumTitleLength),
-    author: {
-      ...embed.author,
-      name: embed.author?.name?.substring(0, 70) ?? '',
-    },
-    description: embed.description?.substring(0, EmbedLimits.MaximumDescriptionLength),
-    fields: embed.fields?.map((field) => ({
-      ...field,
-      name: field.name.substring(0, EmbedLimits.MaximumFieldNameLength),
-      value: field.value.substring(0, EmbedLimits.MaximumFieldValueLength),
-    })),
-    footer: {
-      ...embed.footer,
-      text: embed.footer?.text?.substring(0, EmbedLimits.MaximumFooterLength) ?? '',
-    },
-  };
+export function isEmbed (embed: unknown): embed is APIEmbed {
+  const isEmbedBuilder = embed instanceof EmbedBuilder;
+  const isEmbedObject = !!embed && typeof embed === 'object' && 'description' in embed;
+
+  return (
+    !isNullish(embed) &&
+    (isEmbedBuilder || isEmbedObject)
+  );
 }
+
+export const assertEmbedSize = (embed: APIEmbed): APIEmbed => ({
+  ...embed,
+  title: embed.title?.substring(0, EmbedLimits.MaximumTitleLength),
+  author: {
+    ...embed.author,
+    name: embed.author?.name?.substring(0, 70) ?? '',
+  },
+  description: embed.description?.substring(
+    0,
+    EmbedLimits.MaximumDescriptionLength,
+  ),
+  fields: embed.fields?.map((field) => ({
+    ...field,
+    name: field.name.substring(0, EmbedLimits.MaximumFieldNameLength),
+    value: field.value.substring(0, EmbedLimits.MaximumFieldValueLength),
+  })),
+  footer: {
+    ...embed.footer,
+    text:
+        embed.footer?.text?.substring(0, EmbedLimits.MaximumFooterLength) ?? '',
+  },
+});
 
 export const assertMenuSize = (options: SelectMenuComponentOptionData[]) => {
+  if (!options) return options;
 
-  if(!options) return options;
+  const slicedOptions = options?.slice(
+    0,
+    SelectMenuLimits.MaximumOptionsLength,
+  );
 
-  options = options?.slice(0, SelectMenuLimits.MaximumOptionsLength);
-
-  return options.map((option) => ({
+  return slicedOptions.map((option) => ({
     ...option,
-    label: option.label.substring(0, SelectMenuLimits.MaximumLengthOfNameOfOption),
-    description: option.description?.substring(0, SelectMenuLimits.MaximumLengthOfNameOfOption),
+    label: option.label.substring(
+      0,
+      SelectMenuLimits.MaximumLengthOfNameOfOption,
+    ),
+    description: option.description?.substring(
+      0,
+      SelectMenuLimits.MaximumLengthOfNameOfOption,
+    ),
   }));
-}
+};
