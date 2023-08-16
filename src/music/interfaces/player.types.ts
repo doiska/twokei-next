@@ -1,70 +1,85 @@
-import { Snowflake } from 'discord.js';
-import { Maybe } from '../../utils/type-guards';
-import { ResolvableTrack } from '../managers/ResolvableTrack';
-import { Locale } from '../../translation/i18n';
+import { type Guild, type Message, type Snowflake, type User } from 'discord.js';
+
+import { type Locale } from '@/locales/i18n';
+import { type Maybe } from '@/utils/utils';
+import { type ResolvableTrack } from '../structures/ResolvableTrack';
 
 export enum LoadType {
   TRACK_LOADED = 'TRACK_LOADED',
   PLAYLIST_LOADED = 'PLAYLIST_LOADED',
   SEARCH_RESULT = 'SEARCH_RESULT',
   NO_MATCHES = 'NO_MATCHES',
-  LOAD_FAILED = 'LOAD_FAILED'
+  LOAD_FAILED = 'LOAD_FAILED',
 }
 
 export type SearchEngines = 'youtube' | 'soundcloud' | 'youtube_music' | string;
 
 export interface XiaoInitOptions {
-
   /**
    * Default search engine if none is specified, defaults to "YouTube".
    */
-  defaultSearchEngine: SearchEngines;
+  defaultSearchEngine: SearchEngines
 
   /**
    * Send to guild's shard
    */
-  send: (guildId: Snowflake, payload: Payload) => void;
+  send: (guildId: Snowflake, payload: Payload) => void
 }
 
 export interface XiaoSearchOptions {
-  requester: unknown;
-  engine?: SearchEngines;
-  nodeName?: string;
-  searchType?: 'track' | 'playlist';
-  resolve?: boolean;
+  requester?: User
+  engine?: SearchEngines
+  nodeName?: string
+  searchType?: 'track' | 'playlist'
+  resolve?: boolean
 }
 
-export interface XiaoSearchResult {
-  type: LoadType;
-  playlistName?: string;
-  tracks: ResolvableTrack[];
+interface PlaylistLoaded {
+  type: LoadType.PLAYLIST_LOADED
+  playlist: {
+    name: string
+    owner?: {
+      name: string
+      url: string
+    }
+    url: string
+  }
+  tracks: ResolvableTrack[]
+};
+
+interface TrackLoaded {
+  type: Exclude<LoadType, LoadType.PLAYLIST_LOADED>
+  tracks: ResolvableTrack[]
 }
+
+export type XiaoSearchResult = PlaylistLoaded | TrackLoaded;
 
 export interface VentiInitOptions {
-  guild: Snowflake;
-  voiceChannel: Snowflake;
-  lang: Locale;
-  deaf?: boolean;
-  mute?: boolean;
-  shardId?: number;
-  balancer?: boolean;
-  nodeName?: string;
+  guild: Guild
+  voiceChannel: Snowflake
+  embedMessage?: Message
+  lang: Locale
+  deaf?: boolean
+  mute?: boolean
+  shardId?: number
+  balancer?: boolean
+  nodeName?: string
 }
 
 export interface PlayOptions {
-  pause?: boolean;
-  startTime?: number;
-  endTime?: number;
-  replace?: boolean;
+  pause?: boolean
+  startTime?: number
+  endTime?: number
+  replace?: boolean
 }
 
 export interface Payload {
-  op: number;
+  op: number
   d: {
-    guild_id: string;
-    channel_id: Maybe<string>;
-    self_mute: Maybe<boolean>;
-    self_deaf: Maybe<boolean>;
+    guild_id: string
+    channel_id: Maybe<string>
+    self_mute: Maybe<boolean>
+    self_deaf: Maybe<boolean>
   }
 }
 

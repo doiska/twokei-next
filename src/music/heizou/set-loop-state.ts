@@ -1,15 +1,24 @@
-import { Guild, GuildResolvable } from 'discord.js';
-import { Twokei } from '../../app/Twokei';
-import { LoopStates } from '../controllers/Venti';
-import { FriendlyException } from '../../exceptions/FriendlyException';
+import { type GuildMember } from 'discord.js';
+import { container } from '@sapphire/framework';
 
-export const setLoopState = async (guild: GuildResolvable, loopState?: LoopStates): Promise<LoopStates> => {
+import { isConnectedTo } from '@/preconditions/vc-conditions';
+import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
+import { FriendlyException } from '@/structures/exceptions/FriendlyException';
+import type { LoopStates } from '../controllers/Venti';
 
-  const player = await Twokei.xiao.getPlayer(guild);
+export const setLoopState = async (
+  member: GuildMember,
+  loopState?: LoopStates,
+): Promise<LoopStates> => {
+  const player = container.xiao.getPlayer(member);
 
   if (!player) {
     throw new FriendlyException('No player found');
   }
 
+  if (!isConnectedTo(member, player?.voiceId)) {
+    throw new FriendlyException(ErrorCodes.NOT_IN_VC);
+  }
+
   return player.setLoop(loopState);
-}
+};

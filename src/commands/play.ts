@@ -1,44 +1,37 @@
-import { CommandContext, CommandResponse, createCommand, MessageBuilder } from 'twokei-framework';
+import { ApplyOptions } from '@sapphire/decorators';
+import { Command } from '@sapphire/framework';
 
-import { addNewSong } from '../music/heizou/add-new-song';
-import { i18nGuild } from '../translation/guild-i18n';
-import { getReadableException } from '../exceptions/utils/get-readable-exception';
-import { Interaction } from 'discord.js';
+import { playSong } from '@/features/music/play-song';
 
-const execute = async (context: CommandContext<{ search: string }>): Promise<CommandResponse> => {
-  if (!context.member || !context.channel) {
-    return;
+@ApplyOptions<Command.Options>({
+  name: 'play',
+  aliases: ['p'],
+  description: 'ping pong',
+  enabled: true,
+  preconditions: ['GuildTextOnly'],
+  cooldownDelay: 1_000,
+})
+export class PlayCommand extends Command {
+  registerApplicationCommands (registry: Command.Registry) {
+    registry.registerChatInputCommand((builder) => builder
+      .setName(this.name)
+      .setDescription(this.description)
+      .addStringOption(
+        (option) => option.setName('search')
+          .setDescription('Input')
+          .setRequired(true),
+      ));
   }
 
-  try {
-    const result = await addNewSong(context.input.search, context.member);
-    const [track, ...rest] = result.tracks;
+  public override async chatInputRun (
+    interaction: Command.ChatInputCommandInteraction,
+  ) {
+    const search = interaction.options.getString('search');
 
-    const trackTranslation = await i18nGuild(context.guild!.id, rest.length === 0 ? 'song_added' : 'playlist_added', {
-      track: track.title,
-      rest: rest.length,
-      ns: 'player'
-    });
+    if (!search) {
+      return;
+    }
 
-    const message = new MessageBuilder({ embeds: [{ description: trackTranslation }] });
-
-    await message.followUp(context.interaction as Interaction);
-  } catch (e) {
-    return getReadableException(e);
+    await playSong(interaction, search);
   }
 }
-
-export const playCommand = createCommand({
-  name: 'play',
-  description: 'Play a song',
-  slash: (builder) => {
-    return builder
-      .addStringOption((option) =>
-        option
-          .setName('search')
-          .setDescription('Input')
-          .setRequired(true)
-      )
-  },
-  execute: execute
-});

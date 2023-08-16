@@ -1,24 +1,35 @@
+import { logger } from '@/modules/logger-transport';
+
 const BASE_URL = 'https://api.spotify.com/v1';
 const AUTH_URL = 'https://accounts.spotify.com/api/token?grant_type=client_credentials';
 
 export class SpotifyRequest {
-
-  private token: string = '';
-  private expiresAt: number = 0;
-  private readonly authorization: string = '';
-
   public currentApiStatus = {
     requests: 0,
     rateLimited: false,
-  }
+  };
 
-  constructor({ clientId, clientSecret }: { clientId: string, clientSecret: string }) {
-    this.authorization = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;
+  private token = '';
+
+  private expiresAt = 0;
+
+  private readonly authorization: string = '';
+
+  constructor ({
+    clientId,
+    clientSecret,
+  }: {
+    clientId: string
+    clientSecret: string
+  }) {
+    this.authorization = `Basic ${Buffer.from(
+      `${clientId}:${clientSecret}`,
+    )
+      .toString('base64')}`;
   }
 
   public async request<T>(endpoint: string, useUri = false): Promise<T> {
-
-    if(this.expiresAt < Date.now()) {
+    if (this.expiresAt < Date.now()) {
       await this.refresh();
     }
 
@@ -26,7 +37,7 @@ export class SpotifyRequest {
       throw new Error('Spotify API is rate limited');
     }
 
-    if(endpoint.startsWith('/')) {
+    if (endpoint.startsWith('/')) {
       endpoint = endpoint.slice(1);
     }
 
@@ -35,41 +46,46 @@ export class SpotifyRequest {
     const request = await fetch(route, {
       headers: {
         Authorization: `Bearer ${this.token}`,
-      }
+      },
     });
 
-    if(request.headers.get('X-RateLimit-Remaining') === '0') {
+    if (request.headers.get('X-RateLimit-Remaining') === '0') {
       this.currentApiStatus.rateLimited = true;
       throw new Error('Spotify API is rate limited');
     }
 
-    this.currentApiStatus.requests++;
+    this.currentApiStatus.requests += 1;
 
-    const data = (await request.json());
+    const data = await request.json() as { error: { message: string } } & T;
 
-    if(data.error) {
+    logger.debug(`Request made to Spotify ${endpoint} returned:`, { data });
+
+    if (data?.error) {
       throw new Error(data.error.message);
     }
 
     return data as T;
   }
 
-  private async refresh() {
+  private async refresh () {
     const request = await fetch(AUTH_URL, {
       method: 'POST',
       headers: {
         Authorization: this.authorization,
         'Content-Type': 'application/x-www-form-urlencoded',
-      }
+      },
     });
 
-    const { access_token, expires_in } = await request.json() as { access_token: string, expires_in: number };
+    const { access_token: accessToken, expires_in: expiresIn } = (await request.json()) as {
+      access_token: string
+      expires_in: number
+    };
 
-    if(!access_token) {
+    if (!accessToken) {
       throw new Error('Failed to refresh token');
     }
 
-    this.token = access_token;
-    this.expiresAt = Date.now() + (expires_in * 1000);
+    this.token = accessToken;
+    this.expiresAt = Date.now() + expiresIn * 1000;
   }
 }

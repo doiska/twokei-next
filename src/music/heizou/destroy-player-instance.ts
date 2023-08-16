@@ -1,5 +1,16 @@
-import { GuildResolvable } from 'discord.js';
-import { Twokei } from '../../app/Twokei';
+import { type GuildMember } from 'discord.js';
 
-export const destroyPlayerInstance = async (guild: GuildResolvable) =>
-  Twokei.xiao.destroyPlayer(guild);
+import { xiao } from '@/app/Xiao';
+import { isConnectedTo } from '@/preconditions/vc-conditions';
+import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
+import { FriendlyException } from '@/structures/exceptions/FriendlyException';
+
+export const destroyPlayerInstance = async (member: GuildMember) => {
+  const player = xiao.getPlayer(member.guild.id);
+
+  if (player?.voiceId && !isConnectedTo(member, player.voiceId)) {
+    throw new FriendlyException(ErrorCodes.NOT_IN_VC);
+  }
+
+  await xiao.destroyPlayer(member.guild);
+};

@@ -1,45 +1,57 @@
-import { Twokei } from '../app/Twokei';
-import { logger } from '../modules/logger-transport';
-import { EmbedBuilder } from 'discord.js';
-import { CommandContext, createCommand, MessageBuilder } from 'twokei-framework';
+import { ApplyOptions } from '@sapphire/decorators';
+import { isGuildMember } from '@sapphire/discord.js-utilities';
+import { Command, container } from '@sapphire/framework';
 
+import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
+import { sendPresetMessage } from '@/utils/utils';
 
-const execute = async (context: CommandContext) => {
-
-  const { member } = context;
-
-  if (!member || !member?.guild) {
-    logger.error('No member or guild');
-    return;
-  }
-
-  const player = await Twokei.xiao.getPlayer(member.guild.id);
-
-  if (!player) {
-    return 'No player found';
-  }
-
-  const _queue = [player.queue.current, ...player.queue];
-
-  const map = _queue
-    .filter(Boolean)
-    .map((track, index) => `${index + 1}. [${track?.title}](${player.queue.current?.uri || ''})`);
-
-  const isPlaying = player.playing;
-
-  return new MessageBuilder({
-    embeds: [
-      {
-        title: isPlaying ? `Now playing ${player.queue.current?.title}` : `Paused ${player.queue.current?.title}`,
-        url: player.queue.current?.uri || '',
-        description: map.join('\n') || 'No tracks in queue'
-      }
-    ]
-  });
-}
-
-export const queueCommand = createCommand({
+@ApplyOptions<Command.Options>({
   name: 'queue',
-  description: 'List songs',
-  execute
-});
+  description: 'View the queue',
+  enabled: true,
+  preconditions: ['GuildOnly'],
+  cooldownDelay: 1_000,
+})
+export class PlayCommand extends Command {
+  public registerApplicationCommands (registry: Command.Registry) {
+    registry.registerChatInputCommand((builder) => builder
+      .setName(this.name)
+      .setDescription(this.description));
+  }
+
+  public override async chatInputRun (
+    interaction: Command.ChatInputCommandInteraction,
+  ) {
+    if (!interaction.guild || !isGuildMember(interaction.member)) {
+      return;
+    }
+
+    const player = container.xiao.getPlayer(interaction.guild);
+
+    if (!player) {
+      await sendPresetMessage({
+        message: ErrorCodes.NO_PLAYER_FOUND,
+        preset: 'error',
+        interaction,
+      });
+      return;
+    }
+
+    const { queue } = player;
+
+    const trackList = queue
+      .filter(Boolean)
+      .map(
+        (track, index) => `${index + 1}. [${track?.title}](${queue.current?.uri ?? ''})`,
+      );
+
+    await container.reply(interaction, {
+      title: queue.current?.title ?? '',
+      url: queue.current?.uri ?? '',
+      thumbnail: {
+        url: queue.current?.thumbnail ?? '',
+      },
+      description: trackList.join('\n'),
+    }, 20);
+  }
+}

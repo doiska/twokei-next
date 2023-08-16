@@ -1,41 +1,40 @@
-import { Guild, TextChannel } from 'discord.js';
-import { Twokei } from '../../app/Twokei';
-import { SongChannelEntity } from '../../entities/SongChannelEntity';
-import { getGuidLocale } from '../../translation/guild-i18n';
+import { type Guild } from 'discord.js';
+import { container } from '@sapphire/framework';
+
+import { xiao } from '@/app/Xiao';
+import { type VentiInitOptions } from '@/music/interfaces/player.types';
+
+import { fetchLanguage } from 'twokei-i18next';
 
 interface InitOptions {
-  guild: Guild;
-  voiceChannel: string;
+  guild: Guild
+  voiceChannel: string
 }
 
-export async function createPlayerInstance({ guild, voiceChannel }: InitOptions) {
-  const player = Twokei.xiao.getPlayer(guild.id);
+export async function createPlayerInstance ({
+  guild,
+  voiceChannel,
+}: InitOptions) {
+  const player = xiao.getPlayer(guild.id);
 
   if (player) {
     return player;
   }
 
-  const songChannel = await Twokei.dataSource.getRepository(SongChannelEntity)
-    .findOne({
-      where: {
-        guild: guild.id
-      }
-    });
+  const playerOptions: VentiInitOptions = {
+    guild,
+    voiceChannel,
+    lang: await fetchLanguage(guild) as 'en_us' | 'pt_br',
+  };
 
-  const newPlayer = await Twokei.xiao.createPlayer({
-    guild: guild.id,
-    voiceChannel: voiceChannel,
-    lang: await getGuidLocale(guild.id)
-  });
+  const {
+    message,
+    channel,
+  } = await container.sc.getEmbed(guild) ?? {};
 
-  if (songChannel) {
-    const channel = await guild.channels.fetch(songChannel.channel) as TextChannel;
-    const message = await channel.messages.fetch(songChannel.message);
-
-    if (channel && message) {
-      await Twokei.xiao.embedManager.create(newPlayer, guild.id, message);
-    }
+  if (message && channel) {
+    playerOptions.embedMessage = message;
   }
 
-  return newPlayer;
+  return await xiao.createPlayer(playerOptions);
 }
