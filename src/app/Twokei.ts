@@ -4,7 +4,7 @@ import 'twokei-i18next/register';
 
 import { ActivityType, GatewayIntentBits, Partials } from 'discord.js';
 import {
-  ApplicationCommandRegistries,
+  ApplicationCommandRegistries, container,
   LogLevel,
   RegisterBehavior,
 } from '@sapphire/framework';
@@ -12,10 +12,12 @@ import {
 import { eq } from 'drizzle-orm';
 import { kil } from '@/db/Kil';
 import { guilds } from '@/db/schemas/guild';
+import { songChannels } from '@/db/schemas/song-channels';
 
 import en_us from '@/locales/en_us';
 import { DEFAULT_LOCALE, isValidLocale } from '@/locales/i18n';
 import pt_br from '@/locales/pt_br';
+import { logger } from '@/modules/logger-transport';
 import { TwokeiClient } from '@/structures/TwokeiClient';
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
@@ -88,6 +90,23 @@ const main = async () => {
       },
     ],
   });
+
+  const guilds = await kil.select({ guildId: songChannels.guildId }).from(songChannels);
+
+  logger.debug(`${guilds.length} found`);
+
+  for (const scData of guilds) {
+    const guild = await container.client.guilds.fetch(scData.guildId).catch(() => null);
+
+    if (!guild) {
+      logger.debug(`Not found ${scData.guildId}`);
+      continue;
+    }
+
+    logger.debug(`Updating ${guild.id}`);
+
+    await container.sc.reset(guild).catch((err) => logger.error(err));
+  }
 };
 
 void main();
