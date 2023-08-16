@@ -8,5 +8,5 @@ export const songRanking = pgSchema('dev').view('song_ranking')
     listened: sql<number>`COUNT(*)`.as('listened'),
     position: sql<number>`RANK() OVER (ORDER BY COUNT(*) DESC)`.as('position'),
   }).from(songUserEvents)
-    .where(eq(songUserEvents.event, 'play_song'))
+    .where(eq(songUserEvents.event, 'heard_song'))
     .groupBy(songUserEvents.userId));

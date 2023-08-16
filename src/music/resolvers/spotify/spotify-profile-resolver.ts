@@ -21,8 +21,9 @@ export class SpotifyProfileResolver implements ProfileResolver {
         owner: {
           id: item.owner.id,
           name: item.owner.display_name,
-          href: item.owner.href,
+          href: `https://open.spotify.com/user/${item.owner.id}`,
           followers: item.owner.followers?.total ?? 0,
+
         },
         tracks: item.tracks,
       })),

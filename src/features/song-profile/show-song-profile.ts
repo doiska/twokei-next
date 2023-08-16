@@ -31,7 +31,7 @@ export async function createSongProfileEmbed (
 
   const sourcesWithEmojis = profile?.sources.map((s) => {
     const source = Sources[s.source.toLowerCase() as keyof typeof Sources];
-    return `<${source.emoji ?? ''}> [${source.name ?? s.source}](https://open.spotify.com/user/${s.sourceUrl})`;
+    return `${source.emoji ?? ''} [${source.name ?? s.source}](https://open.spotify.com/user/${s.sourceUrl})`;
   }) ?? [];
 
   const targetName = profile.name ?? target.username;

@@ -8,7 +8,7 @@ import {
 } from 'shoukaku';
 
 import { type Locale } from '@/locales/i18n';
-import { createLogger } from '@/modules/logger-transport';
+import { createLogger, playerLogger } from '@/modules/logger-transport';
 import { type Maybe } from '@/utils/utils';
 import {
   Events,
@@ -131,7 +131,7 @@ export class Venti {
       }
 
       if (data.reason === 'REPLACED') {
-        this.emit(Events.TrackEnd, this, this.queue?.current);
+        this.emit(Events.TrackEnd, this, this.queue?.current, 'Replaced');
         return;
       }
 
@@ -139,13 +139,15 @@ export class Venti {
         this.queue.previous = this.queue.current;
         this.playing = false;
 
+        playerLogger.info('Track ended with reason LOAD_FAILED or CLEAN_UP', { reason: data.reason, guild: this.guildId, track: this.queue?.current?.title });
+
         if (!this.queue.totalSize) {
           this.emit(Events.QueueEmpty, this);
           return;
         }
 
         if (this.queue.current) {
-          this.emit(Events.TrackEnd, this, this.queue.current);
+          this.emit(Events.TrackEnd, this, this.queue.current, 'Error');
         }
 
         this.queue.current = undefined;
@@ -164,14 +166,14 @@ export class Venti {
         }
       }
 
+      if (currentSong) {
+        this.emit(Events.TrackEnd, this, currentSong);
+      }
+
       this.queue.previous = currentSong;
       this.queue.current = null;
 
-      if (this.queue.length) {
-        if (currentSong) {
-          this.emit(Events.TrackEnd, this, currentSong);
-        }
-      } else {
+      if (!this.queue.length) {
         this.playing = false;
         this.emit(Events.QueueEmpty, this);
         return;
@@ -448,20 +450,22 @@ export class Venti {
     event: U,
     ...args: Parameters<XiaoEvents[U]>
   ): boolean {
-    if (args?.[0] instanceof Venti) {
-      const { instance } = args[0];
+    if (event !== 'playerUpdate') {
+      if (args?.[0] instanceof Venti) {
+        const { instance } = args[0];
 
-      this.logger.info('[Venti] Instance info', {
-        node: {
-          name: instance.node.name,
-          url: instance.node.stats,
-        },
-        rest: instance.ping,
-        connection: instance.connection.state,
-      });
+        this.logger.info('[Venti] Instance info', {
+          node: {
+            name: instance.node.name,
+            url: instance.node.stats,
+          },
+          rest: instance.ping,
+          connection: instance.connection.state,
+        });
+      }
+
+      this.logger.debug(`[Venti] Emitting ${event} ${inspect(args.slice(1), false, 2, true)}`);
     }
-
-    this.logger.debug(`[Venti] Emitting ${event} ${inspect(args.slice(1), false, 2, true)}`);
 
     return this.xiao.emit(event, ...args);
   }

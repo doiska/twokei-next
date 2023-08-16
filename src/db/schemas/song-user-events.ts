@@ -2,24 +2,22 @@ import type { InferModel } from 'drizzle-orm';
 import { jsonb, pgEnum, pgSchema, timestamp, varchar } from 'drizzle-orm/pg-core';
 import { users } from '@/db/schemas/users';
 
+import { type ResolvableTrack } from '@/music/structures/ResolvableTrack';
+
 export type UserEvent = InferModel<typeof songUserEvents, 'insert'> & {
   properties: UserEventProperties
 };
 
 export interface UserEventProperties {
   guildId?: string
-  track?: {
-    title: string
-    uri: string
-    author?: string
-    source: string
-  }
+  track?: ReturnType<ResolvableTrack['short']>
   [key: string]: unknown
 }
 
 const eventsEnum = pgEnum('song_user_events_type', [
   'create_queue',
-  'play_song',
+  'add_song',
+  'heard_song',
   'like_song',
   'dislike_song',
   'add_to_playlist',

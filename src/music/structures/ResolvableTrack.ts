@@ -1,5 +1,6 @@
 import { type User } from 'discord.js';
 import { container } from '@sapphire/framework';
+import { noop } from '@sapphire/utilities';
 import { type Track } from 'shoukaku';
 
 import { escapeRegExp } from '@/utils/utils';
@@ -36,21 +37,19 @@ export class ResolvableTrack {
   public isStream: boolean;
 
   /** Track's author */
-  public author: string | undefined;
+  public author?: string;
 
   /** Track's length */
-  public length: number | undefined;
+  public length?: number;
 
   /** Track's position (I don't know this) */
-  public position: number | undefined;
+  public position?: number;
 
   /** Track's thumbnail, if available */
-  public thumbnail: string | undefined;
+  public thumbnail?: string;
 
   /** The YouTube/soundcloud URI for spotify and other unsupported source */
   public realUri: string | null;
-
-  public resolvedBySource = false;
 
   public constructor (
     track: Track & { thumbnail?: string },
@@ -137,14 +136,12 @@ export class ResolvableTrack {
   }
 
   private async getTrack () {
-    const source = 'yt';
     const query = [this.title, this.author].filter(Boolean)
       .join(' - ');
 
     const response = await container.xiao.search(query, {
       requester: this.requester,
-      engine: source,
-    });
+    }).catch(noop);
 
     if (!response?.tracks.length) {
       return;
@@ -209,9 +206,13 @@ export class ResolvableTrack {
   public short () {
     return {
       title: this.title,
-      uri: this.uri,
+      source: {
+        name: this.sourceName,
+        uri: this.uri,
+      },
+      uri: this.realUri,
       author: this.author,
-      source: this.sourceName,
+      duration: this.length,
     };
   }
 }

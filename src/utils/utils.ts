@@ -25,9 +25,6 @@ type PresetMessageFn<T = Exclude<RepliableInteraction, ModalSubmitInteraction> |
   message?: string
   i18n?: TOptions & { joinArrays?: string | boolean }
   deleteIn?: number
-  embed?: {
-    appendStart?: string
-  }
 } & (T extends Message ? ReplyOptions : InteractionReplyOptions);
 
 export async function sendPresetMessage ({
@@ -58,7 +55,7 @@ export async function sendPresetMessage ({
     return await container.reply(interaction, {
       embeds: [embed],
       ...props,
-    });
+    }, deleteIn);
   }
 
   const embed = embedTypes[preset ?? 'success'](found);
