@@ -83,9 +83,15 @@ export class Pagination {
     }
 
     this.collector = this.response.createMessageComponentCollector({
-      filter: (interaction) =>
-        (interaction.isStringSelectMenu() || interaction.isButton()) && interaction.user.id === this.interaction.user.id,
+      filter: (interaction) => {
+        console.log(`Collector filter is ${(interaction.isStringSelectMenu() || interaction.isButton()) && interaction.user.id === this.interaction.user.id}`);
+
+        return (interaction.isStringSelectMenu() || interaction.isButton()) && interaction.user.id === this.interaction.user.id;
+      },
     })
+      .on('ignore', (interaction) => {
+        console.log('Ignored something', interaction.customId);
+      })
       .on('collect', async (collectedInteraction) => {
         const customId = collectedInteraction.customId;
         const action = this.getAction(customId);
