@@ -72,11 +72,8 @@ export class Pagination {
   public async run (ephemeral = true) {
     console.log(`The handler owner is ${this.interaction.user.tag}`);
 
-    this.response = await this.interaction.reply({
+    this.response = await this.interaction.deferReply({
       ephemeral,
-      embeds: [
-        Embed.success('Loading'),
-      ],
     });
 
     logger.info(`Using ${this.response.id.toString()} as Collector`);
@@ -85,16 +82,18 @@ export class Pagination {
       throw new Error('Could not defer reply');
     }
 
-    this.createCollector();
+    await this.createCollector();
     await this.setPage(0);
   }
 
-  private createCollector () {
+  private async createCollector () {
     if (this.exists()) {
       this.stopCollector();
     }
 
-    this.collector = this.response.createMessageComponentCollector({
+    const message = await this.interaction.fetchReply();
+
+    this.collector = message.createMessageComponentCollector({
       filter: (interaction) => {
         const isFilterValid = (interaction.isStringSelectMenu() || interaction.isButton());
         logger.debug('Filtering message', {
