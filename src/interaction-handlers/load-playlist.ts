@@ -87,7 +87,15 @@ export class LoadPlaylist extends InteractionHandler {
 
     const pagination = new Pagination(interaction, pages, [this.getMenu(playlists), ...this.getButtons(playlists)]);
 
-    await pagination.run();
+    try {
+      await pagination.run();
+    } catch (error) {
+      await sendPresetMessage({
+        interaction,
+        message: getReadableException(error),
+        preset: 'error',
+      });
+    }
   }
 
   public parse (buttonInteraction: ButtonInteraction): Option<None> {
@@ -120,7 +128,7 @@ export class LoadPlaylist extends InteractionHandler {
   private getButtons (response: ProfileWithPlaylists['items']): Action[] {
     return [
       {
-        label: 'Previous',
+        label: 'Anterior',
         customId: 'previous',
         type: ComponentType.Button,
         style: ButtonStyle.Secondary,
@@ -133,7 +141,7 @@ export class LoadPlaylist extends InteractionHandler {
         },
       },
       {
-        label: 'Select',
+        label: 'Ouvir',
         customId: 'play',
         type: ComponentType.Button,
         style: ButtonStyle.Primary,
@@ -168,7 +176,7 @@ export class LoadPlaylist extends InteractionHandler {
         },
       },
       {
-        label: 'Next',
+        label: 'Próxima',
         customId: 'next',
         type: ComponentType.Button,
         style: ButtonStyle.Secondary,
@@ -183,7 +191,7 @@ export class LoadPlaylist extends InteractionHandler {
       (context) => {
         const current = response?.[context.page];
         return {
-          label: 'Spotify',
+          label: 'Ver no Spotify',
           url: current?.uri ?? '',
           type: ComponentType.Button,
           style: ButtonStyle.Link,
