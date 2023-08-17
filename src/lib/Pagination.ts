@@ -24,6 +24,7 @@ import type { Awaitable } from '@sapphire/utilities';
 import { isFunction } from '@sapphire/utilities';
 
 import { logger } from '@/modules/logger-transport';
+import { Embed } from '@/utils/messages';
 
 interface ActionContext {
   response: InteractionResponse
@@ -71,7 +72,14 @@ export class Pagination {
   public async run (ephemeral = true) {
     console.log(`The handler owner is ${this.interaction.user.tag}`);
 
-    this.response = await this.interaction.deferReply({ ephemeral: ephemeral ?? true });
+    this.response = await this.interaction.reply({
+      ephemeral,
+      embeds: [
+        Embed.success('Loading'),
+      ],
+    });
+
+    logger.info(`Using ${this.response.id} as Collector`, { response: this.response });
 
     if (!this.response) {
       throw new Error('Could not defer reply');
