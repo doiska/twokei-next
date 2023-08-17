@@ -6,7 +6,7 @@ import type {
 import {
   ButtonBuilder,
   ChannelSelectMenuBuilder,
-  Collection,
+  Collection, Collector,
   MentionableSelectMenuBuilder, RoleSelectMenuBuilder,
   StringSelectMenuBuilder, UserSelectMenuBuilder,
 } from 'discord.js';
@@ -64,6 +64,8 @@ export class Pagination {
         this.actions.set(action.url, raw);
       }
     });
+
+    logger.debug(`Actions received ${actionsArr?.length ?? 0}, actions loaded $${this.actions.size}`);
   }
 
   public async run (ephemeral = true) {
@@ -90,9 +92,13 @@ export class Pagination {
 
     this.collector = this.response.createMessageComponentCollector({
       filter: (interaction) => {
-        console.log(`Collector filter is ${(interaction.isStringSelectMenu() || interaction.isButton()) && interaction.user.id === this.interaction.user.id}`);
-
-        return (interaction.isStringSelectMenu() || interaction.isButton()) && interaction.user.id === this.interaction.user.id;
+        const isFilterValid = (interaction.isStringSelectMenu() || interaction.isButton()) && interaction.user.id === this.interaction.user.id;
+        logger.debug('Filtering message', {
+          user: this.interaction.user.id,
+          username: this.interaction.user.tag,
+          isFilterValid,
+        });
+        return isFilterValid;
       },
     })
       .on('ignore', (interaction) => {
@@ -139,7 +145,12 @@ export class Pagination {
 
   public async setPage (index: number) {
     this.page = index;
-    await this.interaction.editReply(await this.resolvePage());
+
+    const resolvedPage = await this.resolvePage();
+
+    await this.interaction.editReply(resolvedPage);
+
+    logger.debug('Page resolved and message updated', { page: this.page, pages: this.pages.length });
   }
 
   private async resolvePage (): Promise<InteractionEditReplyOptions> {
