@@ -23,6 +23,8 @@ import {
 import type { Awaitable } from '@sapphire/utilities';
 import { isFunction } from '@sapphire/utilities';
 
+import { logger } from '@/modules/logger-transport';
+
 interface ActionContext {
   response: InteractionResponse
   collectedInteraction: Interaction
@@ -73,6 +75,10 @@ export class Pagination {
       this.response = await this.interaction.deferReply({ ephemeral: ephemeral ?? true });
     }
 
+    if (!this.response) {
+      throw new Error('Could not defer reply');
+    }
+
     this.createCollector();
     await this.setPage(0);
   }
@@ -116,6 +122,8 @@ export class Pagination {
       .on('end', () => {
         console.log('Collector ended');
       });
+
+    logger.debug('New collector created', { user: this.interaction.user.id, username: this.interaction.user.tag });
   }
 
   public exists () {
@@ -123,6 +131,8 @@ export class Pagination {
   }
 
   private stopCollector () {
+    logger.debug('Deleting existing collector.');
+
     Pagination.handlers.get(this.interaction.user.id)?.collector?.stop();
     Pagination.handlers.delete(this.interaction.user.id);
   }
