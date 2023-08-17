@@ -79,7 +79,7 @@ export class Pagination {
       ],
     });
 
-    logger.info(`Using ${this.response.id} as Collector`, { response: this.response });
+    logger.info(`Using ${this.response.id.toString()} as Collector`);
 
     if (!this.response) {
       throw new Error('Could not defer reply');
