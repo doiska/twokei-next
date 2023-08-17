@@ -6,7 +6,7 @@ import type {
 import {
   ButtonBuilder,
   ChannelSelectMenuBuilder,
-  Collection, Collector,
+  Collection,
   MentionableSelectMenuBuilder, RoleSelectMenuBuilder,
   StringSelectMenuBuilder, UserSelectMenuBuilder,
 } from 'discord.js';
@@ -71,11 +71,7 @@ export class Pagination {
   public async run (ephemeral = true) {
     console.log(`The handler owner is ${this.interaction.user.tag}`);
 
-    if (this.interaction.replied) {
-      this.response = await this.interaction.fetchReply();
-    } else {
-      this.response = await this.interaction.deferReply({ ephemeral: ephemeral ?? true });
-    }
+    this.response = await this.interaction.deferReply({ ephemeral: ephemeral ?? true });
 
     if (!this.response) {
       throw new Error('Could not defer reply');
@@ -92,7 +88,7 @@ export class Pagination {
 
     this.collector = this.response.createMessageComponentCollector({
       filter: (interaction) => {
-        const isFilterValid = (interaction.isStringSelectMenu() || interaction.isButton()) && interaction.user.id === this.interaction.user.id;
+        const isFilterValid = (interaction.isStringSelectMenu() || interaction.isButton());
         logger.debug('Filtering message', {
           user: this.interaction.user.id,
           username: this.interaction.user.tag,
@@ -129,7 +125,7 @@ export class Pagination {
         console.log('Collector ended');
       });
 
-    logger.debug('New collector created', { user: this.interaction.user.id, username: this.interaction.user.tag });
+    logger.debug('New collector created', { user: this.interaction.user.id, username: this.interaction.user.tag, collector: !!this.collector });
   }
 
   public exists () {
