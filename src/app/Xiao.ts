@@ -11,8 +11,10 @@ const sourcesUrl = [
 
 export async function getWebNodes () {
   const sources = await Promise.all(
-    sourcesUrl.map(async (source) => await fetch(source)
-      .then(async (res) => await res.text())),
+    sourcesUrl.map(
+      async (source) =>
+        await fetch(source).then(async (res) => await res.text()),
+    ),
   );
 
   return sources.map((source) => {
@@ -20,24 +22,25 @@ export async function getWebNodes () {
     const matches = source.match(regex) ?? [];
 
     return matches.map((match) => {
-      const filtered = match.slice(7, -3)
-        .trim()
+      const filtered = match.slice(7, -3).trim()
         .split('\n');
 
-      const parsed = filtered.reduce<Record<string, string | boolean>>((acc, curr) => {
-        const [key, value] = curr
-          .split(':')
-          .map((str) => str.replace(/"/g, '')
-            .trim());
+      const parsed = filtered.reduce<Record<string, string | boolean>>(
+        (acc, curr) => {
+          const [key, value] = curr
+            .split(':')
+            .map((str) => str.replace(/"/g, '').trim());
 
-        if (value === 'true' || value === 'false') {
-          acc[key.toLowerCase()] = value === 'true';
-        } else {
-          acc[key.toLowerCase()] = value;
-        }
+          if (value === 'true' || value === 'false') {
+            acc[key.toLowerCase()] = value === 'true';
+          } else {
+            acc[key.toLowerCase()] = value;
+          }
 
-        return acc;
-      }, {});
+          return acc;
+        },
+        {},
+      );
 
       return {
         name: parsed.host,
@@ -57,10 +60,15 @@ export const xiao = new Xiao(
         guild.shard.send(payload);
       }
     },
-    defaultSearchEngine: 'youtube',
+    defaultSearchEngine: 'dz',
   },
   new Connectors.DiscordJS(Twokei),
   [],
+  {
+    resume: true,
+    resumeByLibrary: true,
+    reconnectInterval: 5000,
+  },
 );
 
 container.xiao = xiao;
