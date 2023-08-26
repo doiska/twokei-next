@@ -4,7 +4,10 @@ import { isGuildMember, isTextChannel } from '@sapphire/discord.js-utilities';
 import { container } from '@sapphire/framework';
 import { noop } from '@sapphire/utilities';
 
-import { createPlayEmbed, waitFeedback } from '@/constants/music/create-play-embed';
+import {
+  createPlayEmbed,
+  waitFeedback,
+} from '@/constants/music/create-play-embed';
 import { OnPlayButtons } from '@/constants/music/player-buttons';
 import { addNewSong } from '@/music/heizou/add-new-song';
 import { youtubeTrackResolver } from '@/music/resolvers/youtube/youtube-track-resolver';
@@ -13,7 +16,12 @@ import { getReadableException } from '@/structures/exceptions/utils/get-readable
 import { Embed } from '@/utils/messages';
 import { sendPresetMessage } from '@/utils/utils';
 
-export async function playSong (interaction: Exclude<RepliableInteraction, ModalSubmitInteraction> | Message, query: string) {
+import { resolveKey } from 'twokei-i18next';
+
+export async function playSong (
+  interaction: Exclude<RepliableInteraction, ModalSubmitInteraction> | Message,
+  query: string,
+) {
   const { guild } = interaction;
 
   if (!guild || !interaction.member || !isGuildMember(interaction.member)) {
@@ -25,7 +33,7 @@ export async function playSong (interaction: Exclude<RepliableInteraction, Modal
   //   preset: 'loading',
   // });
 
-  const { channelId } = await container.sc.get(guild) ?? {};
+  const { channelId } = (await container.sc.get(guild)) ?? {};
 
   if (!channelId) {
     await sendPresetMessage({
@@ -37,8 +45,7 @@ export async function playSong (interaction: Exclude<RepliableInteraction, Modal
     return;
   }
 
-  const songChannel = await guild.channels.fetch(channelId)
-    .catch(() => null);
+  const songChannel = await guild.channels.fetch(channelId).catch(() => null);
 
   const isSongChannel = interaction.channel?.id === channelId;
 
@@ -54,27 +61,29 @@ export async function playSong (interaction: Exclude<RepliableInteraction, Modal
   const isYouTubeLink = youtubeTrackResolver.matches(query);
 
   if (isYouTubeLink) {
-    const warning = Embed.info([
-      '## :sob: Links do YouTube',
-      'Você está tentando utilizar um link do **YouTube**, não suportamos mais!',
-      '**Buscaremos pelo título e autor em outra plataforma**.',
-    ]);
+    const warning = Embed.info(
+      await resolveKey(interaction, 'player:youtube_disabled'),
+    );
 
     if (interaction instanceof Message) {
-      await interaction.channel.send({
-        embeds: [warning],
-      })
-        .then(replied => setTimeout(() => {
-          replied.delete().catch(noop);
-        }, 5000));
+      await interaction.channel
+        .send({
+          embeds: [warning],
+        })
+        .then((replied) =>
+          setTimeout(() => {
+            replied.delete().catch(noop);
+          }, 5000));
     } else if (interaction.isRepliable()) {
-      await interaction.followUp({
-        embeds: [warning],
-        ephemeral: true,
-      })
-        .then(replied => setTimeout(() => {
-          replied.delete().catch(noop);
-        }, 5000));
+      await interaction
+        .followUp({
+          embeds: [warning],
+          ephemeral: true,
+        })
+        .then((replied) =>
+          setTimeout(() => {
+            replied.delete().catch(noop);
+          }, 5000));
     }
   }
 
@@ -89,17 +98,22 @@ export async function playSong (interaction: Exclude<RepliableInteraction, Modal
       });
     }
 
-    const playMessage = await songChannel.send(await createPlayEmbed(interaction.member, result));
+    const playMessage = await songChannel.send(
+      await createPlayEmbed(interaction.member, result),
+    );
     const feedback = await waitFeedback(playMessage);
 
-    feedback.on('collect', async collected => {
+    feedback.on('collect', async (collected) => {
       if (!isGuildMember(collected.member)) {
         return;
       }
 
       await container.analytics.track({
         userId: collected.member.id,
-        event: collected.customId === OnPlayButtons.LIKE ? 'like_song' : 'dislike_song',
+        event:
+          collected.customId === OnPlayButtons.LIKE
+            ? 'like_song'
+            : 'dislike_song',
         source: 'Guild',
         properties: {
           track: result.tracks?.[0].short(),

@@ -25,6 +25,14 @@ export class TrackAddEvent extends Listener {
       return;
     }
 
+    if (venti.loop === 'track') {
+      return;
+    }
+
+    if (venti.queue.current?.title === venti.queue.previous?.title) {
+      return;
+    }
+
     logger.info(`[TRACKER] ${current?.title} was added to the queue by ${user.tag} (${user.id})`);
 
     await kil.insert(users)

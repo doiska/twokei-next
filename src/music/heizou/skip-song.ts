@@ -23,5 +23,5 @@ export const skipSong = async (member: GuildMember, amount = 1) => {
     throw new FriendlyException('There are not enough songs in the queue.');
   }
 
-  return await player.skip(amount);
+  return player.skip(amount);
 };

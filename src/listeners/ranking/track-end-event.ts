@@ -1,6 +1,7 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { isVoiceBasedChannel } from '@sapphire/discord.js-utilities';
 import { container, Listener } from '@sapphire/framework';
+import type { Track } from 'shoukaku';
 
 import { kil } from '@/db/Kil';
 import { users } from '@/db/schemas/users';
@@ -15,37 +16,35 @@ import { Events } from '@/music/interfaces/player.types';
   emitter: container.xiao,
   enabled: true,
 })
-export class TrackEndEvent extends Listener {
-  public async run (venti: Venti, reason?: string) {
+export class TrackEndEvent extends Listener<typeof Events.TrackEnd> {
+  public async run (venti: Venti, _?: Track, reason?: string) {
     const current = venti.queue.current;
+
+    logger.debug(`[TrackEnd] Track ended: ${reason ?? 'No reason'}`);
 
     if (reason && ['replaced', 'error'].includes(reason.toLowerCase())) {
       return;
     }
 
     if (!current) {
-      logger.info('Untrackable song');
       return;
     }
 
     const voiceChannelId = venti.voiceId;
 
     if (!voiceChannelId) {
-      logger.debug('No VoiceChannelId found, skipping TrackEndEvent trackers.', { guild: venti.guildId });
       return;
     }
 
     const voiceChannel = await container.client.channels.fetch(voiceChannelId);
 
     if (!voiceChannel || !isVoiceBasedChannel(voiceChannel)) {
-      logger.debug('No VoiceChannel found, skipping TrackEndEvent trackers.', { guild: venti.guildId });
       return;
     }
 
     const connected = voiceChannel.members.filter(member => !member.user.bot && !member.voice.selfDeaf);
 
     if (connected.size === 0) {
-      logger.debug('No connected users found, skipping TrackEndEvent trackers.', { guild: venti.guildId });
       return;
     }
 
