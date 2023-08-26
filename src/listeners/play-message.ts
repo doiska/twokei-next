@@ -79,6 +79,13 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
 
     const hasMentions = message.mentions.members?.has(self);
     const songChannel = await container.sc.get(guild);
+
+    if (!songChannel) {
+      return false;
+    }
+
+    // TODO: fix, é possível que o songChannel não exista, deve ser validado antes!
+
     const isUsableChannel = songChannel?.channelId === typedChannel.id;
 
     if (!isUsableChannel) {
@@ -86,14 +93,22 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         return false;
       }
 
-      await sendPresetMessage({
-        interaction: message,
-        preset: 'error',
-        message: ErrorCodes.USE_SONG_CHANNEL,
-        i18n: {
-          song_channel: songChannel?.channelId ? channelMention(songChannel.channelId) : '',
-        },
-      });
+      if (!songChannel?.channelId) {
+        await sendPresetMessage({
+          interaction: message,
+          preset: 'error',
+          message: ErrorCodes.MISSING_SONG_CHANNEL,
+        });
+      } else {
+        await sendPresetMessage({
+          interaction: message,
+          preset: 'error',
+          message: ErrorCodes.USE_SONG_CHANNEL,
+          i18n: {
+            song_channel: songChannel?.channelId ? channelMention(songChannel.channelId) : '',
+          },
+        });
+      }
       return false;
     }
     return true;

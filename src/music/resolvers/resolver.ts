@@ -45,8 +45,6 @@ export interface TrackResolver {
   ) => Promise<XiaoSearchResult>
 
   matches: (url: string) => boolean
-  getPlaylist: (id: string) => Promise<XiaoSearchResult>
-  getTrack: (id: string) => Promise<XiaoSearchResult>
 }
 
 export interface ProfileResolver {

@@ -20,6 +20,7 @@ import { createLogger } from '@/modules/logger-transport';
 import { manualUpdate } from '@/music/embed/events/manual-update';
 import { handlePlayerException } from '@/music/embed/events/player-exception';
 import { queueEmpty } from '@/music/embed/events/queue-empty';
+import { youtubeTrackResolver } from '@/music/resolvers/youtube/youtube-track-resolver';
 import { type Maybe } from '@/utils/utils';
 import {
   Events,
@@ -30,7 +31,6 @@ import {
   type XiaoSearchResult,
 } from '../interfaces/player.types';
 import { type TrackResolver } from '../resolvers/resolver';
-import { spotifyTrackResolver } from '../resolvers/spotify/spotify-track-resolver';
 import { ResolvableTrack } from '../structures/ResolvableTrack';
 import { Venti } from './Venti';
 
@@ -147,7 +147,7 @@ export class Xiao extends EventEmitter {
    */
   public readonly players = new Map<string, Venti>();
 
-  public resolvers: TrackResolver[] = [spotifyTrackResolver];
+  public resolvers: TrackResolver[] = [youtubeTrackResolver];
 
   private readonly logger: Logger;
 
@@ -287,7 +287,7 @@ export class Xiao extends EventEmitter {
       }
     }
 
-    const engine = options?.engine ?? 'yt';
+    const engine = options?.engine ?? 'dz';
     const searchType = options?.searchType ?? 'track';
 
     const isUrl = /^https?:\/\//.test(query);
@@ -354,11 +354,15 @@ export class Xiao extends EventEmitter {
         return;
       }
 
+      if ('active' in node && node.active === false) {
+        return;
+      }
+
       this.shoukaku.addNode(node);
     });
   }
 
-  isNode (value: unknown): value is NodeOption {
+  private isNode (value: unknown): value is NodeOption {
     const requiredKeys = ['name', 'url', 'auth'];
 
     if (!isObject(value)) {
