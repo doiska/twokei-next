@@ -299,6 +299,8 @@ export class Venti {
       amount = this.queue.totalSize;
     }
 
+    this.setLoop(LoopStates.NONE);
+
     this.queue.removeAt(0, amount - 1);
 
     this.logger.debug(
