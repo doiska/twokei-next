@@ -51,7 +51,7 @@ export const createPlayEmbed = async (member: GuildMember, result: XiaoSearchRes
     ],
   });
 
-  const resultType = ['TRACK_LOADED', 'SEARCH_RESULT'].includes(result.type) ? 'track' : 'playlist';
+  const resultType = ['PLAYLIST_LOADED'].includes(result.type) ? 'playlist' : 'track';
 
   const embed = new EmbedBuilder()
     .setAuthor(t('player:play.embed.author', {

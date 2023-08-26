@@ -8,7 +8,6 @@ import type {
 } from '@/music/interfaces/player.types';
 import { LoadType } from '@/music/interfaces/player.types';
 import { type TrackResolver } from '@/music/resolvers/resolver';
-import { spotifyTrackResolver } from '@/music/resolvers/spotify/spotify-track-resolver';
 import { ResolvableTrack } from '@/music/structures/ResolvableTrack';
 
 export class YoutubeTrackResolver implements TrackResolver {
@@ -33,8 +32,8 @@ export class YoutubeTrackResolver implements TrackResolver {
 
     if (
       !ytResponse ||
-      ytResponse.loadType === LoadType.NO_MATCHES ||
-      !ytResponse.tracks.length
+        ytResponse.loadType === LoadType.NO_MATCHES ||
+        !ytResponse.tracks.length
     ) {
       return {
         type: LoadType.NO_MATCHES,
@@ -46,10 +45,6 @@ export class YoutubeTrackResolver implements TrackResolver {
       tracks: ytResponse.tracks.map(track => this.parseTrack(track, options?.requester)),
       type: LoadType.SEARCH_RESULT,
     };
-  }
-
-  private async searchSpotify (query: string) {
-    return spotifyTrackResolver.search(query);
   }
 
   public matches (url: string) {

@@ -167,7 +167,7 @@ export class Venti {
       }
 
       if (currentSong) {
-        this.emit(Events.TrackEnd, this, currentSong);
+        this.emit(Events.TrackEnd, this, currentSong, 'Ended');
       }
 
       this.queue.previous = currentSong;
@@ -298,10 +298,6 @@ export class Venti {
       // eslint-disable-next-line no-param-reassign
       amount = this.queue.totalSize;
     }
-
-    // if (this.loop === LoopStates.TRACK) {
-    //   this.loop = LoopStates.NONE;
-    // }
 
     this.queue.removeAt(0, amount - 1);
 

@@ -1,8 +1,10 @@
 import { type User } from 'discord.js';
 import { container } from '@sapphire/framework';
-import { noop } from '@sapphire/utilities';
 import { type Track } from 'shoukaku';
 
+import { playerLogger } from '@/modules/logger-transport';
+import { spotifyTrackResolver } from '@/music/resolvers/spotify/spotify-track-resolver';
+import { cleanUpSong } from '@/music/utils/cleanup';
 import { sortBySimilarity } from '@/utils/string-distance';
 
 interface ResolvableTrackOptions {
@@ -136,14 +138,12 @@ export class ResolvableTrack {
   }
 
   private async getTrack () {
-    const query = [this.cleanUpTitle(this.title), this.cleanUpAuthor(this.author ?? '')].filter(Boolean).join(' - ');
+    const query = cleanUpSong(this.title, this.author);
 
-    console.log(`Searching getTrack: ${query}`);
+    const response = await this.resolveQuery(query);
 
-    const response = await container.xiao.search(query, {
-      requester: this.requester,
-      engine: 'dz',
-    }).catch(noop);
+    playerLogger.info(`[ResolvableTrack] GetTrack resolving: ${query}`);
+    playerLogger.debug(`[ResolvableTrack] GetTrack using ${this.sourceName.toLowerCase() === 'youtube' ? 'Spotify' : 'Deezer'}`, response);
 
     if (!response?.tracks.length) {
       return;
@@ -158,6 +158,33 @@ export class ResolvableTrack {
     console.log(`Most similar title to ${this.title} is ${mostSimilarTitle}`);
 
     return tracks.find(t => t.info.title === mostSimilarTitle) ?? tracks[0];
+  }
+
+  private async resolveQuery (query: string) {
+    if (this.sourceName === 'youtube') {
+      const spotifyResponse = await spotifyTrackResolver.search(
+        query,
+        this.requester,
+      );
+
+      if (!spotifyResponse.tracks.length) {
+        return spotifyResponse;
+      }
+
+      const [track] = spotifyResponse.tracks;
+
+      const newSearchQuery = cleanUpSong(track.title, track.author);
+
+      return container.xiao.search(newSearchQuery, {
+        engine: 'dz',
+        requester: this.requester,
+      });
+    }
+
+    return container.xiao.search(query, {
+      requester: this.requester,
+      engine: 'dz',
+    });
   }
 
   private parseResolvableToTrack (resolvable: Track | ResolvableTrack): Track {
@@ -194,27 +221,5 @@ export class ResolvableTrack {
       author: this.author,
       duration: this.length,
     };
-  }
-
-  private cleanUpTitle (str: string) {
-    const words = ['music', 'video', 'lyrics', 'vevo', 'topic'];
-
-    return str
-      .replaceAll(/[^a-z0-9]/gi, ' ')
-      .split(' ')
-      .map(word => word.trim())
-      .filter((w) => !words.includes(w.toLowerCase()))
-      .join(' ');
-  }
-
-  private cleanUpAuthor (str: string) {
-    const words = ['vevo', 'topic', 'lyrics'];
-
-    return str
-      .replaceAll(/[^a-z0-9]/gi, ' ')
-      .split(' ')
-      .map(word => word.trim())
-      .filter((w) => !words.includes(w.toLowerCase()))
-      .join(' ');
   }
 }
