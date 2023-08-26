@@ -16,8 +16,12 @@ import { Events } from '@/music/interfaces/player.types';
   enabled: true,
 })
 export class TrackEndEvent extends Listener {
-  public async run (venti: Venti) {
+  public async run (venti: Venti, reason?: string) {
     const current = venti.queue.current;
+
+    if (reason && ['replaced', 'error'].includes(reason.toLowerCase())) {
+      return;
+    }
 
     if (!current) {
       logger.info('Untrackable song');
