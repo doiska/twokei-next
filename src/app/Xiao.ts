@@ -68,6 +68,7 @@ export const xiao = new Xiao(
     resume: true,
     resumeByLibrary: true,
     reconnectInterval: 5000,
+    reconnectTries: 10,
   },
 );
 

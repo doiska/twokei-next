@@ -1,4 +1,5 @@
-import type { Message, ModalSubmitInteraction, RepliableInteraction } from 'discord.js';
+import type { ModalSubmitInteraction, RepliableInteraction } from 'discord.js';
+import { Message } from 'discord.js';
 import { isGuildMember, isTextChannel } from '@sapphire/discord.js-utilities';
 import { container } from '@sapphire/framework';
 import { noop } from '@sapphire/utilities';
@@ -6,8 +7,10 @@ import { noop } from '@sapphire/utilities';
 import { createPlayEmbed, waitFeedback } from '@/constants/music/create-play-embed';
 import { OnPlayButtons } from '@/constants/music/player-buttons';
 import { addNewSong } from '@/music/heizou/add-new-song';
+import { youtubeTrackResolver } from '@/music/resolvers/youtube/youtube-track-resolver';
 import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
 import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
+import { Embed } from '@/utils/messages';
 import { sendPresetMessage } from '@/utils/utils';
 
 export async function playSong (interaction: Exclude<RepliableInteraction, ModalSubmitInteraction> | Message, query: string) {
@@ -46,6 +49,33 @@ export async function playSong (interaction: Exclude<RepliableInteraction, Modal
       message: ErrorCodes.MISSING_SONG_CHANNEL,
     });
     return;
+  }
+
+  const isYouTubeLink = youtubeTrackResolver.matches(query);
+
+  if (isYouTubeLink) {
+    const warning = Embed.info([
+      '## :sob: Links do YouTube',
+      'Você está tentando utilizar um link do **YouTube**, não suportamos mais!',
+      '**Buscaremos pelo título e autor em outra plataforma**.',
+    ]);
+
+    if (interaction instanceof Message) {
+      await interaction.channel.send({
+        embeds: [warning],
+      })
+        .then(replied => setTimeout(() => {
+          replied.delete().catch(noop);
+        }, 5000));
+    } else if (interaction.isRepliable()) {
+      await interaction.followUp({
+        embeds: [warning],
+        ephemeral: true,
+      })
+        .then(replied => setTimeout(() => {
+          replied.delete().catch(noop);
+        }, 5000));
+    }
   }
 
   try {
