@@ -58,9 +58,9 @@ class SpotifyTrackResolver implements TrackResolver {
 
       switch (type) {
         case 'track':
-          return await this.getTrack(id, options?.requester);
+          return await this.track(id, options?.requester);
         case 'playlist':
-          return await this.getPlaylist(id, options?.requester);
+          return await this.playlist(id, options?.requester);
       }
     }
 
@@ -94,7 +94,7 @@ class SpotifyTrackResolver implements TrackResolver {
     };
   }
 
-  public async getPlaylist (
+  public async playlist (
     id: string,
     requester?: User,
   ): Promise<XiaoSearchResult> {
@@ -150,7 +150,7 @@ class SpotifyTrackResolver implements TrackResolver {
     };
   }
 
-  public async getTrack (
+  public async track (
     id: string,
     requester?: User,
   ): Promise<XiaoSearchResult> {

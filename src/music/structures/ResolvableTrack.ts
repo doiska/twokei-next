@@ -3,7 +3,7 @@ import { container } from '@sapphire/framework';
 import { noop } from '@sapphire/utilities';
 import { type Track } from 'shoukaku';
 
-import { escapeRegExp } from '@/utils/utils';
+import { sortBySimilarity } from '@/utils/string-distance';
 
 interface ResolvableTrackOptions {
   requester?: User
@@ -136,11 +136,13 @@ export class ResolvableTrack {
   }
 
   private async getTrack () {
-    const query = [this.title, this.author].filter(Boolean)
-      .join(' - ');
+    const query = [this.cleanUpTitle(this.title), this.cleanUpAuthor(this.author ?? '')].filter(Boolean).join(' - ');
+
+    console.log(`Searching getTrack: ${query}`);
 
     const response = await container.xiao.search(query, {
       requester: this.requester,
+      engine: 'dz',
     }).catch(noop);
 
     if (!response?.tracks.length) {
@@ -149,35 +151,13 @@ export class ResolvableTrack {
 
     const tracks = response.tracks.map(this.parseResolvableToTrack);
 
-    if (this.author) {
-      const author = [this.author, `${this.author} - Topic`];
+    const titles = tracks.map(track => track.info.title);
 
-      const officialTrack = tracks.find(
-        (track) => author.some((name) => new RegExp(`^${escapeRegExp(name)}$`, 'i')
-          .test(track.info.author)) ||
-          new RegExp(`^${escapeRegExp(this.title)}$`, 'i')
-            .test(
-              track.info.title,
-            ),
-      );
+    const [mostSimilarTitle] = sortBySimilarity(titles, this.title);
 
-      if (officialTrack) {
-        return officialTrack;
-      }
-    }
+    console.log(`Most similar title to ${this.title} is ${mostSimilarTitle}`);
 
-    if (this.length) {
-      const sameDuration = tracks.find(
-        (track) => track.info.length >= (this.length ? this.length : 0) - 2000 &&
-          track.info.length <= (this.length ? this.length : 0) + 2000,
-      );
-
-      if (sameDuration) {
-        return sameDuration;
-      }
-    }
-
-    return tracks[0];
+    return tracks.find(t => t.info.title === mostSimilarTitle) ?? tracks[0];
   }
 
   private parseResolvableToTrack (resolvable: Track | ResolvableTrack): Track {
@@ -214,5 +194,27 @@ export class ResolvableTrack {
       author: this.author,
       duration: this.length,
     };
+  }
+
+  private cleanUpTitle (str: string) {
+    const words = ['music', 'video', 'lyrics', 'vevo', 'topic'];
+
+    return str
+      .replaceAll(/[^a-z0-9]/gi, ' ')
+      .split(' ')
+      .map(word => word.trim())
+      .filter((w) => !words.includes(w.toLowerCase()))
+      .join(' ');
+  }
+
+  private cleanUpAuthor (str: string) {
+    const words = ['vevo', 'topic', 'lyrics'];
+
+    return str
+      .replaceAll(/[^a-z0-9]/gi, ' ')
+      .split(' ')
+      .map(word => word.trim())
+      .filter((w) => !words.includes(w.toLowerCase()))
+      .join(' ');
   }
 }

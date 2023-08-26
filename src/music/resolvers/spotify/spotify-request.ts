@@ -58,7 +58,7 @@ export class SpotifyRequest {
 
     const data = await request.json() as { error: { message: string } } & T;
 
-    logger.debug(`Request made to Spotify ${endpoint} returned:`, { data });
+    logger.debug(`Request made to Spotify ${endpoint}`);
 
     if (data?.error) {
       throw new Error(data.error.message);

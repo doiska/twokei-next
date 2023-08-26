@@ -55,7 +55,7 @@ export async function addNewSong (input: string, member: GuildMember) {
     result.tracks.sort(() => Math.random() - 0.5);
     player.queue.add(...result.tracks);
   } else {
-    player.queue.add(...result.tracks);
+    player.queue.add(result.tracks?.[0]);
   }
 
   if (!player.playing) {
