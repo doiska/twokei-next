@@ -85,4 +85,9 @@ export default {
       },
     },
   },
+  youtube_disabled: [
+    '## :sob: Links do YouTube',
+    'Você está tentando utilizar um link do **YouTube**, não permitimos **playbacks/buscas no YouTube**.',
+    '**Buscaremos pelo título e autor em outra plataforma**.',
+  ],
 };
