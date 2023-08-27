@@ -60,7 +60,6 @@ export const xiao = new Xiao(
         guild.shard.send(payload);
       }
     },
-    defaultSearchEngine: 'dz',
   },
   new Connectors.DiscordJS(Twokei),
   [],

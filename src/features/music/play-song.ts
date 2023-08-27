@@ -28,11 +28,6 @@ export async function playSong (
     return;
   }
 
-  // await sendPresetMessage({
-  //   interaction,
-  //   preset: 'loading',
-  // });
-
   const { channelId } = (await container.sc.get(guild)) ?? {};
 
   if (!channelId) {
