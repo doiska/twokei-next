@@ -287,11 +287,11 @@ export class Xiao extends EventEmitter {
       }
     }
 
-    const engine = options?.engine ?? 'dz';
+    const engine = options?.engine ?? 'dzsearch';
     const searchType = options?.searchType ?? 'track';
 
     const isUrl = /^https?:\/\//.test(query);
-    const search = !isUrl ? `${engine}search:${query}` : query;
+    const search = !isUrl ? `${engine}:${query}` : query;
 
     const result = await node.rest.resolve(search);
 

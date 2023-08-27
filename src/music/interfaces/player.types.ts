@@ -18,7 +18,6 @@ export interface XiaoInitOptions {
   /**
    * Default search engine if none is specified, defaults to "YouTube".
    */
-  defaultSearchEngine: SearchEngines
 
   /**
    * Send to guild's shard

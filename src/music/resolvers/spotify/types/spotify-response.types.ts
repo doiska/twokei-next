@@ -64,6 +64,9 @@ export interface SpotifyTrackResponse {
   duration_ms: number
   explicit: boolean
   external_urls: ExternalUrls
+  external_ids: {
+    isrc?: string
+  }
   href: string
   id: string
   is_local: boolean

@@ -193,6 +193,7 @@ class SpotifyTrackResolver implements TrackResolver {
           uri: `https://open.spotify.com/track/${spotifyTrack.id}`,
         },
         thumbnail: thumbnail ?? spotifyTrack.album?.images[0]?.url ?? '',
+        isrc: spotifyTrack.external_ids.isrc,
       },
       { requester },
     );

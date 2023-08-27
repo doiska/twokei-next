@@ -29,6 +29,11 @@ export class ResolvableTrack {
   /** Track's URI */
   public uri: string;
 
+  /**
+   * Track International Recording
+   */
+  public isrc?: string;
+
   /** Track's identifier */
   public identifier: string;
 
@@ -54,7 +59,7 @@ export class ResolvableTrack {
   public realUri: string | null;
 
   public constructor (
-    track: Track & { thumbnail?: string },
+    track: Track & { thumbnail?: string, isrc?: string },
     options?: ResolvableTrackOptions,
   ) {
     const { info } = track;
@@ -64,6 +69,7 @@ export class ResolvableTrack {
     this.sourceName = info.sourceName;
     this.title = info.title;
     this.uri = info.uri;
+    this.isrc = track.isrc;
     this.identifier = info.identifier;
     this.isSeekable = info.isSeekable;
     this.isStream = info.isStream;
@@ -160,6 +166,7 @@ export class ResolvableTrack {
     return tracks.find(t => t.info.title === mostSimilarTitle) ?? tracks[0];
   }
 
+  // TODO: refactor and cleanup
   private async resolveQuery (query: string) {
     if (this.sourceName === 'youtube') {
       const spotifyResponse = await spotifyTrackResolver.search(
@@ -173,17 +180,22 @@ export class ResolvableTrack {
 
       const [track] = spotifyResponse.tracks;
 
-      const newSearchQuery = cleanUpSong(track.title, track.author);
+      console.log(`[Resolvable Track] Resolved ${query} (ISRC: ${track?.isrc ?? ''}) in Spotify`);
 
-      return container.xiao.search(newSearchQuery, {
-        engine: 'dz',
+      if (!track.isrc) {
+        const newSearchQuery = cleanUpSong(track.title, track.author);
+        return container.xiao.search(newSearchQuery, {
+          requester: this.requester,
+        });
+      }
+      return container.xiao.search(track.isrc, {
+        engine: 'dzisrc',
         requester: this.requester,
       });
     }
 
     return container.xiao.search(query, {
       requester: this.requester,
-      engine: 'dz',
     });
   }
 
