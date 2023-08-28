@@ -27,17 +27,3 @@ export function levenshteinDistance (a: string, b: string): number {
   // Return the final distance
   return distances[a.length][b.length];
 }
-
-export function sortBySimilarity (words: string[], singleWord: string): string[] {
-  // Create an array of objects to store the words and their distances
-  const wordDistances = words.map(word => ({
-    word,
-    distance: levenshteinDistance(word, singleWord),
-  }));
-
-  // Sort the array by distance
-  wordDistances.sort((a, b) => a.distance - b.distance);
-
-  // Return the sorted list of words
-  return wordDistances.map(wd => wd.word);
-}
