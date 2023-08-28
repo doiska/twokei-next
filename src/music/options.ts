@@ -1,13 +1,13 @@
-import { type NodeOption } from 'shoukaku';
+import { type NodeOption } from "shoukaku";
 
 export type OptionWithActive = NodeOption & { active?: boolean };
 
 export const Nodes: OptionWithActive[] = [
   {
-    name: 'Replit doiská',
-    url: 'lavalink-replit-2.pedrolopes36.repl.co',
+    name: "Replit doiská",
+    url: "lavalink-replit-2.pedrolopes36.repl.co",
     secure: true,
-    auth: 'maybeiwasboring',
+    auth: "maybeiwasboring",
   },
   // {
   //   name: 'AWS Eduardin',

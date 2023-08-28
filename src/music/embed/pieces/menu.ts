@@ -1,8 +1,12 @@
-import { ActionRowBuilder, type SelectMenuComponentOptionData, StringSelectMenuBuilder } from 'discord.js';
+import {
+  ActionRowBuilder,
+  type SelectMenuComponentOptionData,
+  StringSelectMenuBuilder,
+} from "discord.js";
 
-import { Menus } from '@/constants/music/player-buttons';
-import { type TrackQueue } from '@/music/structures/TrackQueue';
-import { assertMenuSize } from '@/utils/embed-utils';
+import { Menus } from "@/constants/music/player-buttons";
+import { type TrackQueue } from "@/music/structures/TrackQueue";
+import { assertMenuSize } from "@/utils/embed-utils";
 
 export const createSelectMenu = (tracks?: TrackQueue) => {
   const noTrack = tracks?.length === 0 && !tracks.current && !tracks.previous;
@@ -12,11 +16,11 @@ export const createSelectMenu = (tracks?: TrackQueue) => {
     : [
         {
           default: true,
-          label: 'Add more songs to use the select-menu!',
-          value: 'add-more-songs',
+          label: "Add more songs to use the select-menu!",
+          value: "add-more-songs",
           emoji: {
-            name: 'light',
-            id: '1069597636950249523',
+            name: "light",
+            id: "1069597636950249523",
           },
         },
       ];
@@ -25,7 +29,7 @@ export const createSelectMenu = (tracks?: TrackQueue) => {
     components: [
       new StringSelectMenuBuilder()
         .setCustomId(Menus.SelectSongMenu)
-        .setPlaceholder('Select a song')
+        .setPlaceholder("Select a song")
         .setMinValues(0)
         .setMaxValues(1)
         .setDisabled(noTrack)
@@ -48,7 +52,7 @@ const parseTracksToMenuItem = (tracks: TrackQueue) => {
     items.unshift({
       default: true,
       label: current.title,
-      value: 'current',
+      value: "current",
       description: current.author,
     });
   }
@@ -56,7 +60,7 @@ const parseTracksToMenuItem = (tracks: TrackQueue) => {
   if (previous) {
     items.unshift({
       label: previous.title,
-      value: 'previous',
+      value: "previous",
       description: previous.author,
     });
   }

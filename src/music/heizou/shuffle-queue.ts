@@ -1,16 +1,16 @@
-import { type GuildMember } from 'discord.js';
-import { container } from '@sapphire/framework';
+import { type GuildMember } from "discord.js";
+import { container } from "@sapphire/framework";
 
-import { isConnectedTo } from '@/preconditions/vc-conditions';
-import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
-import { FriendlyException } from '@/structures/exceptions/FriendlyException';
-import { PlayerException } from '@/structures/exceptions/PlayerException';
+import { isConnectedTo } from "@/preconditions/vc-conditions";
+import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
+import { FriendlyException } from "@/structures/exceptions/FriendlyException";
+import { PlayerException } from "@/structures/exceptions/PlayerException";
 
 export const shuffleQueue = async (member: GuildMember): Promise<void> => {
   const player = container.xiao.getPlayer(member.guild.id);
 
   if (!player) {
-    throw new FriendlyException('No player found');
+    throw new FriendlyException("No player found");
   }
 
   if (!isConnectedTo(member, player?.voiceId)) {

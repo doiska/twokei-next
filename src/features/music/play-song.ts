@@ -1,24 +1,24 @@
-import type { ModalSubmitInteraction, RepliableInteraction } from 'discord.js';
-import { Message } from 'discord.js';
-import { isGuildMember, isTextChannel } from '@sapphire/discord.js-utilities';
-import { container } from '@sapphire/framework';
-import { noop } from '@sapphire/utilities';
+import type { ModalSubmitInteraction, RepliableInteraction } from "discord.js";
+import { Message } from "discord.js";
+import { isGuildMember, isTextChannel } from "@sapphire/discord.js-utilities";
+import { container } from "@sapphire/framework";
+import { noop } from "@sapphire/utilities";
 
 import {
   createPlayEmbed,
   waitFeedback,
-} from '@/constants/music/create-play-embed';
-import { OnPlayButtons } from '@/constants/music/player-buttons';
-import { addNewSong } from '@/music/heizou/add-new-song';
-import { youtubeTrackResolver } from '@/music/resolvers/youtube/youtube-track-resolver';
-import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
-import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
-import { Embed } from '@/utils/messages';
-import { sendPresetMessage } from '@/utils/utils';
+} from "@/constants/music/create-play-embed";
+import { OnPlayButtons } from "@/constants/music/player-buttons";
+import { addNewSong } from "@/music/heizou/add-new-song";
+import { youtubeTrackResolver } from "@/music/resolvers/youtube/youtube-track-resolver";
+import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
+import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
+import { Embed } from "@/utils/messages";
+import { sendPresetMessage } from "@/utils/utils";
 
-import { resolveKey } from 'twokei-i18next';
+import { resolveKey } from "twokei-i18next";
 
-export async function playSong (
+export async function playSong(
   interaction: Exclude<RepliableInteraction, ModalSubmitInteraction> | Message,
   query: string,
 ) {
@@ -33,7 +33,7 @@ export async function playSong (
   if (!channelId) {
     await sendPresetMessage({
       interaction,
-      preset: 'error',
+      preset: "error",
       message: ErrorCodes.MISSING_SONG_CHANNEL,
       ephemeral: true,
     });
@@ -47,7 +47,7 @@ export async function playSong (
   if (!songChannel || !isTextChannel(songChannel)) {
     await sendPresetMessage({
       interaction,
-      preset: 'error',
+      preset: "error",
       message: ErrorCodes.MISSING_SONG_CHANNEL,
     });
     return;
@@ -57,7 +57,7 @@ export async function playSong (
 
   if (isYouTubeLink) {
     const warning = Embed.info(
-      await resolveKey(interaction, 'player:youtube_disabled'),
+      await resolveKey(interaction, "player:youtube_disabled"),
     );
 
     if (interaction instanceof Message) {
@@ -68,7 +68,8 @@ export async function playSong (
         .then((replied) =>
           setTimeout(() => {
             replied.delete().catch(noop);
-          }, 5000));
+          }, 5000),
+        );
     } else if (interaction.isRepliable()) {
       await interaction
         .followUp({
@@ -78,7 +79,8 @@ export async function playSong (
         .then((replied) =>
           setTimeout(() => {
             replied.delete().catch(noop);
-          }, 5000));
+          }, 5000),
+        );
     }
   }
 
@@ -88,8 +90,8 @@ export async function playSong (
     if (!isSongChannel) {
       await sendPresetMessage({
         interaction,
-        preset: 'success',
-        message: 'Acompanhe e controle a música no canal #song-requests',
+        preset: "success",
+        message: "Acompanhe e controle a música no canal #song-requests",
       });
     }
 
@@ -98,7 +100,7 @@ export async function playSong (
     );
     const feedback = await waitFeedback(playMessage);
 
-    feedback.on('collect', async (collected) => {
+    feedback.on("collect", async (collected) => {
       if (!isGuildMember(collected.member)) {
         return;
       }
@@ -107,9 +109,9 @@ export async function playSong (
         userId: collected.member.id,
         event:
           collected.customId === OnPlayButtons.LIKE
-            ? 'like_song'
-            : 'dislike_song',
-        source: 'Guild',
+            ? "like_song"
+            : "dislike_song",
+        source: "Guild",
         properties: {
           track: result.tracks?.[0].short(),
         },
@@ -117,7 +119,7 @@ export async function playSong (
 
       await sendPresetMessage({
         interaction: collected,
-        preset: 'success',
+        preset: "success",
         ephemeral: true,
       });
     });
@@ -128,7 +130,7 @@ export async function playSong (
   } catch (error) {
     await sendPresetMessage({
       interaction,
-      preset: 'error',
+      preset: "error",
       message: getReadableException(error),
     });
   }

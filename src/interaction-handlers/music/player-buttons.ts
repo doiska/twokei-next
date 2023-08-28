@@ -1,33 +1,31 @@
-import { type ButtonInteraction } from 'discord.js';
-import { ApplyOptions } from '@sapphire/decorators';
-import { isGuildMember } from '@sapphire/discord.js-utilities';
+import { type ButtonInteraction } from "discord.js";
+import { ApplyOptions } from "@sapphire/decorators";
+import { isGuildMember } from "@sapphire/discord.js-utilities";
 import {
   container,
   InteractionHandler,
-  InteractionHandlerTypes, type Option,
-} from '@sapphire/framework';
+  InteractionHandlerTypes,
+  type Option,
+} from "@sapphire/framework";
 
-import { PlayerButtons } from '@/constants/music/player-buttons';
-import { destroyPlayerInstance } from '@/music/heizou/destroy-player-instance';
-import { pauseSong } from '@/music/heizou/pause-song';
-import { previousSong } from '@/music/heizou/previous-song';
-import { setLoopState } from '@/music/heizou/set-loop-state';
-import { shuffleQueue } from '@/music/heizou/shuffle-queue';
-import { skipSong } from '@/music/heizou/skip-song';
-import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
-import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
-import { sendPresetMessage } from '@/utils/utils';
+import { PlayerButtons } from "@/constants/music/player-buttons";
+import { destroyPlayerInstance } from "@/music/heizou/destroy-player-instance";
+import { pauseSong } from "@/music/heizou/pause-song";
+import { previousSong } from "@/music/heizou/previous-song";
+import { setLoopState } from "@/music/heizou/set-loop-state";
+import { shuffleQueue } from "@/music/heizou/shuffle-queue";
+import { skipSong } from "@/music/heizou/skip-song";
+import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
+import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
+import { sendPresetMessage } from "@/utils/utils";
 
 @ApplyOptions<InteractionHandler.Options>({
-  name: 'buttons-player',
+  name: "buttons-player",
   enabled: true,
   interactionHandlerType: InteractionHandlerTypes.Button,
 })
 export class PlayerButtonsInteraction extends InteractionHandler {
-  public async run (
-    interaction: ButtonInteraction,
-    button: PlayerButtons,
-  ) {
+  public async run(interaction: ButtonInteraction, button: PlayerButtons) {
     if (!interaction.guild || !isGuildMember(interaction.member)) {
       return;
     }
@@ -44,7 +42,7 @@ export class PlayerButtonsInteraction extends InteractionHandler {
         interaction,
         message: ErrorCodes.NOT_SAME_VC,
         ephemeral: true,
-        preset: 'error',
+        preset: "error",
         deleteIn: 8,
       });
       return;
@@ -67,7 +65,7 @@ export class PlayerButtonsInteraction extends InteractionHandler {
 
     try {
       await sendPresetMessage({
-        preset: 'loading',
+        preset: "loading",
         interaction,
         ephemeral: true,
       });
@@ -76,7 +74,7 @@ export class PlayerButtonsInteraction extends InteractionHandler {
     } catch (e) {
       const readable = getReadableException(e);
       await sendPresetMessage({
-        preset: 'error',
+        preset: "error",
         interaction,
         ephemeral: true,
         message: readable,
@@ -84,7 +82,7 @@ export class PlayerButtonsInteraction extends InteractionHandler {
     }
   }
 
-  public override parse (interaction: ButtonInteraction): Option<PlayerButtons> {
+  public override parse(interaction: ButtonInteraction): Option<PlayerButtons> {
     const customId = interaction.customId;
     const buttons = Object.keys(PlayerButtons);
 
