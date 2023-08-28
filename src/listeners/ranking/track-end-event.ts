@@ -1,14 +1,10 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { isVoiceBasedChannel } from "@sapphire/discord.js-utilities";
 import { container, Listener } from "@sapphire/framework";
-import type { Track } from "shoukaku";
-
-import { kil } from "@/db/Kil";
-import { users } from "@/db/schemas/users";
-
 import { logger } from "@/modules/logger-transport";
 import type { Venti } from "@/music/controllers/Venti";
 import { Events } from "@/music/interfaces/player.types";
+import type { ResolvableTrack } from "@/music/structures/ResolvableTrack";
 
 @ApplyOptions<Listener.Options>({
   name: "song-user-track-end",
@@ -17,22 +13,26 @@ import { Events } from "@/music/interfaces/player.types";
   enabled: true,
 })
 export class TrackEndEvent extends Listener<typeof Events.TrackEnd> {
-  public async run(venti: Venti, _?: Track, reason?: string) {
-    const current = venti.queue.current;
+  public async run(venti: Venti, track?: ResolvableTrack, reason?: string) {
+    const current = track ?? venti.queue.current;
 
     logger.debug(`[TrackEnd] Track ended: ${reason ?? "No reason"}`);
 
-    if (reason && ["replaced", "error"].includes(reason.toLowerCase())) {
+    if (!current) {
+      console.log("[TrackEnd] No current found");
       return;
     }
 
-    if (!current) {
+    if (reason && ["replaced", "error"].includes(reason.toLowerCase())) {
+      console.log("[TrackEnd] Invalid reason");
       return;
     }
 
     const voiceChannelId = venti.voiceId;
 
     if (!voiceChannelId) {
+      console.log("[TrackEnd] No voiceId");
+
       return;
     }
 
@@ -50,32 +50,25 @@ export class TrackEndEvent extends Listener<typeof Events.TrackEnd> {
       return;
     }
 
-    await kil.transaction(async (tx) => {
-      await tx
-        .insert(users)
-        .values(
-          connected.map((member) => ({
-            id: member.id,
-            name: member.user.username,
-          })),
-        )
-        .onConflictDoNothing();
-
-      const track = {
-        event: "heard_song",
-        source: "Guild",
-        properties: {
-          guildId: venti.guildId,
-          track: current.short(),
-        },
-      } as const;
-
-      await container.analytics.track(
-        connected.map((member) => ({
-          userId: member.id,
-          ...track,
-        })),
-      );
-    });
+    await Promise.allSettled(
+      Array.from(connected.values()).map((member) =>
+        fetch(`${process.env.RESOLVER_API_URL}/analytics/${member.id}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            event: "track_listened",
+            track: {
+              isrc: current.isrc,
+              uri: current.uri,
+              title: current.title,
+              author: current.author,
+              source: current.sourceName,
+            },
+          }),
+        }),
+      ),
+    );
   }
 }

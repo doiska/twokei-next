@@ -3,16 +3,15 @@ import { Icons } from "@/constants/icons";
 export default {
   embed: {
     description: [
-      "## Nova versão disponível!",
       "## <a:raio:1121849523854118973> [Twokei Music](https://twokei.com)",
       " ",
       `### ${Icons.Hanakin} Como usar?`,
       "- **Mencione** o bot com o nome/url da música para adicionar à fila.",
       '- Exemplo: "**{{- mention}} lofi hiphop**"',
-      "- Use **Spotify ou Youtube**, você escolhe!",
+      "- **Controle a fila no Menu de Faixas abaixo!**",
       `### ${Icons.SpotifyLogo} Profile Sync (Beta)`,
       "- **Traga suas playlists do ``Spotify`` para o Twokei!**",
-      "- Clique no botão **Meu Perfil** abaixo.",
+      "- Clique no botão **$t(palyer:embed.buttons.playlist_sync)** abaixo.",
     ],
     description_playing: [
       " ",
@@ -21,10 +20,6 @@ export default {
       "- Artista: {{- track.author}}",
       "- A pedido de: **{{- track.requestedBy}}**",
     ],
-    loop: {
-      track: "Loop: Track",
-      queue: "Loop: Queue",
-    },
     buttons: {
       stop: "Parar",
       previous: "Anterior",
@@ -41,8 +36,10 @@ export default {
       auto_play: "Autoplay",
       select_language: "Alterar idioma",
       view_profile: "Meu Perfil",
-      load_playlist: "Playlist Sync",
-      ia_mode: "Modo IA (Premium)",
+      view_ranking: "Ver Ranking",
+      playlist_sync: "Playlists Sincronizadas",
+      ia_mode: "Modo IA - Premium",
+      quick_playlist: "Ouvir Playlist recomendada",
       invite: "Convite",
       donate: "Apoiar desenvolvimento",
       news: "Ver Novidades",
