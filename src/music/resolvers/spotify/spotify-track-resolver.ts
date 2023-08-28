@@ -1,53 +1,53 @@
-import { type User } from 'discord.js';
+import { type User } from "discord.js";
 
 import {
   LoadType,
   type XiaoSearchOptions,
   type XiaoSearchResult,
-} from '../../interfaces/player.types';
-import { ResolvableTrack } from '../../structures/ResolvableTrack';
-import { type TrackResolver } from '../resolver';
-import { spotifyRequestManager } from './spotify-request-manager';
-import {
-  type PlaylistTracks,
-} from './types/spotify.types';
+} from "../../interfaces/player.types";
+import { ResolvableTrack } from "../../structures/ResolvableTrack";
+import { type TrackResolver } from "../resolver";
+import { spotifyRequestManager } from "./spotify-request-manager";
+import { type PlaylistTracks } from "./types/spotify.types";
 import type {
   SpotifyPlaylistResponse,
-  SpotifySearchResponse, SpotifyTrackResponse,
-} from './types/spotify-response.types';
+  SpotifySearchResponse,
+  SpotifyTrackResponse,
+} from "./types/spotify-response.types";
 
 interface SpotifyClient {
-  clientId: string
-  clientSecret: string
+  clientId: string;
+  clientSecret: string;
 }
 
 export interface SpotifyResolverOptions {
-  clients: SpotifyClient[]
-  region: string
+  clients: SpotifyClient[];
+  region: string;
   limits: {
-    search: number
-    playlists: number
-    tracks: number
-    albums: number
-  }
+    search: number;
+    playlists: number;
+    tracks: number;
+    albums: number;
+  };
 }
 
-const SPOTIFY_URL = /(?:https?:\/\/open\.spotify\.com\/|spotify:)(?:.+)?(track|playlist|album|artist)[/:]([A-Za-z0-9]+)/;
+const SPOTIFY_URL =
+  /(?:https?:\/\/open\.spotify\.com\/|spotify:)(?:.+)?(track|playlist|album|artist)[/:]([A-Za-z0-9]+)/;
 
 class SpotifyTrackResolver implements TrackResolver {
-  readonly name = 'spotify';
+  readonly name = "spotify";
 
   private readonly options: SpotifyResolverOptions;
 
-  constructor () {
+  constructor() {
     this.options = spotifyRequestManager.options;
   }
 
-  public matches (url: string): boolean {
+  public matches(url: string): boolean {
     return SPOTIFY_URL.test(url);
   }
 
-  public async resolve (
+  public async resolve(
     query: string,
     options?: XiaoSearchOptions,
   ): Promise<XiaoSearchResult> {
@@ -57,9 +57,9 @@ class SpotifyTrackResolver implements TrackResolver {
       const [, type, id] = spotifyUrl;
 
       switch (type) {
-        case 'track':
+        case "track":
           return await this.track(id, options?.requester);
-        case 'playlist':
+        case "playlist":
           return await this.playlist(id, options?.requester);
       }
     }
@@ -70,16 +70,15 @@ class SpotifyTrackResolver implements TrackResolver {
     };
   }
 
-  public async search (
+  public async search(
     query: string,
     requester?: User,
   ): Promise<XiaoSearchResult> {
     const searchLimit = Math.min(this.options.limits.search, 15);
     const encodedQuery = encodeURIComponent(query);
     const endpoint = `/search?q=${encodedQuery}&type=track&limit=${searchLimit}&market=${this.options.region}`;
-    const resolved = await spotifyRequestManager.request<SpotifySearchResponse>(
-      endpoint,
-    );
+    const resolved =
+      await spotifyRequestManager.request<SpotifySearchResponse>(endpoint);
 
     if (!resolved?.tracks || resolved.tracks?.items?.length === 0) {
       return {
@@ -89,18 +88,21 @@ class SpotifyTrackResolver implements TrackResolver {
     }
 
     return {
-      tracks: resolved.tracks.items.map((item) => this.parseTrack(item, requester)),
+      tracks: resolved.tracks.items.map((item) =>
+        this.parseTrack(item, requester),
+      ),
       type: LoadType.SEARCH_RESULT,
     };
   }
 
-  public async playlist (
+  public async playlist(
     id: string,
     requester?: User,
   ): Promise<XiaoSearchResult> {
-    const playlist = await spotifyRequestManager.request<SpotifyPlaylistResponse>(
-      `/playlists/${id}?market=${this.options.region}`,
-    );
+    const playlist =
+      await spotifyRequestManager.request<SpotifyPlaylistResponse>(
+        `/playlists/${id}?market=${this.options.region}`,
+      );
 
     const tracks = playlist?.tracks?.items
       .filter(Boolean)
@@ -150,10 +152,7 @@ class SpotifyTrackResolver implements TrackResolver {
     };
   }
 
-  public async track (
-    id: string,
-    requester?: User,
-  ): Promise<XiaoSearchResult> {
+  public async track(id: string, requester?: User): Promise<XiaoSearchResult> {
     const response = await spotifyRequestManager.request<SpotifyTrackResponse>(
       `/tracks/${id}`,
     );
@@ -171,28 +170,29 @@ class SpotifyTrackResolver implements TrackResolver {
     };
   }
 
-  private parseTrack (
+  private parseTrack(
     spotifyTrack: SpotifyTrackResponse,
     requester?: User,
     thumbnail?: string,
   ) {
     return new ResolvableTrack(
       {
-        track: '',
+        track: "",
         info: {
-          sourceName: 'spotify',
+          sourceName: "spotify",
           title: spotifyTrack.name,
           identifier: spotifyTrack.id,
           author: spotifyTrack.artists[0]
             ? spotifyTrack.artists[0].name
-            : 'Unknown',
+            : "Unknown",
           length: spotifyTrack.duration_ms,
           isSeekable: true,
           isStream: false,
           position: 0,
           uri: `https://open.spotify.com/track/${spotifyTrack.id}`,
         },
-        thumbnail: thumbnail ?? spotifyTrack.album?.images[0]?.url ?? '',
+        thumbnail: thumbnail ?? spotifyTrack.album?.images[0]?.url ?? "",
+        isrc: spotifyTrack.external_ids.isrc,
       },
       { requester },
     );

@@ -1,18 +1,22 @@
-import type { ProfileResolver, ProfileWithPlaylists } from '@/music/resolvers/resolver';
-import { spotifyRequestManager } from '@/music/resolvers/spotify/spotify-request-manager';
-import type { SpotifyProfileResponse } from '@/music/resolvers/spotify/types/spotify-response.types';
+import type {
+  ProfileResolver,
+  ProfileWithPlaylists,
+} from "@/music/resolvers/resolver";
+import { spotifyRequestManager } from "@/music/resolvers/spotify/spotify-request-manager";
+import type { SpotifyProfileResponse } from "@/music/resolvers/spotify/types/spotify-response.types";
 
 export class SpotifyProfileResolver implements ProfileResolver {
-  async getPlaylists (profileId: string): Promise<ProfileWithPlaylists> {
-    const response = await spotifyRequestManager.request<SpotifyProfileResponse>(
-      `/users/${profileId}/playlists`,
-    );
+  async getPlaylists(profileId: string): Promise<ProfileWithPlaylists> {
+    const response =
+      await spotifyRequestManager.request<SpotifyProfileResponse>(
+        `/users/${profileId}/playlists`,
+      );
 
     return {
       userId: profileId,
       total: response.total,
       href: `https://open.spotify.com/user/${profileId}`,
-      items: response.items.map(item => ({
+      items: response.items.map((item) => ({
         id: item.id,
         description: item.description,
         name: item.name,
@@ -26,7 +30,7 @@ export class SpotifyProfileResolver implements ProfileResolver {
         },
         tracks: item.tracks,
       })),
-      source: 'spotify',
+      source: "spotify",
     };
   }
 }

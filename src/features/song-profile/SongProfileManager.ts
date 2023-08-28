@@ -1,32 +1,37 @@
-import { type User } from 'discord.js';
+import { type User } from "discord.js";
 
-import { and, eq, sql } from 'drizzle-orm';
-import { kil } from '@/db/Kil';
-import { songProfileActions } from '@/db/schemas/song-profile-actions';
-import { songProfileSources } from '@/db/schemas/song-profile-sources';
-import { songRanking } from '@/db/schemas/song-ranking';
-import { users } from '@/db/schemas/users';
+import { and, eq, sql } from "drizzle-orm";
+import { kil } from "@/db/Kil";
+import { songProfileActions } from "@/db/schemas/song-profile-actions";
+import { songProfileSources } from "@/db/schemas/song-profile-sources";
+import { songRanking } from "@/db/schemas/song-ranking";
+import { users } from "@/db/schemas/users";
 
-import { SongProfileActionManager } from '@/features/song-profile/SongProfileActionManager';
+import { SongProfileActionManager } from "@/features/song-profile/SongProfileActionManager";
 
 export class SongProfileManager {
   public actions: SongProfileActionManager;
 
-  constructor () {
+  constructor() {
     this.actions = new SongProfileActionManager();
   }
 
-  public async get (target: User) {
+  public async get(target: User) {
     const [profile, ranking] = await Promise.all([
       this.getProfile(target),
       this.getUserRanking(target),
     ]);
 
-    const [followers] = await kil.select({
-      amount: sql<number>`COUNT(*)`,
-    }).from(songProfileActions)
+    const [followers] = await kil
+      .select({
+        amount: sql<number>`COUNT(*)`,
+      })
+      .from(songProfileActions)
       .where(
-        and(eq(songProfileActions.targetId, target.id), eq(songProfileActions.action, 'like')),
+        and(
+          eq(songProfileActions.targetId, target.id),
+          eq(songProfileActions.action, "like"),
+        ),
       )
       .groupBy(songProfileActions.targetId);
 
@@ -50,8 +55,9 @@ export class SongProfileManager {
     };
   }
 
-  private async getProfile (user: User) {
-    const [profile] = await kil.select()
+  private async getProfile(user: User) {
+    const [profile] = await kil
+      .select()
       .from(users)
       .where(eq(users.id, user.id));
 
@@ -71,8 +77,10 @@ export class SongProfileManager {
     return result;
   }
 
-  private async getUserRanking (user: User) {
-    const [ranking] = await kil.select().from(songRanking)
+  private async getUserRanking(user: User) {
+    const [ranking] = await kil
+      .select()
+      .from(songRanking)
       .where(eq(songRanking.userId, user.id));
 
     return ranking;

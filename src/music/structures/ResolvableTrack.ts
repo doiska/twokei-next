@@ -1,14 +1,14 @@
-import { type User } from 'discord.js';
-import { container } from '@sapphire/framework';
-import { type Track } from 'shoukaku';
+import { type User } from "discord.js";
+import { container } from "@sapphire/framework";
+import { type Track } from "shoukaku";
 
-import { playerLogger } from '@/modules/logger-transport';
-import { spotifyTrackResolver } from '@/music/resolvers/spotify/spotify-track-resolver';
-import { cleanUpSong } from '@/music/utils/cleanup';
-import { sortBySimilarity } from '@/utils/string-distance';
+import { playerLogger } from "@/modules/logger-transport";
+import { spotifyTrackResolver } from "@/music/resolvers/spotify/spotify-track-resolver";
+import { cleanUpSong } from "@/music/utils/cleanup";
+import { levenshteinDistance } from "@/utils/string-distance";
 
 interface ResolvableTrackOptions {
-  requester?: User
+  requester?: User;
 }
 
 export class ResolvableTrack {
@@ -28,6 +28,11 @@ export class ResolvableTrack {
 
   /** Track's URI */
   public uri: string;
+
+  /**
+   * Track International Recording
+   */
+  public isrc?: string;
 
   /** Track's identifier */
   public identifier: string;
@@ -53,8 +58,8 @@ export class ResolvableTrack {
   /** The YouTube/soundcloud URI for spotify and other unsupported source */
   public realUri: string | null;
 
-  public constructor (
-    track: Track & { thumbnail?: string },
+  public constructor(
+    track: Track & { thumbnail?: string; isrc?: string },
     options?: ResolvableTrackOptions,
   ) {
     const { info } = track;
@@ -64,6 +69,7 @@ export class ResolvableTrack {
     this.sourceName = info.sourceName;
     this.title = info.title;
     this.uri = info.uri;
+    this.isrc = track.isrc;
     this.identifier = info.identifier;
     this.isSeekable = info.isSeekable;
     this.isStream = info.isStream;
@@ -71,15 +77,15 @@ export class ResolvableTrack {
     this.length = info.length;
     this.position = info.position;
 
-    if (this.identifier && this.sourceName === 'youtube') {
+    if (this.identifier && this.sourceName === "youtube") {
       this.thumbnail = `https://img.youtube.com/vi/${this.identifier}/hqdefault.jpg`;
     }
 
     this.thumbnail = track.thumbnail;
-    this.realUri = ['youtube'].includes(this.sourceName) ? this.uri : null;
+    this.realUri = ["youtube"].includes(this.sourceName) ? this.uri : null;
   }
 
-  get isReadyToPlay (): boolean {
+  get isReadyToPlay(): boolean {
     return (
       !!this.track &&
       !!this.sourceName &&
@@ -92,7 +98,7 @@ export class ResolvableTrack {
     );
   }
 
-  public async resolve (overwrite = false): Promise<ResolvableTrack> {
+  public async resolve(overwrite = false): Promise<ResolvableTrack> {
     if (this.isReadyToPlay) {
       return this;
     }
@@ -100,7 +106,7 @@ export class ResolvableTrack {
     const resolvedTrack = await this.getTrack();
 
     if (!resolvedTrack) {
-      throw new Error('Track not found');
+      throw new Error("Track not found");
     }
 
     this.track = resolvedTrack.track;
@@ -120,7 +126,7 @@ export class ResolvableTrack {
     return this;
   }
 
-  public getRaw (): Track {
+  public getRaw(): Track {
     return {
       track: this.track,
       info: {
@@ -129,7 +135,7 @@ export class ResolvableTrack {
         uri: this.uri,
         title: this.title,
         length: this.length ?? 0,
-        author: this.author ?? '',
+        author: this.author ?? "",
         isStream: this.isStream,
         position: this.position ?? 0,
         sourceName: this.sourceName,
@@ -137,13 +143,16 @@ export class ResolvableTrack {
     };
   }
 
-  private async getTrack () {
+  private async getTrack() {
     const query = cleanUpSong(this.title, this.author);
 
     const response = await this.resolveQuery(query);
 
-    playerLogger.info(`[ResolvableTrack] GetTrack resolving: ${query}`);
-    playerLogger.debug(`[ResolvableTrack] GetTrack using ${this.sourceName.toLowerCase() === 'youtube' ? 'Spotify' : 'Deezer'}`, response);
+    playerLogger.info(
+      `[ResolvableTrack] GetTrack resolving: ${query} using ${
+        this.sourceName.toLowerCase() === "youtube" ? "Spotify" : "Deezer"
+      }`,
+    );
 
     if (!response?.tracks.length) {
       return;
@@ -151,17 +160,26 @@ export class ResolvableTrack {
 
     const tracks = response.tracks.map(this.parseResolvableToTrack);
 
-    const titles = tracks.map(track => track.info.title);
+    const similar = tracks.map((track) => ({
+      ...track,
+      distance: levenshteinDistance(track.info.title, query),
+    }));
 
-    const [mostSimilarTitle] = sortBySimilarity(titles, this.title);
+    return similar.reduce<(Track & { distance: number }) | null>(
+      (previous, current) => {
+        if (!previous) {
+          return current;
+        }
 
-    console.log(`Most similar title to ${this.title} is ${mostSimilarTitle}`);
-
-    return tracks.find(t => t.info.title === mostSimilarTitle) ?? tracks[0];
+        return previous?.distance > current.distance ? previous : current;
+      },
+      null,
+    );
   }
 
-  private async resolveQuery (query: string) {
-    if (this.sourceName === 'youtube') {
+  // TODO: refactor and cleanup
+  private async resolveQuery(query: string) {
+    if (this.sourceName === "youtube") {
       const spotifyResponse = await spotifyTrackResolver.search(
         query,
         this.requester,
@@ -173,21 +191,31 @@ export class ResolvableTrack {
 
       const [track] = spotifyResponse.tracks;
 
-      const newSearchQuery = cleanUpSong(track.title, track.author);
+      console.log(
+        `[Resolvable Track] Resolved ${query} (ISRC: ${
+          track?.isrc ?? ""
+        }) in Spotify`,
+      );
 
-      return container.xiao.search(newSearchQuery, {
-        engine: 'dz',
+      if (!track.isrc) {
+        const newSearchQuery = cleanUpSong(track.title, track.author);
+        return container.xiao.search(newSearchQuery, {
+          requester: this.requester,
+        });
+      }
+
+      return container.xiao.search(track.isrc, {
+        engine: "dzisrc",
         requester: this.requester,
       });
     }
 
     return container.xiao.search(query, {
       requester: this.requester,
-      engine: 'dz',
     });
   }
 
-  private parseResolvableToTrack (resolvable: Track | ResolvableTrack): Track {
+  private parseResolvableToTrack(resolvable: Track | ResolvableTrack): Track {
     if ((resolvable as Track).info) {
       return resolvable as Track;
     }
@@ -203,14 +231,14 @@ export class ResolvableTrack {
         uri: track.uri,
         identifier: track.identifier,
         sourceName: track.sourceName,
-        author: track.author ?? '',
+        author: track.author ?? "",
         length: track.length ?? 0,
         position: track.position ?? 0,
       },
     };
   }
 
-  public short () {
+  public short() {
     return {
       title: this.title,
       source: {

@@ -1,25 +1,25 @@
-import { ApplyOptions } from '@sapphire/decorators';
-import { isGuildMember } from '@sapphire/discord.js-utilities';
-import { Command, container } from '@sapphire/framework';
+import { ApplyOptions } from "@sapphire/decorators";
+import { isGuildMember } from "@sapphire/discord.js-utilities";
+import { Command, container } from "@sapphire/framework";
 
-import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
-import { sendPresetMessage } from '@/utils/utils';
+import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
+import { sendPresetMessage } from "@/utils/utils";
 
 @ApplyOptions<Command.Options>({
-  name: 'queue',
-  description: 'View the queue',
+  name: "queue",
+  description: "View the queue",
   enabled: true,
-  preconditions: ['GuildOnly'],
+  preconditions: ["GuildOnly"],
   cooldownDelay: 1_000,
 })
 export class PlayCommand extends Command {
-  public registerApplicationCommands (registry: Command.Registry) {
-    registry.registerChatInputCommand((builder) => builder
-      .setName(this.name)
-      .setDescription(this.description));
+  public registerApplicationCommands(registry: Command.Registry) {
+    registry.registerChatInputCommand((builder) =>
+      builder.setName(this.name).setDescription(this.description),
+    );
   }
 
-  public override async chatInputRun (
+  public override async chatInputRun(
     interaction: Command.ChatInputCommandInteraction,
   ) {
     if (!interaction.guild || !isGuildMember(interaction.member)) {
@@ -31,7 +31,7 @@ export class PlayCommand extends Command {
     if (!player) {
       await sendPresetMessage({
         message: ErrorCodes.NO_PLAYER_FOUND,
-        preset: 'error',
+        preset: "error",
         interaction,
       });
       return;
@@ -42,16 +42,21 @@ export class PlayCommand extends Command {
     const trackList = queue
       .filter(Boolean)
       .map(
-        (track, index) => `${index + 1}. [${track?.title}](${queue.current?.uri ?? ''})`,
+        (track, index) =>
+          `${index + 1}. [${track?.title}](${queue.current?.uri ?? ""})`,
       );
 
-    await container.reply(interaction, {
-      title: queue.current?.title ?? '',
-      url: queue.current?.uri ?? '',
-      thumbnail: {
-        url: queue.current?.thumbnail ?? '',
+    await container.reply(
+      interaction,
+      {
+        title: queue.current?.title ?? "",
+        url: queue.current?.uri ?? "",
+        thumbnail: {
+          url: queue.current?.thumbnail ?? "",
+        },
+        description: trackList.join("\n"),
       },
-      description: trackList.join('\n'),
-    }, 20);
+      20,
+    );
   }
 }

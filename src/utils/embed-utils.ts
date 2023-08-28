@@ -1,15 +1,17 @@
-import { type APIEmbed, EmbedBuilder, type SelectMenuComponentOptionData } from 'discord.js';
-import { EmbedLimits, SelectMenuLimits } from '@sapphire/discord.js-utilities';
-import { isNullish } from '@sapphire/utilities';
+import {
+  type APIEmbed,
+  EmbedBuilder,
+  type SelectMenuComponentOptionData,
+} from "discord.js";
+import { EmbedLimits, SelectMenuLimits } from "@sapphire/discord.js-utilities";
+import { isNullish } from "@sapphire/utilities";
 
-export function isEmbed (embed: unknown): embed is APIEmbed {
+export function isEmbed(embed: unknown): embed is APIEmbed {
   const isEmbedBuilder = embed instanceof EmbedBuilder;
-  const isEmbedObject = !!embed && typeof embed === 'object' && 'description' in embed;
+  const isEmbedObject =
+    !!embed && typeof embed === "object" && "description" in embed;
 
-  return (
-    !isNullish(embed) &&
-    (isEmbedBuilder || isEmbedObject)
-  );
+  return !isNullish(embed) && (isEmbedBuilder || isEmbedObject);
 }
 
 export const assertEmbedSize = (embed: APIEmbed): APIEmbed => ({
@@ -17,7 +19,7 @@ export const assertEmbedSize = (embed: APIEmbed): APIEmbed => ({
   title: embed.title?.substring(0, EmbedLimits.MaximumTitleLength),
   author: {
     ...embed.author,
-    name: embed.author?.name?.substring(0, 70) ?? '',
+    name: embed.author?.name?.substring(0, 70) ?? "",
   },
   description: embed.description?.substring(
     0,
@@ -31,7 +33,7 @@ export const assertEmbedSize = (embed: APIEmbed): APIEmbed => ({
   footer: {
     ...embed.footer,
     text:
-        embed.footer?.text?.substring(0, EmbedLimits.MaximumFooterLength) ?? '',
+      embed.footer?.text?.substring(0, EmbedLimits.MaximumFooterLength) ?? "",
   },
 });
 

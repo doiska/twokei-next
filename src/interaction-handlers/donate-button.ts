@@ -6,27 +6,27 @@ import {
   Colors,
   ComponentType,
   EmbedBuilder,
-} from 'discord.js';
-import { ApplyOptions } from '@sapphire/decorators';
-import { isGuildMember } from '@sapphire/discord.js-utilities';
+} from "discord.js";
+import { ApplyOptions } from "@sapphire/decorators";
+import { isGuildMember } from "@sapphire/discord.js-utilities";
 import {
   InteractionHandler,
-  InteractionHandlerTypes, type None, type Option,
-} from '@sapphire/framework';
+  InteractionHandlerTypes,
+  type None,
+  type Option,
+} from "@sapphire/framework";
 
-import { EmbedButtons } from '@/constants/music/player-buttons';
+import { EmbedButtons } from "@/constants/music/player-buttons";
 
-import { fetchT } from 'twokei-i18next';
+import { fetchT } from "twokei-i18next";
 
 @ApplyOptions<InteractionHandler.Options>({
-  name: 'donate-button',
+  name: "donate-button",
   enabled: true,
   interactionHandlerType: InteractionHandlerTypes.Button,
 })
 export class PlayerButtonsInteraction extends InteractionHandler {
-  public async run (
-    interaction: ButtonInteraction,
-  ) {
+  public async run(interaction: ButtonInteraction) {
     if (!interaction.guild || !isGuildMember(interaction.member)) {
       return;
     }
@@ -34,30 +34,26 @@ export class PlayerButtonsInteraction extends InteractionHandler {
     const t = await fetchT(interaction);
 
     const embed = new EmbedBuilder()
-      .setDescription(t('donate.description', { ns: 'common' }))
+      .setDescription(t("donate.description", { ns: "common" }))
       .setColor(Colors.Gold);
 
     const pixButton = new ButtonBuilder()
-      .setLabel(t('donate.buttons.pix', { ns: 'common' }))
+      .setLabel(t("donate.buttons.pix", { ns: "common" }))
       .setStyle(ButtonStyle.Primary)
-      .setCustomId('pix');
+      .setCustomId("pix");
 
     const paypalButton = new ButtonBuilder()
-      .setLabel(t('donate.buttons.paypal', { ns: 'common' }))
+      .setLabel(t("donate.buttons.paypal", { ns: "common" }))
       .setStyle(ButtonStyle.Link)
-      .setURL('https://ko-fi.com/doiska');
+      .setURL("https://ko-fi.com/doiska");
 
     const voteButton = new ButtonBuilder()
-      .setLabel(t('donate.buttons.vote', { ns: 'common' }))
+      .setLabel(t("donate.buttons.vote", { ns: "common" }))
       .setStyle(ButtonStyle.Link)
-      .setURL('https://top.gg/bot/804289482624587274/vote');
+      .setURL("https://top.gg/bot/804289482624587274/vote");
 
     const row = new ActionRowBuilder<ButtonBuilder>({
-      components: [
-        pixButton,
-        paypalButton,
-        voteButton,
-      ],
+      components: [pixButton, paypalButton, voteButton],
     });
 
     const interactionResponse = await interaction.reply({
@@ -66,25 +62,31 @@ export class PlayerButtonsInteraction extends InteractionHandler {
       ephemeral: true,
     });
 
-    await interactionResponse.awaitMessageComponent({
-      componentType: ComponentType.Button,
-      filter: (i) => i.user.id === interaction.user.id && i.customId === 'pix',
-      time: 60000,
-    })
+    await interactionResponse
+      .awaitMessageComponent({
+        componentType: ComponentType.Button,
+        filter: (i) =>
+          i.user.id === interaction.user.id && i.customId === "pix",
+        time: 60000,
+      })
       .then((i) => {
         const pixEmbed = new EmbedBuilder()
-          .setDescription(t('donate.pix.description', { ns: 'common' }))
-          .setImage('https://cdn.discordapp.com/attachments/1122869530302087220/1127698486515732500/Screenshot_2023-07-09_173032.png');
+          .setDescription(t("donate.pix.description", { ns: "common" }))
+          .setImage(
+            "https://cdn.discordapp.com/attachments/1122869530302087220/1127698486515732500/Screenshot_2023-07-09_173032.png",
+          );
 
         void i.update({
           embeds: [pixEmbed],
           components: [row.setComponents([paypalButton, voteButton])],
         });
       })
-      .catch(async () => { await interaction.deleteReply(); });
+      .catch(async () => {
+        await interaction.deleteReply();
+      });
   }
 
-  public override parse (interaction: ButtonInteraction): Option<None> {
+  public override parse(interaction: ButtonInteraction): Option<None> {
     const customId = interaction.customId;
 
     if (customId !== EmbedButtons.DONATE) {

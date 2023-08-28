@@ -1,19 +1,23 @@
-import { ApplicationCommandType, ComponentType, type User } from 'discord.js';
-import { ApplyOptions } from '@sapphire/decorators';
-import { isGuildMember } from '@sapphire/discord.js-utilities';
-import { type ApplicationCommandRegistry, Command, container } from '@sapphire/framework';
-import type { Awaitable } from '@sapphire/utilities';
-import { noop } from '@sapphire/utilities';
+import { ApplicationCommandType, ComponentType, type User } from "discord.js";
+import { ApplyOptions } from "@sapphire/decorators";
+import { isGuildMember } from "@sapphire/discord.js-utilities";
+import {
+  type ApplicationCommandRegistry,
+  Command,
+  container,
+} from "@sapphire/framework";
+import type { Awaitable } from "@sapphire/utilities";
+import { noop } from "@sapphire/utilities";
 
-import { createSongProfileEmbed } from '@/features/song-profile/show-song-profile';
-import { sendPresetMessage } from '@/utils/utils';
+import { createSongProfileEmbed } from "@/features/song-profile/show-song-profile";
+import { sendPresetMessage } from "@/utils/utils";
 
 @ApplyOptions<Command.Options>({
-  name: 'profile',
-  description: 'View yours or another users profile',
+  name: "profile",
+  description: "View yours or another users profile",
 })
 export class ViewProfile extends Command {
-  public override registerApplicationCommands (
+  public override registerApplicationCommands(
     registry: ApplicationCommandRegistry,
   ): Awaitable<void> {
     registry.registerChatInputCommand((builder) =>
@@ -22,21 +26,25 @@ export class ViewProfile extends Command {
         .setDescription(this.description)
         .addUserOption((option) =>
           option
-            .setName('user')
-            .setDescription('The user to view the profile of')
-            .setRequired(false)));
+            .setName("user")
+            .setDescription("The user to view the profile of")
+            .setRequired(false),
+        ),
+    );
 
     registry.registerContextMenuCommand((builder) =>
-      builder.setName('View music profile')
-        .setType(ApplicationCommandType.User));
+      builder
+        .setName("View music profile")
+        .setType(ApplicationCommandType.User),
+    );
   }
 
-  public async chatInputRun (interaction: Command.ChatInputCommandInteraction) {
-    const user = interaction.options.getUser('user', false) ?? interaction.user;
+  public async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
+    const user = interaction.options.getUser("user", false) ?? interaction.user;
 
     if (!interaction.guild) {
       await interaction.reply({
-        content: 'This command can only be used in a server.',
+        content: "This command can only be used in a server.",
         ephemeral: true,
       });
       return;
@@ -47,23 +55,25 @@ export class ViewProfile extends Command {
     );
   }
 
-  public async contextMenuRun (
+  public async contextMenuRun(
     interaction: Command.ContextMenuCommandInteraction,
   ) {
-    if (!interaction.isUserContextMenuCommand() || !isGuildMember(interaction.targetMember)) {
+    if (
+      !interaction.isUserContextMenuCommand() ||
+      !isGuildMember(interaction.targetMember)
+    ) {
       return;
     }
 
     const target = interaction.targetUser;
 
-    await this.sendEmbed(
-      interaction,
-      target,
-    );
+    await this.sendEmbed(interaction, target);
   }
 
-  private async sendEmbed (
-    interaction: Command.ContextMenuCommandInteraction | Command.ChatInputCommandInteraction,
+  private async sendEmbed(
+    interaction:
+      | Command.ContextMenuCommandInteraction
+      | Command.ChatInputCommandInteraction,
     target: User,
   ) {
     if (!interaction.isRepliable()) {
@@ -76,26 +86,30 @@ export class ViewProfile extends Command {
 
     const response = await sendPresetMessage({
       interaction,
-      preset: 'success',
+      preset: "success",
       deleteIn: duration,
       ...replyContent,
     });
 
     const collector = response.createMessageComponentCollector({
       componentType: ComponentType.Button,
-      filter: i => i.user.id === interaction.user.id,
+      filter: (i) => i.user.id === interaction.user.id,
       time: duration * 1000,
     });
 
-    collector.on('collect', async buttonInteraction => {
+    collector.on("collect", async (buttonInteraction) => {
       await buttonInteraction.deferUpdate();
-      await container.profiles.actions.toggleLike(interaction.user.id, target.id);
-      await interaction.editReply(await createSongProfileEmbed(interaction.user, target));
+      await container.profiles.actions.toggleLike(
+        interaction.user.id,
+        target.id,
+      );
+      await interaction.editReply(
+        await createSongProfileEmbed(interaction.user, target),
+      );
     });
 
-    collector.on('end', async () => {
-      await interaction.deleteReply()
-        .catch(noop);
+    collector.on("end", async () => {
+      await interaction.deleteReply().catch(noop);
     });
   }
 }

@@ -1,5 +1,5 @@
-import { type Guild, type GuildResolvable } from 'discord.js';
-import { type Awaitable, isObject, noop } from '@sapphire/utilities';
+import { type Guild, type GuildResolvable } from "discord.js";
+import { type Awaitable, isObject, noop } from "@sapphire/utilities";
 import {
   type Connector,
   type NodeOption,
@@ -9,19 +9,21 @@ import {
   type TrackExceptionEvent,
   type TrackStuckEvent,
   type WebSocketClosedEvent,
-} from 'shoukaku';
+} from "shoukaku";
 
-import { eq } from 'drizzle-orm';
-import { kil } from '@/db/Kil';
-import { settings } from '@/db/schemas/settings';
+import { eq } from "drizzle-orm";
+import { kil } from "@/db/Kil";
+import { settings } from "@/db/schemas/settings";
 
-import { Twokei } from '@/app/Twokei';
-import { createLogger } from '@/modules/logger-transport';
-import { manualUpdate } from '@/music/embed/events/manual-update';
-import { handlePlayerException } from '@/music/embed/events/player-exception';
-import { queueEmpty } from '@/music/embed/events/queue-empty';
-import { youtubeTrackResolver } from '@/music/resolvers/youtube/youtube-track-resolver';
-import { type Maybe } from '@/utils/utils';
+import { Twokei } from "@/app/Twokei";
+import { createLogger } from "@/modules/logger-transport";
+import { manualUpdate } from "@/music/embed/events/manual-update";
+import { handlePlayerException } from "@/music/embed/events/player-exception";
+import { queueEmpty } from "@/music/embed/events/queue-empty";
+import { youtubeTrackResolver } from "@/music/resolvers/youtube/youtube-track-resolver";
+import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
+import { FriendlyException } from "@/structures/exceptions/FriendlyException";
+import { type Maybe } from "@/utils/utils";
 import {
   Events,
   LoadType,
@@ -29,74 +31,81 @@ import {
   type XiaoInitOptions,
   type XiaoSearchOptions,
   type XiaoSearchResult,
-} from '../interfaces/player.types';
-import { type TrackResolver } from '../resolvers/resolver';
-import { ResolvableTrack } from '../structures/ResolvableTrack';
-import { Venti } from './Venti';
+} from "../interfaces/player.types";
+import { type TrackResolver } from "../resolvers/resolver";
+import { ResolvableTrack } from "../structures/ResolvableTrack";
+import { Venti } from "./Venti";
 
-import { EventEmitter } from 'events';
-import type { Logger } from 'winston';
+import { EventEmitter } from "events";
+import type { Logger } from "winston";
 
 export interface XiaoEvents {
   /**
    * Emitted when a player is created.
    */
-  [Events.PlayerCreate]: (venti: Venti) => void
+  [Events.PlayerCreate]: (venti: Venti) => void;
 
   /**
    * Emitted when a player is destroyed.
    */
-  [Events.PlayerDestroy]: (venti: Venti) => void
+  [Events.PlayerDestroy]: (venti: Venti) => void;
 
   /**
    * Emitted when a track is added to the queue.
    */
-  [Events.TrackAdd]: (venti: Venti, track: ResolvableTrack[]) => void
+  [Events.TrackAdd]: (venti: Venti, track: ResolvableTrack[]) => void;
 
   /**
    * Emitted when a track starts playing.
    */
-  [Events.TrackStart]: (venti: Venti, track: ResolvableTrack) => void
+  [Events.TrackStart]: (venti: Venti, track: ResolvableTrack) => void;
 
   /**
    * Emitted when a track pauses.
    */
-  [Events.TrackPause]: (venti: Venti) => void
+  [Events.TrackPause]: (venti: Venti) => void;
 
   /**
    * Emitted when a track ends.
    */
-  [Events.TrackEnd]: (venti: Venti, track: Maybe<ResolvableTrack>, reason?: 'Replaced' | 'Error' | 'Ended') => void
+  [Events.TrackEnd]: (
+    venti: Venti,
+    track: Maybe<ResolvableTrack>,
+    reason?: "Replaced" | "Error" | "Ended",
+  ) => void;
 
   /**
    * Emitted when a player got empty.
    */
-  [Events.QueueEmpty]: (venti: Venti) => void
+  [Events.QueueEmpty]: (venti: Venti) => void;
 
   /**
    * Emitted when a player got closed.
    */
-  [Events.PlayerClosed]: (venti: Venti, data: WebSocketClosedEvent) => void
+  [Events.PlayerClosed]: (venti: Venti, data: WebSocketClosedEvent) => void;
 
   /**
    * Emitted when a player got updated.
    */
-  [Events.PlayerStuck]: (venti: Venti, data: TrackStuckEvent) => void
+  [Events.PlayerStuck]: (venti: Venti, data: TrackStuckEvent) => void;
 
   /**
    * Emitted when a player got an exception.
    */
-  [Events.PlayerException]: (venti: Venti, data: TrackExceptionEvent) => Awaitable<void>
+  [Events.PlayerException]: (
+    venti: Venti,
+    data: TrackExceptionEvent,
+  ) => Awaitable<void>;
 
   /**
    * Emitted when a player updated.
    */
-  [Events.PlayerUpdate]: (venti: Venti, data: PlayerUpdate) => void
+  [Events.PlayerUpdate]: (venti: Venti, data: PlayerUpdate) => void;
 
   /**
    * Emitted when a player resumed.
    */
-  [Events.PlayerResumed]: (venti: Venti) => void
+  [Events.PlayerResumed]: (venti: Venti) => void;
 
   /**
    * Emitted when a player got an error while resolving a track.
@@ -104,38 +113,40 @@ export interface XiaoEvents {
   [Events.PlayerResolveError]: (
     venti: Venti,
     track: ResolvableTrack,
-    message?: string
-  ) => void
+    message?: string,
+  ) => void;
 
   /**
    * Emitted when user interact and causes manual update
    */
   [Events.ManualUpdate]: (
     venti: Venti,
-    update?: { embed?: boolean, components?: boolean }
-  ) => void
+    update?: { embed?: boolean; components?: boolean },
+  ) => void;
 
   /**
    * Emitted for debugging purposes.
    */
-  [Events.Debug]: (message: string) => void
+  [Events.Debug]: (message: string) => void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export declare interface Xiao {
-  on: <U extends keyof XiaoEvents>(event: U, listener: XiaoEvents[U]) => this
+  on: <U extends keyof XiaoEvents>(event: U, listener: XiaoEvents[U]) => this;
 
-  once: <U extends keyof XiaoEvents>(event: U, listener: XiaoEvents[U]) => this
+  once: <U extends keyof XiaoEvents>(event: U, listener: XiaoEvents[U]) => this;
 
   emit: <U extends keyof XiaoEvents>(
     event: U,
     ...args: Parameters<XiaoEvents[U]>
-  ) => boolean
+  ) => boolean;
 }
 
 /**
  * The main class for Xiao.
  * Player manager for Venti.
  */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class Xiao extends EventEmitter {
   /**
    * Shoukaku instance
@@ -157,7 +168,7 @@ export class Xiao extends EventEmitter {
    * @param connector Shoukaku connector
    * @param optionsShoukaku Shoukaku options
    */
-  constructor (
+  constructor(
     public options: XiaoInitOptions,
     connector: Connector,
     nodes: NodeOption[],
@@ -165,30 +176,44 @@ export class Xiao extends EventEmitter {
   ) {
     super();
 
-    this.logger = createLogger('Xiao');
+    this.logger = createLogger("Xiao");
 
     this.shoukaku = new Shoukaku(connector, nodes, optionsShoukaku);
 
     this.players = new Map<string, Venti>();
 
-    this.shoukaku.on('ready', (name) => this.logger.info(`[Shoukaku] Node ${name} is now connected`));
-
-    this.shoukaku.on('close', (name, code, reason) => this.logger.debug(
-      `[Shoukaku] Node ${name} closed with code ${code} and reason ${reason}`,
-    ));
-
-    this.shoukaku.on(
-      'error',
-      (name, error) => this.logger.error(`[Shoukaku] Node ${name} emitted error: ${error.message}`, { error }),
+    this.shoukaku.on("ready", (name) =>
+      this.logger.info(`[Shoukaku] Node ${name} is now connected`),
     );
 
-    this.shoukaku.on('debug', (name, info) => this.logger.debug(`${name} ${info}`));
+    this.shoukaku.on("close", (name, code, reason) =>
+      this.logger.debug(
+        `[Shoukaku] Node ${name} closed with code ${code} and reason ${reason}`,
+      ),
+    );
+
+    this.shoukaku.on("error", (name, error) =>
+      this.logger.error(
+        `[Shoukaku] Node ${name} emitted error: ${error.message}`,
+        { error },
+      ),
+    );
+
+    this.shoukaku.on("debug", (name, info) =>
+      this.logger.debug(`${name} ${info}`),
+    );
 
     this.on(Events.Debug, (message) => this.logger.debug(message));
 
-    this.on(Events.TrackStart, (venti) => { manualUpdate(venti, { embed: true, components: true }); });
-    this.on(Events.TrackAdd, (venti) => { manualUpdate(venti, { embed: true, components: true }); });
-    this.on(Events.TrackPause, (venti) => { manualUpdate(venti, { embed: true, components: true }); });
+    this.on(Events.TrackStart, (venti) => {
+      manualUpdate(venti, { embed: true, components: true });
+    });
+    this.on(Events.TrackAdd, (venti) => {
+      manualUpdate(venti, { embed: true, components: true });
+    });
+    this.on(Events.TrackPause, (venti) => {
+      manualUpdate(venti, { embed: true, components: true });
+    });
 
     this.on(Events.PlayerDestroy, queueEmpty);
     this.on(Events.QueueEmpty, queueEmpty);
@@ -214,7 +239,7 @@ export class Xiao extends EventEmitter {
       : this.shoukaku.getNode();
 
     if (!node) {
-      throw new Error('No available nodes');
+      throw new Error("No available nodes");
     }
 
     const player = await node.joinChannel({
@@ -233,7 +258,7 @@ export class Xiao extends EventEmitter {
     return venti;
   }
 
-  public getPlayer (guildId: GuildResolvable): Venti | undefined {
+  public getPlayer(guildId: GuildResolvable): Venti | undefined {
     const resolvedGuildId = Twokei.guilds.resolveId(guildId);
 
     if (!resolvedGuildId) {
@@ -243,14 +268,13 @@ export class Xiao extends EventEmitter {
     return this.players.get(resolvedGuildId);
   }
 
-  public async destroyPlayer (guild: Guild) {
+  public async destroyPlayer(guild: Guild) {
     this.logger.info(`Destroying player for guild ${guild.id}`, {
       guildId: guild.id,
       guildName: guild.name,
     });
 
-    await guild.members.me?.voice?.disconnect()
-      .catch(noop);
+    await guild.members.me?.voice?.disconnect().catch(noop);
 
     const player = this.players.get(guild.id);
 
@@ -263,7 +287,7 @@ export class Xiao extends EventEmitter {
     this.players.delete(guild.id);
   }
 
-  public async search (
+  public async search(
     query: string,
     options?: XiaoSearchOptions,
   ): Promise<XiaoSearchResult> {
@@ -272,14 +296,16 @@ export class Xiao extends EventEmitter {
       : this.shoukaku.getNode();
 
     if (!node) {
-      throw new Error('No available nodes');
+      throw new Error("No available nodes");
     }
 
     if (options?.resolve ?? true) {
-      const resolver = this.resolvers.find((trackResolver) => trackResolver.matches(query));
+      const resolver = this.resolvers.find((trackResolver) =>
+        trackResolver.matches(query),
+      );
 
       this.logger.debug(
-        `Resolving ${query} with ${resolver?.name ?? 'default resolver'}`,
+        `Resolving ${query} with ${resolver?.name ?? "default resolver"}`,
       );
 
       if (resolver) {
@@ -287,19 +313,19 @@ export class Xiao extends EventEmitter {
       }
     }
 
-    const engine = options?.engine ?? 'dz';
-    const searchType = options?.searchType ?? 'track';
+    const engine = options?.engine ?? "spsearch";
+    const searchType = options?.searchType ?? "track";
 
     const isUrl = /^https?:\/\//.test(query);
-    const search = !isUrl ? `${engine}search:${query}` : query;
+    const search = !isUrl ? `${engine}:${query}` : query;
 
     const result = await node.rest.resolve(search);
 
-    if (!result || result.loadType === 'NO_MATCHES') {
-      throw new Error('No result');
+    if (!result || result.loadType === "NO_MATCHES") {
+      throw new FriendlyException(ErrorCodes.PLAYER_NO_TRACKS_FOUND);
     }
 
-    if (result.loadType === 'SEARCH_RESULT' && searchType === 'track') {
+    if (result.loadType === "SEARCH_RESULT" && searchType === "track") {
       return {
         type: LoadType.SEARCH_RESULT,
         tracks: [
@@ -313,48 +339,50 @@ export class Xiao extends EventEmitter {
     return {
       type: LoadType.PLAYLIST_LOADED,
       playlist: {
-        name: result.playlistInfo.name ?? 'Playlist',
+        name: result.playlistInfo.name ?? "Playlist",
         url: query,
       },
       tracks: result.tracks.map(
-        (track) => new ResolvableTrack(track, { requester: options?.requester }),
+        (track) =>
+          new ResolvableTrack(track, { requester: options?.requester }),
       ),
     };
   }
 
-  private async loadNodes () {
+  private async loadNodes() {
     await new Promise((resolve, reject) => {
       setTimeout(() => {
         if (!this.shoukaku.id) {
-          reject(new Error('Shoukaku could not be loaded in time.'));
+          reject(new Error("Shoukaku could not be loaded in time."));
         }
       }, 20000);
 
       const interval = setInterval(() => {
         if (this.shoukaku.id) {
-          this.logger.info('Shoukaku is ready! Loading nodes...');
+          this.logger.info("Shoukaku is ready! Loading nodes...");
           clearInterval(interval);
           resolve(true);
         }
       }, 300);
     });
 
-    const [rawNodes] = await kil.select({ value: settings.value })
+    const [rawNodes] = await kil
+      .select({ value: settings.value })
       .from(settings)
-      .where(eq(settings.name, 'Nodes'));
+      .where(eq(settings.name, "Nodes"));
 
     if (!rawNodes?.value) {
-      this.logger.error('Could not retrieve Nodes from the Database');
+      this.logger.error("Could not retrieve Nodes from the Database");
       return;
     }
 
-    rawNodes?.value.forEach(node => {
+    rawNodes?.value.forEach((node) => {
       if (!this.isNode(node)) {
-        this.logger.error('Trying to insert invalid Node.', { node });
+        this.logger.error("Trying to insert invalid Node.", { node });
         return;
       }
 
-      if ('active' in node && node.active === false) {
+      if ("active" in node && node.active === false) {
         return;
       }
 
@@ -362,14 +390,13 @@ export class Xiao extends EventEmitter {
     });
   }
 
-  private isNode (value: unknown): value is NodeOption {
-    const requiredKeys = ['name', 'url', 'auth'];
+  private isNode(value: unknown): value is NodeOption {
+    const requiredKeys = ["name", "url", "auth"];
 
     if (!isObject(value)) {
       return false;
     }
 
-    return requiredKeys
-      .every(key => Object.keys(value).includes(key));
+    return requiredKeys.every((key) => Object.keys(value).includes(key));
   }
 }
