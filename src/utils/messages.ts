@@ -2,7 +2,6 @@ import type { APIEmbed } from 'discord.js';
 import { Colors } from 'discord.js';
 
 function createEmbed (defaultData: APIEmbed & { appendStart?: string }) {
-  // eslint-disable-next-line func-names
   return function (rawContent: string | string[] | APIEmbed): APIEmbed {
     const {
       appendStart = '',

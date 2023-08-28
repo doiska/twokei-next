@@ -5,7 +5,7 @@ import { type Track } from 'shoukaku';
 import { playerLogger } from '@/modules/logger-transport';
 import { spotifyTrackResolver } from '@/music/resolvers/spotify/spotify-track-resolver';
 import { cleanUpSong } from '@/music/utils/cleanup';
-import { sortBySimilarity } from '@/utils/string-distance';
+import { levenshteinDistance } from '@/utils/string-distance';
 
 interface ResolvableTrackOptions {
   requester?: User
@@ -148,8 +148,7 @@ export class ResolvableTrack {
 
     const response = await this.resolveQuery(query);
 
-    playerLogger.info(`[ResolvableTrack] GetTrack resolving: ${query}`);
-    playerLogger.debug(`[ResolvableTrack] GetTrack using ${this.sourceName.toLowerCase() === 'youtube' ? 'Spotify' : 'Deezer'}`, response);
+    playerLogger.info(`[ResolvableTrack] GetTrack resolving: ${query} using ${this.sourceName.toLowerCase() === 'youtube' ? 'Spotify' : 'Deezer'}`);
 
     if (!response?.tracks.length) {
       return;
@@ -157,13 +156,20 @@ export class ResolvableTrack {
 
     const tracks = response.tracks.map(this.parseResolvableToTrack);
 
-    const titles = tracks.map(track => track.info.title);
+    const similar = tracks.map((track) => ({
+      ...track,
+      distance: levenshteinDistance(track.info.title, query),
+    }));
 
-    const [mostSimilarTitle] = sortBySimilarity(titles, this.title);
+    return similar.reduce<Track & { distance: number } | null>(
+      (previous, current) => {
+        if (!previous) {
+          return current;
+        }
 
-    console.log(`Most similar title to ${this.title} is ${mostSimilarTitle}`);
-
-    return tracks.find(t => t.info.title === mostSimilarTitle) ?? tracks[0];
+        return previous?.distance > current.distance ? previous : current;
+      }, null,
+    );
   }
 
   // TODO: refactor and cleanup
@@ -188,6 +194,7 @@ export class ResolvableTrack {
           requester: this.requester,
         });
       }
+
       return container.xiao.search(track.isrc, {
         engine: 'dzisrc',
         requester: this.requester,
