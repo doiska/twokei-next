@@ -85,6 +85,7 @@ export class Pagination {
     } else {
       this.response = await this.interaction.deferReply({
         ephemeral: ephemeral ?? true,
+        fetchReply: true,
       });
     }
 
