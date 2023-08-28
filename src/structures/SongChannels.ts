@@ -55,10 +55,6 @@ export class SongChannelManager {
       .from(songChannels)
       .where(eq(songChannels.guildId, guildId));
 
-    if (!result) {
-      return;
-    }
-
     this.cache.set(guildId, result);
     return result;
   }
