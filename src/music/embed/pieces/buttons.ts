@@ -7,8 +7,12 @@ import {
   type InteractionButtonComponentData,
 } from "discord.js";
 
-import { RawIcons } from "@/constants/icons";
-import { EmbedButtons, PlayerButtons } from "@/constants/music/player-buttons";
+import { Icons, RawIcons } from "@/constants/icons";
+import {
+  EmbedButtons,
+  OnPlayButtons,
+  PlayerButtons,
+} from "@/constants/music/player-buttons";
 import type { Venti } from "@/music/controllers/Venti";
 
 import { fetchT, type TFunction } from "twokei-i18next";
@@ -16,7 +20,7 @@ import { fetchT, type TFunction } from "twokei-i18next";
 function parseButtonLabel<T>(
   t: TFunction,
   button: T & { label?: string; customId: string },
-): T & { label: string; customId: string } {
+): T & { label: string; customId?: string } {
   return {
     ...button,
     label:
@@ -26,20 +30,20 @@ function parseButtonLabel<T>(
   };
 }
 
-export async function createStaticButtons(guild: Guild) {
+export async function createStaticButtons(guild: Guild, venti?: Venti) {
   const t = await fetchT(guild);
 
-  return new ActionRowBuilder<ButtonBuilder>({
+  const staticPrimaryRow = new ActionRowBuilder<ButtonBuilder>({
     components: [
       {
         style: ButtonStyle.Primary,
         customId: EmbedButtons.NEWS,
-        emoji: RawIcons.News,
+        emoji: RawIcons.News.id,
       },
       {
-        style: ButtonStyle.Primary,
-        customId: EmbedButtons.LOAD_PLAYLIST,
-        emoji: RawIcons.NitroBlack,
+        style: ButtonStyle.Secondary,
+        customId: EmbedButtons.VIEW_RANKING,
+        emoji: RawIcons.Ranking,
       },
       {
         style: ButtonStyle.Secondary,
@@ -50,6 +54,30 @@ export async function createStaticButtons(guild: Guild) {
       parseButtonLabel(t, button),
     ) as InteractionButtonComponentData[],
   });
+
+  const staticSecondaryRow = new ActionRowBuilder<ButtonBuilder>({
+    components: [
+      {
+        style: ButtonStyle.Secondary,
+        customId: EmbedButtons.PLAYLIST_SYNC,
+        emoji: RawIcons.SpotifyLogo,
+      },
+      {
+        style: ButtonStyle.Secondary,
+        emoji: ":a:premium:1129096922943197300",
+        customId: venti?.playing
+          ? EmbedButtons.IA_MODE
+          : EmbedButtons.QUICK_PLAYLIST,
+      },
+    ].map((button) =>
+      parseButtonLabel(t, button),
+    ) as InteractionButtonComponentData[],
+  });
+
+  return {
+    primary: staticPrimaryRow,
+    secondary: staticSecondaryRow,
+  };
 }
 
 export async function createDynamicButtons(venti: Venti) {
@@ -85,10 +113,11 @@ export async function createDynamicButtons(venti: Venti) {
 
   const secondary = [
     {
-      style: ButtonStyle.Secondary,
-      emoji: "️<:shuffle:976599781742886912>",
-      customId: PlayerButtons.SHUFFLE,
-      disabled: venti.queue.length <= 2,
+      style: ButtonStyle.Primary,
+      emoji: ":a:premium:1129096922943197300",
+      customId: venti?.playing
+        ? EmbedButtons.IA_MODE
+        : EmbedButtons.QUICK_PLAYLIST,
     },
     {
       style:
@@ -98,10 +127,10 @@ export async function createDynamicButtons(venti: Venti) {
       customId: PlayerButtons.LOOP,
     },
     {
-      style: ButtonStyle.Secondary,
-      emoji: ":a:premium:1129096922943197300",
-      customId: EmbedButtons.IA_MODE,
-      disabled: true,
+      url: "https://spotify.com",
+      style: ButtonStyle.Link,
+      emoji: RawIcons.SpotifyLogo,
+      label: "Spotify",
     },
   ].map((button) => parseButtonLabel(t, button));
 

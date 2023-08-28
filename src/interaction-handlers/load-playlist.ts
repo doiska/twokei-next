@@ -1,91 +1,94 @@
-import type { ButtonInteraction } from 'discord.js';
-import { ButtonStyle, Colors, ComponentType, EmbedBuilder } from 'discord.js';
-import { ApplyOptions } from '@sapphire/decorators';
-import {
-  EmbedLimits,
-} from '@sapphire/discord.js-utilities';
+import type { ButtonInteraction } from "discord.js";
+import { ButtonStyle, Colors, ComponentType, EmbedBuilder } from "discord.js";
+import { ApplyOptions } from "@sapphire/decorators";
+import { EmbedLimits } from "@sapphire/discord.js-utilities";
 import {
   InteractionHandler,
   InteractionHandlerTypes,
   type None,
   type Option,
-} from '@sapphire/framework';
-import { noop } from '@sapphire/utilities';
+} from "@sapphire/framework";
+import { noop } from "@sapphire/utilities";
 
-import { and, eq } from 'drizzle-orm';
-import { kil } from '@/db/Kil';
-import { songProfileSources } from '@/db/schemas/song-profile-sources';
+import { and, eq } from "drizzle-orm";
+import { kil } from "@/db/Kil";
+import { songProfileSources } from "@/db/schemas/song-profile-sources";
 
-import { Icons } from '@/constants/icons';
-import { EmbedButtons } from '@/constants/music/player-buttons';
-import { playSong } from '@/features/music/play-song';
-import { type Action, type CallableAction, Pagination } from '@/lib/Pagination';
-import type { ProfileWithPlaylists } from '@/music/resolvers/resolver';
-import { spotifyProfileResolver } from '@/music/resolvers/spotify/spotify-profile-resolver';
-import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
-import { sendPresetMessage } from '@/utils/utils';
+import { Icons } from "@/constants/icons";
+import { EmbedButtons } from "@/constants/music/player-buttons";
+import { playSong } from "@/features/music/play-song";
+import { type Action, type CallableAction, Pagination } from "@/lib/Pagination";
+import type { ProfileWithPlaylists } from "@/music/resolvers/resolver";
+import { spotifyProfileResolver } from "@/music/resolvers/spotify/spotify-profile-resolver";
+import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
+import { sendPresetMessage } from "@/utils/utils";
 
 @ApplyOptions<InteractionHandler.Options>({
-  name: 'load-playlist',
+  name: "load-playlist",
   interactionHandlerType: InteractionHandlerTypes.Button,
 })
 export class LoadPlaylist extends InteractionHandler {
-  public async run (interaction: ButtonInteraction) {
+  public async run(interaction: ButtonInteraction) {
     const sources = await kil
       .select()
       .from(songProfileSources)
-      .where(
-        and(
-          eq(songProfileSources.userId, interaction.user.id),
-        ),
-      );
+      .where(and(eq(songProfileSources.userId, interaction.user.id)));
 
     if (!sources.length) {
       await sendPresetMessage({
         interaction,
-        preset: 'error',
-        message: 'profile:profile_not_setup',
+        preset: "error",
+        message: "profile:profile_not_setup",
         ephemeral: true,
       });
       return;
     }
 
-    const promises = await Promise.all(sources.map(async source => {
-      if (source.source.toLowerCase() === 'spotify') {
-        return spotifyProfileResolver.getPlaylists(source.sourceUrl);
-      }
+    const promises = await Promise.all(
+      sources.map(async (source) => {
+        if (source.source.toLowerCase() === "spotify") {
+          return spotifyProfileResolver.getPlaylists(source.sourceUrl);
+        }
 
-      return null;
-    }));
+        return null;
+      }),
+    );
 
     const profiles = promises.filter(Boolean).flat();
 
     if (!profiles.length) {
       await sendPresetMessage({
         interaction,
-        message: 'commands:load-playlist.not_found',
-        preset: 'error',
+        message: "commands:load-playlist.not_found",
+        preset: "error",
       });
       return;
     }
 
-    const hasAnyTrack = profiles.filter(profile => profile.items.filter(s => s.tracks.total).length > 0);
+    const hasAnyTrack = profiles.filter(
+      (profile) => profile.items.filter((s) => s.tracks.total).length > 0,
+    );
 
     if (!hasAnyTrack) {
       await sendPresetMessage({
         interaction,
-        message: 'Você não possui playlists com músicas.',
-        preset: 'error',
+        message: "Você não possui playlists com músicas.",
+        preset: "error",
       });
 
       return;
     }
 
-    const pages = profiles.flatMap(profile => profile.items.map(this.createPageEmbed));
+    const pages = profiles.flatMap((profile) =>
+      profile.items.map(this.createPageEmbed),
+    );
 
-    const playlists = profiles.flatMap(profile => profile.items);
+    const playlists = profiles.flatMap((profile) => profile.items);
 
-    const pagination = new Pagination(interaction, pages, [this.getMenu(playlists), ...this.getButtons(playlists)]);
+    const pagination = new Pagination(interaction, pages, [
+      this.getMenu(playlists),
+      ...this.getButtons(playlists),
+    ]);
 
     try {
       await pagination.run();
@@ -93,43 +96,43 @@ export class LoadPlaylist extends InteractionHandler {
       await sendPresetMessage({
         interaction,
         message: getReadableException(error),
-        preset: 'error',
+        preset: "error",
       });
     }
   }
 
-  public parse (buttonInteraction: ButtonInteraction): Option<None> {
-    if (buttonInteraction.customId === EmbedButtons.LOAD_PLAYLIST) {
+  public parse(buttonInteraction: ButtonInteraction): Option<None> {
+    if (buttonInteraction.customId === EmbedButtons.PLAYLIST_SYNC) {
       return this.some();
     }
 
     return this.none();
   }
 
-  private getMenu (playlists: ProfileWithPlaylists['items']): CallableAction {
+  private getMenu(playlists: ProfileWithPlaylists["items"]): CallableAction {
     return (context: Pagination) => {
       return {
-        customId: 'play-select-menu',
+        customId: "play-select-menu",
         type: ComponentType.StringSelect,
-        placeholder: 'Select a playlist',
+        placeholder: "Select a playlist",
         options: playlists.map((item, index) => ({
-          label: item.name ?? 'No name',
+          label: item.name ?? "No name",
           value: `${index}`,
-          description: item.description.substring(0, 100) ?? '',
+          description: item.description.substring(0, 100) ?? "",
           default: index === context.page,
         })),
         run: async ({ collectedInteraction, handler }) =>
           collectedInteraction.isStringSelectMenu() &&
-            (handler.setPage(parseInt(collectedInteraction.values[0], 10))),
+          handler.setPage(parseInt(collectedInteraction.values[0], 10)),
       };
     };
   }
 
-  private getButtons (response: ProfileWithPlaylists['items']): Action[] {
+  private getButtons(response: ProfileWithPlaylists["items"]): Action[] {
     return [
       {
-        label: 'Anterior',
-        customId: 'previous',
+        label: "Anterior",
+        customId: "previous",
         type: ComponentType.Button,
         style: ButtonStyle.Secondary,
         run: async ({ handler }) => {
@@ -141,11 +144,15 @@ export class LoadPlaylist extends InteractionHandler {
         },
       },
       {
-        label: 'Ouvir',
-        customId: 'play',
+        label: "Ouvir",
+        customId: "play",
         type: ComponentType.Button,
         style: ButtonStyle.Primary,
-        run: async ({ collector, collectedInteraction: selectInteraction, handler }) => {
+        run: async ({
+          collector,
+          collectedInteraction: selectInteraction,
+          handler,
+        }) => {
           if (!selectInteraction.isButton()) {
             return;
           }
@@ -155,7 +162,7 @@ export class LoadPlaylist extends InteractionHandler {
           const playlist = response?.[index];
 
           if (!playlist) {
-            await selectInteraction.followUp('Playlist not found');
+            await selectInteraction.followUp("Playlist not found");
             return;
           }
 
@@ -176,8 +183,8 @@ export class LoadPlaylist extends InteractionHandler {
         },
       },
       {
-        label: 'Próxima',
-        customId: 'next',
+        label: "Próxima",
+        customId: "next",
         type: ComponentType.Button,
         style: ButtonStyle.Secondary,
         run: async ({ handler }) => {
@@ -191,8 +198,8 @@ export class LoadPlaylist extends InteractionHandler {
       (context) => {
         const current = response?.[context.page];
         return {
-          label: 'Ver no Spotify',
-          url: current?.uri ?? '',
+          label: "Ver no Spotify",
+          url: current?.uri ?? "",
           type: ComponentType.Button,
           style: ButtonStyle.Link,
           emoji: Icons.SpotifyLogo,
@@ -201,11 +208,11 @@ export class LoadPlaylist extends InteractionHandler {
     ];
   }
 
-  private createPageEmbed (playlist: ProfileWithPlaylists['items'][number]) {
+  private createPageEmbed(playlist: ProfileWithPlaylists["items"][number]) {
     return new EmbedBuilder()
       .setTitle(`${playlist.name}`.substring(0, EmbedLimits.MaximumTitleLength))
       .setAuthor({
-        name: playlist.owner.name ?? 'No display',
+        name: playlist.owner.name ?? "No display",
         url: playlist.owner.href,
       })
       .setColor(Colors.Aqua)

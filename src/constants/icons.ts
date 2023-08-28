@@ -1,4 +1,7 @@
 import { formatEmoji } from "discord.js";
+import { as } from "drizzle-orm/db.d-b5fdf746";
+import { isNumber } from "@sapphire/utilities";
+import { SnowflakeRegex } from "@sapphire/discord-utilities";
 
 type Emoji<C extends string> = `<:_:${C}>` | `<a:_:${C}>`;
 
@@ -24,7 +27,10 @@ export const RawIcons = {
     animated: true,
   },
   News: {
-    id: "1141405888700227675",
+    id: "🔔",
+  },
+  Ranking: {
+    id: "1145760481555009556",
     animated: true,
   },
   NitroBlack: {
@@ -41,7 +47,9 @@ type KVEmoji = Record<
 export const Icons: KVEmoji = Object.entries(RawIcons).reduce<any>(
   (acc, [name, icon]) => {
     const isAnimated = "animated" in icon ? icon.animated : false;
-    acc[name] = formatEmoji(icon.id, isAnimated);
+    const isSnowflake = SnowflakeRegex.test(icon.id);
+
+    acc[name] = isSnowflake ? formatEmoji(icon.id, isAnimated) : icon.id;
     return acc;
   },
   {},
