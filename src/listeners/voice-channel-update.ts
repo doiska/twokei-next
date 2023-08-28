@@ -1,23 +1,23 @@
-import { Events, type VoiceState } from 'discord.js';
-import { ApplyOptions } from '@sapphire/decorators';
-import { container, Listener } from '@sapphire/framework';
+import { Events, type VoiceState } from "discord.js";
+import { ApplyOptions } from "@sapphire/decorators";
+import { container, Listener } from "@sapphire/framework";
 
 type VoiceChannelUpdateTypes =
-    | 'voiceChannelJoin'
-    | 'voiceChannelLeave'
-    | 'voiceChannelSwitch'
-    | 'voiceChannelDeaf'
-    | 'voiceChannelMute'
-    | 'voiceChannelUnMute'
-    | 'voiceChannelUnDeaf'
-    | 'voiceUpdate';
+  | "voiceChannelJoin"
+  | "voiceChannelLeave"
+  | "voiceChannelSwitch"
+  | "voiceChannelDeaf"
+  | "voiceChannelMute"
+  | "voiceChannelUnMute"
+  | "voiceChannelUnDeaf"
+  | "voiceUpdate";
 
 @ApplyOptions<Listener.Options>({
-  name: 'voiceChannelUpdate',
+  name: "voiceChannelUpdate",
   event: Events.VoiceStateUpdate,
 })
 export class VoiceChannelUpdate extends Listener {
-  public async run (oldState: VoiceState, newState: VoiceState) {
+  public async run(oldState: VoiceState, newState: VoiceState) {
     const guild = newState.guild || oldState.guild;
     const self = guild.members.me;
     const selfVoice = self?.voice;
@@ -27,7 +27,7 @@ export class VoiceChannelUpdate extends Listener {
 
     const updateType = this.getUpdateType(oldState, newState);
 
-    if (updateType !== 'voiceChannelLeave') {
+    if (updateType !== "voiceChannelLeave") {
       return;
     }
 
@@ -35,8 +35,8 @@ export class VoiceChannelUpdate extends Listener {
       return;
     }
 
-    const isEmpty = oldState.channel?.members
-      .filter((member) => !member.user.bot).size === 0;
+    const isEmpty =
+      oldState.channel?.members.filter((member) => !member.user.bot).size === 0;
 
     if (!isEmpty) {
       return;
@@ -49,7 +49,7 @@ export class VoiceChannelUpdate extends Listener {
     }
   }
 
-  private getUpdateType (
+  private getUpdateType(
     oldState: VoiceState,
     newState: VoiceState,
   ): VoiceChannelUpdateTypes {
@@ -57,33 +57,33 @@ export class VoiceChannelUpdate extends Listener {
     const newChannel = newState.channel;
 
     if (!oldChannel && newChannel) {
-      return 'voiceChannelJoin';
+      return "voiceChannelJoin";
     }
 
     if (oldChannel && !newChannel) {
-      return 'voiceChannelLeave';
+      return "voiceChannelLeave";
     }
 
     if (oldChannel && newChannel && oldChannel.id !== newChannel.id) {
-      return 'voiceChannelSwitch';
+      return "voiceChannelSwitch";
     }
 
     if (oldState.deaf && !newState.deaf) {
-      return 'voiceChannelUnDeaf';
+      return "voiceChannelUnDeaf";
     }
 
     if (!oldState.deaf && newState.deaf) {
-      return 'voiceChannelDeaf';
+      return "voiceChannelDeaf";
     }
 
     if (oldState.mute && !newState.mute) {
-      return 'voiceChannelUnMute';
+      return "voiceChannelUnMute";
     }
 
     if (!oldState.mute && newState.mute) {
-      return 'voiceChannelMute';
+      return "voiceChannelMute";
     }
 
-    return 'voiceUpdate';
+    return "voiceUpdate";
   }
 }

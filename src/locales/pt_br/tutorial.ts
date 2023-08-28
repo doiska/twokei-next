@@ -1,10 +1,10 @@
 export default {
   language: {
-    title: '⚡ E ai! Eu sou o Twokei!',
+    title: "⚡ E ai! Eu sou o Twokei!",
     description: [
-      '### Antes de começar, você pode escolher o idioma:',
-      '- Você pode mudar o idioma a qualquer momento usando o comando `/language`.',
+      "### Antes de começar, você pode escolher o idioma:",
+      "- Você pode mudar o idioma a qualquer momento usando o comando `/language`.",
     ],
-    help: 'Help me translate :)',
+    help: "Help me translate :)",
   },
 };

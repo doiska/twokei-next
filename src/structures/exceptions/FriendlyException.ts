@@ -1,9 +1,9 @@
-import { logger } from '@/modules/logger-transport';
+import { logger } from "@/modules/logger-transport";
 
 export class FriendlyException extends Error {
-  constructor (message: string) {
+  constructor(message: string) {
     super(message);
-    this.name = 'FriendlyException';
+    this.name = "FriendlyException";
 
     logger.debug(`[FriendlyException] ${message}`, { stack: this.stack });
   }

@@ -1,4 +1,4 @@
-import queue from './queue';
+import queue from "./queue";
 
 export default {
   queue,

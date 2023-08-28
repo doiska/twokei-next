@@ -1,4 +1,4 @@
-export function levenshteinDistance (a: string, b: string): number {
+export function levenshteinDistance(a: string, b: string): number {
   // Create a 2D array to store the distances
   const distances = new Array(a.length + 1);
   for (let i = 0; i <= a.length; i++) {
@@ -19,7 +19,12 @@ export function levenshteinDistance (a: string, b: string): number {
       if (a[i - 1] === b[j - 1]) {
         distances[i][j] = distances[i - 1][j - 1];
       } else {
-        distances[i][j] = Math.min(distances[i - 1][j], distances[i][j - 1], distances[i - 1][j - 1]) + 1;
+        distances[i][j] =
+          Math.min(
+            distances[i - 1][j],
+            distances[i][j - 1],
+            distances[i - 1][j - 1],
+          ) + 1;
       }
     }
   }

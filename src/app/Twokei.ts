@@ -1,22 +1,22 @@
-import 'reflect-metadata';
-import '../utils/setup';
-import 'twokei-i18next/register';
+import "reflect-metadata";
+import "../utils/setup";
+import "twokei-i18next/register";
 
-import { ActivityType, GatewayIntentBits, Partials } from 'discord.js';
+import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import {
   ApplicationCommandRegistries,
   LogLevel,
   RegisterBehavior,
-} from '@sapphire/framework';
+} from "@sapphire/framework";
 
-import { eq } from 'drizzle-orm';
-import { kil } from '@/db/Kil';
-import { guilds } from '@/db/schemas/guild';
+import { eq } from "drizzle-orm";
+import { kil } from "@/db/Kil";
+import { guilds } from "@/db/schemas/guild";
 
-import en_us from '@/locales/en_us';
-import { DEFAULT_LOCALE, isValidLocale } from '@/locales/i18n';
-import pt_br from '@/locales/pt_br';
-import { TwokeiClient } from '@/structures/TwokeiClient';
+import en_us from "@/locales/en_us";
+import { DEFAULT_LOCALE, isValidLocale } from "@/locales/i18n";
+import pt_br from "@/locales/pt_br";
+import { TwokeiClient } from "@/structures/TwokeiClient";
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
   RegisterBehavior.VerboseOverwrite,
@@ -32,7 +32,7 @@ export const Twokei = new TwokeiClient({
   logger: {
     level: LogLevel.Error,
   },
-  shards: 'auto',
+  shards: "auto",
   intents: [
     GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.GuildMessages,
@@ -43,21 +43,21 @@ export const Twokei = new TwokeiClient({
   enableLoaderTraceLoggings: false,
   i18n: {
     i18next: {
-      fallbackLng: 'pt_br',
-      supportedLngs: ['pt_br', 'en_us'],
+      fallbackLng: "pt_br",
+      supportedLngs: ["pt_br", "en_us"],
       resources: {
         pt_br,
         en_us,
       },
       interpolation: {
         defaultVariables: {
-          name: 'Twokei',
-          mention: '@Twokei',
+          name: "Twokei",
+          mention: "@Twokei",
         },
       },
-      joinArrays: '\n',
+      joinArrays: "\n",
     },
-    defaultLanguageDirectory: './src/locales',
+    defaultLanguageDirectory: "./src/locales",
     fetchLanguage: async (context) => {
       if (!context.guild?.id) {
         return DEFAULT_LOCALE;
@@ -83,9 +83,9 @@ const main = async () => {
   Twokei?.user?.setPresence({
     activities: [
       {
-        name: 'twokei.com',
+        name: "twokei.com",
         type: ActivityType.Listening,
-        url: 'https://twokei.com',
+        url: "https://twokei.com",
       },
     ],
   });

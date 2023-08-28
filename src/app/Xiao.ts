@@ -1,15 +1,15 @@
-import { container } from '@sapphire/framework';
-import { Connectors } from 'shoukaku';
+import { container } from "@sapphire/framework";
+import { Connectors } from "shoukaku";
 
-import { Twokei } from '@/app/Twokei';
-import { Xiao } from '@/music/controllers/Xiao';
+import { Twokei } from "@/app/Twokei";
+import { Xiao } from "@/music/controllers/Xiao";
 
 const sourcesUrl = [
-  'https://raw.githubusercontent.com/DarrenOfficial/lavalink-list/master/docs/NoSSL/lavalink-without-ssl.md',
-  'https://raw.githubusercontent.com/DarrenOfficial/lavalink-list/master/docs/SSL/lavalink-with-ssl.md',
+  "https://raw.githubusercontent.com/DarrenOfficial/lavalink-list/master/docs/NoSSL/lavalink-without-ssl.md",
+  "https://raw.githubusercontent.com/DarrenOfficial/lavalink-list/master/docs/SSL/lavalink-with-ssl.md",
 ];
 
-export async function getWebNodes () {
+export async function getWebNodes() {
   const sources = await Promise.all(
     sourcesUrl.map(
       async (source) =>
@@ -22,17 +22,16 @@ export async function getWebNodes () {
     const matches = source.match(regex) ?? [];
 
     return matches.map((match) => {
-      const filtered = match.slice(7, -3).trim()
-        .split('\n');
+      const filtered = match.slice(7, -3).trim().split("\n");
 
       const parsed = filtered.reduce<Record<string, string | boolean>>(
         (acc, curr) => {
           const [key, value] = curr
-            .split(':')
-            .map((str) => str.replace(/"/g, '').trim());
+            .split(":")
+            .map((str) => str.replace(/"/g, "").trim());
 
-          if (value === 'true' || value === 'false') {
-            acc[key.toLowerCase()] = value === 'true';
+          if (value === "true" || value === "false") {
+            acc[key.toLowerCase()] = value === "true";
           } else {
             acc[key.toLowerCase()] = value;
           }

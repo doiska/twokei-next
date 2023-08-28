@@ -1,32 +1,50 @@
-import type { APIEmbed, ButtonInteraction } from 'discord.js';
+import type { APIEmbed, ButtonInteraction } from "discord.js";
+import { chatInputApplicationCommandMention, EmbedBuilder } from "discord.js";
+import { ApplyOptions } from "@sapphire/decorators";
 import {
-  chatInputApplicationCommandMention,
-  EmbedBuilder,
-} from 'discord.js';
-import { ApplyOptions } from '@sapphire/decorators';
-import { container, InteractionHandler, InteractionHandlerTypes, type None, type Option } from '@sapphire/framework';
+  container,
+  InteractionHandler,
+  InteractionHandlerTypes,
+  type None,
+  type Option,
+} from "@sapphire/framework";
 
-import { EmbedButtons } from '@/constants/music/player-buttons';
-import { sendPresetMessage } from '@/utils/utils';
+import { EmbedButtons } from "@/constants/music/player-buttons";
+import { sendPresetMessage } from "@/utils/utils";
 
-import { fetchT } from 'twokei-i18next';
+import { fetchT } from "twokei-i18next";
 
 @ApplyOptions<InteractionHandler.Options>({
-  name: 'news-button',
+  name: "news-button",
   enabled: true,
   interactionHandlerType: InteractionHandlerTypes.Button,
 })
 export class NewsButtonInteraction extends InteractionHandler {
-  public async run (interaction: ButtonInteraction): Promise<void> {
+  public async run(interaction: ButtonInteraction): Promise<void> {
     const t = await fetchT(interaction);
 
-    const [profileCommandName, profileCommandId] = [...container.applicationCommandRegistries.acquire('profile').chatInputCommands.values()];
-    const [topCommandName, topCommandId] = [...container.applicationCommandRegistries.acquire('top').chatInputCommands.values()];
+    const [profileCommandName, profileCommandId] = [
+      ...container.applicationCommandRegistries
+        .acquire("profile")
+        .chatInputCommands.values(),
+    ];
+    const [topCommandName, topCommandId] = [
+      ...container.applicationCommandRegistries
+        .acquire("top")
+        .chatInputCommands.values(),
+    ];
 
-    const newsText: APIEmbed = t('news:embed', {
+    const newsText: APIEmbed = t("news:embed", {
       returnObjects: true,
-      command_profile: profileCommandName ? chatInputApplicationCommandMention(profileCommandName, profileCommandId) : '/profile',
-      command_ranking: topCommandName ? chatInputApplicationCommandMention(topCommandName, topCommandId) : '/top',
+      command_profile: profileCommandName
+        ? chatInputApplicationCommandMention(
+            profileCommandName,
+            profileCommandId,
+          )
+        : "/profile",
+      command_ranking: topCommandName
+        ? chatInputApplicationCommandMention(topCommandName, topCommandId)
+        : "/top",
     });
 
     const newsEmbed = EmbedBuilder.from(newsText);
@@ -41,7 +59,7 @@ export class NewsButtonInteraction extends InteractionHandler {
 
     await sendPresetMessage({
       interaction,
-      preset: 'success',
+      preset: "success",
       ephemeral: true,
       deleteIn: 0,
       embeds: [newsEmbed],
@@ -49,7 +67,7 @@ export class NewsButtonInteraction extends InteractionHandler {
     });
   }
 
-  public parse (interaction: ButtonInteraction): Option<None> {
+  public parse(interaction: ButtonInteraction): Option<None> {
     if (interaction.customId !== EmbedButtons.NEWS) {
       return this.none();
     }

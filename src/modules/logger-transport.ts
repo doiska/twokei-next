@@ -1,15 +1,13 @@
-import { DiscordTransport } from '@/modules/transport-discord';
+import { DiscordTransport } from "@/modules/transport-discord";
 
-import {
-  blue, type Color, cyan, green, red, reset, yellow,
-} from 'kleur';
+import { blue, type Color, cyan, green, red, reset, yellow } from "kleur";
 import {
   createLogger as createWinstonLogger,
   format,
   type LoggerOptions,
   transports,
-} from 'winston';
-import { type CliConfigSetLevels } from 'winston/lib/winston/config';
+} from "winston";
+import { type CliConfigSetLevels } from "winston/lib/winston/config";
 
 const colors: Record<keyof CliConfigSetLevels, Color> = {
   error: red,
@@ -27,7 +25,7 @@ const consoleTransportInstance = new transports.Console({
         level: uncoloredLevel,
         message,
         stack,
-        defaultPrefix = 'CORE',
+        defaultPrefix = "CORE",
         ...rest
       } = info as Record<string, string>;
 
@@ -35,17 +33,21 @@ const consoleTransportInstance = new transports.Console({
 
       const color = colors[info.level] ?? blue;
 
-      const prefix = color(`${timestamp} [${defaultPrefix}] - [${uncoloredLevel.toUpperCase()}]:`);
+      const prefix = color(
+        `${timestamp} [${defaultPrefix}] - [${uncoloredLevel.toUpperCase()}]:`,
+      );
 
-      const trace = stack ? `\n${stack.replace(/\n/g, `\n${prefix}`)}` : '';
+      const trace = stack ? `\n${stack.replace(/\n/g, `\n${prefix}`)}` : "";
 
       const stringify = JSON.stringify(rest, null, 2);
 
-      const stringifyWithColors = stringify.split('\n')
+      const stringifyWithColors = stringify
+        .split("\n")
         .map((line) => `${prefix} ${yellow(line)}`)
-        .join('\n');
+        .join("\n");
 
-      const details = Object.keys(rest).length > 0 ? `\n${stringifyWithColors}` : '';
+      const details =
+        Object.keys(rest).length > 0 ? `\n${stringifyWithColors}` : "";
 
       return `${prefix} ${content} ${details} ${trace}`;
     }),
@@ -53,28 +55,28 @@ const consoleTransportInstance = new transports.Console({
 });
 
 const defaultLoggerOptions = {
-  level: 'debug',
+  level: "debug",
   format: format.combine(
-    format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
     format.errors({ stack: true }),
     format.json(),
   ),
   transports: [
     consoleTransportInstance,
     new transports.File({
-      dirname: 'logs',
+      dirname: "logs",
     }),
     new DiscordTransport(),
   ],
 };
 
-export const logger = createLogger('CORE');
+export const logger = createLogger("CORE");
 
-export const playerLogger = createLogger('PLAYER');
+export const playerLogger = createLogger("PLAYER");
 
-export const queryLogger = createLogger('QUERY');
+export const queryLogger = createLogger("QUERY");
 
-export function createLogger (prefix: string, options?: LoggerOptions) {
+export function createLogger(prefix: string, options?: LoggerOptions) {
   return createWinstonLogger({
     ...defaultLoggerOptions,
     ...options,

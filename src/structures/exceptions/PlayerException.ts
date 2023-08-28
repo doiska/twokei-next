@@ -1,9 +1,9 @@
-import { logger } from '@/modules/logger-transport';
+import { logger } from "@/modules/logger-transport";
 
 export class PlayerException extends Error {
-  constructor (message: string) {
+  constructor(message: string) {
     super(message);
-    this.name = 'PlayerException';
+    this.name = "PlayerException";
 
     logger.debug(`[PlayerException] ${message}`, { stack: this.stack });
   }
