@@ -1,19 +1,25 @@
-import { type StringSelectMenuInteraction } from 'discord.js';
-import { ApplyOptions } from '@sapphire/decorators';
-import { InteractionHandler, InteractionHandlerTypes, type Option } from '@sapphire/framework';
-import { type Awaitable } from '@sapphire/utilities';
+import { type StringSelectMenuInteraction } from "discord.js";
+import { ApplyOptions } from "@sapphire/decorators";
+import {
+  InteractionHandler,
+  InteractionHandlerTypes,
+  type Option,
+} from "@sapphire/framework";
+import { type Awaitable } from "@sapphire/utilities";
 
-import { Menus } from '@/constants/music/player-buttons';
-import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
-import { sendPresetMessage } from '@/utils/utils';
+import { Menus } from "@/constants/music/player-buttons";
+import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
+import { sendPresetMessage } from "@/utils/utils";
 
 @ApplyOptions<InteractionHandler.Options>({
-  name: 'player-menu',
+  name: "player-menu",
   enabled: true,
   interactionHandlerType: InteractionHandlerTypes.SelectMenu,
 })
 export class PlayerMenu extends InteractionHandler {
-  public override parse (interaction: StringSelectMenuInteraction): Awaitable<Option<string | number>> {
+  public override parse(
+    interaction: StringSelectMenuInteraction,
+  ): Awaitable<Option<string | number>> {
     const [value] = interaction.values ?? [];
 
     if (interaction.customId !== Menus.SelectSongMenu) {
@@ -21,10 +27,10 @@ export class PlayerMenu extends InteractionHandler {
     }
 
     if (!value) {
-      return this.some('pause');
+      return this.some("pause");
     }
 
-    if (value === 'previous' || value === 'current') {
+    if (value === "previous" || value === "current") {
       return this.some(value);
     }
 
@@ -37,7 +43,7 @@ export class PlayerMenu extends InteractionHandler {
     return this.some(songId);
   }
 
-  public override async run (
+  public override async run(
     interaction: StringSelectMenuInteraction,
     option: InteractionHandler.ParseResult<this>,
   ) {
@@ -53,16 +59,16 @@ export class PlayerMenu extends InteractionHandler {
 
     await sendPresetMessage({
       interaction,
-      preset: 'loading',
+      preset: "loading",
       ephemeral: true,
     });
 
     try {
-      if (option === 'pause') {
+      if (option === "pause") {
         player.pause(true);
-      } else if (option === 'previous' && player.queue.previous) {
+      } else if (option === "previous" && player.queue.previous) {
         await player.play(player.queue.previous, { replace: true });
-      } else if (typeof option === 'number') {
+      } else if (typeof option === "number") {
         await player.skip(option + 1);
       }
       await interaction.deleteReply();
@@ -70,7 +76,7 @@ export class PlayerMenu extends InteractionHandler {
       await sendPresetMessage({
         interaction,
         message: getReadableException(error),
-        preset: 'error',
+        preset: "error",
       });
     }
   }

@@ -1,8 +1,8 @@
-import { container } from '@sapphire/framework';
+import { container } from "@sapphire/framework";
 
-import { playerLogger } from '@/modules/logger-transport';
-import type { Venti } from '@/music/controllers/Venti';
-import { reset } from '@/music/embed/events/manual-update';
+import { playerLogger } from "@/modules/logger-transport";
+import type { Venti } from "@/music/controllers/Venti";
+import { reset } from "@/music/embed/events/manual-update";
 
 export const queueEmpty = (venti: Venti) => {
   reset(venti)

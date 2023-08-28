@@ -1,31 +1,31 @@
-import { PermissionFlagsBits } from 'discord.js';
-import { ApplyOptions } from '@sapphire/decorators';
-import { isGuildMember } from '@sapphire/discord.js-utilities';
-import { Command } from '@sapphire/framework';
+import { PermissionFlagsBits } from "discord.js";
+import { ApplyOptions } from "@sapphire/decorators";
+import { isGuildMember } from "@sapphire/discord.js-utilities";
+import { Command } from "@sapphire/framework";
 
-import { setupGuildLanguage } from '@/features/song-channel/setup-guild-language';
-import { setupNewChannel } from '@/features/song-channel/setup-new-channel';
-import { setupSongMessage } from '@/features/song-channel/setup-song-message';
-import { logger } from '@/modules/logger-transport';
-import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
-import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
-import { sendPresetMessage } from '@/utils/utils';
+import { setupGuildLanguage } from "@/features/song-channel/setup-guild-language";
+import { setupNewChannel } from "@/features/song-channel/setup-new-channel";
+import { setupSongMessage } from "@/features/song-channel/setup-song-message";
+import { logger } from "@/modules/logger-transport";
+import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
+import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
+import { sendPresetMessage } from "@/utils/utils";
 
 @ApplyOptions<Command.Options>({
-  name: 'setup',
-  description: 'Setup the bot music channel',
+  name: "setup",
+  description: "Setup the bot music channel",
   enabled: true,
-  preconditions: ['GuildTextOnly'],
+  preconditions: ["GuildTextOnly"],
   cooldownDelay: 1_000,
 })
 export class PlayCommand extends Command {
-  registerApplicationCommands (registry: Command.Registry) {
-    registry.registerChatInputCommand((builder) => builder
-      .setName(this.name)
-      .setDescription(this.description));
+  registerApplicationCommands(registry: Command.Registry) {
+    registry.registerChatInputCommand((builder) =>
+      builder.setName(this.name).setDescription(this.description),
+    );
   }
 
-  public override async chatInputRun (
+  public override async chatInputRun(
     interaction: Command.ChatInputCommandInteraction,
   ) {
     const { member, guild } = interaction;
@@ -39,14 +39,14 @@ export class PlayCommand extends Command {
     if (!isAdmin) {
       await sendPresetMessage({
         interaction,
-        preset: 'error',
+        preset: "error",
         message: ErrorCodes.MISSING_ADMIN_PERMISSIONS,
       });
       return;
     }
 
     await sendPresetMessage({
-      preset: 'loading',
+      preset: "loading",
       interaction,
     });
 
@@ -56,21 +56,23 @@ export class PlayCommand extends Command {
 
       await sendPresetMessage({
         interaction,
-        preset: 'success',
-        message: 'commands:setup.channel_created',
+        preset: "success",
+        message: "commands:setup.channel_created",
         i18n: {
           channel: channelId,
         },
       });
 
-      await setupGuildLanguage(response)
-        .catch(() => logger.info('Error while setupGuildLanguage'));
-      await setupSongMessage(guild, response)
-        .catch(() => logger.info('Error while setupSongMessage'));
+      await setupGuildLanguage(response).catch(() =>
+        logger.info("Error while setupGuildLanguage"),
+      );
+      await setupSongMessage(guild, response).catch(() =>
+        logger.info("Error while setupSongMessage"),
+      );
     } catch (error) {
       await sendPresetMessage({
         interaction,
-        preset: 'error',
+        preset: "error",
         message: await getReadableException(error),
       });
     }

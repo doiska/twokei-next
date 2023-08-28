@@ -1,31 +1,26 @@
+import { channelMention, Events, type Message } from "discord.js";
+import { ApplyOptions } from "@sapphire/decorators";
 import {
-  channelMention,
-  Events, type Message,
-} from 'discord.js';
-import { ApplyOptions } from '@sapphire/decorators';
-import { isGuildBasedChannel, isTextChannel } from '@sapphire/discord.js-utilities';
-import { container, Listener } from '@sapphire/framework';
-import { noop } from '@sapphire/utilities';
+  isGuildBasedChannel,
+  isTextChannel,
+} from "@sapphire/discord.js-utilities";
+import { container, Listener } from "@sapphire/framework";
+import { noop } from "@sapphire/utilities";
 
-import { playSong } from '@/features/music/play-song';
-import { ErrorCodes } from '@/structures/exceptions/ErrorCodes';
-import { getReadableException } from '@/structures/exceptions/utils/get-readable-exception';
-import { sendPresetMessage } from '@/utils/utils';
+import { playSong } from "@/features/music/play-song";
+import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
+import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
+import { sendPresetMessage } from "@/utils/utils";
 
 @ApplyOptions<Listener.Options>({
-  name: 'play-message-event',
+  name: "play-message-event",
   event: Events.MessageCreate,
 })
 export class PlayMessage extends Listener<typeof Events.MessageCreate> {
-  public override async run (message: Message) {
+  public override async run(message: Message) {
     const self = this.container.client.id;
 
-    const {
-      author,
-      channel: typedChannel,
-      member,
-      guild,
-    } = message;
+    const { author, channel: typedChannel, member, guild } = message;
 
     if (!self || author.bot || !guild || !member) {
       return;
@@ -37,9 +32,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
       }
 
       const hasMentions = message.mentions.members?.has(self);
-      const contentOnly = message.content
-        .replace(/<@!?\d+>/g, '')
-        .trim();
+      const contentOnly = message.content.replace(/<@!?\d+>/g, "").trim();
 
       if (!(await this.validateSongChannel(message))) {
         return;
@@ -51,9 +44,9 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         await sendPresetMessage({
           interaction: message,
           message: ErrorCodes.MISSING_MESSAGE,
-          preset: 'error',
+          preset: "error",
           i18n: {
-            mention: container.client.user?.toString() ?? '@Twokei',
+            mention: container.client.user?.toString() ?? "@Twokei",
           },
         });
         return;
@@ -63,13 +56,13 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
     } catch (e) {
       await sendPresetMessage({
         interaction: message,
-        preset: 'error',
+        preset: "error",
         message: getReadableException(e),
       });
     }
   }
 
-  private async validateSongChannel (message: Message) {
+  private async validateSongChannel(message: Message) {
     const self = this.container.client.id;
     const { channel: typedChannel, guild } = message;
 
@@ -96,16 +89,18 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
       if (!songChannel?.channelId) {
         await sendPresetMessage({
           interaction: message,
-          preset: 'error',
+          preset: "error",
           message: ErrorCodes.MISSING_SONG_CHANNEL,
         });
       } else {
         await sendPresetMessage({
           interaction: message,
-          preset: 'error',
+          preset: "error",
           message: ErrorCodes.USE_SONG_CHANNEL,
           i18n: {
-            song_channel: songChannel?.channelId ? channelMention(songChannel.channelId) : '',
+            song_channel: songChannel?.channelId
+              ? channelMention(songChannel.channelId)
+              : "",
           },
         });
       }

@@ -1,17 +1,20 @@
-import { type Guild, type GuildResolvable } from 'discord.js';
-import { isGuildBasedChannel, isTextChannel } from '@sapphire/discord.js-utilities';
-import { container } from '@sapphire/framework';
+import { type Guild, type GuildResolvable } from "discord.js";
+import {
+  isGuildBasedChannel,
+  isTextChannel,
+} from "@sapphire/discord.js-utilities";
+import { container } from "@sapphire/framework";
 
-import { eq } from 'drizzle-orm';
-import { kil } from '@/db/Kil';
-import { type SongChannel, songChannels } from '@/db/schemas/song-channels';
+import { eq } from "drizzle-orm";
+import { kil } from "@/db/Kil";
+import { type SongChannel, songChannels } from "@/db/schemas/song-channels";
 
-import { createDefaultEmbed } from '@/music/embed/pieces';
+import { createDefaultEmbed } from "@/music/embed/pieces";
 
 export class SongChannelManager {
   private readonly cache = new Map<string, SongChannel>();
 
-  public async set (
+  public async set(
     guildId: string,
     channelId: string,
     messageId: string,
@@ -36,7 +39,7 @@ export class SongChannelManager {
     return result;
   }
 
-  public async get (guild: GuildResolvable): Promise<SongChannel | undefined> {
+  public async get(guild: GuildResolvable): Promise<SongChannel | undefined> {
     const guildId = container.client.guilds.resolveId(guild);
 
     if (!guildId) {
@@ -47,7 +50,8 @@ export class SongChannelManager {
       return this.cache.get(guildId);
     }
 
-    const [result] = await kil.select()
+    const [result] = await kil
+      .select()
       .from(songChannels)
       .where(eq(songChannels.guildId, guildId));
 
@@ -55,7 +59,7 @@ export class SongChannelManager {
     return result;
   }
 
-  public async reset (guild: Guild) {
+  public async reset(guild: Guild) {
     const embed = await this.getEmbed(guild);
 
     if (!embed) {
@@ -67,7 +71,7 @@ export class SongChannelManager {
     await message.edit(await createDefaultEmbed(guild));
   }
 
-  public async getEmbed (guild: Guild) {
+  public async getEmbed(guild: Guild) {
     const songChannel = await this.get(guild.id);
 
     if (!songChannel) {
