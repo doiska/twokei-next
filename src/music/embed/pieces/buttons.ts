@@ -5,30 +5,16 @@ import {
   ComponentType,
   type Guild,
   type InteractionButtonComponentData,
+  type LinkButtonComponentData,
 } from "discord.js";
 
-import { Icons, RawIcons } from "@/constants/icons";
-import {
-  EmbedButtons,
-  OnPlayButtons,
-  PlayerButtons,
-} from "@/constants/music/player-buttons";
+import { getSourceLogo, RawIcons } from "@/constants/icons";
+import { EmbedButtons, PlayerButtons } from "@/constants/music/player-buttons";
 import type { Venti } from "@/music/controllers/Venti";
 
 import { fetchT, type TFunction } from "twokei-i18next";
-
-function parseButtonLabel<T>(
-  t: TFunction,
-  button: T & { label?: string; customId: string },
-): T & { label: string; customId?: string } {
-  return {
-    ...button,
-    label:
-      button.label ??
-      t(`player:embed.buttons.${button.customId.toLowerCase()}`),
-    type: ComponentType.Button,
-  };
-}
+import { isButton, isButtonLink } from "@/utils/validator";
+import { capitalizeFirst } from "@/utils/utils";
 
 export async function createStaticButtons(guild: Guild, venti?: Venti) {
   const t = await fetchT(guild);
@@ -83,6 +69,9 @@ export async function createStaticButtons(guild: Guild, venti?: Venti) {
 export async function createDynamicButtons(venti: Venti) {
   const t = await fetchT(venti.guild);
 
+  const source = capitalizeFirst(venti.queue.current?.sourceName ?? "Source");
+  const emoji = getSourceLogo(source);
+
   const primary = [
     {
       style: ButtonStyle.Secondary,
@@ -98,10 +87,7 @@ export async function createDynamicButtons(venti: Venti) {
     {
       style: venti.playing ? ButtonStyle.Secondary : ButtonStyle.Primary,
       emoji: "⏸️",
-      customId: PlayerButtons.PAUSE,
-      label: venti.playing
-        ? t("player:embed.buttons.pause")
-        : t("player:embed.buttons.resume"),
+      customId: venti.playing ? PlayerButtons.PAUSE : PlayerButtons.RESUME,
     },
     {
       style: ButtonStyle.Secondary,
@@ -129,8 +115,8 @@ export async function createDynamicButtons(venti: Venti) {
     {
       url: "https://spotify.com",
       style: ButtonStyle.Link,
-      emoji: RawIcons.SpotifyLogo,
-      label: "Spotify",
+      emoji: emoji,
+      label: source,
     },
   ].map((button) => parseButtonLabel(t, button));
 
@@ -142,4 +128,29 @@ export async function createDynamicButtons(venti: Venti) {
       components: secondary as InteractionButtonComponentData[],
     }),
   };
+}
+
+function parseButtonLabel(
+  t: TFunction,
+  button: Partial<InteractionButtonComponentData | LinkButtonComponentData>,
+) {
+  if (isButtonLink(button)) {
+    return {
+      ...button,
+      style: ButtonStyle.Link,
+      type: ComponentType.Button,
+    } as LinkButtonComponentData;
+  }
+
+  if (!isButton(button)) {
+    throw new Error("Invalid button provided");
+  }
+
+  return {
+    ...button,
+    label:
+      button.label ?? (t(`player:embed.buttons.${button.customId}`) as string),
+    style: button?.style ?? ButtonStyle.Secondary,
+    type: ComponentType.Button,
+  } as InteractionButtonComponentData;
 }
