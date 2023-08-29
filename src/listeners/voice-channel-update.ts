@@ -1,9 +1,6 @@
 import { Events, type VoiceState } from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
 import { container, Listener } from "@sapphire/framework";
-import sql from "drizzle-orm/column.d-aa4e525d";
-import empty = sql.empty;
-import { is } from "drizzle-orm";
 
 type VoiceChannelUpdateTypes =
   | "voiceChannelJoin"
