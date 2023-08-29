@@ -1,6 +1,9 @@
 import { Events, type VoiceState } from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
 import { container, Listener } from "@sapphire/framework";
+import sql from "drizzle-orm/column.d-aa4e525d";
+import empty = sql.empty;
+import { is } from "drizzle-orm";
 
 type VoiceChannelUpdateTypes =
   | "voiceChannelJoin"
@@ -18,34 +21,35 @@ type VoiceChannelUpdateTypes =
 })
 export class VoiceChannelUpdate extends Listener {
   public async run(oldState: VoiceState, newState: VoiceState) {
-    const guild = newState.guild || oldState.guild;
-    const self = guild.members.me;
-    const selfVoice = self?.voice;
-
-    const channel = newState.channel ?? oldState.channel;
-    const isConnected = channel?.id === selfVoice?.channel?.id;
-
+    const guild = newState.guild ?? oldState.guild;
     const updateType = this.getUpdateType(oldState, newState);
 
     if (updateType !== "voiceChannelLeave") {
       return;
     }
 
-    if (!selfVoice || !isConnected) {
+    const leavingMember = oldState.member;
+
+    if (!leavingMember || !guild.members.me) {
       return;
     }
+
+    const isTwokei = guild.members.me.id === leavingMember.id;
 
     const isEmpty =
       oldState.channel?.members.filter((member) => !member.user.bot).size === 0;
 
-    if (!isEmpty) {
+    console.log(`Leaving: empty ${isEmpty} - isTwokei ${isTwokei}`);
+
+    if (isTwokei && isEmpty) {
       return;
     }
 
-    try {
+    // Se for o Twokei que está saindo, limpar o canal.
+    if (isTwokei || isEmpty) {
+      console.log("Twokei have been disconnected.");
       await container.xiao.destroyPlayer(newState.guild);
-    } catch (e) {
-      await newState.guild.members.me?.voice?.disconnect();
+      return;
     }
   }
 

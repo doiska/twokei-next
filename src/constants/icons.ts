@@ -1,9 +1,17 @@
 import { formatEmoji } from "discord.js";
-import { as } from "drizzle-orm/db.d-b5fdf746";
-import { isNumber } from "@sapphire/utilities";
 import { SnowflakeRegex } from "@sapphire/discord-utilities";
 
 type Emoji<C extends string> = `<:_:${C}>` | `<a:_:${C}>`;
+
+export const getSourceLogo = (source: string) => {
+  const icon = {
+    spotify: RawIcons.SpotifyLogo,
+    youtube: RawIcons.YoutubeLogo,
+    deezer: RawIcons.DeezerLogo,
+  } as Record<string, { id: string; animated?: boolean }>;
+
+  return icon?.[source.toLowerCase()] ?? RawIcons.Hanakin;
+};
 
 export const RawIcons = {
   SpotifyLogo: {

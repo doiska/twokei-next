@@ -1,4 +1,5 @@
 import { Icons } from "@/constants/icons";
+import { EmbedButtons, PlayerButtons } from "@/constants/music/player-buttons";
 
 export default {
   embed: {
@@ -21,28 +22,26 @@ export default {
       "- A pedido de: **{{- track.requestedBy}}**",
     ],
     buttons: {
-      stop: "Parar",
-      previous: "Anterior",
-      next: "Próximo",
-      pause: "Pausar",
-      resume: "Continuar",
-      skip: "Pular",
-      shuffle: "Embaralhar",
+      [PlayerButtons.STOP]: "Parar",
+      [PlayerButtons.PREVIOUS]: "Anterior",
+      [PlayerButtons.PAUSE]: "Pausar",
+      [PlayerButtons.RESUME]: "Continuar",
+      [PlayerButtons.SKIP]: "Pular",
+      [PlayerButtons.SHUFFLE]: "Embaralhar",
       loop: {
         none: "Loop",
         track: "Loop (Track)",
         queue: "Loop (Queue)",
       },
-      auto_play: "Autoplay",
       select_language: "Alterar idioma",
-      view_profile: "Meu Perfil",
-      view_ranking: "Ver Ranking",
-      playlist_sync: "Playlists Sincronizadas",
-      ia_mode: "Modo IA - Premium",
-      quick_playlist: "Ouvir Playlist recomendada",
+      [EmbedButtons.VIEW_PROFILE]: "Meu Perfil",
+      [EmbedButtons.VIEW_RANKING]: "Ver Ranking",
+      [EmbedButtons.PLAYLIST_SYNC]: "Playlists Sincronizadas",
+      [EmbedButtons.IA_MODE]: "Modo IA - Premium",
+      [EmbedButtons.QUICK_PLAYLIST]: "Ouvir Playlist recomendada",
       invite: "Convite",
       donate: "Apoiar desenvolvimento",
-      news: "Ver Novidades",
+      [EmbedButtons.NEWS]: "Ver Novidades",
     },
   },
   play: {
