@@ -35,7 +35,7 @@ export interface XiaoSearchOptions {
   engine?: SearchEngines;
   nodeName?: string;
   searchType?: "track" | "playlist";
-  resolve?: boolean;
+  resolver?: string;
 }
 
 interface PlaylistLoaded {

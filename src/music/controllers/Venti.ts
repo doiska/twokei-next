@@ -249,7 +249,7 @@ export class Venti {
     }
 
     nextTrack
-      .resolve()
+      .resolve(true)
       .then((resolvedTrack) => {
         this.queue.current = resolvedTrack;
 

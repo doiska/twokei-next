@@ -14,6 +14,7 @@ import type {
   SpotifySearchResponse,
   SpotifyTrackResponse,
 } from "./types/spotify-response.types";
+import { logger } from "@/modules/logger-transport";
 
 interface SpotifyClient {
   clientId: string;
@@ -53,6 +54,8 @@ class SpotifyTrackResolver implements TrackResolver {
   ): Promise<XiaoSearchResult> {
     const spotifyUrl = SPOTIFY_URL.exec(query);
 
+    logger.debug(`[Spotify] ${query} - ${spotifyUrl?.[1]}`);
+
     if (spotifyUrl) {
       const [, type, id] = spotifyUrl;
 
@@ -62,6 +65,8 @@ class SpotifyTrackResolver implements TrackResolver {
         case "playlist":
           return await this.playlist(id, options?.requester);
       }
+    } else {
+      return this.search(query, options?.requester);
     }
 
     return {
@@ -73,10 +78,11 @@ class SpotifyTrackResolver implements TrackResolver {
   public async search(
     query: string,
     requester?: User,
+    limit = 1,
   ): Promise<XiaoSearchResult> {
-    const searchLimit = Math.min(this.options.limits.search, 15);
     const encodedQuery = encodeURIComponent(query);
-    const endpoint = `/search?q=${encodedQuery}&type=track&limit=${searchLimit}&market=${this.options.region}`;
+    const endpoint = `/search?q=${encodedQuery}&type=track&limit=${limit}&market=${this.options.region}`;
+
     const resolved =
       await spotifyRequestManager.request<SpotifySearchResponse>(endpoint);
 
