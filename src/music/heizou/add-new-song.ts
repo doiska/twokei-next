@@ -45,7 +45,10 @@ export async function addNewSong(input: string, member: GuildMember) {
     throw new PlayerException(ErrorCodes.SOMETHING_WENT_REALLY_WRONG);
   }
 
-  const result = await xiao.search(input, { requester: member.user });
+  const result = await xiao.search(input, {
+    requester: member.user,
+    resolver: "spotify",
+  });
 
   if (!result.tracks.length) {
     throw new PlayerException(ErrorCodes.PLAYER_NO_TRACKS_FOUND);

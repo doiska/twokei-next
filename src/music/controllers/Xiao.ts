@@ -38,6 +38,7 @@ import { Venti } from "./Venti";
 
 import { EventEmitter } from "events";
 import type { Logger } from "winston";
+import { spotifyTrackResolver } from "@/music/resolvers/spotify/spotify-track-resolver";
 
 export interface XiaoEvents {
   /**
@@ -158,7 +159,10 @@ export class Xiao extends EventEmitter {
    */
   public readonly players = new Map<string, Venti>();
 
-  public resolvers: TrackResolver[] = [youtubeTrackResolver];
+  public resolvers: TrackResolver[] = [
+    youtubeTrackResolver,
+    spotifyTrackResolver,
+  ];
 
   private readonly logger: Logger;
 
@@ -295,25 +299,26 @@ export class Xiao extends EventEmitter {
       ? this.shoukaku.getNode(options.nodeName)
       : this.shoukaku.getNode();
 
+    const engine = options?.engine ?? "spsearch";
+
     if (!node) {
       throw new Error("No available nodes");
     }
 
-    if (options?.resolve ?? true) {
-      const resolver = this.resolvers.find((trackResolver) =>
-        trackResolver.matches(query),
+    if (options?.resolver ?? true) {
+      const resolver = this.resolvers.find(
+        (trackResolver) =>
+          trackResolver.name === options?.resolver ||
+          trackResolver.matches(query),
       );
 
-      this.logger.debug(
-        `Resolving ${query} with ${resolver?.name ?? "default resolver"}`,
-      );
+      this.logger.debug(`Resolving ${query} with ${resolver?.name ?? engine}.`);
 
       if (resolver) {
         return await resolver.resolve(query, options);
       }
     }
 
-    const engine = options?.engine ?? "spsearch";
     const searchType = options?.searchType ?? "track";
 
     const isUrl = /^https?:\/\//.test(query);
