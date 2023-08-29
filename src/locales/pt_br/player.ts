@@ -12,7 +12,7 @@ export default {
       "- **Controle a fila no Menu de Faixas abaixo!**",
       `### ${Icons.SpotifyLogo} Profile Sync (Beta)`,
       "- **Traga suas playlists do ``Spotify`` para o Twokei!**",
-      "- Clique no botão **$t(palyer:embed.buttons.playlist_sync)** abaixo.",
+      "- Clique no botão **$t(player:embed.buttons.PLAYLIST_SYNC)** abaixo.",
     ],
     description_playing: [
       " ",
