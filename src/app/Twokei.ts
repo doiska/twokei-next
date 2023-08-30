@@ -5,6 +5,7 @@ import "twokei-i18next/register";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import {
   ApplicationCommandRegistries,
+  container,
   LogLevel,
   RegisterBehavior,
 } from "@sapphire/framework";
@@ -14,20 +15,16 @@ import { kil } from "@/db/Kil";
 import { guilds } from "@/db/schemas/guild";
 
 import en_us from "@/locales/en_us";
-import { DEFAULT_LOCALE, isValidLocale } from "@/locales/i18n";
 import pt_br from "@/locales/pt_br";
+import { DEFAULT_LOCALE, isValidLocale } from "@/locales/i18n";
 import { TwokeiClient } from "@/structures/TwokeiClient";
+import { noop } from "@sapphire/utilities";
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
   RegisterBehavior.VerboseOverwrite,
 );
 
 export const Twokei = new TwokeiClient({
-  api: {
-    listenOptions: {
-      port: 3000,
-    },
-  },
   caseInsensitiveCommands: true,
   logger: {
     level: LogLevel.Error,
@@ -88,6 +85,10 @@ const main = async () => {
         url: "https://twokei.com",
       },
     ],
+  });
+
+  Twokei.guilds.cache.forEach((guild) => {
+    container.sc.reset(guild).catch(noop);
   });
 };
 

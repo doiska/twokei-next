@@ -9,7 +9,6 @@ export enum Modals {
 export enum ProfileModalFields {
   Spotify = "SPOTIFY",
   YouTube = "YOUTUBE",
-  SoundCloud = "SOUNDCLOUD",
   Deezer = "DEEZER",
 }
 
@@ -29,12 +28,14 @@ export enum OnPlayButtons {
 }
 
 export enum EmbedButtons {
+  VIEW_RANKING = "VIEW_RANKING",
   VIEW_PROFILE = "VIEW_PROFILE",
   DONATE = "DONATE",
-  LOAD_PLAYLIST = "LOAD_PLAYLIST",
   INVITE = "INVITE",
   NEWS = "news",
   IA_MODE = "IA_MODE",
+  PLAYLIST_SYNC = "PLAYLIST_SYNC",
+  QUICK_PLAYLIST = "QUICK_PLAYLIST",
 }
 
 export enum NewsButtons {

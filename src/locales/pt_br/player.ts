@@ -1,18 +1,18 @@
 import { Icons } from "@/constants/icons";
+import { EmbedButtons, PlayerButtons } from "@/constants/music/player-buttons";
 
 export default {
   embed: {
     description: [
-      "## Nova versão disponível!",
       "## <a:raio:1121849523854118973> [Twokei Music](https://twokei.com)",
       " ",
       `### ${Icons.Hanakin} Como usar?`,
       "- **Mencione** o bot com o nome/url da música para adicionar à fila.",
       '- Exemplo: "**{{- mention}} lofi hiphop**"',
-      "- Use **Spotify ou Youtube**, você escolhe!",
+      "- **Controle a fila no Menu de Faixas abaixo!**",
       `### ${Icons.SpotifyLogo} Profile Sync (Beta)`,
       "- **Traga suas playlists do ``Spotify`` para o Twokei!**",
-      "- Clique no botão **Meu Perfil** abaixo.",
+      "- Clique no botão **$t(player:embed.buttons.PLAYLIST_SYNC)** abaixo.",
     ],
     description_playing: [
       " ",
@@ -21,31 +21,27 @@ export default {
       "- Artista: {{- track.author}}",
       "- A pedido de: **{{- track.requestedBy}}**",
     ],
-    loop: {
-      track: "Loop: Track",
-      queue: "Loop: Queue",
-    },
     buttons: {
-      stop: "Parar",
-      previous: "Anterior",
-      next: "Próximo",
-      pause: "Pausar",
-      resume: "Continuar",
-      skip: "Pular",
-      shuffle: "Embaralhar",
+      [PlayerButtons.STOP]: "Parar",
+      [PlayerButtons.PREVIOUS]: "Anterior",
+      [PlayerButtons.PAUSE]: "Pausar",
+      [PlayerButtons.RESUME]: "Continuar",
+      [PlayerButtons.SKIP]: "Pular",
+      [PlayerButtons.SHUFFLE]: "Embaralhar",
       loop: {
         none: "Loop",
         track: "Loop (Track)",
         queue: "Loop (Queue)",
       },
-      auto_play: "Autoplay",
       select_language: "Alterar idioma",
-      view_profile: "Meu Perfil",
-      load_playlist: "Playlist Sync",
-      ia_mode: "Modo IA (Premium)",
+      [EmbedButtons.VIEW_PROFILE]: "Meu Perfil",
+      [EmbedButtons.VIEW_RANKING]: "Ver Ranking",
+      [EmbedButtons.PLAYLIST_SYNC]: "Playlists Sincronizadas",
+      [EmbedButtons.IA_MODE]: "Modo IA - Premium",
+      [EmbedButtons.QUICK_PLAYLIST]: "Ouvir Playlist recomendada",
       invite: "Convite",
       donate: "Apoiar desenvolvimento",
-      news: "Ver Novidades",
+      [EmbedButtons.NEWS]: "Ver Novidades",
     },
   },
   play: {

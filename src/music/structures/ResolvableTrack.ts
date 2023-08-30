@@ -2,10 +2,9 @@ import { type User } from "discord.js";
 import { container } from "@sapphire/framework";
 import { type Track } from "shoukaku";
 
-import { playerLogger } from "@/modules/logger-transport";
+import { logger, playerLogger } from "@/modules/logger-transport";
 import { spotifyTrackResolver } from "@/music/resolvers/spotify/spotify-track-resolver";
 import { cleanUpSong } from "@/music/utils/cleanup";
-import { levenshteinDistance } from "@/utils/string-distance";
 
 interface ResolvableTrackOptions {
   requester?: User;
@@ -148,69 +147,58 @@ export class ResolvableTrack {
 
     const response = await this.resolveQuery(query);
 
-    playerLogger.info(
-      `[ResolvableTrack] GetTrack resolving: ${query} using ${
-        this.sourceName.toLowerCase() === "youtube" ? "Spotify" : "Deezer"
-      }`,
-    );
+    playerLogger.info(`[ResolvableTrack] Get Track resolved ${query} into `, {
+      response,
+    });
 
     if (!response?.tracks.length) {
       return;
     }
 
-    const tracks = response.tracks.map(this.parseResolvableToTrack);
+    const [track] = response.tracks.map(this.parseResolvableToTrack);
 
-    const similar = tracks.map((track) => ({
-      ...track,
-      distance: levenshteinDistance(track.info.title, query),
-    }));
-
-    return similar.reduce<(Track & { distance: number }) | null>(
-      (previous, current) => {
-        if (!previous) {
-          return current;
-        }
-
-        return previous?.distance > current.distance ? previous : current;
-      },
-      null,
-    );
+    return track;
   }
 
   // TODO: refactor and cleanup
   private async resolveQuery(query: string) {
-    if (this.sourceName === "youtube") {
-      const spotifyResponse = await spotifyTrackResolver.search(
-        query,
-        this.requester,
-      );
-
-      if (!spotifyResponse.tracks.length) {
-        return spotifyResponse;
-      }
-
-      const [track] = spotifyResponse.tracks;
-
-      console.log(
-        `[Resolvable Track] Resolved ${query} (ISRC: ${
-          track?.isrc ?? ""
-        }) in Spotify`,
-      );
-
-      if (!track.isrc) {
-        const newSearchQuery = cleanUpSong(track.title, track.author);
-        return container.xiao.search(newSearchQuery, {
-          requester: this.requester,
-        });
-      }
-
-      return container.xiao.search(track.isrc, {
+    if (this.isrc) {
+      logger.debug("[TRACK] Already has ISRC");
+      return container.xiao.search(this.isrc, {
         engine: "dzisrc",
         requester: this.requester,
       });
     }
 
-    return container.xiao.search(query, {
+    const spotifyResponse = await spotifyTrackResolver.resolve(query, {
+      requester: this.requester,
+    });
+
+    if (!spotifyResponse.tracks.length) {
+      return spotifyResponse;
+    }
+
+    const [track] = spotifyResponse.tracks;
+
+    if (!track.isrc) {
+      const newSearchQuery = cleanUpSong(track.title, track.author);
+      playerLogger.debug(
+        `[ResolvableTrack] Track does not have ISRC, using search for ${newSearchQuery}`,
+      );
+
+      return container.xiao.search(newSearchQuery, {
+        requester: this.requester,
+      });
+    }
+
+    playerLogger.debug(
+      `[Resolvable Track] Resolved ${query} (ISRC: ${
+        track?.isrc ?? ""
+      }) in Spotify`,
+    );
+
+    return container.xiao.search(track.isrc, {
+      engine: "dzisrc",
       requester: this.requester,
     });
   }

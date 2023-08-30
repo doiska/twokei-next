@@ -52,6 +52,7 @@ export class PlayerButtonsInteraction extends InteractionHandler {
       [PlayerButtons.STOP]: destroyPlayerInstance,
       [PlayerButtons.PREVIOUS]: previousSong,
       [PlayerButtons.PAUSE]: pauseSong,
+      [PlayerButtons.RESUME]: pauseSong,
       [PlayerButtons.SKIP]: skipSong,
       [PlayerButtons.SHUFFLE]: shuffleQueue,
       [PlayerButtons.LOOP]: setLoopState,
