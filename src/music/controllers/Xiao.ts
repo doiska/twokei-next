@@ -305,10 +305,12 @@ export class Xiao extends EventEmitter {
       throw new Error("No available nodes");
     }
 
+    const isUrl = /^https?:\/\//.test(query);
+
     if (options?.resolver ?? true) {
       const resolver = this.resolvers.find(
         (trackResolver) =>
-          trackResolver.name === options?.resolver ||
+          (!isUrl && trackResolver.name === options?.resolver) ||
           trackResolver.matches(query),
       );
 
@@ -321,7 +323,6 @@ export class Xiao extends EventEmitter {
 
     const searchType = options?.searchType ?? "track";
 
-    const isUrl = /^https?:\/\//.test(query);
     const search = !isUrl ? `${engine}:${query}` : query;
 
     const result = await node.rest.resolve(search);
