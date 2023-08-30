@@ -47,9 +47,7 @@ export async function showRanking(
   const [first, second, third, ...rest] = ranking.map((user) => {
     const rankEmoji = emoji?.[user.position] ?? ":medal:";
 
-    return `${rankEmoji} - ${userMention(user.id)} - **${
-      user.listened
-    }** músicas ouvidas`;
+    return `${rankEmoji} **${user.name}** - **${user.listened}** músicas ouvidas`;
   });
 
   const twokeiMention = userMention(
@@ -64,7 +62,7 @@ export async function showRanking(
   ];
 
   const description = [
-    `# ${Icons.HanakoEating} Twokei Global Ranking ${Icons.Ranking}`,
+    `# ${Icons.Ranking} Twokei Global Ranking`,
     " ",
     `### Seja parte do **Top 3** e receba todos os benefícios do **${Icons.Premium} Premium**!`,
     "",
@@ -83,7 +81,7 @@ export async function showRanking(
   await sendPresetMessage({
     interaction,
     embeds: [embed],
-    deleteIn: 120,
+    deleteIn: 30,
     preset: "success",
   });
 }
