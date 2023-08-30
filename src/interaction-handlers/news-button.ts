@@ -12,7 +12,7 @@ import {
 import { EmbedButtons } from "@/constants/music/player-buttons";
 import { sendPresetMessage } from "@/utils/utils";
 
-import { fetchT } from "twokei-i18next";
+import { fetchT } from "@sapphire/plugin-i18next";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "news-button",

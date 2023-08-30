@@ -18,7 +18,7 @@ import {
 
 import { EmbedButtons } from "@/constants/music/player-buttons";
 
-import { fetchT } from "twokei-i18next";
+import { fetchT } from "@sapphire/plugin-i18next";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "donate-button",

@@ -15,7 +15,7 @@ import { createSongProfileEmbed } from "@/features/song-profile/show-song-profil
 import { Embed } from "@/utils/messages";
 import { sendPresetMessage } from "@/utils/utils";
 
-import { resolveKey } from "twokei-i18next";
+import { resolveKey } from "@sapphire/plugin-i18next";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "profile-sync",

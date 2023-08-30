@@ -11,9 +11,7 @@
     "rootDir": "src",
     "outDir": "dist",
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
-  },
-  "include": [
-    "src"
-  ]
+    "emitDecoratorMetadata": true,
+    "moduleResolution": "bundler"
+  }
 }

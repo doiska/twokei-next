@@ -12,7 +12,7 @@ import { Icons } from "@/constants/icons";
 import { SongProfileButtons } from "@/constants/music/player-buttons";
 
 import { match } from "ts-pattern";
-import { fetchT } from "twokei-i18next";
+import { fetchT } from "@sapphire/plugin-i18next";
 
 const Sources = {
   youtube: {
