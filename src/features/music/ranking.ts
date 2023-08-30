@@ -2,7 +2,6 @@ import {
   Colors,
   EmbedBuilder,
   GuildMember,
-  Message,
   ModalSubmitInteraction,
   type RepliableInteraction,
   userMention,
@@ -11,11 +10,11 @@ import { kil } from "@/db/Kil";
 import { songRanking } from "@/db/schemas/song-ranking";
 import { users } from "@/db/schemas/users";
 import { asc, eq } from "drizzle-orm";
-import { Icons } from "@/constants/icons";
 import { sendPresetMessage } from "@/utils/utils";
+import { fetchT } from "@sapphire/plugin-i18next";
 
 export async function showRanking(
-  interaction: Exclude<RepliableInteraction, ModalSubmitInteraction> | Message,
+  interaction: Exclude<RepliableInteraction, ModalSubmitInteraction>,
 ) {
   const ranking = await kil
     .select({
@@ -38,13 +37,15 @@ export async function showRanking(
     .where(eq(songRanking.userId, (interaction.member as GuildMember)!.id))
     .limit(1);
 
+  const t = await fetchT(interaction);
+
   const emoji = {
     "1": ":first_place:",
     "2": ":second_place:",
     "3": ":third_place:",
   } as Record<string, string>;
 
-  const [first, second, third, ...rest] = ranking.map((user) => {
+  const [first, ...rest] = ranking.map((user) => {
     const rankEmoji = emoji?.[user.position] ?? ":medal:";
 
     return `${rankEmoji} **${user.name}** - **${user.listened}** músicas ouvidas`;
@@ -54,34 +55,34 @@ export async function showRanking(
     interaction.guild?.members?.me?.id ?? "1096133130852769792",
   );
 
-  const yourPosition = [
-    `Você está em **#${currentPosition.position} lugar** com **${currentPosition.listened} músicas ouvidas**.`,
-    `Suba no Ranking **escutando** músicas no ${twokeiMention}.`,
-    " ",
-    `Obrigado por fazer parte da nossa vibe! ${Icons.HanakoEating}`,
-  ];
-
   const description = [
-    `# ${Icons.Ranking} Twokei Global Ranking`,
-    " ",
-    `### Seja parte do **Top 3** e receba todos os benefícios do **${Icons.Premium} Premium**!`,
-    "",
+    t("interactions:ranking.embed.main"),
     `### ${first}`,
-    `${second}`,
-    `${third}`,
     ...rest,
-    " ",
-    ...yourPosition,
   ].join("\n");
 
-  const embed = new EmbedBuilder()
+  const mainEmbed = new EmbedBuilder()
     .setDescription(description)
     .setColor(Colors.Red);
 
+  const ephemeralEmbed = new EmbedBuilder()
+    .setDescription(
+      t("interactions:ranking.embed.ephemeral", {
+        currentPosition,
+        twokeiMention,
+      }),
+    )
+    .setColor(Colors.Yellow);
+
   await sendPresetMessage({
     interaction,
-    embeds: [embed],
+    embeds: [mainEmbed],
     deleteIn: 30,
     preset: "success",
+  });
+
+  await interaction.followUp({
+    embeds: [ephemeralEmbed],
+    ephemeral: true,
   });
 }

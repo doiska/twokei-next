@@ -16,7 +16,7 @@ import { getReadableException } from "@/structures/exceptions/utils/get-readable
 import { Embed } from "@/utils/messages";
 import { sendPresetMessage } from "@/utils/utils";
 
-import { resolveKey } from "twokei-i18next";
+import { resolveKey } from "@sapphire/plugin-i18next";
 
 export async function playSong(
   interaction: Exclude<RepliableInteraction, ModalSubmitInteraction> | Message,

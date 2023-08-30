@@ -1,3 +1,5 @@
+import "@sapphire/plugin-i18next/register";
+
 import {
   type APIEmbed,
   type BaseMessageOptions,

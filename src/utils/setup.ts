@@ -21,7 +21,7 @@ ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
   RegisterBehavior.BulkOverwrite,
 );
 
-const rootDir = join(__dirname, "..", "..");
+export const rootDir = join(__dirname, "..", "..");
 const srcDir = join(rootDir, "src");
 
 // Read env var
