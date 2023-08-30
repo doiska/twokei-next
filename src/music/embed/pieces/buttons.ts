@@ -114,7 +114,7 @@ export async function createDynamicButtons(venti: Venti) {
       customId: PlayerButtons.LOOP,
     },
     {
-      url: "https://spotify.com",
+      url: venti.queue?.current?.uri ?? "https://twokei.com",
       style: ButtonStyle.Link,
       emoji: emoji,
       label: source,
