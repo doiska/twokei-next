@@ -1,5 +1,4 @@
-import type { APIEmbed, ButtonInteraction } from "discord.js";
-import { chatInputApplicationCommandMention, EmbedBuilder } from "discord.js";
+import type { ButtonInteraction } from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
 import {
   InteractionHandler,
