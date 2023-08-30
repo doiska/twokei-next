@@ -249,7 +249,7 @@ export class Venti {
     }
 
     nextTrack
-      .resolve()
+      .resolve(true)
       .then((resolvedTrack) => {
         this.queue.current = resolvedTrack;
 
@@ -462,7 +462,7 @@ export class Venti {
       if (args?.[0] instanceof Venti) {
         const { instance } = args[0];
 
-        this.logger.info("[Venti] Instance info", {
+        this.logger.silly("[Venti] Instance info", {
           node: {
             name: instance.node.name,
             url: instance.node.stats,
@@ -472,7 +472,7 @@ export class Venti {
         });
       }
 
-      this.logger.debug(
+      this.logger.silly(
         `[Venti] Emitting ${event} ${inspect(args.slice(1), false, 2, true)}`,
       );
     }

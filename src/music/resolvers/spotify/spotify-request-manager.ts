@@ -18,10 +18,6 @@ class SpotifyRequestManager {
     const requester =
       this.mode === "single" ? this.requests[0] : this.getLeastUsedRequest();
 
-    console.log(
-      `Requesting ${endpoint} with ${requester.currentApiStatus.requests} requests made.`,
-    );
-
     return await requester.request(endpoint, useUri);
   }
 
