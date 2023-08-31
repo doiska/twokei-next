@@ -83,9 +83,9 @@ const main = async () => {
     ],
   });
 
-  // Twokei.guilds.cache.forEach((guild) => {
-  //   container.sc.reset(guild).catch(noop);
-  // });
+  Twokei.guilds.cache.forEach((guild) => {
+    container.sc.reset(guild).catch(noop);
+  });
 };
 
 void main();
