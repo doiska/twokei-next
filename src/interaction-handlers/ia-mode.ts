@@ -76,6 +76,7 @@ export class IaModeInteraction extends InteractionHandler {
     } catch (e) {
       await sendPresetMessage({
         interaction,
+        ephemeral: true,
         preset: "error",
         message: getReadableException(e),
       });
