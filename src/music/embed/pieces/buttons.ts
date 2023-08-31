@@ -54,7 +54,6 @@ export async function createStaticButtons(guild: Guild, venti?: Venti) {
         customId: venti?.playing
           ? EmbedButtons.IA_MODE
           : EmbedButtons.QUICK_PLAYLIST,
-        disabled: true,
       },
     ].map((button) =>
       parseButtonLabel(t, button),
@@ -105,7 +104,6 @@ export async function createDynamicButtons(venti: Venti) {
       customId: venti?.playing
         ? EmbedButtons.IA_MODE
         : EmbedButtons.QUICK_PLAYLIST,
-      disabled: true,
     },
     {
       style:
