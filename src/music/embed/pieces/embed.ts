@@ -1,6 +1,6 @@
 import { type APIEmbed, Colors, formatEmoji, type Guild } from "discord.js";
 
-import { fetchT } from "twokei-i18next";
+import { fetchT } from "@sapphire/plugin-i18next";
 
 const arts = [
   {

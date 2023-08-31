@@ -14,13 +14,13 @@ import type { XiaoSearchResult } from "@/music/interfaces/player.types";
 import { Embed } from "@/utils/messages";
 import { sendPresetMessage } from "@/utils/utils";
 
-import { fetchT } from "twokei-i18next";
+import { fetchT } from "@sapphire/plugin-i18next";
 
 export const createPlayEmbed = async (
   member: GuildMember,
   result: XiaoSearchResult,
 ) => {
-  const t = await fetchT(member.user);
+  const t = await fetchT(member.guild);
   const [track] = result.tracks;
 
   const capitalizedSource =

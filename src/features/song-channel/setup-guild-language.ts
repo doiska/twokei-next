@@ -16,7 +16,7 @@ import { guilds } from "@/db/schemas/guild";
 import { Twokei } from "@/app/Twokei";
 import { type Locale, LocaleFlags, VALID_LOCALES } from "@/locales/i18n";
 
-import { fetchT } from "twokei-i18next";
+import { fetchT } from "@sapphire/plugin-i18next";
 
 export async function setupGuildLanguage(channel: GuildTextBasedChannel) {
   const { guild } = channel;

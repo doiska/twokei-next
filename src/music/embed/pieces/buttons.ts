@@ -12,7 +12,7 @@ import { getSourceLogo, RawIcons } from "@/constants/icons";
 import { EmbedButtons, PlayerButtons } from "@/constants/music/player-buttons";
 import type { Venti } from "@/music/controllers/Venti";
 
-import { fetchT, type TFunction } from "twokei-i18next";
+import { fetchT, type TFunction } from "@sapphire/plugin-i18next";
 import { isButton, isButtonLink } from "@/utils/validator";
 import { capitalizeFirst } from "@/utils/utils";
 
@@ -54,7 +54,6 @@ export async function createStaticButtons(guild: Guild, venti?: Venti) {
         customId: venti?.playing
           ? EmbedButtons.IA_MODE
           : EmbedButtons.QUICK_PLAYLIST,
-        disabled: true,
       },
     ].map((button) =>
       parseButtonLabel(t, button),
@@ -114,7 +113,7 @@ export async function createDynamicButtons(venti: Venti) {
       customId: PlayerButtons.LOOP,
     },
     {
-      url: "https://spotify.com",
+      url: venti.queue?.current?.uri ?? "https://twokei.com",
       style: ButtonStyle.Link,
       emoji: emoji,
       label: source,

@@ -9,7 +9,7 @@ import { container } from "@sapphire/framework";
 
 import { Embed } from "@/utils/messages";
 
-import { resolveKey, type TOptions } from "twokei-i18next";
+import { resolveKey, type TOptions } from "@sapphire/plugin-i18next";
 
 export const escapeRegExp = (str: string) =>
   str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

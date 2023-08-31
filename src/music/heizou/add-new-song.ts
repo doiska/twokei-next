@@ -10,16 +10,13 @@ import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { PlayerException } from "@/structures/exceptions/PlayerException";
 import { Events, LoadType } from "../interfaces/player.types";
 import { createPlayerInstance } from "./create-player-instance";
+import type { ResolvableTrack } from "@/music/structures/ResolvableTrack";
 
-export async function addNewSong(input: string, member: GuildMember) {
+async function createPlayer(member: GuildMember) {
   const { guild } = member;
 
   if (!guild || !member || !member?.guild) {
     throw new PlayerException(ErrorCodes.UNKNOWN);
-  }
-
-  if (!input) {
-    throw new PlayerException(ErrorCodes.PLAYER_MISSING_INPUT);
   }
 
   if (!isVoiceChannel(member.voice.channel)) {
@@ -45,6 +42,16 @@ export async function addNewSong(input: string, member: GuildMember) {
     throw new PlayerException(ErrorCodes.SOMETHING_WENT_REALLY_WRONG);
   }
 
+  return player;
+}
+
+export async function addNewSong(input: string, member: GuildMember) {
+  if (!input) {
+    throw new PlayerException(ErrorCodes.PLAYER_MISSING_INPUT);
+  }
+
+  const player = await createPlayer(member);
+
   const result = await xiao.search(input, {
     requester: member.user,
     resolver: "spotify",
@@ -68,4 +75,21 @@ export async function addNewSong(input: string, member: GuildMember) {
   }
 
   return result;
+}
+
+export async function addISRCSongs(
+  tracks: ResolvableTrack[],
+  member: GuildMember,
+) {
+  const player = await createPlayer(member);
+
+  player.queue.add(...tracks);
+
+  if (!player.playing) {
+    await player.play();
+  } else {
+    player.emit(Events.TrackAdd, player, tracks);
+  }
+
+  return tracks;
 }

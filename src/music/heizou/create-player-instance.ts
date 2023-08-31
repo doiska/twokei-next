@@ -4,7 +4,7 @@ import { container } from "@sapphire/framework";
 import { xiao } from "@/app/Xiao";
 import { type VentiInitOptions } from "@/music/interfaces/player.types";
 
-import { fetchLanguage } from "twokei-i18next";
+import { fetchLanguage } from "@sapphire/plugin-i18next";
 
 interface InitOptions {
   guild: Guild;

@@ -1,11 +1,10 @@
 import "reflect-metadata";
 import "../utils/setup";
-import "twokei-i18next/register";
+import "@sapphire/plugin-i18next/register";
 
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import {
   ApplicationCommandRegistries,
-  container,
   LogLevel,
   RegisterBehavior,
 } from "@sapphire/framework";
@@ -13,12 +12,10 @@ import {
 import { eq } from "drizzle-orm";
 import { kil } from "@/db/Kil";
 import { guilds } from "@/db/schemas/guild";
-
-import en_us from "@/locales/en_us";
-import pt_br from "@/locales/pt_br";
 import { DEFAULT_LOCALE, isValidLocale } from "@/locales/i18n";
 import { TwokeiClient } from "@/structures/TwokeiClient";
-import { noop } from "@sapphire/utilities";
+import type { InternationalizationContext } from "@sapphire/plugin-i18next";
+import pt_br from "@/locales/pt_br";
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
   RegisterBehavior.VerboseOverwrite,
@@ -39,12 +36,12 @@ export const Twokei = new TwokeiClient({
   loadMessageCommandListeners: true,
   enableLoaderTraceLoggings: false,
   i18n: {
+    defaultLanguageDirectory: "./dist/locales",
     i18next: {
       fallbackLng: "pt_br",
       supportedLngs: ["pt_br", "en_us"],
       resources: {
         pt_br,
-        en_us,
       },
       interpolation: {
         defaultVariables: {
@@ -54,8 +51,7 @@ export const Twokei = new TwokeiClient({
       },
       joinArrays: "\n",
     },
-    defaultLanguageDirectory: "./src/locales",
-    fetchLanguage: async (context) => {
+    fetchLanguage: async (context: InternationalizationContext) => {
       if (!context.guild?.id) {
         return DEFAULT_LOCALE;
       }
@@ -87,9 +83,9 @@ const main = async () => {
     ],
   });
 
-  Twokei.guilds.cache.forEach((guild) => {
-    container.sc.reset(guild).catch(noop);
-  });
+  // Twokei.guilds.cache.forEach((guild) => {
+  //   container.sc.reset(guild).catch(noop);
+  // });
 };
 
 void main();

@@ -73,7 +73,7 @@ export class PlayCommand extends Command {
       await sendPresetMessage({
         interaction,
         preset: "error",
-        message: await getReadableException(error),
+        message: getReadableException(error),
       });
     }
   }

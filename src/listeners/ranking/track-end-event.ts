@@ -1,5 +1,8 @@
 import { ApplyOptions } from "@sapphire/decorators";
-import { isVoiceBasedChannel } from "@sapphire/discord.js-utilities";
+import {
+  isGuildMember,
+  isVoiceBasedChannel,
+} from "@sapphire/discord.js-utilities";
 import { container, Listener } from "@sapphire/framework";
 import type { Track } from "shoukaku";
 
@@ -22,9 +25,9 @@ export class TrackEndEvent extends Listener<typeof Events.TrackEnd> {
 
     logger.debug(`[TrackEnd] Track ended: ${reason ?? "No reason"}`);
 
-    if (reason && ["replaced", "error"].includes(reason.toLowerCase())) {
-      return;
-    }
+    // if (reason && ["replaced", "error"].includes(reason.toLowerCase())) {
+    //   return;
+    // }
 
     if (!current) {
       return;
@@ -49,6 +52,39 @@ export class TrackEndEvent extends Listener<typeof Events.TrackEnd> {
     if (connected.size === 0) {
       return;
     }
+
+    console.log(current);
+
+    const payload = JSON.stringify({
+      event: "track_add",
+      track: {
+        title: current.title,
+        isrc: current.isrc,
+        uri: current.uri,
+        author: current.author,
+        source: current.sourceName,
+      },
+    });
+
+    await Promise.allSettled(
+      [...connected.values()].map(async (guildMember) => {
+        if (!isGuildMember(guildMember)) {
+          return;
+        }
+
+        return fetch(
+          `${process.env.RESOLVER_URL}/analytics/${guildMember.id}`,
+          {
+            method: "POST",
+            body: payload,
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: process.env.RESOLVER_KEY!,
+            },
+          },
+        );
+      }),
+    );
 
     await kil.transaction(async (tx) => {
       await tx

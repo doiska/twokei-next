@@ -17,6 +17,7 @@ export type UserEvent = InferModel<typeof songUserEvents, "insert"> & {
 export interface UserEventProperties {
   guildId?: string;
   track?: ReturnType<ResolvableTrack["short"]>;
+
   [key: string]: unknown;
 }
 
