@@ -114,12 +114,10 @@ export class ResolvableTrack {
 
     if (overwrite) {
       this.title = resolvedTrack.info.title;
-      this.identifier = resolvedTrack.info.identifier;
       this.isSeekable = resolvedTrack.info.isSeekable;
       this.author = resolvedTrack.info.author;
       this.length = resolvedTrack.info.length;
       this.isStream = resolvedTrack.info.isStream;
-      this.uri = resolvedTrack.info.uri;
     }
 
     return this;

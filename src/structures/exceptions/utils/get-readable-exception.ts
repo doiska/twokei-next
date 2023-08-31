@@ -5,8 +5,6 @@ import { PlayerException } from "../PlayerException";
 
 export const getReadableException = (error: unknown) => {
   if (error instanceof FriendlyException || error instanceof PlayerException) {
-    logger.debug("Handling readable exception", { error });
-
     if (error.message) {
       return error.message;
     }
