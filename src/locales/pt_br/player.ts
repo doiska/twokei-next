@@ -10,9 +10,9 @@ export default {
       "- **Mencione** o bot com o nome/url da música para adicionar à fila.",
       '- Exemplo: "**{{- mention}} lofi hiphop**"',
       "- **Controle a fila no Menu de Faixas abaixo!**",
-      `### ${Icons.SpotifyLogo} Profile Sync (Beta)`,
-      "- **Traga suas playlists do ``Spotify`` para o Twokei!**",
-      "- Clique no botão **$t(player:embed.buttons.PLAYLIST_SYNC)** abaixo.",
+      `### ${Icons.Premium} Novo: Modo IA - Beta`,
+      "- Utilize o **Modo IA** e adicione várias músicas sem esforço!",
+      "- Clique no botão **Modo IA** ou **Playlist Recomendada** abaixo.",
     ],
     description_playing: [
       " ",

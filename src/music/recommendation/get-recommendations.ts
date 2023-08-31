@@ -15,7 +15,10 @@ interface Recommendation {
   duration_ms: number;
 }
 
-const rateLimitManager = new RateLimitManager(2 * 60 * 1000);
+const limitInMillis =
+  process.env.NODE_ENV === "production" ? 2 * 60 * 1000 : 1000;
+
+const rateLimitManager = new RateLimitManager(limitInMillis);
 
 export async function getRecommendations(userId: string, isrc?: string[]) {
   const seeds = isrc ? `?seeds=${encodeURI(isrc.join(","))}` : "";
@@ -34,6 +37,7 @@ export async function getRecommendations(userId: string, isrc?: string[]) {
     `${process.env.RESOLVER_URL}/recommendations/${userId}${seeds}`,
     {
       headers: {
+        "Content-Type": "application/json",
         Authorization: process.env.RESOLVER_KEY!,
       },
     },
