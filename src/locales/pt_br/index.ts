@@ -6,7 +6,7 @@ import news from "@/locales/pt_br/news";
 import player from "@/locales/pt_br/player";
 import profile from "@/locales/pt_br/profile";
 import tutorial from "@/locales/pt_br/tutorial";
-import * as interactions from "@/locales/pt_br/interactions";
+import interactions from "@/locales/pt_br/interactions";
 
 import type { Resource } from "i18next";
 

@@ -1,1 +1,5 @@
-export * as ranking from "./ranking";
+import ranking from "./ranking";
+
+export default {
+  ranking,
+};
