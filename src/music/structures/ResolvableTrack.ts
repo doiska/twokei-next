@@ -225,15 +225,18 @@ export class ResolvableTrack {
   }
 
   public short() {
+    const source = ["youtube", "spotify", "deezer"].includes(
+      this.sourceName.toLowerCase(),
+    )
+      ? (this.sourceName as "youtube" | "spotify" | "deezer")
+      : "spotify";
+
     return {
       title: this.title,
-      source: {
-        name: this.sourceName,
-        uri: this.uri,
-      },
-      uri: this.realUri,
       author: this.author,
-      duration: this.length,
+      uri: this.uri,
+      isrc: this.isrc,
+      source: source,
     };
   }
 }
