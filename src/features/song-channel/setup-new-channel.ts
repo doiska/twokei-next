@@ -30,6 +30,7 @@ export const setupNewChannel = async (guild: Guild) => {
   ];
 
   const canCreateChannel = createChannelPermissions.every((permission) => {
+    console.log(selfPermissions.has(permission), permission);
     return selfPermissions.has(permission);
   });
 
@@ -56,7 +57,7 @@ export const setupNewChannel = async (guild: Guild) => {
   });
 
   const newChannel = await guild.channels.create({
-    name: "song-requests",
+    name: "twokei-music",
     type: ChannelType.GuildText,
     permissionOverwrites: [
       {

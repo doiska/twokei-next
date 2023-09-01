@@ -6,7 +6,6 @@ import { sql } from "drizzle-orm";
 import { kil } from "@/db/Kil";
 import { guilds } from "@/db/schemas/guild";
 
-import { setupGuildLanguage } from "@/features/song-channel/setup-guild-language";
 import { setupNewChannel } from "@/features/song-channel/setup-new-channel";
 import { setupSongMessage } from "@/features/song-channel/setup-song-message";
 import { logger } from "@/modules/logger-transport";
@@ -24,7 +23,7 @@ export class GuildSetup extends Listener<Events.GuildCreate> {
       .values({
         guildId: guild.id,
         name: guild.name,
-        locale: guild.preferredLocale === "pt-BR" ? "pt_br" : "en_us",
+        locale: "pt_br",
       })
       .onConflictDoUpdate({
         target: guilds.guildId,
@@ -53,12 +52,15 @@ export class GuildSetup extends Listener<Events.GuildCreate> {
       );
       return;
     }
+    // TODO: en-US translation
+    // await setupGuildLanguage(response).catch((e) => {
+    //       logger.info("Error while setupGuildLanguage");
+    //       logger.error(e);
+    // });
 
-    await setupGuildLanguage(response).catch(() =>
-      logger.info("Error while setupGuildLanguage"),
-    );
-    await setupSongMessage(guild, response).catch(() =>
-      logger.info("Error while setupSongMessage"),
-    );
+    await setupSongMessage(guild, response).catch((e) => {
+      logger.info("Error while setupSongMessage");
+      logger.error(e);
+    });
   }
 }

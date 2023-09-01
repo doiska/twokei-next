@@ -67,7 +67,7 @@ export const Twokei = new TwokeiClient({
         return DEFAULT_LOCALE;
       }
 
-      return guild.locale;
+      return isValidLocale(guild.locale) ? guild.locale : DEFAULT_LOCALE;
     },
   },
 });

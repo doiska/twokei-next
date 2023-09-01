@@ -63,12 +63,15 @@ export class PlayCommand extends Command {
         },
       });
 
-      await setupGuildLanguage(response).catch(() =>
-        logger.info("Error while setupGuildLanguage"),
-      );
-      await setupSongMessage(guild, response).catch(() =>
-        logger.info("Error while setupSongMessage"),
-      );
+      // await setupGuildLanguage(response).catch((e) => {
+      //   logger.info("Error while setupGuildLanguage");
+      //   logger.error(e);
+      // });
+      
+      await setupSongMessage(guild, response).catch((e) => {
+        logger.info("Error while setupSongMessage");
+        logger.error(e);
+      });
     } catch (error) {
       await sendPresetMessage({
         interaction,

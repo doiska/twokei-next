@@ -1,5 +1,5 @@
 import type { ModalSubmitInteraction, RepliableInteraction } from "discord.js";
-import { Message } from "discord.js";
+import {channelMention, Message} from "discord.js";
 import { isGuildMember, isTextChannel } from "@sapphire/discord.js-utilities";
 import { container } from "@sapphire/framework";
 import { noop } from "@sapphire/utilities";
@@ -87,11 +87,13 @@ export async function playSong(
   try {
     const result = await addNewSong(query, interaction.member);
 
+    const mentionedChannel = songChannel.id ? channelMention(songChannel.id) : '#twokei-music';
+
     if (!isSongChannel) {
       await sendPresetMessage({
         interaction,
         preset: "success",
-        message: "Acompanhe e controle a música no canal #song-requests",
+        message: `Acompanhe e controle a música no canal ${mentionedChannel}`,
       });
     }
 

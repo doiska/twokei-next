@@ -1,4 +1,4 @@
-export const VALID_LOCALES = ["pt_br", "en_us"] as const;
+export const VALID_LOCALES = ["pt_br"] as const;
 
 export const LocaleFlags = {
   pt_br: "🇧🇷",
