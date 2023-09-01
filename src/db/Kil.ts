@@ -4,6 +4,7 @@ import { pgSchema } from "drizzle-orm/pg-core";
 import { logger, queryLogger } from "@/modules/logger-transport";
 
 import { Pool } from "pg";
+import { env } from "@/app/env";
 
 const dbClient = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -19,4 +20,4 @@ export const kil = drizzle(dbClient, {
   },
 });
 
-export const createTable = pgSchema(process.env.DB_SCHEMA ?? "dev").table;
+export const createTable = pgSchema(env.PG_SCHEMA).table;

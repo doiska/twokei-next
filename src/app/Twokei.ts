@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import "../utils/setup";
+import "./env";
 import "@sapphire/plugin-i18next/register";
 
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";

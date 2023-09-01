@@ -39,10 +39,11 @@
     "@sapphire/type": "^2.4.0",
     "@sapphire/utilities": "^3.13.0",
     "@skyra/env-utilities": "^1.2.1",
+    "@t3-oss/env-core": "^0.6.1",
     "discord-hybrid-sharding": "github:meister03/discord-hybrid-sharding",
     "discord.js": "^14.6.0",
     "dotenv": "^16.0.3",
-    "drizzle-orm": "^0.27.2",
+    "drizzle-orm": "^0.28.5",
     "i18next": "^22.4.10",
     "kleur": "^4.1.5",
     "pg": "^8.8.0",
@@ -51,7 +52,8 @@
     "shoukaku": "^3.2.2",
     "ts-pattern": "^5.0.4",
     "winston": "^3.8.2",
-    "winston-transport": "^4.5.0"
+    "winston-transport": "^4.5.0",
+    "zod": "^3.22.2"
   },
   "devDependencies": {
     "@sapphire/ts-config": "^4.0.0",

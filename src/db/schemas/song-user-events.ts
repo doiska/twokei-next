@@ -1,16 +1,11 @@
-import type { InferModel } from "drizzle-orm";
-import {
-  jsonb,
-  pgEnum,
-  pgSchema,
-  timestamp,
-  varchar,
-} from "drizzle-orm/pg-core";
+import type { InferSelectModel } from "drizzle-orm";
+import { jsonb, pgEnum, timestamp, varchar } from "drizzle-orm/pg-core";
 import { users } from "@/db/schemas/users";
 
 import { type ResolvableTrack } from "@/music/structures/ResolvableTrack";
+import { createTable } from "@/db/Kil";
 
-export type UserEvent = InferModel<typeof songUserEvents, "insert"> & {
+export type UserEvent = InferSelectModel<typeof songUserEvents> & {
   properties: UserEventProperties;
 };
 
@@ -33,15 +28,12 @@ const eventsEnum = pgEnum("song_user_events_type", [
 
 const sourcesEnum = pgEnum("song_user_events_source", ["Guild", "DM", "Web"]);
 
-export const songUserEvents = pgSchema(process.env.PGSCHEMA ?? "app").table(
-  "song_user_events",
-  {
-    userId: varchar("user_id")
-      .notNull()
-      .references(() => users.id),
-    source: sourcesEnum("source").notNull(),
-    event: eventsEnum("event").notNull(),
-    properties: jsonb("properties"),
-    createdAt: timestamp("created_at").defaultNow(),
-  },
-);
+export const songUserEvents = createTable("song_user_events", {
+  userId: varchar("user_id")
+    .notNull()
+    .references(() => users.id),
+  source: sourcesEnum("source").notNull(),
+  event: eventsEnum("event").notNull(),
+  properties: jsonb("properties"),
+  createdAt: timestamp("created_at").defaultNow(),
+});

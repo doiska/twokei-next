@@ -1,6 +1,7 @@
 import { pgSchema, serial, varchar } from "drizzle-orm/pg-core";
+import { createTable } from "@/db/Kil";
 
-export const logs = pgSchema(process.env.PGSCHEMA ?? "app").table("logs", {
+export const logs = createTable("logs", {
   id: serial("id"),
   env: varchar("environment").default("Development"),
   severity: varchar("severity").notNull(),
