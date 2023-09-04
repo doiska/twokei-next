@@ -45,6 +45,10 @@ export const RawIcons = {
     id: "1141002291076403280",
     animated: true,
   },
+  Lightning: {
+    id: "1121849523854118973",
+    animated: true,
+  },
 } as const;
 
 type KVEmoji = Record<

@@ -16,6 +16,7 @@ ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
 
 export const env = createEnv({
   server: {
+    CLIENT_ID: z.string().optional(),
     NODE_ENV: z.enum(["production", "staging", "development"]),
     DISCORD_TOKEN: z.string(),
     DATABASE_URL: z.string().url(),
