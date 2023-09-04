@@ -1,9 +1,10 @@
-import type { InferModel } from "drizzle-orm";
-import { pgEnum, pgSchema, timestamp, varchar } from "drizzle-orm/pg-core";
+import type { InferSelectModel } from "drizzle-orm";
+import { pgEnum, timestamp, varchar } from "drizzle-orm/pg-core";
+import { createTable } from "@/db/Kil";
 
 const roleEnum = pgEnum("role_enum", ["dev", "premium"]);
 
-export const users = pgSchema(process.env.PGSCHEMA ?? "app").table("users", {
+export const users = createTable("users", {
   id: varchar("user_id").primaryKey().notNull(),
   name: varchar("name"),
   locale: varchar("locale").default("pt_br"),
@@ -12,4 +13,4 @@ export const users = pgSchema(process.env.PGSCHEMA ?? "app").table("users", {
   updated_at: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export type RegisteredUser = InferModel<typeof users>;
+export type RegisteredUser = InferSelectModel<typeof users>;

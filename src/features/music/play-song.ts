@@ -1,5 +1,5 @@
 import type { ModalSubmitInteraction, RepliableInteraction } from "discord.js";
-import {channelMention, Message} from "discord.js";
+import { channelMention, Message } from "discord.js";
 import { isGuildMember, isTextChannel } from "@sapphire/discord.js-utilities";
 import { container } from "@sapphire/framework";
 import { noop } from "@sapphire/utilities";
@@ -14,7 +14,7 @@ import { youtubeTrackResolver } from "@/music/resolvers/youtube/youtube-track-re
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
 import { Embed } from "@/utils/messages";
-import { sendPresetMessage } from "@/utils/utils";
+import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 import { resolveKey } from "@sapphire/plugin-i18next";
 
@@ -87,7 +87,9 @@ export async function playSong(
   try {
     const result = await addNewSong(query, interaction.member);
 
-    const mentionedChannel = songChannel.id ? channelMention(songChannel.id) : '#twokei-music';
+    const mentionedChannel = songChannel.id
+      ? channelMention(songChannel.id)
+      : "#twokei-music";
 
     if (!isSongChannel) {
       await sendPresetMessage({
@@ -108,15 +110,12 @@ export async function playSong(
       }
 
       await container.analytics.track({
-        userId: collected.member.id,
+        users: [collected.member.id],
         event:
           collected.customId === OnPlayButtons.LIKE
-            ? "like_song"
-            : "dislike_song",
-        source: "Guild",
-        properties: {
-          track: result.tracks?.[0].short(),
-        },
+            ? "liked_song"
+            : "disliked_song",
+        track: result.tracks?.[0].short(),
       });
 
       await sendPresetMessage({

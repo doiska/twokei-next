@@ -1,5 +1,3 @@
-import { DiscordTransport } from "@/modules/transport-discord";
-
 import { blue, type Color, cyan, green, red, reset, yellow } from "kleur";
 import {
   createLogger as createWinstonLogger,
@@ -66,7 +64,6 @@ const defaultLoggerOptions = {
     new transports.File({
       dirname: "logs",
     }),
-    new DiscordTransport(),
   ],
 };
 

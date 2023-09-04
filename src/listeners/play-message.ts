@@ -10,7 +10,7 @@ import { noop } from "@sapphire/utilities";
 import { playSong } from "@/features/music/play-song";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
-import { sendPresetMessage } from "@/utils/utils";
+import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 @ApplyOptions<Listener.Options>({
   name: "play-message-event",

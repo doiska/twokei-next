@@ -1,6 +1,7 @@
 import { logger } from "@/modules/logger-transport";
 import { RateLimitManager } from "@sapphire/ratelimits";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
+import { fetchApi } from "@/lib/api";
 
 interface Recommendation {
   id: string;
@@ -33,23 +34,12 @@ export async function getRecommendations(userId: string, isrc?: string[]) {
 
   rateLimit.consume();
 
-  return await fetch(
-    `${process.env.RESOLVER_URL}/recommendations/${userId}${seeds}`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: process.env.RESOLVER_KEY!,
-      },
-    },
-  )
-    .then(async (r) => {
-      if (r.status !== 200) {
-        return [];
-      }
-
-      return (await r.json()) as unknown as Recommendation[];
-    })
-    .catch((e) => {
-      logger.error(e);
-    });
+  try {
+    return await fetchApi<Recommendation[]>(
+      `/recommendations/${userId}${seeds}`,
+    );
+  } catch (error) {
+    logger.error(error);
+    throw new FriendlyException("Ocorreu um erro ao buscar as recomendações.");
+  }
 }

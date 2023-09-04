@@ -1,8 +1,9 @@
 import { eq, sql } from "drizzle-orm";
 import { pgSchema } from "drizzle-orm/pg-core";
 import { songUserEvents } from "@/db/schemas/song-user-events";
+import { env } from "@/app/env";
 
-export const songRanking = pgSchema(process.env.PGSCHEMA ?? "app")
+export const songRanking = pgSchema(env.PG_SCHEMA)
   .view("song_ranking")
   .as((qb) =>
     qb

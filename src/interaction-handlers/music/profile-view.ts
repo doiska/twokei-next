@@ -13,7 +13,7 @@ import { type Awaitable } from "@sapphire/utilities";
 import { EmbedButtons } from "@/constants/music/player-buttons";
 import { createSongProfileEmbed } from "@/features/song-profile/show-song-profile";
 import { Embed } from "@/utils/messages";
-import { sendPresetMessage } from "@/utils/utils";
+import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 import { resolveKey } from "@sapphire/plugin-i18next";
 
@@ -46,7 +46,7 @@ export class ProfileView extends InteractionHandler {
 
     await buttonInteraction.editReply(
       await createSongProfileEmbed(
-        buttonInteraction.user,
+        buttonInteraction.member,
         buttonInteraction.user,
       ),
     );

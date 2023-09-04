@@ -11,7 +11,7 @@ import type { Awaitable } from "@sapphire/utilities";
 import { SongProfileButtons } from "@/constants/music/player-buttons";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
 import { Embed } from "@/utils/messages";
-import { sendPresetMessage } from "@/utils/utils";
+import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "song-profile-interactions",

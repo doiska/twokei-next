@@ -2,7 +2,7 @@ import type { TrackExceptionEvent } from "shoukaku";
 
 import type { Venti } from "@/music/controllers/Venti";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
-import { sendPresetMessage } from "@/utils/utils";
+import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 export async function handlePlayerException(
   venti: Venti,

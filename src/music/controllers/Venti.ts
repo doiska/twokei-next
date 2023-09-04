@@ -9,7 +9,6 @@ import {
 
 import { type Locale } from "@/locales/i18n";
 import { createLogger, playerLogger } from "@/modules/logger-transport";
-import { type Maybe } from "@/utils/utils";
 import {
   Events,
   PlayerState,
@@ -22,6 +21,7 @@ import type { Xiao, XiaoEvents } from "./Xiao";
 
 import { inspect } from "node:util";
 import type { Logger } from "winston";
+import type { Maybe } from "@/utils/types-helper";
 
 export enum LoopStates {
   NONE = "none",
@@ -84,12 +84,6 @@ export class Venti {
   private readonly xiao: Xiao;
 
   /**
-   * The player's options.
-   * @private
-   */
-  private readonly options: VentiInitOptions;
-
-  /**
    * The SongChannel embed message.
    * @private
    */
@@ -99,7 +93,6 @@ export class Venti {
 
   constructor(xiao: Xiao, player: Player, options: VentiInitOptions) {
     this.xiao = xiao;
-    this.options = options;
     this.instance = player;
     this.guild = options.guild;
     this.guildId = options.guild.id;
@@ -418,38 +411,6 @@ export class Venti {
 
     this.emit(Events.PlayerDestroy, this);
     this.emit(Events.Debug, `Player destroyed for guild ${this.guildId}`);
-
-    return this;
-  }
-
-  /**
-   * Set voice channel and move the player to the voice channel
-   * @param voiceId Voice channel Id
-   * @returns Venti
-   */
-  public setVoiceChannel(voiceId: Snowflake): Venti {
-    if (this.state === PlayerState.DESTROYED) {
-      throw new Error("Player is already destroyed");
-    }
-
-    this.state = PlayerState.CONNECTING;
-
-    this.voiceId = voiceId;
-
-    this.xiao.options.send(this.guildId, {
-      op: 4,
-      d: {
-        guild_id: this.guildId,
-        channel_id: this.voiceId,
-        self_mute: false,
-        self_deaf: this.options.deaf,
-      },
-    });
-
-    this.emit(
-      Events.Debug,
-      `Player ${this.guildId} moved to voice channel ${voiceId}`,
-    );
 
     return this;
   }

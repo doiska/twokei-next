@@ -1,23 +1,38 @@
-import { kil } from "@/db/Kil";
-import type { UserEvent } from "@/db/schemas/song-user-events";
-import { songUserEvents } from "@/db/schemas/song-user-events";
-
 import { logger } from "@/modules/logger-transport";
+import { fetchApi } from "@/lib/api";
+
+interface BaseProperties {
+  users: string[];
+  guild?: string;
+  event: SongEvent["event"];
+}
+
+interface SongEvent {
+  event: "liked_song" | "disliked_song" | "added_song" | "heard_song";
+  track: {
+    title?: string;
+    author?: string;
+    isrc?: string;
+    uri: string;
+    source: "spotify" | "deezer" | "youtube";
+  };
+}
+
+type TrackableEvent = BaseProperties & SongEvent;
 
 export class Analytics {
-  public async track(userEvent: UserEvent | UserEvent[]) {
-    await kil
-      .insert(songUserEvents)
-      .values(Array.isArray(userEvent) ? userEvent : [userEvent])
-      .catch((err) => {
-        logger.error(err);
-      });
+  public async track(event: TrackableEvent) {
+    const response = await fetchApi("/analytics", {
+      body: {
+        event: event.event,
+        users: [...new Set(event.users)],
+        track: event.track,
+      },
+    });
 
-    if (process.env.NODE_ENV !== "production") {
-      const events = [userEvent].flat().map((event) => event.event);
-
-      logger.debug(
-        `[ANALYTICS] Tracked ${events.length} events: ${events.join(", ")}`,
+    if (response.status === "error") {
+      logger.error(
+        `[Analytics] ${response.message} - ${JSON.stringify(event)}`,
       );
     }
   }

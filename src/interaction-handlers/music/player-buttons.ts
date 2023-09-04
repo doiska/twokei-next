@@ -17,7 +17,7 @@ import { shuffleQueue } from "@/music/heizou/shuffle-queue";
 import { skipSong } from "@/music/heizou/skip-song";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
-import { sendPresetMessage } from "@/utils/utils";
+import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "buttons-player",

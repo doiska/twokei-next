@@ -23,7 +23,7 @@ import { queueEmpty } from "@/music/embed/events/queue-empty";
 import { youtubeTrackResolver } from "@/music/resolvers/youtube/youtube-track-resolver";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
-import { type Maybe } from "@/utils/utils";
+import { type Maybe } from "@/utils/types-helper";
 import {
   Events,
   LoadType,

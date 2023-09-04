@@ -24,7 +24,7 @@ export async function createPlayerInstance({
   const playerOptions: VentiInitOptions = {
     guild,
     voiceChannel,
-    lang: (await fetchLanguage(guild)) as "en_us" | "pt_br",
+    lang: (await fetchLanguage(guild)) as "pt_br",
   };
 
   const { message, channel } = (await container.sc.getEmbed(guild)) ?? {};

@@ -9,7 +9,7 @@ import { type Awaitable } from "@sapphire/utilities";
 
 import { Menus } from "@/constants/music/player-buttons";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
-import { sendPresetMessage } from "@/utils/utils";
+import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "player-menu",

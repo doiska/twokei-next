@@ -21,6 +21,7 @@ import { fetchT } from "@sapphire/plugin-i18next";
 export async function setupGuildLanguage(channel: GuildTextBasedChannel) {
   const { guild } = channel;
 
+  //TODO: update language
   const language: Locale =
     guild.preferredLocale === "pt-BR" ? "pt_br" : "en_us";
 
