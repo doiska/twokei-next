@@ -4,7 +4,8 @@ import {
   ButtonStyle,
   Colors,
   EmbedBuilder,
-  type User,
+  GuildMember,
+  User,
 } from "discord.js";
 import { container } from "@sapphire/framework";
 
@@ -29,8 +30,11 @@ const Sources = {
   },
 };
 
-export async function createSongProfileEmbed(requester: User, target: User) {
-  const t = await fetchT(requester);
+export async function createSongProfileEmbed(
+  requester: GuildMember,
+  target: User,
+) {
+  const t = await fetchT(requester.guild);
   const profile = await container.profiles.get(target);
 
   const sourcesWithEmojis =

@@ -1,4 +1,9 @@
-import { ApplicationCommandType, ComponentType, type User } from "discord.js";
+import {
+  ApplicationCommandType,
+  ComponentType,
+  GuildMember,
+  type User,
+} from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
 import { isGuildMember } from "@sapphire/discord.js-utilities";
 import {
@@ -42,7 +47,7 @@ export class ViewProfile extends Command {
   public async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
     const user = interaction.options.getUser("user", false) ?? interaction.user;
 
-    if (!interaction.guild) {
+    if (!interaction.guild || !isGuildMember(interaction.member)) {
       await interaction.reply({
         content: "This command can only be used in a server.",
         ephemeral: true,
@@ -51,7 +56,7 @@ export class ViewProfile extends Command {
     }
 
     await interaction.reply(
-      await createSongProfileEmbed(interaction.user, user),
+      await createSongProfileEmbed(interaction.member, user),
     );
   }
 
@@ -76,13 +81,16 @@ export class ViewProfile extends Command {
       | Command.ChatInputCommandInteraction,
     target: User,
   ) {
-    if (!interaction.isRepliable()) {
+    if (!interaction.isRepliable() || !isGuildMember(interaction.member)) {
       return;
     }
 
     const duration = 30;
 
-    const replyContent = await createSongProfileEmbed(interaction.user, target);
+    const replyContent = await createSongProfileEmbed(
+      interaction.member,
+      target,
+    );
 
     const response = await sendPresetMessage({
       interaction,
@@ -98,13 +106,22 @@ export class ViewProfile extends Command {
     });
 
     collector.on("collect", async (buttonInteraction) => {
+      if (
+        !buttonInteraction.member ||
+        !isGuildMember(buttonInteraction.member)
+      ) {
+        return;
+      }
+
       await buttonInteraction.deferUpdate();
+
       await container.profiles.actions.toggleLike(
         interaction.user.id,
         target.id,
       );
+
       await interaction.editReply(
-        await createSongProfileEmbed(interaction.user, target),
+        await createSongProfileEmbed(interaction.member as GuildMember, target),
       );
     });
 

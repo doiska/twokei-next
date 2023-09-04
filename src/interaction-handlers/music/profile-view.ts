@@ -46,7 +46,7 @@ export class ProfileView extends InteractionHandler {
 
     await buttonInteraction.editReply(
       await createSongProfileEmbed(
-        buttonInteraction.user,
+        buttonInteraction.member,
         buttonInteraction.user,
       ),
     );

@@ -155,7 +155,7 @@ export class RankingButtonInteraction extends InteractionHandler {
     });
   }
 
-  public parse(interaction: ButtonInteraction): Option<string> {
+  public parse(interaction: ButtonInteraction) {
     return isValidCustomId(interaction.customId, EmbedButtons.VIEW_RANKING);
   }
 }
