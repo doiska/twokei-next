@@ -1,4 +1,4 @@
-import { pgSchema, serial, varchar } from "drizzle-orm/pg-core";
+import { serial, varchar } from "drizzle-orm/pg-core";
 import { createTable } from "@/db/Kil";
 
 export const logs = createTable("logs", {

@@ -3,7 +3,7 @@ import { isGuildMember } from "@sapphire/discord.js-utilities";
 import { Command, container } from "@sapphire/framework";
 
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
-import { sendPresetMessage } from "@/utils/utils";
+import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 @ApplyOptions<Command.Options>({
   name: "queue",

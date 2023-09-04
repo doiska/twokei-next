@@ -8,7 +8,7 @@ import { addISRCSongs } from "@/music/heizou/add-new-song";
 import { getRecommendations } from "@/music/recommendation/get-recommendations";
 import { ResolvableTrack } from "@/music/structures/ResolvableTrack";
 import { isGuildMember } from "@sapphire/discord.js-utilities";
-import { sendPresetMessage } from "@/utils/utils";
+import { sendPresetMessage } from "@/lib/message-handler/helper";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
 import { EmbedBuilder } from "discord.js";
 import { Icons } from "@/constants/icons";
@@ -27,7 +27,16 @@ export class IaModeInteraction extends InteractionHandler {
     try {
       const recommendations = await getRecommendations(interaction.user.id);
 
-      if (!recommendations || !recommendations.length) {
+      if (recommendations.status === "error") {
+        await sendPresetMessage({
+          interaction,
+          preset: "error",
+          message: "Ocorreu um erro ao buscar as recomendações.",
+        });
+        return;
+      }
+
+      if (recommendations.data.length === 0) {
         await sendPresetMessage({
           interaction,
           preset: "error",
@@ -37,8 +46,8 @@ export class IaModeInteraction extends InteractionHandler {
         return;
       }
 
-      const response = await addISRCSongs(
-        recommendations.map(
+      const addedSongs = await addISRCSongs(
+        recommendations.data.map(
           (rec) =>
             new ResolvableTrack({
               track: "",
@@ -66,7 +75,7 @@ export class IaModeInteraction extends InteractionHandler {
         embeds: [
           new EmbedBuilder().setDescription(
             [
-              `### ${Icons.Hanakin} ${response.length} músicas adicionadas com Modo IA!`,
+              `### ${Icons.Hanakin} ${addedSongs.length} músicas adicionadas com Modo IA!`,
               `### Você poderá se tornar um ${Icons.Premium} Premium no lançamento do site <t:1694282040:R>.`,
               "**Faça parte da nossa Vibe!**",
             ].join("\n"),

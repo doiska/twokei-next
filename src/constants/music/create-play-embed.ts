@@ -12,7 +12,7 @@ import {
 import { OnPlayButtons } from "@/constants/music/player-buttons";
 import type { XiaoSearchResult } from "@/music/interfaces/player.types";
 import { Embed } from "@/utils/messages";
-import { sendPresetMessage } from "@/utils/utils";
+import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 import { fetchT } from "@sapphire/plugin-i18next";
 

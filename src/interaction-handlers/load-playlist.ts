@@ -17,11 +17,11 @@ import { songProfileSources } from "@/db/schemas/song-profile-sources";
 import { Icons } from "@/constants/icons";
 import { EmbedButtons } from "@/constants/music/player-buttons";
 import { playSong } from "@/features/music/play-song";
-import { type Action, type CallableAction, Pagination } from "@/lib/Pagination";
+import { type Action, Pagination } from "@/lib/Pagination";
 import type { ProfileWithPlaylists } from "@/music/resolvers/resolver";
 import { spotifyProfileResolver } from "@/music/resolvers/spotify/spotify-profile-resolver";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
-import { sendPresetMessage } from "@/utils/utils";
+import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "load-playlist",
@@ -109,7 +109,26 @@ export class LoadPlaylist extends InteractionHandler {
     return this.none();
   }
 
-  private getMenu(playlists: ProfileWithPlaylists["items"]): CallableAction {
+  private getMenu(playlists: ProfileWithPlaylists["items"]): (
+    context: Pagination,
+  ) => {
+    options: {
+      default: boolean;
+      description: string;
+      label: string;
+      value: string;
+    }[];
+    run: ({
+      collectedInteraction,
+      handler,
+    }: {
+      collectedInteraction: any;
+      handler: any;
+    }) => Promise<void>;
+    placeholder: string;
+    type: any;
+    customId: string;
+  } {
     return (context: Pagination) => {
       return {
         customId: "play-select-menu",

@@ -9,7 +9,7 @@ import {
 
 import { type Locale } from "@/locales/i18n";
 import { createLogger, playerLogger } from "@/modules/logger-transport";
-import { type Maybe } from "@/utils/utils";
+import { type Maybe } from "@/lib/message-handler/helper";
 import {
   Events,
   PlayerState,

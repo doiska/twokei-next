@@ -10,7 +10,7 @@ import type { Awaitable } from "@sapphire/utilities";
 import { noop } from "@sapphire/utilities";
 
 import { createSongProfileEmbed } from "@/features/song-profile/show-song-profile";
-import { sendPresetMessage } from "@/utils/utils";
+import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 @ApplyOptions<Command.Options>({
   name: "profile",

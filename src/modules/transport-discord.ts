@@ -1,7 +1,7 @@
 import { kil } from "@/db/Kil";
 import { logs } from "@/db/schemas/logs";
 
-import { capitalizeFirst } from "@/utils/utils";
+import { capitalizeFirst } from "@/lib/message-handler/helper";
 
 import Transport from "winston-transport";
 
@@ -23,13 +23,13 @@ export class DiscordTransport extends Transport {
 
     const exception = info?.error ?? info?.stack;
 
-    await kil.insert(logs).values({
-      message,
-      source: capitalizeFirst(defaultPrefix) ?? "Unknown",
-      env: process.env.NODE_ENV === "production" ? "Production" : "Development",
-      severity: capitalizeFirst(level),
-      trace: exception ? JSON.stringify(exception) : null,
-    });
+    // await kil.insert(logs).values({
+    //   message,
+    //   source: capitalizeFirst(defaultPrefix) ?? "Unknown",
+    //   env: process.env.NODE_ENV === "production" ? "Production" : "Development",
+    //   severity: capitalizeFirst(level),
+    //   trace: exception ? JSON.stringify(exception) : null,
+    // });
 
     callback();
   }

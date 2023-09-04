@@ -9,7 +9,7 @@ import {
 } from "@sapphire/framework";
 
 import { EmbedButtons } from "@/constants/music/player-buttons";
-import { sendPresetMessage } from "@/utils/utils";
+import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "invite-button",

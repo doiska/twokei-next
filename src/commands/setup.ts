@@ -8,7 +8,7 @@ import { setupSongMessage } from "@/features/song-channel/setup-song-message";
 import { logger } from "@/modules/logger-transport";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
-import { sendPresetMessage } from "@/utils/utils";
+import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 @ApplyOptions<Command.Options>({
   name: "setup",

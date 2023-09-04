@@ -14,7 +14,7 @@ import { youtubeTrackResolver } from "@/music/resolvers/youtube/youtube-track-re
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
 import { Embed } from "@/utils/messages";
-import { sendPresetMessage } from "@/utils/utils";
+import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 import { resolveKey } from "@sapphire/plugin-i18next";
 

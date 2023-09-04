@@ -4,7 +4,7 @@ export default {
   embed: {
     main: [
       `# ${Icons.Ranking} Twokei Global Ranking`,
-      " ",
+      "> Usuários que mais ouviram músicas no Twokei.",
       `### Seja parte do **Top 3** e receba todos os benefícios do **${Icons.Premium} Premium**!`,
       "",
     ].join("\n"),

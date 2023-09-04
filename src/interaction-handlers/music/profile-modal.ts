@@ -13,7 +13,7 @@ import { songProfileSources } from "@/db/schemas/song-profile-sources";
 
 import { Modals } from "@/constants/music/player-buttons";
 import { playerLogger } from "@/modules/logger-transport";
-import { sendPresetMessage } from "@/utils/utils";
+import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "profile-modal",

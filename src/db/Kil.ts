@@ -10,7 +10,7 @@ const dbClient = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-logger.info("Connecting to database...");
+export const createTable = pgSchema(env.PG_SCHEMA).table;
 
 export const kil = drizzle(dbClient, {
   logger: {
@@ -20,4 +20,4 @@ export const kil = drizzle(dbClient, {
   },
 });
 
-export const createTable = pgSchema(env.PG_SCHEMA).table;
+logger.info("Connected to database!");

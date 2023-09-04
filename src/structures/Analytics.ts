@@ -1,5 +1,6 @@
 import { logger } from "@/modules/logger-transport";
 import { env } from "@/app/env";
+import { fetchApi } from "@/lib/api";
 
 interface BaseProperties {
   userId: string;
@@ -26,13 +27,8 @@ export class Analytics {
 
     const responses = await Promise.allSettled(
       events.map(async (event) => {
-        return fetch(`${process.env.RESOLVER_URL}/analytics/${event.userId}`, {
-          method: "POST",
-          body: JSON.stringify(event),
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: process.env.RESOLVER_KEY!,
-          },
+        return fetchApi(`/analytics/${event.userId}`, {
+          body: event,
         });
       }),
     );

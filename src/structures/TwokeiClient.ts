@@ -99,8 +99,6 @@ export class TwokeiClient extends SapphireClient {
     content: RepliableContent,
     deleteInSeconds = 15,
   ) {
-    logger.debug("Reply to interaction", interaction.id);
-
     const contentParsed = await this.parseContent(content);
     if (deleteInSeconds) {
       setTimeout(() => {
