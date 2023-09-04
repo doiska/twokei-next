@@ -1,11 +1,10 @@
 import { logger } from "@/modules/logger-transport";
-import { env } from "@/app/env";
 import { fetchApi } from "@/lib/api";
 
 interface BaseProperties {
-  userId: string;
-  event: SongEvent["event"];
+  users: string[];
   guild?: string;
+  event: SongEvent["event"];
 }
 
 interface SongEvent {
@@ -22,34 +21,18 @@ interface SongEvent {
 type TrackableEvent = BaseProperties & SongEvent;
 
 export class Analytics {
-  public async track(userEvent: TrackableEvent | TrackableEvent[]) {
-    const events = [userEvent].flat();
+  public async track(event: TrackableEvent) {
+    const response = await fetchApi("/analytics", {
+      body: {
+        event: event.event,
+        users: [...new Set(event.users)],
+        track: event.track,
+      },
+    });
 
-    const responses = await Promise.allSettled(
-      events.map(async (event) => {
-        return fetchApi(`/analytics/${event.userId}`, {
-          body: event,
-        });
-      }),
-    );
-
-    const errors = responses.filter(
-      (response) => response.status === "rejected",
-    ) as PromiseRejectedResult[];
-
-    if (errors.length > 0) {
+    if (response.status === "error") {
       logger.error(
-        `[ANALYTICS] Failed to track ${errors.length} events: ${errors
-          .map((error) => error.reason)
-          .join(", ")}`,
-      );
-    }
-
-    if (env.NODE_ENV !== "production") {
-      const events = [userEvent].flat().map((event) => event.event);
-
-      logger.debug(
-        `[ANALYTICS] Tracked ${events.length} events: ${events.join(", ")}`,
+        `[Analytics] ${response.message} - ${JSON.stringify(event)}`,
       );
     }
   }

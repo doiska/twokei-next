@@ -9,7 +9,6 @@ import {
 
 import { type Locale } from "@/locales/i18n";
 import { createLogger, playerLogger } from "@/modules/logger-transport";
-import { type Maybe } from "@/lib/message-handler/helper";
 import {
   Events,
   PlayerState,
@@ -22,6 +21,7 @@ import type { Xiao, XiaoEvents } from "./Xiao";
 
 import { inspect } from "node:util";
 import type { Logger } from "winston";
+import type { Maybe } from "@/utils/types-helper";
 
 export enum LoopStates {
   NONE = "none",

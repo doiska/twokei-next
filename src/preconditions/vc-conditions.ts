@@ -1,7 +1,7 @@
 import { type GuildMember, type Message } from "discord.js";
 import { Precondition, Result, UserError } from "@sapphire/framework";
 
-import { type Maybe } from "@/lib/message-handler/helper";
+import { type Maybe } from "@/utils/types-helper";
 
 export const isConnectedTo = (member: GuildMember, channel: Maybe<string>) => {
   return member.voice.channel?.id === channel;

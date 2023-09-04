@@ -110,7 +110,7 @@ export async function playSong(
       }
 
       await container.analytics.track({
-        userId: collected.member.id,
+        users: [collected.member.id],
         event:
           collected.customId === OnPlayButtons.LIKE
             ? "liked_song"

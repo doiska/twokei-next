@@ -1,8 +1,3 @@
-import { kil } from "@/db/Kil";
-import { logs } from "@/db/schemas/logs";
-
-import { capitalizeFirst } from "@/lib/message-handler/helper";
-
 import Transport from "winston-transport";
 
 export class DiscordTransport extends Transport {

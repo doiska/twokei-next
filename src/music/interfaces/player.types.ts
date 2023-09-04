@@ -6,7 +6,7 @@ import {
 } from "discord.js";
 
 import { type Locale } from "@/locales/i18n";
-import { type Maybe } from "@/lib/message-handler/helper";
+import { type Maybe } from "@/utils/types-helper";
 import { type ResolvableTrack } from "../structures/ResolvableTrack";
 
 export enum LoadType {

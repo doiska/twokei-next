@@ -1,4 +1,4 @@
-import { type Maybe } from "@/lib/message-handler/helper";
+import { type Maybe } from "@/utils/types-helper";
 import { type ResolvableTrack } from "./ResolvableTrack";
 
 export class TrackQueue<T = ResolvableTrack> extends Array<T> {
