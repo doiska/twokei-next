@@ -50,15 +50,11 @@ export class TrackEndEvent extends Listener<typeof Events.TrackEnd> {
       return;
     }
 
-    console.log(current);
-
-    await container.analytics.track(
-      connected.map((member) => ({
-        event: "heard_song",
-        guild: member.guild.id,
-        userId: member.user.id,
-        track: current.short(),
-      })),
-    );
+    await container.analytics.track({
+      event: "heard_song",
+      guild: venti.guildId,
+      users: connected.map((member) => member.id),
+      track: current.short(),
+    });
   }
 }

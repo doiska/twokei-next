@@ -3,8 +3,7 @@ import { ApplyOptions } from "@sapphire/decorators";
 import {
   InteractionHandler,
   InteractionHandlerTypes,
-  type None,
-  type Option,
+  Option,
 } from "@sapphire/framework";
 
 import { EmbedButtons } from "@/constants/music/player-buttons";
@@ -14,11 +13,20 @@ import { kil } from "@/db/Kil";
 import { users } from "@/db/schemas/users";
 import { eq, inArray } from "drizzle-orm";
 import { songRanking } from "@/db/schemas/song-ranking";
-import { Colors, EmbedBuilder, GuildMember, userMention } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  Colors,
+  EmbedBuilder,
+  GuildMember,
+  userMention,
+} from "discord.js";
 import { fetchT } from "@sapphire/plugin-i18next";
 import { getDateLocale } from "@/locales/i18n";
 import { formatDuration, intervalToDuration } from "date-fns";
 import { send } from "@/lib/message-handler";
+import { isValidCustomId } from "@/utils/interaction-helper";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "ranking-button",
@@ -117,6 +125,12 @@ export class RankingButtonInteraction extends InteractionHandler {
       .setDescription(description)
       .setColor(Colors.Red);
 
+    const rulesButton = new ButtonBuilder()
+      .setLabel("Regras do Ranking")
+      .setCustomId("ranking-rules-button")
+      .setEmoji("📜")
+      .setStyle(ButtonStyle.Primary);
+
     const ephemeralEmbed = new EmbedBuilder()
       .setDescription(
         t("interactions:ranking.embed.ephemeral", {
@@ -126,8 +140,13 @@ export class RankingButtonInteraction extends InteractionHandler {
       )
       .setColor(Colors.Yellow);
 
+    const row = new ActionRowBuilder<ButtonBuilder>({
+      components: [rulesButton],
+    });
+
     await send(interaction, {
       embeds: [mainEmbed],
+      components: [row],
     }).dispose();
 
     await interaction.followUp({
@@ -136,11 +155,7 @@ export class RankingButtonInteraction extends InteractionHandler {
     });
   }
 
-  public parse(interaction: ButtonInteraction): Option<None> {
-    if (interaction.customId !== EmbedButtons.VIEW_RANKING) {
-      return this.none();
-    }
-
-    return this.some();
+  public parse(interaction: ButtonInteraction): Option<string> {
+    return isValidCustomId(interaction.customId, EmbedButtons.VIEW_RANKING);
   }
 }

@@ -33,7 +33,7 @@ export class TrackAddEvent extends Listener {
     );
 
     await container.analytics.track({
-      userId: user.id,
+      users: [user.id],
       guild: venti.guildId,
       event: "added_song",
       track: current.short(),
