@@ -32,12 +32,32 @@ export class YoutubeTrackResolver implements TrackResolver {
 
     if (
       !ytResponse ||
-      ytResponse.loadType === LoadType.NO_MATCHES ||
-      !ytResponse.tracks.length
+      !ytResponse.tracks.length ||
+      ytResponse.loadType === LoadType.NO_MATCHES
     ) {
       return {
         type: LoadType.NO_MATCHES,
         tracks: [],
+      };
+    }
+
+    if (ytResponse.loadType === "TRACK_LOADED") {
+      return {
+        tracks: [this.parseTrack(ytResponse.tracks[0], options?.requester)],
+        type: LoadType.TRACK_LOADED,
+      };
+    }
+
+    if (ytResponse.loadType === "PLAYLIST_LOADED") {
+      return {
+        tracks: ytResponse.tracks.map((track) =>
+          this.parseTrack(track, options?.requester),
+        ),
+        type: LoadType.PLAYLIST_LOADED,
+        playlist: {
+          name: ytResponse.playlistInfo.name ?? "Playlist",
+          url: "",
+        },
       };
     }
 
