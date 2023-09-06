@@ -17,6 +17,7 @@ import {
   isAnyInteraction,
 } from "@sapphire/discord.js-utilities";
 import { noop } from "@sapphire/utilities";
+import { logger } from "@/modules/logger-transport";
 
 export type MessageHandlerOptions =
   | MessageCreateOptions
@@ -25,32 +26,43 @@ export type MessageHandlerOptions =
 
 type Repliable = Message | RepliableInteraction;
 
-const replies = new WeakMap<Repliable, Message>();
+const replies = new Map<string, Message>();
 
 class MessageHandlerPromise extends CustomHandler<Message> {
-  private readonly interaction: Repliable;
-  private readonly options: string | MessageHandlerOptions;
-
-  constructor(interaction: Repliable, options: string | MessageHandlerOptions) {
+  constructor(
+    private readonly interaction: Repliable,
+    private readonly options: string | MessageHandlerOptions,
+    private readonly method: "send" | "followUp" = "send",
+  ) {
     super();
-    this.interaction = interaction;
-    this.options = options;
   }
 
   async execute(): Promise<Message> {
+    if (this.method === "followUp") {
+      return await handleFollowUp(this.interaction, this.options);
+    }
+
     return handle(this.interaction, this.options);
   }
 
-  dispose(timeout = 15000) {
+  dispose(milliseconds = 15000) {
     setTimeout(() => {
+      const key = `${this.interaction.id}-${this.method}`;
+      const responseMessage = replies.get(key);
+
+      if (responseMessage) {
+        responseMessage.delete().catch((e) => logger.error(e));
+        logger.debug(`[${this.method}] Message handler disposed using delete.`);
+        replies.delete(key);
+        return;
+      }
+
       if (isAnyInteraction(this.interaction)) {
         this.interaction.deleteReply().catch(noop);
       } else {
         this.interaction.delete().catch(noop);
       }
-
-      replies.delete(this.interaction);
-    }, timeout);
+    }, milliseconds);
     return this;
   }
 }
@@ -59,8 +71,43 @@ export function send(
   interaction: Repliable,
   options: string | MessageHandlerOptions,
 ) {
-  console.log(`Theres ${Object.keys(replies).length} replies loaded.`);
   return new MessageHandlerPromise(interaction, options);
+}
+
+export function followUp(
+  interaction: Repliable,
+  options: string | MessageHandlerOptions,
+) {
+  return new MessageHandlerPromise(interaction, options, "followUp");
+}
+
+async function handleFollowUp<T extends MessageHandlerOptions>(
+  interaction: Repliable,
+  options: string | T,
+  extra?: T | undefined,
+): Promise<Message> {
+  if (!interaction.channel) {
+    throw new Error("No channel specified.");
+  }
+
+  const payload = await MessagePayload.create(
+    interaction.channel,
+    resolvePayload(options),
+    extra,
+  )
+    .resolveBody()
+    .resolveFiles();
+
+  let response: Message;
+  if (isAnyInteractableInteraction(interaction)) {
+    await interaction.followUp(payload);
+    response = await interaction.fetchReply();
+  } else {
+    response = await interaction.reply(payload);
+  }
+
+  replies.set(`${interaction.id}-followUp`, response);
+  return response;
 }
 
 async function handle<T extends MessageHandlerOptions>(
@@ -72,7 +119,7 @@ async function handle<T extends MessageHandlerOptions>(
     throw new Error("No channel specified.");
   }
 
-  const existing = replies.get(interaction);
+  const existing = replies.get(`${interaction.id}-send`);
 
   const payloadOptions = existing
     ? resolveEditPayload(existing, options as MessageEditOptions)
@@ -90,7 +137,7 @@ async function handle<T extends MessageHandlerOptions>(
     ? tryEdit(existing, interaction, payload)
     : tryReply(interaction, payload));
 
-  replies.set(interaction, response);
+  replies.set(`${interaction.id}-send`, response);
 
   return response;
 }
@@ -165,7 +212,7 @@ async function tryEdit(
       return message.fetchReply();
     }
 
-    replies.delete(message);
+    replies.delete(`${message.id}-send`);
     return message.reply(payload);
   }
 }
