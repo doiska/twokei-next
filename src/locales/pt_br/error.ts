@@ -29,4 +29,6 @@ export default {
     "Envie a mensagem no {{- song_channel}} para que eu possa tocar a música.",
   [ErrorCodes.MISSING_ADMIN_PERMISSIONS]:
     "Você não tem permissão (administrador) para usar este comando.",
+  [ErrorCodes.PLAYER_NO_TRACKS_FOUND]:
+    "Nenhuma música encontrada, tente usando um link direto.",
 };

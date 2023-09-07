@@ -17,6 +17,7 @@ import { Embed } from "@/utils/messages";
 import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 import { resolveKey } from "@sapphire/plugin-i18next";
+import { followUp, send } from "@/lib/message-handler";
 
 export async function playSong(
   interaction: Exclude<RepliableInteraction, ModalSubmitInteraction> | Message,
@@ -41,7 +42,6 @@ export async function playSong(
   }
 
   const songChannel = await guild.channels.fetch(channelId).catch(() => null);
-
   const isSongChannel = interaction.channel?.id === channelId;
 
   if (!songChannel || !isTextChannel(songChannel)) {
@@ -60,28 +60,9 @@ export async function playSong(
       await resolveKey(interaction, "player:youtube_disabled"),
     );
 
-    if (interaction instanceof Message) {
-      await interaction.channel
-        .send({
-          embeds: [warning],
-        })
-        .then((replied) =>
-          setTimeout(() => {
-            replied.delete().catch(noop);
-          }, 5000),
-        );
-    } else if (interaction.isRepliable()) {
-      await interaction
-        .followUp({
-          embeds: [warning],
-          ephemeral: true,
-        })
-        .then((replied) =>
-          setTimeout(() => {
-            replied.delete().catch(noop);
-          }, 5000),
-        );
-    }
+    await followUp(interaction, {
+      embeds: [warning],
+    }).dispose(5000);
   }
 
   try {
@@ -99,9 +80,11 @@ export async function playSong(
       });
     }
 
-    const playMessage = await songChannel.send(
+    const playMessage = await send(
+      interaction,
       await createPlayEmbed(interaction.member, result),
-    );
+    ).dispose(60000);
+
     const feedback = await waitFeedback(playMessage);
 
     feedback.on("collect", async (collected) => {
@@ -118,21 +101,16 @@ export async function playSong(
         track: result.tracks?.[0].short(),
       });
 
-      await sendPresetMessage({
-        interaction: collected,
-        preset: "success",
+      await send(collected, {
+        embeds: [
+          Embed.success(await resolveKey(interaction, "player:play.feedback")),
+        ],
         ephemeral: true,
       });
     });
-
-    setTimeout(() => {
-      playMessage.delete().catch(noop);
-    }, 15000);
   } catch (error) {
-    await sendPresetMessage({
-      interaction,
-      preset: "error",
-      message: getReadableException(error),
-    });
+    await send(interaction, {
+      embeds: [Embed.error(getReadableException(error))],
+    }).dispose();
   }
 }

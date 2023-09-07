@@ -142,37 +142,43 @@ export class ResolvableTrack {
 
   private async getTrack() {
     const query = cleanUpSong(this.title, this.author);
-
     const response = await this.resolveQuery(query);
 
-    playerLogger.info(`[ResolvableTrack] Get Track resolved ${query} into `, {
-      response,
-    });
-
-    if (!response?.tracks.length) {
+    if (!response?.tracks?.length) {
       return;
     }
 
-    const [track] = response.tracks.map(this.parseResolvableToTrack);
+    playerLogger.info(`[ResolvableTrack] Get Track resolved ${query}`);
 
-    return track;
+    const [resolved] = response.tracks;
+
+    if (!this.isrc) {
+      playerLogger.debug("[ResolvableTrack] Track does not have ISRC yet.");
+    } else {
+      playerLogger.debug(
+        `[ResolvableTrack] Track has ISRC, checking if it matches.`,
+      );
+    }
+
+    if (!this.isrc && resolved.isrc) {
+      playerLogger.debug("[ResolvableTrack] Track has ISRC, using it.");
+      this.isrc = resolved.isrc;
+    }
+
+    return this.parseResolvableToTrack(resolved);
   }
 
-  // TODO: refactor and cleanup
   private async resolveQuery(query: string) {
     if (this.isrc) {
       logger.debug("[TRACK] Already has ISRC");
-      return container.xiao.search(this.isrc, {
-        engine: "dzisrc",
-        requester: this.requester,
-      });
+      return this.searchByISRC(this.isrc);
     }
 
     const spotifyResponse = await spotifyTrackResolver.resolve(query, {
       requester: this.requester,
     });
 
-    if (!spotifyResponse.tracks.length) {
+    if (!spotifyResponse.tracks?.length) {
       return spotifyResponse;
     }
 
@@ -184,19 +190,27 @@ export class ResolvableTrack {
         `[ResolvableTrack] Track does not have ISRC, using search for ${newSearchQuery}`,
       );
 
-      return container.xiao.search(newSearchQuery, {
-        requester: this.requester,
-      });
+      return this.searchByQuery(newSearchQuery);
     }
 
     playerLogger.debug(
-      `[Resolvable Track] Resolved ${query} (ISRC: ${
-        track?.isrc ?? ""
-      }) in Spotify`,
+      `[ResolvableTrack] Resolved ${query} (ISRC: ${track.isrc}) in Spotify`,
     );
 
-    return container.xiao.search(track.isrc, {
+    this.isrc = track.isrc;
+
+    return this.searchByISRC(track.isrc);
+  }
+
+  private searchByISRC(isrc: string) {
+    return container.xiao.search(isrc, {
       engine: "dzisrc",
+      requester: this.requester,
+    });
+  }
+
+  private searchByQuery(query: string) {
+    return container.xiao.search(query, {
       requester: this.requester,
     });
   }

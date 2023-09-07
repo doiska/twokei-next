@@ -11,6 +11,7 @@ import { PlayerException } from "@/structures/exceptions/PlayerException";
 import { Events, LoadType } from "../interfaces/player.types";
 import { createPlayerInstance } from "./create-player-instance";
 import type { ResolvableTrack } from "@/music/structures/ResolvableTrack";
+import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 
 async function createPlayer(member: GuildMember) {
   const { guild } = member;
@@ -58,7 +59,7 @@ export async function addNewSong(input: string, member: GuildMember) {
   });
 
   if (!result.tracks.length) {
-    throw new PlayerException(ErrorCodes.PLAYER_NO_TRACKS_FOUND);
+    throw new FriendlyException(ErrorCodes.PLAYER_NO_TRACKS_FOUND);
   }
 
   if (result.type === LoadType.PLAYLIST_LOADED) {

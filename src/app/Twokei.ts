@@ -80,14 +80,14 @@ const main = async () => {
   Twokei?.user?.setPresence({
     activities: [
       {
-        name: "twokei.com",
-        type: ActivityType.Listening,
+        name: "Music Bot: Twokei.com",
+        type: ActivityType.Custom,
         url: "https://twokei.com",
       },
     ],
   });
 
-  for (const guild of Twokei.guilds.cache.values()) {
+  for (const guild of [...Twokei.guilds.cache.values()]) {
     container.sc.reset(guild).catch(noop);
   }
 };

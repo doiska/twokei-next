@@ -14,7 +14,9 @@ import type { XiaoSearchResult } from "@/music/interfaces/player.types";
 import { Embed } from "@/utils/messages";
 import { sendPresetMessage } from "@/lib/message-handler/helper";
 
-import { fetchT } from "@sapphire/plugin-i18next";
+import { fetchT, TFunction } from "@sapphire/plugin-i18next";
+import { inlineCode } from "@discordjs/formatters";
+import { addMilliseconds, format } from "date-fns";
 
 export const createPlayEmbed = async (
   member: GuildMember,
@@ -41,47 +43,27 @@ export const createPlayEmbed = async (
     .setLabel(dislike)
     .setStyle(ButtonStyle.Danger);
 
+  const sourceUrl =
+    result.type === "PLAYLIST_LOADED" && result.playlist.url.startsWith("http")
+      ? result.playlist.url
+      : track.uri;
+
   const viewOnSource = new ButtonBuilder()
     .setStyle(ButtonStyle.Link)
     .setLabel(viewSource)
-    .setURL(track.uri);
+    .setURL(sourceUrl);
 
   const feedbackRow = new ActionRowBuilder<ButtonBuilder>({
     components: [likeButton, dislikeButton, viewOnSource],
   });
 
-  const resultType = ["PLAYLIST_LOADED"].includes(result.type)
-    ? "playlist"
-    : "track";
+  const embed =
+    getPlaylistDescription(result, t) ?? getTrackDescription(result, t);
 
-  const embed = new EmbedBuilder()
-    .setAuthor(
-      t("player:play.embed.author", {
-        returnObjects: true,
-        member: {
-          name: member.user.tag,
-          avatarUrl: member.user.displayAvatarURL(),
-        },
-      }),
-    )
-    .setDescription(
-      t(`player:play.embed.description_${resultType}`, {
-        track: {
-          title: track.title,
-          author: track.author,
-          uri: track.uri,
-          thumbnail: track.thumbnail ?? "",
-        },
-        playlist: {
-          name:
-            result.type === "PLAYLIST_LOADED"
-              ? result.playlist.name
-              : "Playlist",
-          amount: result.tracks.length,
-        },
-      }),
-    )
-    .setThumbnail(track.thumbnail ?? null);
+  embed.setAuthor({
+    name: `${member.displayName}`,
+    iconURL: member.user.displayAvatarURL(),
+  });
 
   const responseEmbed = Embed.success(embed.data);
 
@@ -90,6 +72,57 @@ export const createPlayEmbed = async (
     components: [feedbackRow],
   };
 };
+
+function getTrackDescription(result: XiaoSearchResult, t: TFunction) {
+  const track = result.tracks[0];
+
+  return new EmbedBuilder().setDescription(
+    [
+      `### ${t("player:play.added_to_queue")}`,
+      `(${formatMillis(track.length)}) **[${track.title} - ${track.author}](${
+        track.uri
+      })**`,
+    ].join("\n"),
+  );
+}
+
+function getPlaylistDescription(result: XiaoSearchResult, t: TFunction) {
+  if (result.type !== "PLAYLIST_LOADED") {
+    return;
+  }
+
+  const maxShownTracks = 5;
+  const hasMoreTracks = result.tracks.length - maxShownTracks > 0;
+
+  const tracks = result.tracks
+    .slice(0, maxShownTracks)
+    .map(
+      (track) =>
+        `- (${formatMillis(track.length)}) [${track.title}](${track.uri}) - ${
+          track.author
+        }`,
+    );
+
+  const moreTracks =
+    hasMoreTracks &&
+    t("player:play.more_songs", {
+      amount: result.tracks.length - maxShownTracks,
+    });
+
+  return new EmbedBuilder().setDescription(
+    [`### ${inlineCode(result.playlist.name)}`, ...tracks, moreTracks]
+      .filter(Boolean)
+      .join("\n"),
+  );
+}
+
+function formatMillis(millis: number) {
+  const referenceDate = new Date(0);
+
+  const newDate = addMilliseconds(referenceDate, millis);
+
+  return format(newDate, "mm:ss");
+}
 
 export async function waitFeedback(message: Message) {
   const collector = message.createMessageComponentCollector({
