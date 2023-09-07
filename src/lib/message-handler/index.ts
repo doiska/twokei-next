@@ -19,10 +19,14 @@ import {
 import { noop } from "@sapphire/utilities";
 import { logger } from "@/modules/logger-transport";
 
-export type MessageHandlerOptions =
+type MessageHandlerEditOptions =
   | MessageCreateOptions
   | MessageReplyOptions
   | MessageEditOptions;
+
+export type MessageHandlerOptions = MessageHandlerEditOptions & {
+  ephemeral?: boolean;
+};
 
 type Repliable = Message | RepliableInteraction;
 

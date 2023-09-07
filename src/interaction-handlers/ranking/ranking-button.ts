@@ -3,7 +3,6 @@ import { ApplyOptions } from "@sapphire/decorators";
 import {
   InteractionHandler,
   InteractionHandlerTypes,
-  Option,
 } from "@sapphire/framework";
 
 import { EmbedButtons } from "@/constants/music/player-buttons";

@@ -80,9 +80,10 @@ export async function playSong(
       });
     }
 
-    const playMessage = await songChannel.send(
+    const playMessage = await send(
+      interaction,
       await createPlayEmbed(interaction.member, result),
-    );
+    ).dispose(60000);
 
     const feedback = await waitFeedback(playMessage);
 
@@ -100,16 +101,13 @@ export async function playSong(
         track: result.tracks?.[0].short(),
       });
 
-      await sendPresetMessage({
-        interaction: collected,
-        preset: "success",
+      await send(collected, {
+        embeds: [
+          Embed.success(await resolveKey(interaction, "player:play.feedback")),
+        ],
         ephemeral: true,
       });
     });
-
-    setTimeout(() => {
-      playMessage.delete().catch(noop);
-    }, 15000);
   } catch (error) {
     await send(interaction, {
       embeds: [Embed.error(getReadableException(error))],
