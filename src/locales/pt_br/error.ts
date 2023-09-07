@@ -30,5 +30,5 @@ export default {
   [ErrorCodes.MISSING_ADMIN_PERMISSIONS]:
     "Você não tem permissão (administrador) para usar este comando.",
   [ErrorCodes.PLAYER_NO_TRACKS_FOUND]:
-    "Nenhuma música encontrada, tente usando um link!",
+    "Nenhuma música encontrada, tente usando um link direto.",
 };

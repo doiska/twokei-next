@@ -14,13 +14,6 @@ export default {
       "- Utilize o **Modo IA** e adicione várias músicas sem esforço!",
       "- Clique no botão **Modo IA** ou **Playlist Recomendada** abaixo.",
     ],
-    description_playing: [
-      " ",
-      "### 🎶 Tocando agora",
-      "- **{{- track.title}}**",
-      "- Artista: {{- track.author}}",
-      "- A pedido de: **{{- track.requestedBy}}**",
-    ],
     buttons: {
       [PlayerButtons.STOP]: "Parar",
       [PlayerButtons.PREVIOUS]: "Anterior",
@@ -45,30 +38,14 @@ export default {
     },
   },
   play: {
-    embed: {
-      author: {
-        name: "Solicitado por {{- member.name}}!",
-        icon_url: "{{- member.avatarUrl}}",
-      },
-      description_track: [
-        "### Track adicionada!",
-        "{{track.author}} - [{{- track.title}}]({{- track.uri}})",
-      ].join("\n"),
-      description_playlist: [
-        "### {{playlist.name}} adicionada com {{playlist.amount}} músicas",
-        "- Perk do servidor: Auto-Shuffle habilitado!",
-      ].join("\n"),
-      thumbnail: {
-        url: "{{- track.thumbnail}}",
-      },
-    },
-    with_songs: "Com outras {{amount}} faixas",
+    added_to_queue: `${Icons.Lightning} Adicionado à fila!`,
+    more_songs: "+ {{amount}} mais faixas",
     buttons: {
       like: "Like",
       dislike: "Dislike",
       view_source: "Ver no {{source}}",
     },
-    feedback: ["Obrigado pelo feedback!", "Ajustaremos suas recomendações :)"],
+    feedback: "Ajustaremos suas recomendações :)",
   },
   player: {
     now_playing: "Now playing 🎶",
