@@ -56,7 +56,7 @@ export class YoutubeTrackResolver implements TrackResolver {
         type: LoadType.PLAYLIST_LOADED,
         playlist: {
           name: ytResponse.playlistInfo.name ?? "Playlist",
-          url: "",
+          url: query,
         },
       };
     }

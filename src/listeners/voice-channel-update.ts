@@ -31,22 +31,22 @@ export class VoiceChannelUpdate extends Listener {
       return;
     }
 
-    const isTwokei = guild.members.me.id === leavingMember.id;
+    const isBotLeaving = guild.members.me.id === leavingMember.id;
 
-    const isEmpty =
+    const isChannelEmpty =
       oldState.channel?.members.filter((member) => !member.user.bot).size === 0;
 
-    console.log(`Leaving: empty ${isEmpty} - isTwokei ${isTwokei}`);
+    const wasBotConnected = oldState.channel?.members.has(guild.members.me.id);
 
-    if (isTwokei && isEmpty) {
+    if (isBotLeaving) {
+      console.log("Bot has been disconnected.");
+      await container.xiao.destroyPlayer(newState.guild);
       return;
     }
 
-    // Se for o Twokei que está saindo, limpar o canal.
-    if (isTwokei || isEmpty) {
-      console.log("Twokei have been disconnected.");
+    if (isChannelEmpty && wasBotConnected) {
+      console.log("Channel is empty and bot was previously connected.");
       await container.xiao.destroyPlayer(newState.guild);
-      return;
     }
   }
 
