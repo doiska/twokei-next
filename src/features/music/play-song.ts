@@ -2,7 +2,6 @@ import type { ModalSubmitInteraction, RepliableInteraction } from "discord.js";
 import { channelMention, Message } from "discord.js";
 import { isGuildMember, isTextChannel } from "@sapphire/discord.js-utilities";
 import { container } from "@sapphire/framework";
-import { noop } from "@sapphire/utilities";
 
 import {
   createPlayEmbed,
@@ -110,7 +109,10 @@ export async function playSong(
     });
   } catch (error) {
     await send(interaction, {
-      embeds: [Embed.error(getReadableException(error))],
+      embeds: [
+        Embed.error(await resolveKey(interaction, getReadableException(error))),
+      ],
+      ephemeral: true,
     }).dispose();
   }
 }
