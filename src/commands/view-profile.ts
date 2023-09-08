@@ -19,7 +19,7 @@ import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 @ApplyOptions<Command.Options>({
   name: "profile",
-  description: "View yours or another users profile",
+  description: "View yours or another users song profile",
 })
 export class ViewProfile extends Command {
   public override registerApplicationCommands(
