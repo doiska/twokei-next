@@ -4,6 +4,7 @@ import type {
   RepliableInteraction,
   MessageCreateOptions,
   MessageEditOptions,
+  InteractionReplyOptions,
 } from "discord.js";
 
 import {
@@ -55,7 +56,7 @@ class MessageHandlerPromise extends CustomHandler<Message> {
       const responseMessage = replies.get(key);
 
       if (responseMessage) {
-        responseMessage.delete().catch((e) => logger.error(e));
+        responseMessage.delete().catch(noop);
         logger.debug(`[${this.method}] Message handler disposed using delete.`);
         replies.delete(key);
         return;
@@ -117,7 +118,6 @@ async function handleFollowUp<T extends MessageHandlerOptions>(
 async function handle<T extends MessageHandlerOptions>(
   interaction: Repliable,
   options: string | T,
-  extra?: T | undefined,
 ): Promise<Message> {
   if (!interaction.channel) {
     throw new Error("No channel specified.");
@@ -129,17 +129,9 @@ async function handle<T extends MessageHandlerOptions>(
     ? resolveEditPayload(existing, options as MessageEditOptions)
     : resolvePayload(options);
 
-  const payload = await MessagePayload.create(
-    interaction.channel,
-    payloadOptions,
-    extra,
-  )
-    .resolveBody()
-    .resolveFiles();
-
   const response = await (existing
-    ? tryEdit(existing, interaction, payload)
-    : tryReply(interaction, payload));
+    ? tryEdit(existing, interaction, payloadOptions as MessageEditOptions)
+    : tryReply(interaction, payloadOptions as MessageCreateOptions));
 
   replies.set(`${interaction.id}-send`, response);
 
@@ -181,27 +173,27 @@ function resolveEditPayload(
 
 async function tryReply(
   message: Repliable,
-  payload: MessagePayload,
+  payload: InteractionReplyOptions | MessageCreateOptions,
 ): Promise<Message> {
   if (isAnyInteractableInteraction(message)) {
-    await message.reply(payload);
+    await message.reply(payload as InteractionReplyOptions);
     return message.fetchReply();
   }
 
-  return message.reply(payload);
+  return message.reply(payload as MessageReplyOptions);
 }
 
 async function tryEdit(
   message: Repliable,
   response: Repliable,
-  payload: MessagePayload,
+  payload: Exclude<MessageHandlerEditOptions, MessageCreateOptions>,
 ) {
   try {
     if (isAnyInteractableInteraction(response)) {
       return await response.editReply(payload);
     }
 
-    return await response.edit(payload);
+    return await response.edit(payload satisfies MessageEditOptions);
   } catch (error) {
     if (!(error instanceof DiscordAPIError)) {
       throw error;
@@ -212,11 +204,11 @@ async function tryEdit(
     }
 
     if (isAnyInteractableInteraction(message)) {
-      await message.reply(payload);
+      await message.reply(payload as InteractionReplyOptions);
       return message.fetchReply();
     }
 
     replies.delete(`${message.id}-send`);
-    return message.reply(payload);
+    return message.reply(payload as MessageCreateOptions);
   }
 }

@@ -63,7 +63,11 @@ export async function sendPresetMessage<T>({
   const content: string = determineContent(found, message);
   const embed = embedTypes[preset ?? "success"](content);
 
-  return send(interaction, { embeds: [embed], ...props }).dispose(
-    deleteIn * 1000,
-  );
+  const disposalTime = (() => {
+    if (deleteIn === 0) return undefined;
+    if (deleteIn > 1000) return deleteIn;
+    return deleteIn * 1000;
+  })();
+
+  return send(interaction, { embeds: [embed], ...props }).dispose(disposalTime);
 }
