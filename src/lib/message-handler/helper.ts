@@ -46,7 +46,7 @@ export async function sendPresetMessage<T>({
   interaction,
   preset,
   message,
-  deleteIn,
+  deleteIn = 15,
   i18n,
   ...props
 }: PresetMessageOptions<T>) {
@@ -63,5 +63,7 @@ export async function sendPresetMessage<T>({
   const content: string = determineContent(found, message);
   const embed = embedTypes[preset ?? "success"](content);
 
-  return send(interaction, { embeds: [embed], ...props }).dispose(deleteIn);
+  return send(interaction, { embeds: [embed], ...props }).dispose(
+    deleteIn * 1000,
+  );
 }
