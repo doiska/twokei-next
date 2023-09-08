@@ -29,62 +29,67 @@ import { sendPresetMessage } from "@/lib/message-handler/helper";
 })
 export class LoadPlaylist extends InteractionHandler {
   public async run(interaction: ButtonInteraction) {
-    const sources = await kil
-      .select()
-      .from(songProfileSources)
-      .where(and(eq(songProfileSources.userId, interaction.user.id)));
+    const sources = await this.fetchSources(interaction.user.id);
 
     if (!sources.length) {
-      await sendPresetMessage({
-        interaction,
-        preset: "error",
-        message: "profile:profile_not_setup",
-        ephemeral: true,
-      });
-      return;
+      return this.sendError(interaction, "profile:profile_not_setup");
     }
 
-    const promises = await Promise.all(
-      sources.map(async (source) => {
-        if (source.source.toLowerCase() === "spotify") {
-          return spotifyProfileResolver.getPlaylists(source.sourceUrl);
-        }
-
-        return null;
-      }),
-    );
-
-    const profiles = promises.filter(Boolean).flat();
+    const profiles = await this.fetchProfiles(sources);
 
     if (!profiles.length) {
-      await sendPresetMessage({
-        interaction,
-        message: "commands:load-playlist.not_found",
-        preset: "error",
-      });
-      return;
+      return this.sendError(interaction, "commands:load-playlist.not_found");
     }
 
-    const hasAnyTrack = profiles.filter(
-      (profile) => profile.items.filter((s) => s.tracks.total).length > 0,
+    const hasAnyTrack = profiles.some((profile) =>
+      profile.items.some((s) => s.tracks.total),
     );
 
     if (!hasAnyTrack) {
-      await sendPresetMessage({
+      return this.sendError(
         interaction,
-        message: "Você não possui playlists com músicas.",
-        preset: "error",
-      });
-
-      return;
+        "Você não possui playlists com músicas.",
+      );
     }
 
+    return await this.handlePagination(interaction, profiles);
+  }
+
+  private async fetchSources(userId: string) {
+    return kil
+      .select()
+      .from(songProfileSources)
+      .where(and(eq(songProfileSources.userId, userId)));
+  }
+
+  private async fetchProfiles(sources: any[]) {
+    const promises = sources.map((source) => {
+      if (source.source.toLowerCase() === "spotify") {
+        return spotifyProfileResolver.getPlaylists(source.sourceUrl);
+      }
+      return null;
+    });
+
+    return (await Promise.all(promises)).filter(Boolean).flat();
+  }
+
+  private sendError(interaction: ButtonInteraction, message: string) {
+    return sendPresetMessage({
+      interaction,
+      message,
+      preset: "error",
+      ephemeral: true,
+    });
+  }
+
+  private async handlePagination(
+    interaction: ButtonInteraction,
+    profiles: any[],
+  ) {
     const pages = profiles.flatMap((profile) =>
       profile.items.map(this.createPageEmbed),
     );
-
     const playlists = profiles.flatMap((profile) => profile.items);
-
     const pagination = new Pagination(interaction, pages, [
       this.getMenu(playlists),
       ...this.getButtons(playlists),
@@ -93,11 +98,7 @@ export class LoadPlaylist extends InteractionHandler {
     try {
       await pagination.run();
     } catch (error) {
-      await sendPresetMessage({
-        interaction,
-        message: getReadableException(error),
-        preset: "error",
-      });
+      await this.sendError(interaction, getReadableException(error));
     }
   }
 
@@ -154,7 +155,9 @@ export class LoadPlaylist extends InteractionHandler {
         customId: "previous",
         type: ComponentType.Button,
         style: ButtonStyle.Secondary,
-        run: async ({ handler }) => {
+        run: async ({ collectedInteraction, handler }) => {
+          await collectedInteraction.deferUpdate().catch(noop);
+
           if (handler.page === 0) {
             await handler.setPage(handler.pages.length - 1);
           } else {
@@ -185,18 +188,7 @@ export class LoadPlaylist extends InteractionHandler {
             return;
           }
 
-          await playSong(selectInteraction, playlist.uri)
-            .catch(async (response) => {
-              const readable = getReadableException(response);
-
-              return selectInteraction.followUp({
-                content: readable,
-                ephemeral: true,
-              });
-            })
-            .finally(() => {
-              selectInteraction.deleteReply().catch(noop);
-            });
+          await playSong(selectInteraction, playlist.uri).catch(noop);
 
           collector.stop();
         },
@@ -206,7 +198,9 @@ export class LoadPlaylist extends InteractionHandler {
         customId: "next",
         type: ComponentType.Button,
         style: ButtonStyle.Secondary,
-        run: async ({ handler }) => {
+        run: async ({ collectedInteraction, handler }) => {
+          await collectedInteraction.deferUpdate().catch(noop);
+
           if (handler.page >= handler.pages.length - 1) {
             await handler.setPage(0);
           } else {

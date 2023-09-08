@@ -1,6 +1,6 @@
 import type {
+  ButtonInteraction,
   EmbedBuilder,
-  Interaction,
   InteractionButtonComponentData,
   InteractionCollector,
   InteractionEditReplyOptions,
@@ -16,6 +16,7 @@ import {
   Collection,
   MentionableSelectMenuBuilder,
   RoleSelectMenuBuilder,
+  SelectMenuInteraction,
   StringSelectMenuBuilder,
   UserSelectMenuBuilder,
 } from "discord.js";
@@ -30,11 +31,11 @@ import {
   isMessageUserSelectInteractionData,
 } from "@sapphire/discord.js-utilities";
 import type { Awaitable } from "@sapphire/utilities";
-import { isFunction } from "@sapphire/utilities";
+import { isFunction, noop } from "@sapphire/utilities";
 
 interface ActionContext {
   response: InteractionResponse;
-  collectedInteraction: Interaction;
+  collectedInteraction: SelectMenuInteraction | ButtonInteraction;
   collector: InteractionCollector<any>;
   handler: Pagination;
 }
@@ -78,8 +79,6 @@ export class Pagination {
   }
 
   public async run(ephemeral = true) {
-    console.log(`The handler owner is ${this.interaction.user.tag}`);
-
     if (this.interaction.replied) {
       this.response = await this.interaction.fetchReply();
     } else {
@@ -108,17 +107,22 @@ export class Pagination {
         const customId = collectedInteraction.customId;
         const action = this.getAction(customId);
 
-        console.log("Collected action", customId, action);
-
         if (!action || !this.collector) {
           return;
         }
 
-        await collectedInteraction.deferUpdate();
+        if (
+          !(
+            collectedInteraction.isStringSelectMenu() ||
+            collectedInteraction.isButton()
+          )
+        ) {
+          return;
+        }
 
         if ("run" in action) {
           await action.run({
-            collectedInteraction: collectedInteraction as Interaction,
+            collectedInteraction: collectedInteraction,
             collector: this.collector,
             response: this.response as InteractionResponse,
             handler: this,
@@ -126,7 +130,7 @@ export class Pagination {
         }
       })
       .on("end", () => {
-        console.log("Collector ended");
+        this.response.delete().catch(noop);
       });
   }
 
