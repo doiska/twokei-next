@@ -22,7 +22,7 @@ import pt_br from "@/locales/pt_br";
 import { noop } from "@sapphire/utilities";
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
-  RegisterBehavior.VerboseOverwrite,
+  RegisterBehavior.BulkOverwrite,
 );
 
 export const Twokei = new TwokeiClient({

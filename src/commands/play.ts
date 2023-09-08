@@ -6,7 +6,7 @@ import { playSong } from "@/features/music/play-song";
 @ApplyOptions<Command.Options>({
   name: "play",
   aliases: ["p"],
-  description: "ping pong",
+  description: "Play a song from any source!",
   enabled: true,
   preconditions: ["GuildTextOnly"],
   cooldownDelay: 1_000,
