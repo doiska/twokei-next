@@ -23,6 +23,7 @@ export const env = createEnv({
     PG_SCHEMA: z.string(),
     RESOLVER_URL: z.string(),
     RESOLVER_KEY: z.string(),
+    WEBSITE_URL: z.string().url(),
     SPOTIFY_CLIENT_SECRET: z.string(),
     SPOTIFY_CLIENT_ID: z.string(),
   },

@@ -98,9 +98,9 @@ function getPlaylistDescription(result: XiaoSearchResult, t: TFunction) {
     .slice(0, maxShownTracks)
     .map(
       (track) =>
-        `- (${formatMillis(track.length)}) [${track.title}](${track.uri}) - ${
-          track.author
-        }`,
+        `- (${formatMillis(track.length ?? 0)}) [${track.title}](${
+          track.uri
+        }) - ${track.author}`,
     );
 
   const moreTracks =

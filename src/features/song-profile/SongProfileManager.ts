@@ -8,7 +8,10 @@ import { songRanking } from "@/db/schemas/song-ranking";
 import { users } from "@/db/schemas/users";
 
 import { SongProfileActionManager } from "@/features/song-profile/SongProfileActionManager";
+import { env } from "@/app/env";
+import { logger } from "@/modules/logger-transport";
 
+//TODO: refactor
 export class SongProfileManager {
   public actions: SongProfileActionManager;
 
@@ -17,9 +20,10 @@ export class SongProfileManager {
   }
 
   public async get(target: User) {
-    const [profile, ranking] = await Promise.all([
+    const [profile, ranking, premium] = await Promise.all([
       this.getProfile(target),
       this.getUserRanking(target),
+      this.getUserRole(target.id),
     ]);
 
     const [followers] = await kil
@@ -47,6 +51,7 @@ export class SongProfileManager {
 
     return {
       ...profile,
+      role: premium,
       sources: sources ?? [],
       ranking,
       analytics: {
@@ -86,31 +91,25 @@ export class SongProfileManager {
     return ranking;
   }
 
-  // User Ranking by like
-  // private async getUserRanking (user: User) {
-  //   const ranking = kil.$with('rank')
-  //     .as(
-  //       kil
-  //         .select({
-  //           targetId: songProfileActions.targetId,
-  //           likeCount: sql<number>`COUNT(*)`.as('like_count'),
-  //           position: sql<number>`RANK() OVER (ORDER BY COUNT(*) DESC)`.as(
-  //             'position',
-  //           ),
-  //         })
-  //         .from(songProfileActions)
-  //         .groupBy(songProfileActions.targetId),
-  //     );
-  //
-  //   const [userRanking] = await kil
-  //     .with(ranking)
-  //     .select({
-  //       likes: ranking.likeCount,
-  //       position: ranking.position,
-  //     })
-  //     .from(ranking)
-  //     .where(eq(ranking.targetId, user.id));
-  //
-  //   return userRanking;
-  // }
+  private async getUserRole(userId: string) {
+    logger.info(`${env.WEBSITE_URL}/api/user/${userId}`);
+
+    const response = await fetch(`${env.WEBSITE_URL}/api/user/${userId}`, {
+      headers: {
+        Authorization: env.RESOLVER_KEY,
+      },
+    })
+      .then((response) => response.json() as Promise<{ role: string }>)
+      .catch((e) => {
+        logger.error(e);
+        return null;
+      });
+
+    if (!response) {
+      logger.error(`Failed to fetch user role for ${userId}`);
+      return;
+    }
+
+    return response.role;
+  }
 }
