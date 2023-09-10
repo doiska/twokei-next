@@ -180,7 +180,22 @@ async function tryReply(
     return message.fetchReply();
   }
 
-  return message.reply(payload as MessageReplyOptions);
+  try {
+    return await message.reply(payload as MessageReplyOptions);
+  } catch (error) {
+    if (!(error instanceof DiscordAPIError)) {
+      throw error;
+    }
+
+    if (
+      error.code !== RESTJSONErrorCodes.InvalidFormBodyOrContentType &&
+      error.code !== RESTJSONErrorCodes.UnknownMessage
+    ) {
+      throw error;
+    }
+
+    return message.channel.send(payload as MessageCreateOptions);
+  }
 }
 
 async function tryEdit(
@@ -199,7 +214,10 @@ async function tryEdit(
       throw error;
     }
 
-    if (error.code !== RESTJSONErrorCodes.UnknownMessage) {
+    if (
+      error.code !== RESTJSONErrorCodes.InvalidFormBodyOrContentType &&
+      error.code !== RESTJSONErrorCodes.UnknownMessage
+    ) {
       throw error;
     }
 

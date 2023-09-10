@@ -22,18 +22,24 @@ type TrackableEvent = BaseProperties & SongEvent;
 
 export class Analytics {
   public async track(event: TrackableEvent) {
-    const response = await fetchApi("/analytics", {
-      body: {
-        event: event.event,
-        users: [...new Set(event.users)],
-        track: event.track,
-      },
-    });
+    try {
+      const response = await fetchApi("/analytics", {
+        body: {
+          event: event.event,
+          users: [...new Set(event.users)],
+          track: event.track,
+        },
+      });
 
-    if (response.status === "error") {
-      logger.error(
-        `[Analytics] ${response.message} - ${JSON.stringify(event)}`,
-      );
+      if (response.status === "error") {
+        throw new Error(response.message);
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        logger.error(`[Analytics] Could not track events: ${e.message}`, {
+          event,
+        });
+      }
     }
   }
 }
