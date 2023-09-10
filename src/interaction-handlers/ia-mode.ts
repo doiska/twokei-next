@@ -76,7 +76,7 @@ export class IaModeInteraction extends InteractionHandler {
           new EmbedBuilder().setDescription(
             [
               `### ${Icons.Hanakin} ${addedSongs.length} músicas adicionadas com Modo IA!`,
-              `### Você poderá se tornar um ${Icons.Premium} Premium no lançamento do site <t:1694282040:R>.`,
+              `### Você poderá se tornar um ${Icons.Premium} Premium no lançamento do site <t:1694910600:R>.`,
               "**Faça parte da nossa Vibe!**",
             ].join("\n"),
           ),
