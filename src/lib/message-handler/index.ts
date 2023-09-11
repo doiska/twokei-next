@@ -188,8 +188,11 @@ async function tryReply(
     }
 
     if (
-      error.code !== RESTJSONErrorCodes.InvalidFormBodyOrContentType &&
-      error.code !== RESTJSONErrorCodes.UnknownMessage
+      ![
+        RESTJSONErrorCodes.CannotReplyWithoutPermissionToReadMessageHistory,
+        RESTJSONErrorCodes.InvalidFormBodyOrContentType,
+        RESTJSONErrorCodes.UnknownMessage,
+      ].includes(error.code as RESTJSONErrorCodes)
     ) {
       throw error;
     }
