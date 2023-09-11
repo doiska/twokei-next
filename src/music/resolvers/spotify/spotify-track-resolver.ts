@@ -176,11 +176,18 @@ class SpotifyTrackResolver implements TrackResolver {
     };
   }
 
-  private parseTrack(
-    spotifyTrack: SpotifyTrackResponse,
-    requester?: User,
-    thumbnail?: string,
-  ) {
+  private parseTrack(spotifyTrack: SpotifyTrackResponse, requester?: User) {
+    logger.debug(
+      `[Spotify] ${spotifyTrack.name} - ${spotifyTrack.id}`,
+      spotifyTrack,
+    );
+
+    const thumbnail =
+      spotifyTrack.images?.[0].url ?? spotifyTrack.album?.images[0]?.url;
+    logger.debug(
+      `[Spotify] ${spotifyTrack.name} - ${spotifyTrack.id} - ${thumbnail}`,
+    );
+
     return new ResolvableTrack(
       {
         track: "",
@@ -197,7 +204,7 @@ class SpotifyTrackResolver implements TrackResolver {
           position: 0,
           uri: `https://open.spotify.com/track/${spotifyTrack.id}`,
         },
-        thumbnail: thumbnail ?? spotifyTrack.album?.images[0]?.url ?? "",
+        thumbnail: thumbnail ?? "",
         isrc: spotifyTrack.external_ids.isrc,
       },
       { requester },

@@ -36,7 +36,6 @@
     "@sapphire/plugin-subcommands": "^4.2.1",
     "@sapphire/ratelimits": "^2.4.6",
     "@sapphire/time-utilities": "^1.7.10",
-    "@sapphire/type": "^2.4.0",
     "@sapphire/utilities": "^3.13.0",
     "@skyra/env-utilities": "^1.2.1",
     "@t3-oss/env-core": "^0.6.1",

@@ -17,6 +17,7 @@ export interface SpotifyTrack {
   track_number: number;
   type: string;
   uri: string;
+  images: Image[];
 }
 
 export interface PlaylistTracks {

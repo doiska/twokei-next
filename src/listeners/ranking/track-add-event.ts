@@ -3,6 +3,7 @@ import { container, Listener } from "@sapphire/framework";
 import { logger } from "@/modules/logger-transport";
 import type { Venti } from "@/music/controllers/Venti";
 import { Events } from "@/music/interfaces/player.types";
+import { ResolvableTrack } from "@/music/structures/ResolvableTrack";
 
 @ApplyOptions<Listener.Options>({
   name: "song-user-tracker",
@@ -11,32 +12,28 @@ import { Events } from "@/music/interfaces/player.types";
   enabled: true,
 })
 export class TrackAddEvent extends Listener {
-  public async run(venti: Venti) {
-    const current = venti.queue.current;
-    const user = current?.requester;
+  public async run(venti: Venti, track: ResolvableTrack) {
+    const user = track?.requester;
 
-    if (!current || !user) {
-      logger.info("Untrackable song");
+    if (!track || !user) {
+      logger.info(
+        `Cannot track (${track?.title}) by user: ${user?.tag} (${user?.id})`,
+      );
       return;
     }
 
-    if (venti.loop === "track") {
+    if (
+      venti.loop === "track" ||
+      track?.title === venti.queue.previous?.title
+    ) {
       return;
     }
-
-    if (venti.queue.current?.title === venti.queue.previous?.title) {
-      return;
-    }
-
-    logger.info(
-      `[TRACKER] ${current?.title} was added to the queue by ${user.tag} (${user.id})`,
-    );
 
     await container.analytics.track({
       users: [user.id],
       guild: venti.guildId,
       event: "added_song",
-      track: current.short(),
+      track: track.short(),
     });
   }
 }

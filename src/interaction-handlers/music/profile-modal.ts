@@ -41,7 +41,7 @@ export class ProfileModal extends InteractionHandler {
 
     if (!userId) {
       await sendPresetMessage({
-        interaction,
+        interaction: interaction as any,
         preset: "error",
         message: "Invalid Spotify URL",
       });
