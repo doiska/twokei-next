@@ -76,14 +76,16 @@ export const createPlayEmbed = async (
 function getTrackDescription(result: XiaoSearchResult, t: TFunction) {
   const track = result.tracks[0];
 
-  return new EmbedBuilder().setDescription(
-    [
-      `### ${t("player:play.added_to_queue")}`,
-      `(${formatMillis(track.length)}) **[${track.title} - ${track.author}](${
-        track.uri
-      })**`,
-    ].join("\n"),
-  );
+  return new EmbedBuilder()
+    .setThumbnail(track.thumbnail ?? "")
+    .setDescription(
+      [
+        `### ${t("player:play.added_to_queue")}`,
+        `(${formatMillis(track.length ?? 0)}) **[${track.title} - ${
+          track.author
+        }](${track.uri})**`,
+      ].join("\n"),
+    );
 }
 
 function getPlaylistDescription(result: XiaoSearchResult, t: TFunction) {

@@ -1,5 +1,4 @@
 import "dotenv/config";
-import "./db/Kil";
 import "./app/Twokei";
 
 process.on("unhandledRejection", (error) => {

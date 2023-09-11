@@ -59,6 +59,7 @@ export interface SpotifyProfileResponse {
 }
 
 export interface SpotifyTrackResponse {
+  images: Image[];
   album?: Album;
   artists: Artist[];
   available_markets: string[];

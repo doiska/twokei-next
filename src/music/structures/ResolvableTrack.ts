@@ -2,7 +2,7 @@ import { type User } from "discord.js";
 import { container } from "@sapphire/framework";
 import { type Track } from "shoukaku";
 
-import { logger, playerLogger } from "@/modules/logger-transport";
+import { playerLogger } from "@/modules/logger-transport";
 import { spotifyTrackResolver } from "@/music/resolvers/spotify/spotify-track-resolver";
 import { cleanUpSong } from "@/music/utils/cleanup";
 
@@ -170,7 +170,6 @@ export class ResolvableTrack {
 
   private async resolveQuery(query: string) {
     if (this.isrc) {
-      logger.debug("[TRACK] Already has ISRC");
       return this.searchByISRC(this.isrc);
     }
 
@@ -183,6 +182,8 @@ export class ResolvableTrack {
     }
 
     const [track] = spotifyResponse.tracks;
+
+    this.thumbnail = track.thumbnail;
 
     if (!track.isrc) {
       const newSearchQuery = cleanUpSong(track.title, track.author);
