@@ -46,17 +46,20 @@ export class PlayCommand extends Command {
           `${index + 1}. [${track?.title}](${queue.current?.uri ?? ""})`,
       );
 
-    await container.reply(
+    await sendPresetMessage({
       interaction,
-      {
-        title: queue.current?.title ?? "",
-        url: queue.current?.uri ?? "",
-        thumbnail: {
-          url: queue.current?.thumbnail ?? "",
+      embeds: [
+        {
+          title: queue.current?.title ?? "",
+          url: queue.current?.uri ?? "",
+          thumbnail: {
+            url: queue.current?.thumbnail ?? "",
+          },
+          description: trackList.join("\n"),
         },
-        description: trackList.join("\n"),
-      },
-      20,
-    );
+      ],
+      preset: "success",
+      deleteIn: 20,
+    });
   }
 }

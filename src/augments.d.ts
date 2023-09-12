@@ -4,6 +4,7 @@ import { type Analytics } from "@/structures/Analytics";
 import { type SongChannelManager } from "@/structures/SongChannels";
 
 import "@total-typescript/ts-reset";
+import { Server } from "@/app/server/server";
 
 declare module "@sapphire/pieces" {
   interface Container {
@@ -11,6 +12,13 @@ declare module "@sapphire/pieces" {
     xiao: Xiao;
     profiles: SongProfileManager;
     analytics: Analytics;
+    server: Server;
+  }
+}
+
+declare module "discord.js" {
+  interface Client {
+    server: Server;
   }
 }
 
