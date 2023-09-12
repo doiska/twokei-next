@@ -16,10 +16,17 @@ if (env.SHARDING_MANAGER_ENABLED) {
   });
 
   manager.on("shardCreate", (shard) => {
-    console.log(`Launched shard ${shard.id}`);
+    shard.on("death", () => console.log(`Shard ${shard.id} died`));
+    shard.on("disconnect", () => console.log(`Shard ${shard.id} disconnected`));
+    shard.on("ready", () => console.log(`Shard ${shard.id} ready`));
+    shard.on("message", () => console.log(`Shard ${shard.id} messaged`));
   });
 
-  manager.spawn();
+  manager
+    .spawn({
+      amount: 2,
+    })
+    .then((shards) => console.log([...shards.values()].map((s) => s.id)));
 } else {
   import("./app/Twokei");
 }

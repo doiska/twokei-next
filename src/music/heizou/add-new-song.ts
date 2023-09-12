@@ -4,7 +4,6 @@ import {
   isVoiceChannel,
 } from "@sapphire/discord.js-utilities";
 
-import { xiao } from "@/app/Xiao";
 import { isConnectedTo } from "@/preconditions/vc-conditions";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { PlayerException } from "@/structures/exceptions/PlayerException";
@@ -12,6 +11,7 @@ import { Events, LoadType } from "../interfaces/player.types";
 import { createPlayerInstance } from "./create-player-instance";
 import type { ResolvableTrack } from "@/music/structures/ResolvableTrack";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
+import { container } from "@sapphire/framework";
 
 async function createPlayer(member: GuildMember) {
   const { guild } = member;
@@ -24,7 +24,7 @@ async function createPlayer(member: GuildMember) {
     throw new PlayerException(ErrorCodes.NOT_IN_VC);
   }
 
-  const currentVoiceId = xiao.getPlayer(guild.id)?.voiceId;
+  const currentVoiceId = container.xiao.getPlayer(guild.id)?.voiceId;
 
   if (currentVoiceId && !isConnectedTo(member, currentVoiceId)) {
     throw new PlayerException(ErrorCodes.NOT_SAME_VC);
@@ -53,7 +53,7 @@ export async function addNewSong(input: string, member: GuildMember) {
 
   const player = await createPlayer(member);
 
-  const result = await xiao.search(input, {
+  const result = await container.xiao.search(input, {
     requester: member.user,
     resolver: "spotify",
   });

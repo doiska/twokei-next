@@ -11,7 +11,7 @@ import { logger } from "@/modules/logger-transport";
 export class OnShardReady extends Listener<typeof Events.ShardReady> {
   public override async run(id: number) {
     if (id === 0) {
-      logger.info(`Main shard is ready!`);
+      logger.info(`Shard ${id} is ready, connecting to server.`);
       await container.server.connect();
     }
   }

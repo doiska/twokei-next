@@ -30,7 +30,6 @@ export const Twokei = new TwokeiClient({
   logger: {
     level: LogLevel.Error,
   },
-  shards: "auto",
   intents: [
     GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.GuildMessages,

@@ -66,7 +66,6 @@ export interface VentiInitOptions {
   deaf?: boolean;
   mute?: boolean;
   shardId?: number;
-  balancer?: boolean;
   nodeName?: string;
 }
 

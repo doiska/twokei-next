@@ -19,6 +19,7 @@ declare module "@sapphire/pieces" {
 declare module "discord.js" {
   interface Client {
     server: Server;
+    xiao: Xiao;
   }
 }
 

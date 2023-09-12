@@ -13,5 +13,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "moduleResolution": "bundler"
-  }
+  },
+  "include": [
+    "src"
+  ],
 }
