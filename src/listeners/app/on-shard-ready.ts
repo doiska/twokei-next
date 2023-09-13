@@ -1,7 +1,7 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { container, Listener } from "@sapphire/framework";
 import { Events } from "discord.js";
-import { logger } from "@/modules/logger-transport";
+import { logger } from "@/lib/logger";
 
 @ApplyOptions<Listener.Options>({
   name: "shardReady",

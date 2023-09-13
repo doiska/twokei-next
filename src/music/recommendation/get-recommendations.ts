@@ -1,4 +1,4 @@
-import { logger } from "@/modules/logger-transport";
+import { logger } from "@/lib/logger";
 import { RateLimitManager } from "@sapphire/ratelimits";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 import { fetchApi } from "@/lib/api";

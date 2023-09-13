@@ -22,11 +22,7 @@ if (env.SHARDING_MANAGER_ENABLED) {
     shard.on("message", () => console.log(`Shard ${shard.id} messaged`));
   });
 
-  manager
-    .spawn({
-      amount: 2,
-    })
-    .then((shards) => console.log([...shards.values()].map((s) => s.id)));
+  manager.spawn();
 } else {
   import("./app/Twokei");
 }

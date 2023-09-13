@@ -4,7 +4,7 @@ import { container } from "@sapphire/framework";
 import { noop } from "@sapphire/utilities";
 
 import { Twokei } from "@/app/Twokei";
-import { logger } from "@/modules/logger-transport";
+import { logger } from "@/lib/logger";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 
 export const setupNewChannel = async (guild: Guild) => {

@@ -1,4 +1,4 @@
-import { logger } from "@/modules/logger-transport";
+import { logger } from "@/lib/logger";
 
 const BASE_URL = "https://api.spotify.com/v1";
 const AUTH_URL =

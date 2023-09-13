@@ -8,7 +8,7 @@ import { guilds } from "@/db/schemas/guild";
 
 import { setupNewChannel } from "@/features/song-channel/setup-new-channel";
 import { setupSongMessage } from "@/features/song-channel/setup-song-message";
-import { logger } from "@/modules/logger-transport";
+import { logger } from "@/lib/logger";
 
 @ApplyOptions<Listener.Options>({
   name: "guild-setup-event",

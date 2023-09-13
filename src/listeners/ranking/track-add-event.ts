@@ -1,6 +1,6 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { container, Listener } from "@sapphire/framework";
-import { logger } from "@/modules/logger-transport";
+import { logger } from "@/lib/logger";
 import type { Venti } from "@/music/controllers/Venti";
 import { Events } from "@/music/interfaces/player.types";
 import { ResolvableTrack } from "@/music/structures/ResolvableTrack";

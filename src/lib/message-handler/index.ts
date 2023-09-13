@@ -18,7 +18,7 @@ import {
   isAnyInteraction,
 } from "@sapphire/discord.js-utilities";
 import { noop } from "@sapphire/utilities";
-import { logger } from "@/modules/logger-transport";
+import { logger } from "@/lib/logger";
 
 type MessageHandlerEditOptions =
   | MessageCreateOptions

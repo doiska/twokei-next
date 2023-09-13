@@ -15,7 +15,7 @@ import { eq } from "drizzle-orm";
 import { kil } from "@/db/Kil";
 import { settings } from "@/db/schemas/settings";
 
-import { createLogger } from "@/modules/logger-transport";
+import { createLogger } from "@/lib/logger";
 import { manualUpdate } from "@/music/embed/events/manual-update";
 import { handlePlayerException } from "@/music/embed/events/player-exception";
 import { queueEmpty } from "@/music/embed/events/queue-empty";
@@ -38,7 +38,7 @@ import { Venti } from "./Venti";
 import { EventEmitter } from "events";
 import type { Logger } from "winston";
 import { spotifyTrackResolver } from "@/music/resolvers/spotify/spotify-track-resolver";
-import {TwokeiClient} from "@/structures/TwokeiClient";
+import { TwokeiClient } from "@/structures/TwokeiClient";
 
 export interface XiaoEvents {
   /**
@@ -174,7 +174,7 @@ export class Xiao extends EventEmitter {
    * @param optionsShoukaku Shoukaku options
    */
   constructor(
-      private readonly client: TwokeiClient,
+    private readonly client: TwokeiClient,
     public options: XiaoInitOptions,
     connector: Connector,
     nodes: NodeOption[],

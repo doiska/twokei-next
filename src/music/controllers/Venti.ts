@@ -8,7 +8,7 @@ import {
 } from "shoukaku";
 
 import { type Locale } from "@/locales/i18n";
-import { createLogger, playerLogger } from "@/modules/logger-transport";
+import { createLogger, playerLogger } from "@/lib/logger";
 import {
   Events,
   PlayerState,

@@ -2,7 +2,7 @@ import { ApplyOptions } from "@sapphire/decorators";
 import { isVoiceBasedChannel } from "@sapphire/discord.js-utilities";
 import { container, Listener } from "@sapphire/framework";
 import type { Track } from "shoukaku";
-import { logger } from "@/modules/logger-transport";
+import { logger } from "@/lib/logger";
 import type { Venti } from "@/music/controllers/Venti";
 import { Events } from "@/music/interfaces/player.types";
 

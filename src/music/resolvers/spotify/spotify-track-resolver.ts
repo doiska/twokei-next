@@ -14,7 +14,7 @@ import type {
   SpotifySearchResponse,
   SpotifyTrackResponse,
 } from "./types/spotify-response.types";
-import { logger } from "@/modules/logger-transport";
+import { logger } from "@/lib/logger";
 
 interface SpotifyClient {
   clientId: string;

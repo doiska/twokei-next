@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { pgSchema } from "drizzle-orm/pg-core";
 
-import { logger, queryLogger } from "@/modules/logger-transport";
+import { logger, queryLogger } from "@/lib/logger";
 
 import { Pool } from "pg";
 import { env } from "@/app/env";

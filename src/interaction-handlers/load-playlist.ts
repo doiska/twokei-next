@@ -17,7 +17,7 @@ import { songProfileSources } from "@/db/schemas/song-profile-sources";
 import { Icons } from "@/constants/icons";
 import { EmbedButtons } from "@/constants/music/player-buttons";
 import { playSong } from "@/features/music/play-song";
-import { type Action, Pagination } from "@/lib/Pagination";
+import { type Action, Pagination } from "@/lib/message-handler/Pagination";
 import type { ProfileWithPlaylists } from "@/music/resolvers/resolver";
 import { spotifyProfileResolver } from "@/music/resolvers/spotify/spotify-profile-resolver";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";

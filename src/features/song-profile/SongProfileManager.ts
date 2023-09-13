@@ -9,7 +9,7 @@ import { coreUsers } from "@/db/schemas/core-users";
 
 import { SongProfileActionManager } from "@/features/song-profile/SongProfileActionManager";
 import { env } from "@/app/env";
-import { logger } from "@/modules/logger-transport";
+import { logger } from "@/lib/logger";
 
 //TODO: refactor
 export class SongProfileManager {
