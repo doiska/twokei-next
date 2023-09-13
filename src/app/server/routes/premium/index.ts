@@ -3,7 +3,6 @@ import { z } from "zod";
 import { kil } from "@/db/Kil";
 import { coreUsers } from "@/db/schemas/core-users";
 import { BenefitsSchema, usersBenefits } from "@/db/schemas/users-benefits";
-import { createGiftCard } from "@/lib/user/benefits";
 import { eq } from "drizzle-orm";
 
 const payload = z.object({
@@ -34,43 +33,31 @@ export async function POST(context: Context, next: Next) {
     expiresAt,
   } = safeParse.data;
 
-  await kil
-    .insert(coreUsers)
-    .values({
-      id: id,
-      name: name,
-      locale: locale,
-    })
-    .onConflictDoNothing();
+  await kil.transaction(async (tx) => {
+    await tx
+      .insert(coreUsers)
+      .values({
+        id: id,
+        name: name,
+        locale: locale,
+      })
+      .onConflictDoNothing();
 
-  await kil
-    .insert(usersBenefits)
-    .values({
-      id: id,
-      benefits: benefits,
-      expires_at: new Date(expiresAt),
-    })
-    .onConflictDoUpdate({
-      set: {
+    await tx
+      .insert(usersBenefits)
+      .values({
+        id: id,
         benefits: benefits,
-      },
-      target: usersBenefits.id,
-      where: eq(usersBenefits.id, id),
-    });
-
-  if (benefits.gift_card) {
-    const codes = await Promise.all(
-      Array.from({ length: benefits.gift_card }, () =>
-        createGiftCard("friendly-gift"),
-      ),
-    );
-
-    console.log(codes);
-
-    context.response.body = {
-      giftcards: codes,
-    };
-  }
+        expires_at: new Date(expiresAt),
+      })
+      .onConflictDoUpdate({
+        set: {
+          benefits: benefits,
+        },
+        target: usersBenefits.id,
+        where: eq(usersBenefits.id, id),
+      });
+  });
 
   context.status = 200;
   return next();

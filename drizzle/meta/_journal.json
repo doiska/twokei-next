@@ -85,6 +85,20 @@
       "when": 1691878572538,
       "tag": "0011_wandering_loners",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1694622502538,
+      "tag": "0012_solid_shatterstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1694624551857,
+      "tag": "0013_useful_maverick",
+      "breakpoints": true
     }
   ]
 }
