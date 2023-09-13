@@ -1,6 +1,6 @@
 import type { InferSelectModel } from "drizzle-orm";
 import { jsonb, pgEnum, timestamp, varchar } from "drizzle-orm/pg-core";
-import { users } from "@/db/schemas/users";
+import { coreUsers } from "@/db/schemas/core-users";
 
 import { type ResolvableTrack } from "@/music/structures/ResolvableTrack";
 import { createTable } from "@/db/Kil";
@@ -31,7 +31,7 @@ const sourcesEnum = pgEnum("song_user_events_source", ["Guild", "DM", "Web"]);
 export const songUserEvents = createTable("song_user_events", {
   userId: varchar("user_id")
     .notNull()
-    .references(() => users.id),
+    .references(() => coreUsers.id),
   source: sourcesEnum("source").notNull(),
   event: eventsEnum("event").notNull(),
   properties: jsonb("properties"),

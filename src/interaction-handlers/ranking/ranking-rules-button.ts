@@ -3,7 +3,7 @@ import {
   InteractionHandler,
   InteractionHandlerTypes,
 } from "@sapphire/framework";
-import { isValidCustomId } from "@/utils/interaction-helper";
+import { isValidCustomId } from "@/utils/helpers";
 import type { ButtonInteraction } from "discord.js";
 import { resolveKey } from "@sapphire/plugin-i18next";
 import { send } from "@/lib/message-handler";

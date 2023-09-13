@@ -5,7 +5,7 @@ import { kil } from "@/db/Kil";
 import { songProfileActions } from "@/db/schemas/song-profile-actions";
 import { songProfileSources } from "@/db/schemas/song-profile-sources";
 import { songRanking } from "@/db/schemas/song-ranking";
-import { users } from "@/db/schemas/users";
+import { coreUsers } from "@/db/schemas/core-users";
 
 import { SongProfileActionManager } from "@/features/song-profile/SongProfileActionManager";
 import { env } from "@/app/env";
@@ -63,15 +63,15 @@ export class SongProfileManager {
   private async getProfile(user: User) {
     const [profile] = await kil
       .select()
-      .from(users)
-      .where(eq(users.id, user.id));
+      .from(coreUsers)
+      .where(eq(coreUsers.id, user.id));
 
     if (profile) {
       return profile;
     }
 
     const [result] = await kil
-      .insert(users)
+      .insert(coreUsers)
       .values({
         id: user.id,
         name: user.username,

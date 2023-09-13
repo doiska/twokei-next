@@ -9,7 +9,7 @@ import { EmbedButtons } from "@/constants/music/player-buttons";
 
 import { fetchApi } from "@/lib/api";
 import { kil } from "@/db/Kil";
-import { users } from "@/db/schemas/users";
+import { coreUsers } from "@/db/schemas/core-users";
 import { eq, inArray } from "drizzle-orm";
 import { songRanking } from "@/db/schemas/song-ranking";
 import {
@@ -25,7 +25,7 @@ import { fetchT } from "@sapphire/plugin-i18next";
 import { getDateLocale } from "@/locales/i18n";
 import { formatDuration, intervalToDuration } from "date-fns";
 import { send } from "@/lib/message-handler";
-import { isValidCustomId } from "@/utils/interaction-helper";
+import { isValidCustomId } from "@/utils/helpers";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "ranking-button",
@@ -43,13 +43,13 @@ export class RankingButtonInteraction extends InteractionHandler {
 
     const usersWithName = await kil
       .select({
-        id: users.id,
-        name: users.name,
+        id: coreUsers.id,
+        name: coreUsers.name,
       })
-      .from(users)
+      .from(coreUsers)
       .where(
         inArray(
-          users.id,
+          coreUsers.id,
           ranking.data.map((user) => user.userId),
         ),
       );

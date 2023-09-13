@@ -14,7 +14,7 @@ import type { Venti } from "@/music/controllers/Venti";
 
 import { fetchT, type TFunction } from "@sapphire/plugin-i18next";
 import { isButton, isButtonLink } from "@/utils/validator";
-import { capitalizeFirst } from "@/utils/interaction-helper";
+import { capitalizeFirst } from "@/utils/helpers";
 
 export async function createStaticButtons(guild: Guild, venti?: Venti) {
   const t = await fetchT(guild);
