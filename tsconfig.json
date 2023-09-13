@@ -1,5 +1,5 @@
 {
-  "extends": "@sapphire/ts-config",
+  "extends": "@tsconfig/node18",
   "compilerOptions": {
     "importHelpers": true,
     "baseUrl": "./",
@@ -15,6 +15,6 @@
     "moduleResolution": "bundler"
   },
   "include": [
-    "src"
+    "src/**/*"
   ],
 }
