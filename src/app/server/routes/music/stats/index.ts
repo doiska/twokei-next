@@ -1,6 +1,8 @@
 import { Context, Next } from "koa";
 import { container } from "@sapphire/framework";
 
+type UnwrapArray<T> = T extends (infer U)[] ? U : T;
+
 export async function GET(context: Context, next: Next) {
   if (!container.client?.shard) {
     context.status = 500;
@@ -30,23 +32,18 @@ export async function GET(context: Context, next: Next) {
     return;
   }
 
-  const flatten = response.flat();
-
-  const grouped = flatten.reduce(
+  context.body = response.flat().reduce(
     (acc, curr) => {
       if (!acc[curr.shard]) {
         acc[curr.shard] = [];
       }
 
       acc[curr.shard].push(curr);
-
       return acc;
     },
-    {} as Record<number, typeof flatten>,
+    {} as Record<number, UnwrapArray<typeof response>>,
   );
 
   context.status = 200;
-  context.body = grouped;
-
   return next();
 }
