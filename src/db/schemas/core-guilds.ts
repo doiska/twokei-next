@@ -1,7 +1,7 @@
 import { timestamp, varchar } from "drizzle-orm/pg-core";
 import { createTable } from "@/db/Kil";
 
-export const coreGuilds = createTable("guilds", {
+export const coreGuilds = createTable("core_guilds", {
   guildId: varchar("guild_id").primaryKey().notNull(),
   name: varchar("name"),
   locale: varchar("locale").notNull().default("pt_br"),

@@ -14,7 +14,7 @@ import {
 
 import { eq } from "drizzle-orm";
 import { kil } from "@/db/Kil";
-import { guilds } from "@/db/schemas/guild";
+import { coreGuilds } from "@/db/schemas/core-guilds";
 import { DEFAULT_LOCALE, isValidLocale } from "@/locales/i18n";
 import { TwokeiClient } from "@/structures/TwokeiClient";
 import type { InternationalizationContext } from "@sapphire/plugin-i18next";
@@ -60,9 +60,9 @@ export const Twokei = new TwokeiClient({
       }
 
       const [guild] = await kil
-        .select({ locale: guilds.locale })
-        .from(guilds)
-        .where(eq(guilds.guildId, context.guild.id));
+        .select({ locale: coreGuilds.locale })
+        .from(coreGuilds)
+        .where(eq(coreGuilds.guildId, context.guild.id));
 
       if (!guild || !isValidLocale(guild.locale)) {
         return DEFAULT_LOCALE;

@@ -200,8 +200,8 @@ export class Xiao extends EventEmitter {
 
     this.shoukaku.on("error", (name, error) =>
       this.logger.error(
-        `[Shoukaku] Node ${name} emitted error: ${error.message}`,
-        { error },
+        `[Shoukaku] Node ${name} emitted error: ${error.name}`,
+        { message: error.message, stack: error.stack },
       ),
     );
 

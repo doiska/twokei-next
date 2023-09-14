@@ -11,7 +11,7 @@ import { noop } from "@sapphire/utilities";
 
 import { eq } from "drizzle-orm";
 import { kil } from "@/db/Kil";
-import { guilds } from "@/db/schemas/guild";
+import { coreGuilds } from "@/db/schemas/core-guilds";
 
 import { Twokei } from "@/app/Twokei";
 import { type Locale, LocaleFlags, VALID_LOCALES } from "@/locales/i18n";
@@ -22,6 +22,8 @@ export async function setupGuildLanguage(channel: GuildTextBasedChannel) {
   const { guild } = channel;
 
   //TODO: update language
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore - guild#preferredLocale
   const language: Locale =
     guild.preferredLocale === "pt-BR" ? "pt_br" : "en_us";
 
@@ -71,9 +73,9 @@ export async function setupGuildLanguage(channel: GuildTextBasedChannel) {
   const newLocale = interaction?.customId.split("-")?.[1] ?? language;
 
   await kil
-    .update(guilds)
+    .update(coreGuilds)
     .set({ locale: newLocale })
-    .where(eq(guilds.guildId, guild.id));
+    .where(eq(coreGuilds.guildId, guild.id));
 
   return newLocale as Locale;
 }
