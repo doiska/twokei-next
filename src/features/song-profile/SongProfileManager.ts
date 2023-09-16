@@ -23,7 +23,7 @@ export class SongProfileManager {
     const [profile, ranking, premium] = await Promise.all([
       this.getProfile(target),
       this.getUserRanking(target),
-      this.getUserRole(target.id),
+      this.isUserPremium(target.id),
     ]);
 
     const [followers] = await kil
@@ -51,7 +51,7 @@ export class SongProfileManager {
 
     return {
       ...profile,
-      role: premium,
+      premium: premium,
       sources: sources ?? [],
       ranking,
       analytics: {
@@ -91,7 +91,7 @@ export class SongProfileManager {
     return ranking;
   }
 
-  private async getUserRole(userId: string) {
+  public async isUserPremium(userId: string) {
     logger.info(`${env.WEBSITE_URL}/api/user/${userId}`);
 
     const response = await fetch(`${env.WEBSITE_URL}/api/user/${userId}`, {
@@ -99,17 +99,19 @@ export class SongProfileManager {
         Authorization: env.RESOLVER_KEY,
       },
     })
-      .then((response) => response.json() as Promise<{ role: string }>)
+      .then((response) => response.json() as Promise<{ subscribed: boolean }>)
       .catch((e) => {
         logger.error(e);
         return null;
       });
+
+    console.log(response);
 
     if (!response) {
       logger.error(`Failed to fetch user role for ${userId}`);
       return;
     }
 
-    return response.role;
+    return response.subscribed;
   }
 }

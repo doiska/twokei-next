@@ -70,7 +70,7 @@ export async function createSongProfileEmbed(
     joinArrays: "\n",
   });
 
-  const isPremium = !!profile?.role;
+  const isPremium = !!profile?.premium;
 
   const profileEmbed = new EmbedBuilder()
     .setThumbnail(target.displayAvatarURL())

@@ -1,5 +1,9 @@
 import { ApplyOptions } from "@sapphire/decorators";
-import { InteractionHandler, type Option } from "@sapphire/framework";
+import {
+  container,
+  InteractionHandler,
+  type Option,
+} from "@sapphire/framework";
 import { InteractionHandlerTypes } from "@sapphire/framework";
 import type { ButtonInteraction } from "discord.js";
 import type { Awaitable } from "@sapphire/utilities";
@@ -21,6 +25,23 @@ import { Icons } from "@/constants/icons";
 export class IaModeInteraction extends InteractionHandler {
   public override async run(interaction: ButtonInteraction) {
     if (!isGuildMember(interaction.member)) {
+      return;
+    }
+
+    if (!(await container.profiles.isUserPremium(interaction.user.id))) {
+      const embed = new EmbedBuilder().setDescription(
+        [
+          `### ${Icons.Hanakin} Você precisa ser um Premium para usar essa função.`,
+          "Visite nosso site para saber mais: https://twokei.com/profile",
+        ].join("\n"),
+      );
+
+      await sendPresetMessage({
+        interaction,
+        ephemeral: true,
+        preset: "error",
+        embeds: [embed],
+      });
       return;
     }
 
