@@ -4,7 +4,7 @@ import { container } from "@sapphire/framework";
 import { noop } from "@sapphire/utilities";
 
 import { Twokei } from "@/app/Twokei";
-import { logger } from "@/modules/logger-transport";
+import { logger } from "@/lib/logger";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 
 export const setupNewChannel = async (guild: Guild) => {
@@ -15,22 +15,6 @@ export const setupNewChannel = async (guild: Guild) => {
       "I can't setup the bot in this server, check if I have the correct permissions.",
     );
   }
-
-  // const selfPermissions = self.permissions;
-  //
-  // const createChannelPermissions = [
-  //   PermissionsBitField.Flags.ManageChannels,
-  //   PermissionsBitField.Flags.ManageMessages,
-  //   PermissionsBitField.Flags.SendMessages,
-  // ];
-  //
-  // const canCreateChannel = createChannelPermissions.every((permission) => {
-  //   return selfPermissions.has(permission);
-  // });
-  //
-  // if (!canCreateChannel) {
-  //   throw new FriendlyException("I can't create channels in this server.");
-  // }
 
   const currentChannel = await container.sc.get(guild);
 

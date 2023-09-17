@@ -16,7 +16,7 @@ import { Embed } from "@/utils/messages";
 import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 import { resolveKey } from "@sapphire/plugin-i18next";
-import { followUp, send } from "@/lib/message-handler";
+import { send } from "@/lib/message-handler";
 
 export async function playSong(
   interaction: Exclude<RepliableInteraction, ModalSubmitInteraction> | Message,
@@ -59,7 +59,7 @@ export async function playSong(
       await resolveKey(interaction, "player:youtube_disabled"),
     );
 
-    await followUp(interaction, {
+    await send(interaction, {
       embeds: [warning],
     }).dispose(5000);
   }

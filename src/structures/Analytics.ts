@@ -1,4 +1,4 @@
-import { logger } from "@/modules/logger-transport";
+import { logger } from "@/lib/logger";
 import { fetchApi } from "@/lib/api";
 
 interface BaseProperties {

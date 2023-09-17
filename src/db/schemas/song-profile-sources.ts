@@ -1,5 +1,5 @@
 import { pgEnum, timestamp, varchar } from "drizzle-orm/pg-core";
-import { type RegisteredUser, users } from "@/db/schemas/users";
+import { type RegisteredUser, coreUsers } from "@/db/schemas/core-users";
 import { createTable } from "@/db/Kil";
 import type { InferSelectModel } from "drizzle-orm";
 
@@ -9,7 +9,7 @@ export const songProfileSources = createTable("song_profile_sources", {
   userId: varchar("user_id")
     .primaryKey()
     .notNull()
-    .references(() => users.id),
+    .references(() => coreUsers.id),
   source: sourcesEnum("source").notNull(),
   sourceUrl: varchar("source_url").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),

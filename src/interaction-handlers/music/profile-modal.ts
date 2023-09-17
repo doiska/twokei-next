@@ -12,7 +12,7 @@ import { kil } from "@/db/Kil";
 import { songProfileSources } from "@/db/schemas/song-profile-sources";
 
 import { Modals } from "@/constants/music/player-buttons";
-import { playerLogger } from "@/modules/logger-transport";
+import { playerLogger } from "@/lib/logger";
 import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 @ApplyOptions<InteractionHandler.Options>({

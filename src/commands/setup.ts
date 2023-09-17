@@ -5,10 +5,11 @@ import { Command } from "@sapphire/framework";
 
 import { setupNewChannel } from "@/features/song-channel/setup-new-channel";
 import { setupSongMessage } from "@/features/song-channel/setup-song-message";
-import { logger } from "@/modules/logger-transport";
+import { logger } from "@/lib/logger";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
 import { sendPresetMessage } from "@/lib/message-handler/helper";
+import { defer } from "@/lib/message-handler";
 
 @ApplyOptions<Command.Options>({
   name: "setup",
@@ -44,10 +45,7 @@ export class PlayCommand extends Command {
       return;
     }
 
-    await sendPresetMessage({
-      preset: "loading",
-      interaction,
-    });
+    await defer(interaction);
 
     try {
       const response = await setupNewChannel(guild);

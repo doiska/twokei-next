@@ -12,3 +12,10 @@ export async function isValidCustomId(
     ? Option.some(customId)
     : Option.none;
 }
+
+export function createFriendlyHash() {
+  return Math.random()
+    .toString(36)
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "");
+}

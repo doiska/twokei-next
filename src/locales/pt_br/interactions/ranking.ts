@@ -9,7 +9,7 @@ export default {
       "",
     ].join("\n"),
     ephemeral: [
-      `Você está em **#{{currentPosition.position}} lugar** com **{{currentPosition.listened}} músicas ouvidas**.`,
+      `Você está em **#{{currentPosition.position}} lugar** com **{{currentPosition.listened}} ouvidos**.`,
       `Suba no Ranking **escutando** músicas no {{- twokeiMention}}.`,
       " ",
       `Obrigado por fazer parte da nossa vibe! ${Icons.HanakoEating}`,
@@ -19,7 +19,6 @@ export default {
     `# ${Icons.Ranking} Regras do Ranking`,
     "",
     "### Qualquer usuário pode participar do Ranking, basta ouvir músicas no Twokei.",
-    "- O Ranking é resetado a cada **30 dias**.",
     "- O Top Global é atualizado a cada **15 minutos**.",
     "- Apenas músicas com mais de **30 segundos** são elegíveis.",
     "- Músicas repetidas (seguidas) não são contabilizadas.",

@@ -8,6 +8,7 @@ import type {
 } from "discord.js";
 import { Embed } from "@/utils/messages";
 import { send } from "@/lib/message-handler/index";
+import { logger } from "@/lib/logger";
 
 const embedTypes = {
   success: Embed.success,
@@ -69,5 +70,10 @@ export async function sendPresetMessage<T>({
     return deleteIn * 1000;
   })();
 
-  return send(interaction, { embeds: [embed], ...props }).dispose(disposalTime);
+  return send(interaction, { embeds: [embed], ...props })
+    .dispose(disposalTime)
+    .catch((e) => {
+      logger.info("Error while sending preset message");
+      logger.error(e);
+    });
 }

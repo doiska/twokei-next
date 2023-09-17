@@ -2,7 +2,7 @@ import { type User } from "discord.js";
 import { container } from "@sapphire/framework";
 import { type Track } from "shoukaku";
 
-import { playerLogger } from "@/modules/logger-transport";
+import { playerLogger } from "@/lib/logger";
 import { spotifyTrackResolver } from "@/music/resolvers/spotify/spotify-track-resolver";
 import { cleanUpSong } from "@/music/utils/cleanup";
 

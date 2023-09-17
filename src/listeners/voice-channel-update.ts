@@ -39,13 +39,11 @@ export class VoiceChannelUpdate extends Listener {
     const wasBotConnected = oldState.channel?.members.has(guild.members.me.id);
 
     if (isBotLeaving) {
-      console.log("Bot has been disconnected.");
       await container.xiao.destroyPlayer(newState.guild);
       return;
     }
 
     if (isChannelEmpty && wasBotConnected) {
-      console.log("Channel is empty and bot was previously connected.");
       await container.xiao.destroyPlayer(newState.guild);
     }
   }

@@ -1,5 +1,5 @@
 {
-  "extends": "@sapphire/ts-config",
+  "extends": "@tsconfig/node18",
   "compilerOptions": {
     "importHelpers": true,
     "baseUrl": "./",
@@ -13,5 +13,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "moduleResolution": "bundler"
-  }
+  },
+  "include": [
+    "src/**/*"
+  ],
 }

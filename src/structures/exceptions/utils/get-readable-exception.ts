@@ -1,4 +1,4 @@
-import { logger } from "@/modules/logger-transport";
+import { logger } from "@/lib/logger";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { FriendlyException } from "../FriendlyException";
 import { PlayerException } from "../PlayerException";

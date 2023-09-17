@@ -15,8 +15,7 @@ import { eq } from "drizzle-orm";
 import { kil } from "@/db/Kil";
 import { settings } from "@/db/schemas/settings";
 
-import { Twokei } from "@/app/Twokei";
-import { createLogger } from "@/modules/logger-transport";
+import { createLogger } from "@/lib/logger";
 import { manualUpdate } from "@/music/embed/events/manual-update";
 import { handlePlayerException } from "@/music/embed/events/player-exception";
 import { queueEmpty } from "@/music/embed/events/queue-empty";
@@ -39,6 +38,7 @@ import { Venti } from "./Venti";
 import { EventEmitter } from "events";
 import type { Logger } from "winston";
 import { spotifyTrackResolver } from "@/music/resolvers/spotify/spotify-track-resolver";
+import { TwokeiClient } from "@/structures/TwokeiClient";
 
 export interface XiaoEvents {
   /**
@@ -167,12 +167,14 @@ export class Xiao extends EventEmitter {
   private readonly logger: Logger;
 
   /**
+   * @param client
    * @param options Xiao options
    * @param nodes Shoukaku nodes
    * @param connector Shoukaku connector
    * @param optionsShoukaku Shoukaku options
    */
   constructor(
+    private readonly client: TwokeiClient,
     public options: XiaoInitOptions,
     connector: Connector,
     nodes: NodeOption[],
@@ -198,8 +200,8 @@ export class Xiao extends EventEmitter {
 
     this.shoukaku.on("error", (name, error) =>
       this.logger.error(
-        `[Shoukaku] Node ${name} emitted error: ${error.message}`,
-        { error },
+        `[Shoukaku] Node ${name} emitted error: ${error.name}`,
+        { message: error.message, stack: error.stack },
       ),
     );
 
@@ -263,7 +265,7 @@ export class Xiao extends EventEmitter {
   }
 
   public getPlayer(guildId: GuildResolvable): Venti | undefined {
-    const resolvedGuildId = Twokei.guilds.resolveId(guildId);
+    const resolvedGuildId = this.client.guilds.resolveId(guildId);
 
     if (!resolvedGuildId) {
       return;
@@ -355,7 +357,7 @@ export class Xiao extends EventEmitter {
     };
   }
 
-  private async loadNodes() {
+  public async loadNodes() {
     await new Promise((resolve, reject) => {
       setTimeout(() => {
         if (!this.shoukaku.id) {
@@ -371,6 +373,8 @@ export class Xiao extends EventEmitter {
         }
       }, 300);
     });
+
+    this.shoukaku.nodes.clear();
 
     const [rawNodes] = await kil
       .select({ value: settings.value })

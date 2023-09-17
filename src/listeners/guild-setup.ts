@@ -4,11 +4,11 @@ import { Listener } from "@sapphire/framework";
 
 import { sql } from "drizzle-orm";
 import { kil } from "@/db/Kil";
-import { guilds } from "@/db/schemas/guild";
+import { coreGuilds } from "@/db/schemas/core-guilds";
 
 import { setupNewChannel } from "@/features/song-channel/setup-new-channel";
 import { setupSongMessage } from "@/features/song-channel/setup-song-message";
-import { logger } from "@/modules/logger-transport";
+import { logger } from "@/lib/logger";
 
 @ApplyOptions<Listener.Options>({
   name: "guild-setup-event",
@@ -19,14 +19,14 @@ export class GuildSetup extends Listener<Events.GuildCreate> {
     logger.info(`Joined guild ${guild.name} (${guild.id})`);
 
     await kil
-      .insert(guilds)
+      .insert(coreGuilds)
       .values({
         guildId: guild.id,
         name: guild.name,
         locale: "pt_br",
       })
       .onConflictDoUpdate({
-        target: guilds.guildId,
+        target: coreGuilds.guildId,
         set: {
           name: guild.name,
           updated_at: sql`NOW()`,

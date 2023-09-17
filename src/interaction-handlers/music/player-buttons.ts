@@ -65,13 +65,13 @@ export class PlayerButtonsInteraction extends InteractionHandler {
     }
 
     try {
-      await sendPresetMessage({
-        preset: "loading",
-        interaction,
+      await interaction.deferReply({
         ephemeral: true,
       });
 
       await action(interaction.member);
+
+      await interaction.deleteReply();
     } catch (e) {
       const readable = getReadableException(e);
       await sendPresetMessage({

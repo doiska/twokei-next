@@ -1,6 +1,6 @@
 import { container } from "@sapphire/framework";
 
-import { playerLogger } from "@/modules/logger-transport";
+import { playerLogger } from "@/lib/logger";
 import type { Venti } from "@/music/controllers/Venti";
 import { reset } from "@/music/embed/events/manual-update";
 
