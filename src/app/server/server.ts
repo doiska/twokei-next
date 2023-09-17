@@ -36,7 +36,7 @@ class Server {
       directory: `${__dirname}/routes`,
     });
 
-    this.koa.listen(env.PORT);
+    this.koa.listen(Number(env.PORT));
   }
 }
 

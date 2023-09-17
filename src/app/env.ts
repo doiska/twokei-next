@@ -25,7 +25,7 @@ export const env = createEnv({
     WEBSITE_URL: z.string().url(),
     SPOTIFY_CLIENT_SECRET: z.string(),
     SPOTIFY_CLIENT_ID: z.string(),
-    PORT: z.number().default(3005),
+    PORT: z.union([z.number(), z.string()]).default(3005),
     SHARDING_MANAGER_ENABLED: z
       .string()
       .default("true")
