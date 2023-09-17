@@ -20,7 +20,7 @@ if (env.SHARDING_MANAGER_ENABLED) {
     shard.on("death", () => console.log(`Shard ${shard.id} died`));
     shard.on("disconnect", () => console.log(`Shard ${shard.id} disconnected`));
     shard.on("ready", () => console.log(`Shard ${shard.id} ready`));
-    shard.on("message", () => console.log(`Shard ${shard.id} messaged`));
+    shard.on("error", (error) => console.error(error));
   });
 
   manager.spawn({

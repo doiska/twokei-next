@@ -3,11 +3,7 @@ import { channelMention, Message } from "discord.js";
 import { isGuildMember, isTextChannel } from "@sapphire/discord.js-utilities";
 import { container } from "@sapphire/framework";
 
-import {
-  createPlayEmbed,
-  waitFeedback,
-} from "@/constants/music/create-play-embed";
-import { OnPlayButtons } from "@/constants/music/player-buttons";
+import { createPlayEmbed } from "@/constants/music/create-play-embed";
 import { addNewSong } from "@/music/heizou/add-new-song";
 import { youtubeTrackResolver } from "@/music/resolvers/youtube/youtube-track-resolver";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
@@ -79,34 +75,10 @@ export async function playSong(
       });
     }
 
-    const playMessage = await send(
+    await send(
       interaction,
       await createPlayEmbed(interaction.member, result),
     ).dispose(60000);
-
-    const feedback = await waitFeedback(playMessage);
-
-    feedback.on("collect", async (collected) => {
-      if (!isGuildMember(collected.member)) {
-        return;
-      }
-
-      await container.analytics.track({
-        users: [collected.member.id],
-        event:
-          collected.customId === OnPlayButtons.LIKE
-            ? "liked_song"
-            : "disliked_song",
-        track: result.tracks?.[0].short(),
-      });
-
-      await send(collected, {
-        embeds: [
-          Embed.success(await resolveKey(interaction, "player:play.feedback")),
-        ],
-        ephemeral: true,
-      });
-    });
   } catch (error) {
     await send(interaction, {
       embeds: [
