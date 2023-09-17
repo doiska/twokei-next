@@ -16,22 +16,6 @@ export const setupNewChannel = async (guild: Guild) => {
     );
   }
 
-  // const selfPermissions = self.permissions;
-  //
-  // const createChannelPermissions = [
-  //   PermissionsBitField.Flags.ManageChannels,
-  //   PermissionsBitField.Flags.ManageMessages,
-  //   PermissionsBitField.Flags.SendMessages,
-  // ];
-  //
-  // const canCreateChannel = createChannelPermissions.every((permission) => {
-  //   return selfPermissions.has(permission);
-  // });
-  //
-  // if (!canCreateChannel) {
-  //   throw new FriendlyException("I can't create channels in this server.");
-  // }
-
   const currentChannel = await container.sc.get(guild);
 
   if (currentChannel) {

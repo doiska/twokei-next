@@ -9,7 +9,7 @@ if (env.SHARDING_MANAGER_ENABLED) {
   });
 
   process.on("unhandledRejection", (error) => {
-    console.error("Unhandled rejection:", inspect(error));
+    console.error("Unhandled rejection:", inspect(error, true, 1));
   });
 
   process.on("uncaughtException", (error) => {
@@ -23,7 +23,9 @@ if (env.SHARDING_MANAGER_ENABLED) {
     shard.on("message", () => console.log(`Shard ${shard.id} messaged`));
   });
 
-  manager.spawn();
+  manager.spawn({
+    amount: 1,
+  });
 } else {
   import("./app/Twokei");
 }

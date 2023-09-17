@@ -22,7 +22,7 @@ import {
 import { fetchT } from "@sapphire/plugin-i18next";
 import { getDateLocale } from "@/locales/i18n";
 import { formatDuration, intervalToDuration } from "date-fns";
-import { followUp, send } from "@/lib/message-handler";
+import { defer, followUp, send } from "@/lib/message-handler";
 import { isValidCustomId } from "@/utils/helpers";
 
 @ApplyOptions<InteractionHandler.Options>({
@@ -40,6 +40,8 @@ export class RankingButtonInteraction extends InteractionHandler {
     if (ranking.status !== "success") {
       return;
     }
+
+    await defer(interaction);
 
     const usersWithName = await kil
       .select({

@@ -88,6 +88,11 @@ export class IaModeInteraction extends InteractionHandler {
       });
 
       if (recommendations.status === "error") {
+        logger.error(
+          `[IA-MODE] ${interaction.user.id} error while getting recommendations`,
+          recommendations,
+        );
+
         await sendPresetMessage({
           interaction,
           preset: "error",
