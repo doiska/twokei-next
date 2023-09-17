@@ -5,14 +5,15 @@ export default {
   embed: {
     description: [
       "## <a:raio:1121849523854118973> [Twokei Music](https://twokei.com)",
+      "### Nova versão 2.5 - Teste já!",
       " ",
       `### ${Icons.Hanakin} Como usar?`,
       "- **Mencione** o bot com o nome/url da música para adicionar à fila.",
       '- Exemplo: "**{{- mention}} lofi hiphop**"',
       "- **Controle a fila no Menu de Faixas abaixo!**",
-      `### ${Icons.Premium} Novo website e mais benefícios!`,
-      "- Se torne um Apoiador e tenha acesso a várias novidades!",
-      "- Visite nosso site: https://twokei.com",
+      `### ${Icons.Premium} Premium liberado!`,
+      "- Se torne um **Apoiador** e tenha acesso a várias novidades!",
+      "- **Visite nosso site: https://twokei.com**",
     ],
     buttons: {
       [PlayerButtons.STOP]: "Parar",
@@ -30,7 +31,7 @@ export default {
       [EmbedButtons.VIEW_PROFILE]: "Meu Perfil",
       [EmbedButtons.VIEW_RANKING]: "Ver Ranking",
       [EmbedButtons.PLAYLIST_SYNC]: "Playlists Sincronizadas",
-      [EmbedButtons.IA_MODE]: "Modo IA - Premium",
+      [EmbedButtons.IA_MODE]: "Músicas recomendadas",
       [EmbedButtons.QUICK_PLAYLIST]: "Ouvir Playlist recomendada",
       invite: "Convite",
       donate: "Apoiar desenvolvimento",

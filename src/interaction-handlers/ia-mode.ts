@@ -29,7 +29,7 @@ import { logger } from "@/lib/logger";
 import { isUserPremium } from "@/lib/user-benefits/benefits";
 
 const limitInMillis =
-  process.env.NODE_ENV === "production" ? 2 * 60 * 1000 : 1000; // 2 minutes
+  process.env.NODE_ENV === "production" ? 2 * 60 * 1000 : 10000; // 2 minutes
 
 const iaModeRateLimit = new RateLimitManager(limitInMillis);
 
@@ -60,10 +60,10 @@ export class IaModeInteraction extends InteractionHandler {
       ],
     });
 
-    if (rateLimit.limited && !isPremium) {
+    if (rateLimit.limited) {
       const embed = new EmbedBuilder().setDescription(
         [
-          "### Você atingiu o limite de recomendações.",
+          "### Você atingiu o limite de recomendações, tente novamente mais tarde!",
           "Se torne **Premium** para adicionar quantas músicas quiser!",
         ].join("\n"),
       );
@@ -152,8 +152,8 @@ export class IaModeInteraction extends InteractionHandler {
       ];
 
       const nonPremiumDescription = [
-        `${Icons.Hanakin} Você adicionou 5 músicas com o Modo IA!`,
-        "Se torne **Premium** para adicionar quantas músicas quiser!",
+        "### Se torne **Premium** para adicionar quantas músicas quiser!",
+        `${Icons.Hanakin} Você adicionou somente 5 músicas com o Modo IA!`,
         "Visite https://twokei.com para mais informações.",
       ];
 
