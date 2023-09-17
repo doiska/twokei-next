@@ -28,20 +28,9 @@ export const createPlayEmbed = async (
   const capitalizedSource =
     track.sourceName.charAt(0).toUpperCase() + track.sourceName.slice(1);
 
-  const [like, dislike, viewSource] = ["like", "dislike", "view_source"].map(
-    (button) =>
-      t(`player:play.buttons.${button}`, { source: capitalizedSource }),
+  const [viewSource] = ["view_source"].map((button) =>
+    t(`player:play.buttons.${button}`, { source: capitalizedSource }),
   );
-
-  const likeButton = new ButtonBuilder()
-    .setCustomId(OnPlayButtons.LIKE)
-    .setLabel(like)
-    .setStyle(ButtonStyle.Primary);
-
-  const dislikeButton = new ButtonBuilder()
-    .setCustomId(OnPlayButtons.DISLIKE)
-    .setLabel(dislike)
-    .setStyle(ButtonStyle.Danger);
 
   const sourceUrl =
     result.type === "PLAYLIST_LOADED" && result.playlist.url.startsWith("http")
@@ -54,7 +43,7 @@ export const createPlayEmbed = async (
     .setURL(sourceUrl);
 
   const feedbackRow = new ActionRowBuilder<ButtonBuilder>({
-    components: [likeButton, dislikeButton, viewOnSource],
+    components: [viewOnSource],
   });
 
   const embed =

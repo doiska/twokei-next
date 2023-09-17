@@ -12,5 +12,8 @@ export const destroyPlayerInstance = async (member: GuildMember) => {
     throw new FriendlyException(ErrorCodes.NOT_IN_VC);
   }
 
-  await container.xiao.destroyPlayer(member.guild);
+  await container.xiao.destroyPlayer(
+    member.guild,
+    "DestroyPlayerInstance called",
+  );
 };

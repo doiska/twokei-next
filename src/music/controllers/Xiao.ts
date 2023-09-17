@@ -274,10 +274,11 @@ export class Xiao extends EventEmitter {
     return this.players.get(resolvedGuildId);
   }
 
-  public async destroyPlayer(guild: Guild) {
+  public async destroyPlayer(guild: Guild, reason = "Unknown") {
     this.logger.info(`Destroying player for guild ${guild.id}`, {
       guildId: guild.id,
       guildName: guild.name,
+      reason,
     });
 
     await guild.members.me?.voice?.disconnect().catch(noop);

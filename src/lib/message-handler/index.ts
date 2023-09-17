@@ -12,6 +12,7 @@ import {
   isAnyInteraction,
 } from "@sapphire/discord.js-utilities";
 import { noop } from "@sapphire/utilities";
+import { logger } from "@/lib/logger";
 
 type MessageHandlerEditOptions =
   | MessageCreateOptions
@@ -149,12 +150,15 @@ async function tryReply(
 
     return message.reply(payload as MessageReplyOptions);
   } catch (error) {
+    logger.error(`Failed to reply to message: ${error}`);
+
     if (!(error instanceof DiscordAPIError)) {
       throw error;
     }
 
     if (
       ![
+        RESTJSONErrorCodes.UnknownInteraction,
         RESTJSONErrorCodes.CannotReplyWithoutPermissionToReadMessageHistory,
         RESTJSONErrorCodes.InvalidFormBodyOrContentType,
         RESTJSONErrorCodes.UnknownMessage,
