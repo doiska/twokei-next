@@ -15,7 +15,7 @@ import {
   type Option,
 } from "@sapphire/framework";
 
-import { EmbedButtons, NewsButtons } from "@/constants/music/player-buttons";
+import { EmbedButtons } from "@/constants/music/player-buttons";
 import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 import { fetchT } from "@sapphire/plugin-i18next";
