@@ -29,9 +29,7 @@ export const env = createEnv({
     SHARDING_MANAGER_ENABLED: z
       .string()
       .default("true")
-      .refine((value) => {
-        return value === "true" || value === "false";
-      }),
+      .transform((value) => value === "true"),
   },
   runtimeEnv: process.env,
 });
