@@ -23,6 +23,15 @@ class Server {
     this.koa.use(bodyParser());
     this.koa.use(this.router.routes()).use(this.router.allowedMethods());
 
+    this.koa.use(async (ctx, next) => {
+      if (ctx.headers["authorization"] !== env.RESOLVER_KEY) {
+        ctx.status = 401;
+        return;
+      }
+
+      return next();
+    });
+
     await setupFileRouter(this.router as never, {
       directory: `${__dirname}/routes`,
     });

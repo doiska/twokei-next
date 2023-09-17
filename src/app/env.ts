@@ -26,7 +26,12 @@ export const env = createEnv({
     SPOTIFY_CLIENT_SECRET: z.string(),
     SPOTIFY_CLIENT_ID: z.string(),
     PORT: z.number().default(3005),
-    SHARDING_MANAGER_ENABLED: z.boolean().default(true),
+    SHARDING_MANAGER_ENABLED: z
+      .string()
+      .default("true")
+      .refine((value) => {
+        return value === "true" || value === "false";
+      }),
   },
   runtimeEnv: process.env,
 });
