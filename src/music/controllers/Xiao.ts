@@ -18,7 +18,7 @@ import { settings } from "@/db/schemas/settings";
 import { createLogger } from "@/lib/logger";
 import { manualUpdate } from "@/music/embed/events/manual-update";
 import { handlePlayerException } from "@/music/embed/events/player-exception";
-import { queueEmpty } from "@/music/embed/events/queue-empty";
+import { playerDestroyed, queueEmpty } from "@/music/embed/events/queue-empty";
 import { youtubeTrackResolver } from "@/music/resolvers/youtube/youtube-track-resolver";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
@@ -221,7 +221,7 @@ export class Xiao extends EventEmitter {
       manualUpdate(venti, { embed: true, components: true });
     });
 
-    this.on(Events.PlayerDestroy, queueEmpty);
+    this.on(Events.PlayerDestroy, playerDestroyed);
     this.on(Events.QueueEmpty, queueEmpty);
 
     this.on(Events.ManualUpdate, manualUpdate);

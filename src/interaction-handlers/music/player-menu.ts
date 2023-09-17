@@ -9,7 +9,8 @@ import { type Awaitable } from "@sapphire/utilities";
 
 import { Menus } from "@/constants/music/player-buttons";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
-import { sendPresetMessage } from "@/lib/message-handler/helper";
+import { send } from "@/lib/message-handler";
+import { Embed } from "@/utils/messages";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "player-menu",
@@ -57,10 +58,8 @@ export class PlayerMenu extends InteractionHandler {
       return;
     }
 
-    await sendPresetMessage({
-      interaction,
-      preset: "loading",
-      ephemeral: true,
+    await interaction.deferUpdate({
+      fetchReply: true,
     });
 
     try {
@@ -71,12 +70,10 @@ export class PlayerMenu extends InteractionHandler {
       } else if (typeof option === "number") {
         await player.skip(option + 1);
       }
-      await interaction.deleteReply();
     } catch (error) {
-      await sendPresetMessage({
-        interaction,
-        message: getReadableException(error),
-        preset: "error",
+      await send(interaction, {
+        embeds: Embed.error(getReadableException(error)),
+        ephemeral: true,
       });
     }
   }

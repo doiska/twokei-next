@@ -16,10 +16,10 @@ import {
 } from "@sapphire/framework";
 
 import { EmbedButtons } from "@/constants/music/player-buttons";
-import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 import { fetchT } from "@sapphire/plugin-i18next";
 import { RawIcons } from "@/constants/icons";
+import { send } from "@/lib/message-handler";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "news-button",
@@ -66,13 +66,10 @@ export class NewsButtonInteraction extends InteractionHandler {
       components: [donatorButton],
     });
 
-    await sendPresetMessage({
-      interaction,
-      preset: "success",
-      ephemeral: true,
-      deleteIn: 0,
+    await send(interaction, {
       embeds: [newsEmbed],
       components: [row],
+      ephemeral: true,
     });
   }
 

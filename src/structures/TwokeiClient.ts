@@ -9,6 +9,7 @@ import { SongChannelManager } from "@/structures/SongChannels";
 import { Xiao } from "@/music/controllers/Xiao";
 import { Connectors } from "shoukaku";
 import { env } from "@/app/env";
+import { logger } from "@/lib/logger";
 
 export class TwokeiClient extends SapphireClient {
   public xiao: Xiao;
@@ -40,6 +41,14 @@ export class TwokeiClient extends SapphireClient {
     container.sc = new SongChannelManager();
     container.analytics = new Analytics();
     container.xiao = this.xiao;
+
+    process.on("unhandledRejection", (error) => {
+      logger.error("Unhandled rejection:", error);
+    });
+
+    process.on("uncaughtException", (error) => {
+      logger.error("Uncaught exception:", error);
+    });
   }
 
   public getContainer() {

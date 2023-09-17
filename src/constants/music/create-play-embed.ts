@@ -12,11 +12,11 @@ import {
 import { OnPlayButtons } from "@/constants/music/player-buttons";
 import type { XiaoSearchResult } from "@/music/interfaces/player.types";
 import { Embed } from "@/utils/messages";
-import { sendPresetMessage } from "@/lib/message-handler/helper";
 
-import { fetchT, TFunction } from "@sapphire/plugin-i18next";
+import { fetchT, resolveKey, TFunction } from "@sapphire/plugin-i18next";
 import { inlineCode } from "@discordjs/formatters";
 import { addMilliseconds, format } from "date-fns";
+import { send } from "@/lib/message-handler";
 
 export const createPlayEmbed = async (
   member: GuildMember,
@@ -57,7 +57,7 @@ export const createPlayEmbed = async (
   const responseEmbed = Embed.success(embed.data);
 
   return {
-    embeds: [responseEmbed],
+    embeds: responseEmbed,
     components: [feedbackRow],
   };
 };
@@ -124,10 +124,8 @@ export async function waitFeedback(message: Message) {
   });
 
   collector.on("collect", async (i: ButtonInteraction) => {
-    await sendPresetMessage({
-      interaction: i,
-      preset: "success",
-      message: "player:play.feedback",
+    await send(i, {
+      embeds: Embed.success(await resolveKey(i, "player:play.feedback")),
       ephemeral: true,
     });
   });

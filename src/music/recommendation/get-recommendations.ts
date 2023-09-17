@@ -1,6 +1,5 @@
-import { logger } from "@/lib/logger";
-import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 import { fetchApi } from "@/lib/api";
+import { logger } from "@/lib/logger";
 
 interface Recommendation {
   id: string;
@@ -34,6 +33,9 @@ export async function getRecommendations(userId: string, config?: Props) {
     );
   } catch (error) {
     logger.error(error);
-    throw new FriendlyException("Ocorreu um erro ao buscar as recomendações.");
+    return {
+      status: "error" as const,
+      message: "Ocorreu um erro ao buscar as recomendações.",
+    };
   }
 }

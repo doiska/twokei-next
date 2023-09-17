@@ -18,15 +18,16 @@ import { addISRCSongs } from "@/music/heizou/add-new-song";
 import { getRecommendations } from "@/music/recommendation/get-recommendations";
 import { ResolvableTrack } from "@/music/structures/ResolvableTrack";
 import { isGuildMember } from "@sapphire/discord.js-utilities";
-import { sendPresetMessage } from "@/lib/message-handler/helper";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
 import { Icons, RawIcons } from "@/constants/icons";
-import { defer } from "@/lib/message-handler";
+import { defer, send } from "@/lib/message-handler";
 import { RateLimitManager } from "@sapphire/ratelimits";
 import { createPlayEmbed } from "@/constants/music/create-play-embed";
 import { LoadType } from "@/music/interfaces/player.types";
 import { logger } from "@/lib/logger";
 import { isUserPremium } from "@/lib/user-benefits/benefits";
+import { Embed } from "@/utils/messages";
+import { resolveKey } from "@sapphire/plugin-i18next";
 
 const limitInMillis =
   process.env.NODE_ENV === "production" ? 2 * 60 * 1000 : 10000; // 2 minutes
@@ -68,9 +69,7 @@ export class IaModeInteraction extends InteractionHandler {
         ].join("\n"),
       );
 
-      await sendPresetMessage({
-        interaction,
-        preset: "error",
+      await send(interaction, {
         embeds: [embed],
         components: [premiumButton],
         ephemeral: true,
@@ -88,26 +87,19 @@ export class IaModeInteraction extends InteractionHandler {
       });
 
       if (recommendations.status === "error") {
-        logger.error(
-          `[IA-MODE] ${interaction.user.id} error while getting recommendations`,
-          recommendations,
-        );
-
-        await sendPresetMessage({
-          interaction,
-          preset: "error",
-          message: "Ocorreu um erro ao buscar as recomendações.",
-        });
+        await send(interaction, {
+          embeds: Embed.error("Ocorreu um erro ao buscar as recomendações."),
+          ephemeral: true,
+        }).dispose(5000);
         return;
       }
 
       if (recommendations.data.length === 0) {
-        await sendPresetMessage({
-          interaction,
-          preset: "error",
-          message:
+        await send(interaction, {
+          embeds: Embed.error(
             "Não possuimos uma amostra grande, continue ouvindo músicas e tente novamente!",
-        });
+          ),
+        }).dispose(10000);
         return;
       }
 
@@ -165,18 +157,16 @@ export class IaModeInteraction extends InteractionHandler {
             .join("\n"),
         );
 
-      await sendPresetMessage({
-        interaction,
-        preset: "success",
+      await send(interaction, {
         embeds: [premiumEmbed, ...playerEmbed.embeds],
         components: [premiumButton],
       });
     } catch (e) {
-      await sendPresetMessage({
-        interaction,
+      await send(interaction, {
+        embeds: Embed.error(
+          await resolveKey(interaction, getReadableException(e)),
+        ),
         ephemeral: true,
-        preset: "error",
-        message: getReadableException(e),
       });
     }
   }

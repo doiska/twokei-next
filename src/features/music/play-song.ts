@@ -9,10 +9,9 @@ import { youtubeTrackResolver } from "@/music/resolvers/youtube/youtube-track-re
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
 import { Embed } from "@/utils/messages";
-import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 import { resolveKey } from "@sapphire/plugin-i18next";
-import { send } from "@/lib/message-handler";
+import { followUp, send } from "@/lib/message-handler";
 
 export async function playSong(
   interaction: Exclude<RepliableInteraction, ModalSubmitInteraction> | Message,
@@ -27,10 +26,10 @@ export async function playSong(
   const { channelId } = (await container.sc.get(guild)) ?? {};
 
   if (!channelId) {
-    await sendPresetMessage({
-      interaction,
-      preset: "error",
-      message: ErrorCodes.MISSING_SONG_CHANNEL,
+    await send(interaction, {
+      embeds: Embed.error(
+        await resolveKey(interaction, ErrorCodes.MISSING_SONG_CHANNEL),
+      ),
       ephemeral: true,
     });
     return;
@@ -40,10 +39,11 @@ export async function playSong(
   const isSongChannel = interaction.channel?.id === channelId;
 
   if (!songChannel || !isTextChannel(songChannel)) {
-    await sendPresetMessage({
-      interaction,
-      preset: "error",
-      message: ErrorCodes.MISSING_SONG_CHANNEL,
+    await send(interaction, {
+      embeds: Embed.error(
+        await resolveKey(interaction, ErrorCodes.MISSING_SONG_CHANNEL),
+      ),
+      ephemeral: true,
     });
     return;
   }
@@ -55,8 +55,8 @@ export async function playSong(
       await resolveKey(interaction, "player:youtube_disabled"),
     );
 
-    await send(interaction, {
-      embeds: [warning],
+    await followUp(interaction, {
+      embeds: warning,
     }).dispose(5000);
   }
 
@@ -68,10 +68,11 @@ export async function playSong(
       : "#twokei-music";
 
     if (!isSongChannel) {
-      await sendPresetMessage({
-        interaction,
-        preset: "success",
-        message: `Acompanhe e controle a música no canal ${mentionedChannel}`,
+      await send(interaction, {
+        embeds: Embed.success(
+          `Acompanhe e controle a música no canal ${mentionedChannel}`,
+        ),
+        ephemeral: true,
       });
     }
 
@@ -81,9 +82,9 @@ export async function playSong(
     ).dispose(60000);
   } catch (error) {
     await send(interaction, {
-      embeds: [
-        Embed.error(await resolveKey(interaction, getReadableException(error))),
-      ],
+      embeds: Embed.error(
+        await resolveKey(interaction, getReadableException(error)),
+      ),
       ephemeral: true,
     }).dispose();
   }

@@ -14,5 +14,5 @@ export const getReadableException = (error: unknown) => {
 
   logger.error(error);
 
-  return "An unexpected error occurred, please try again later.";
+  return "An unexpected error occurred, please try again.";
 };

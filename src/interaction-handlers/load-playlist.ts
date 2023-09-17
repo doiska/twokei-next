@@ -21,7 +21,8 @@ import { Action, Pagination } from "@/lib/message-handler/pagination";
 import type { ProfileWithPlaylists } from "@/music/resolvers/resolver";
 import { spotifyProfileResolver } from "@/music/resolvers/spotify/spotify-profile-resolver";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
-import { sendPresetMessage } from "@/lib/message-handler/helper";
+import { send } from "@/lib/message-handler";
+import { Embed } from "@/utils/messages";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "load-playlist",
@@ -73,11 +74,9 @@ export class LoadPlaylist extends InteractionHandler {
     return (await Promise.all(promises)).filter(Boolean).flat();
   }
 
-  private sendError(interaction: ButtonInteraction, message: string) {
-    return sendPresetMessage({
-      interaction,
-      message,
-      preset: "error",
+  private async sendError(interaction: ButtonInteraction, message: string) {
+    await send(interaction, {
+      embeds: Embed.error(message),
       ephemeral: true,
     });
   }

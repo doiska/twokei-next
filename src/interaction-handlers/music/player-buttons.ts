@@ -15,9 +15,10 @@ import { previousSong } from "@/music/heizou/previous-song";
 import { setLoopState } from "@/music/heizou/set-loop-state";
 import { shuffleQueue } from "@/music/heizou/shuffle-queue";
 import { skipSong } from "@/music/heizou/skip-song";
-import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
-import { sendPresetMessage } from "@/lib/message-handler/helper";
+import { send } from "@/lib/message-handler";
+import { Embed } from "@/utils/messages";
+import { resolveKey } from "@sapphire/plugin-i18next";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "buttons-player",
@@ -38,13 +39,6 @@ export class PlayerButtonsInteraction extends InteractionHandler {
     }
 
     if (player.voiceId !== interaction.member?.voice?.channelId) {
-      await sendPresetMessage({
-        interaction,
-        message: ErrorCodes.NOT_SAME_VC,
-        ephemeral: true,
-        preset: "error",
-        deleteIn: 8,
-      });
       return;
     }
 
@@ -73,12 +67,11 @@ export class PlayerButtonsInteraction extends InteractionHandler {
 
       await interaction.deleteReply();
     } catch (e) {
-      const readable = getReadableException(e);
-      await sendPresetMessage({
-        preset: "error",
-        interaction,
+      await send(interaction, {
+        embeds: Embed.error(
+          await resolveKey(interaction, getReadableException(e)),
+        ),
         ephemeral: true,
-        message: readable,
       });
     }
   }
