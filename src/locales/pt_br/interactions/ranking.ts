@@ -9,7 +9,7 @@ export default {
       "",
     ].join("\n"),
     ephemeral: [
-      `Você está em **#{{currentPosition.position}} lugar** com **{{currentPosition.listened}} músicas ouvidas**.`,
+      `Você está em **#{{currentPosition.position}} lugar** com **{{currentPosition.listened}} ouvidos**.`,
       `Suba no Ranking **escutando** músicas no {{- twokeiMention}}.`,
       " ",
       `Obrigado por fazer parte da nossa vibe! ${Icons.HanakoEating}`,

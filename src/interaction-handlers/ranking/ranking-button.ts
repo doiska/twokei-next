@@ -1,4 +1,4 @@
-import type { ButtonInteraction } from "discord.js";
+import type { ButtonInteraction, Interaction } from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
 import {
   InteractionHandler,
@@ -10,15 +10,13 @@ import { EmbedButtons } from "@/constants/music/player-buttons";
 import { fetchApi } from "@/lib/api";
 import { kil } from "@/db/Kil";
 import { coreUsers } from "@/db/schemas/core-users";
-import { eq, inArray } from "drizzle-orm";
-import { songRanking } from "@/db/schemas/song-ranking";
+import { inArray } from "drizzle-orm";
 import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
   Colors,
   EmbedBuilder,
-  GuildMember,
   userMention,
 } from "discord.js";
 import { fetchT } from "@sapphire/plugin-i18next";
@@ -34,8 +32,10 @@ import { isValidCustomId } from "@/utils/helpers";
 })
 export class RankingButtonInteraction extends InteractionHandler {
   public async run(interaction: ButtonInteraction): Promise<void> {
-    const ranking =
-      await fetchApi<{ userId: string; listened: number }[]>("/ranking");
+    const ranking = await fetchApi<{
+      ranking: { userId: string; listened: number }[];
+      current: { userId: string; listened: number; position: number };
+    }>(`/ranking?include=${interaction.user.id}`);
 
     if (ranking.status !== "success") {
       return;
@@ -50,11 +50,11 @@ export class RankingButtonInteraction extends InteractionHandler {
       .where(
         inArray(
           coreUsers.id,
-          ranking.data.map((user) => user.userId),
+          ranking.data.ranking.map((user) => user.userId),
         ),
       );
 
-    const usersRankedWithName = ranking.data
+    const usersRankedWithName = ranking.data.ranking
       .map((user) => {
         const userWithName = usersWithName.find((u) => u.id === user.userId);
 
@@ -68,15 +68,6 @@ export class RankingButtonInteraction extends InteractionHandler {
     if (!usersRankedWithName.length) {
       return;
     }
-
-    const [currentPosition] = await kil
-      .select({
-        listened: songRanking.listened,
-        position: songRanking.position,
-      })
-      .from(songRanking)
-      .where(eq(songRanking.userId, (interaction.member as GuildMember)!.id))
-      .limit(1);
 
     const t = await fetchT(interaction);
 
@@ -133,7 +124,13 @@ export class RankingButtonInteraction extends InteractionHandler {
     const ephemeralEmbed = new EmbedBuilder()
       .setDescription(
         t("interactions:ranking.embed.ephemeral", {
-          currentPosition,
+          currentPosition: {
+            position: ranking.data.current?.position ?? "N/A",
+            listened: await this.formatMinutes(
+              interaction,
+              ranking.data.current?.listened ?? 0,
+            ),
+          },
           twokeiMention,
         }),
       )
@@ -156,5 +153,25 @@ export class RankingButtonInteraction extends InteractionHandler {
 
   public parse(interaction: ButtonInteraction) {
     return isValidCustomId(interaction.customId, EmbedButtons.VIEW_RANKING);
+  }
+
+  private async formatMinutes(interaction: Interaction, listened: number) {
+    const { days, hours, minutes } = intervalToDuration({
+      start: 0,
+      end: listened * 1000,
+    });
+
+    return formatDuration(
+      {
+        days,
+        hours,
+        minutes,
+      },
+      {
+        delimiter: ", ",
+        format: ["days", "hours", "minutes"],
+        locale: await getDateLocale(interaction),
+      },
+    );
   }
 }
