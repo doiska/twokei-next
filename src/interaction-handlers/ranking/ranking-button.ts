@@ -24,7 +24,7 @@ import {
 import { fetchT } from "@sapphire/plugin-i18next";
 import { getDateLocale } from "@/locales/i18n";
 import { formatDuration, intervalToDuration } from "date-fns";
-import { send } from "@/lib/message-handler";
+import { followUp, send } from "@/lib/message-handler";
 import { isValidCustomId } from "@/utils/helpers";
 
 @ApplyOptions<InteractionHandler.Options>({
@@ -148,10 +148,10 @@ export class RankingButtonInteraction extends InteractionHandler {
       components: [row],
     }).dispose();
 
-    await interaction.followUp({
+    await followUp(interaction, {
       embeds: [ephemeralEmbed],
       ephemeral: true,
-    });
+    }).dispose(10000);
   }
 
   public parse(interaction: ButtonInteraction) {

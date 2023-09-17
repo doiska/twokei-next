@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { ShardingManager } from "discord.js";
 import { env } from "@/app/env";
+import { inspect } from "node:util";
 
 if (env.SHARDING_MANAGER_ENABLED) {
   const manager = new ShardingManager("./dist/app/Twokei.js", {
@@ -8,7 +9,7 @@ if (env.SHARDING_MANAGER_ENABLED) {
   });
 
   process.on("unhandledRejection", (error) => {
-    console.error("Unhandled promise rejection:", error);
+    console.error("Unhandled rejection:", inspect(error));
   });
 
   process.on("uncaughtException", (error) => {

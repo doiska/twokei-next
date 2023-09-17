@@ -31,6 +31,6 @@ export default {
     ].join("\n"),
   },
   buttons: {
-    donator: "Apoiador",
+    donator: "Visitar Twokei.com",
   },
 };

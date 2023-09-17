@@ -105,8 +105,6 @@ export class SongProfileManager {
         return null;
       });
 
-    console.log(response);
-
     if (!response) {
       logger.error(`Failed to fetch user role for ${userId}`);
       return;

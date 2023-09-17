@@ -2,10 +2,17 @@ import { ApplyOptions } from "@sapphire/decorators";
 import {
   container,
   InteractionHandler,
+  InteractionHandlerTypes,
   type Option,
 } from "@sapphire/framework";
-import { InteractionHandlerTypes } from "@sapphire/framework";
 import type { ButtonInteraction } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  Colors,
+  EmbedBuilder,
+} from "discord.js";
 import type { Awaitable } from "@sapphire/utilities";
 import { EmbedButtons } from "@/constants/music/player-buttons";
 import { addISRCSongs } from "@/music/heizou/add-new-song";
@@ -14,8 +21,17 @@ import { ResolvableTrack } from "@/music/structures/ResolvableTrack";
 import { isGuildMember } from "@sapphire/discord.js-utilities";
 import { sendPresetMessage } from "@/lib/message-handler/helper";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
-import { EmbedBuilder } from "discord.js";
-import { Icons } from "@/constants/icons";
+import { Icons, RawIcons } from "@/constants/icons";
+import { defer } from "@/lib/message-handler";
+import { RateLimitManager } from "@sapphire/ratelimits";
+import { createPlayEmbed } from "@/constants/music/create-play-embed";
+import { LoadType } from "@/music/interfaces/player.types";
+import { logger } from "@/lib/logger";
+
+const limitInMillis =
+  process.env.NODE_ENV === "production" ? 2 * 60 * 1000 : 1000; // 2 minutes
+
+const iaModeRateLimit = new RateLimitManager(limitInMillis);
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "ia-mode-button",
@@ -28,25 +44,50 @@ export class IaModeInteraction extends InteractionHandler {
       return;
     }
 
-    if (!(await container.profiles.isUserPremium(interaction.user.id))) {
+    const rateLimit = iaModeRateLimit.acquire(interaction.user.id);
+
+    await defer(interaction);
+
+    const isPremium = await container.profiles.isUserPremium(
+      interaction.user.id,
+    );
+
+    const premiumButton = new ActionRowBuilder<ButtonBuilder>({
+      components: [
+        new ButtonBuilder()
+          .setStyle(ButtonStyle.Link)
+          .setURL("https://twokei.com")
+          .setLabel("Benefícios Premium")
+          .setEmoji(RawIcons.Premium),
+      ],
+    });
+
+    if (rateLimit.limited && !isPremium) {
       const embed = new EmbedBuilder().setDescription(
         [
-          `### ${Icons.Hanakin} Você precisa ser um Premium para usar essa função.`,
-          "Visite nosso site para saber mais: https://twokei.com/profile",
+          "### Você atingiu o limite de recomendações.",
+          "Se torne **Premium** para adicionar quantas músicas quiser!",
         ].join("\n"),
       );
 
       await sendPresetMessage({
         interaction,
-        ephemeral: true,
         preset: "error",
         embeds: [embed],
+        components: [premiumButton],
+        ephemeral: true,
       });
       return;
     }
 
+    logger.info(
+      `[IA-MODE] ${interaction.user.id} is requesting recommendations | isPremium: ${isPremium}`,
+    );
+
     try {
-      const recommendations = await getRecommendations(interaction.user.id);
+      const recommendations = await getRecommendations(interaction.user.id, {
+        limit: isPremium ? 25 : 5,
+      });
 
       if (recommendations.status === "error") {
         await sendPresetMessage({
@@ -65,6 +106,10 @@ export class IaModeInteraction extends InteractionHandler {
             "Não possuimos uma amostra grande, continue ouvindo músicas e tente novamente!",
         });
         return;
+      }
+
+      if (!isPremium) {
+        rateLimit.consume();
       }
 
       const addedSongs = await addISRCSongs(
@@ -89,19 +134,39 @@ export class IaModeInteraction extends InteractionHandler {
         interaction.member,
       );
 
+      const playerEmbed = await createPlayEmbed(interaction.member, {
+        type: LoadType.PLAYLIST_LOADED,
+        tracks: addedSongs,
+        playlist: {
+          name: "Recomendações",
+          url: "https://twokei.com",
+        },
+      });
+
+      const premiumDescription = [
+        `### ${Icons.Premium} 25 músicas com o Modo IA por ser um usuário **Premium**!`,
+        "**Obrigado por fazer parte de nossa vibe, você é incrível!**",
+      ];
+
+      const nonPremiumDescription = [
+        `${Icons.Hanakin} Você adicionou 5 músicas com o Modo IA!`,
+        "Se torne **Premium** para adicionar quantas músicas quiser!",
+        "Visite https://twokei.com para mais informações.",
+      ];
+
+      const premiumEmbed = new EmbedBuilder()
+        .setColor(Colors.Green)
+        .setDescription(
+          (isPremium ? premiumDescription : nonPremiumDescription)
+            .filter(Boolean)
+            .join("\n"),
+        );
+
       await sendPresetMessage({
         interaction,
         preset: "success",
-        ephemeral: true,
-        embeds: [
-          new EmbedBuilder().setDescription(
-            [
-              `### ${Icons.Hanakin} ${addedSongs.length} músicas adicionadas com Modo IA!`,
-              `### Você poderá se tornar um ${Icons.Premium} Premium no lançamento do site <t:1694910600:R>.`,
-              "**Faça parte da nossa Vibe!**",
-            ].join("\n"),
-          ),
-        ],
+        embeds: [premiumEmbed, ...playerEmbed.embeds],
+        components: [premiumButton],
       });
     } catch (e) {
       await sendPresetMessage({

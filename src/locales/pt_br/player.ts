@@ -10,9 +10,9 @@ export default {
       "- **Mencione** o bot com o nome/url da música para adicionar à fila.",
       '- Exemplo: "**{{- mention}} lofi hiphop**"',
       "- **Controle a fila no Menu de Faixas abaixo!**",
-      `### ${Icons.Premium} Novo: Modo IA - Beta`,
-      "- Utilize o **Modo IA** e adicione várias músicas sem esforço!",
-      "- Clique no botão **Modo IA** ou **Playlist Recomendada** abaixo.",
+      `### ${Icons.Premium} Novo website e mais benefícios!`,
+      "- Se torne um Apoiador e tenha acesso a várias novidades!",
+      "- Visite nosso site: https://twokei.com",
     ],
     buttons: {
       [PlayerButtons.STOP]: "Parar",

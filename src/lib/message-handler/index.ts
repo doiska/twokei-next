@@ -1,24 +1,17 @@
 import { CustomHandler } from "@/lib/message-handler/custom-handler";
 import type {
-  MessageReplyOptions,
-  RepliableInteraction,
+  InteractionReplyOptions,
   MessageCreateOptions,
   MessageEditOptions,
-  InteractionReplyOptions,
+  MessageReplyOptions,
+  RepliableInteraction,
 } from "discord.js";
-
-import {
-  DiscordAPIError,
-  Message,
-  MessagePayload,
-  RESTJSONErrorCodes,
-} from "discord.js";
+import { DiscordAPIError, Message, RESTJSONErrorCodes } from "discord.js";
 import {
   isAnyInteractableInteraction,
   isAnyInteraction,
 } from "@sapphire/discord.js-utilities";
 import { noop } from "@sapphire/utilities";
-import { logger } from "@/lib/logger";
 
 type MessageHandlerEditOptions =
   | MessageCreateOptions
@@ -31,34 +24,30 @@ export type MessageHandlerOptions = MessageHandlerEditOptions & {
 
 type Repliable = Message | RepliableInteraction;
 
-const replies = new Map<string, Message>();
-
 class MessageHandlerPromise extends CustomHandler<Message> {
+  private result?: Message;
+
   constructor(
     private readonly interaction: Repliable,
     private readonly options: string | MessageHandlerOptions,
-    private readonly method: "send" | "followUp" = "send",
+    private readonly type: "send" | "followUp" = "send",
   ) {
     super();
   }
 
   async execute(): Promise<Message> {
-    if (this.method === "followUp") {
-      return await handleFollowUp(this.interaction, this.options);
-    }
+    const result = await (this.type === "followUp"
+      ? handleFollowUp(this.interaction, this.options)
+      : handle(this.interaction, this.options));
 
-    return handle(this.interaction, this.options);
+    this.result = result;
+    return result;
   }
 
   dispose(milliseconds = 15000) {
     setTimeout(() => {
-      const key = `${this.interaction.id}-${this.method}`;
-      const responseMessage = replies.get(key);
-
-      if (responseMessage) {
-        responseMessage.delete().catch(noop);
-        logger.debug(`[${this.method}] Message handler disposed using delete.`);
-        replies.delete(key);
+      if (this.result) {
+        this.result.delete().catch(noop);
         return;
       }
 
@@ -70,6 +59,20 @@ class MessageHandlerPromise extends CustomHandler<Message> {
     }, milliseconds);
     return this;
   }
+}
+
+export async function defer(
+  interaction: Repliable,
+  options?: { ephemeral: true },
+) {
+  if (isAnyInteractableInteraction(interaction)) {
+    return interaction.deferReply({
+      ephemeral: options?.ephemeral ?? false,
+      fetchReply: true,
+    });
+  }
+
+  return interaction;
 }
 
 export function send(
@@ -89,30 +92,14 @@ export function followUp(
 async function handleFollowUp<T extends MessageHandlerOptions>(
   interaction: Repliable,
   options: string | T,
-  extra?: T | undefined,
 ): Promise<Message> {
-  if (!interaction.channel) {
-    throw new Error("No channel specified.");
-  }
-
-  const payload = await MessagePayload.create(
-    interaction.channel,
-    resolvePayload(options),
-    extra,
-  )
-    .resolveBody()
-    .resolveFiles();
-
-  let response: Message;
   if (isAnyInteractableInteraction(interaction)) {
-    await interaction.followUp(payload);
-    response = await interaction.fetchReply();
-  } else {
-    response = await interaction.reply(payload);
+    return interaction.followUp(options as InteractionReplyOptions);
   }
 
-  replies.set(`${interaction.id}-followUp`, response);
-  return response;
+  return (
+    interaction.channel?.send(options as MessageCreateOptions) ?? interaction
+  );
 }
 
 async function handle<T extends MessageHandlerOptions>(
@@ -123,19 +110,9 @@ async function handle<T extends MessageHandlerOptions>(
     throw new Error("No channel specified.");
   }
 
-  const existing = replies.get(`${interaction.id}-send`);
+  const payloadOptions = resolvePayload(options);
 
-  const payloadOptions = existing
-    ? resolveEditPayload(existing, options as MessageEditOptions)
-    : resolvePayload(options);
-
-  const response = await (existing
-    ? tryEdit(existing, interaction, payloadOptions as MessageEditOptions)
-    : tryReply(interaction, payloadOptions as MessageCreateOptions));
-
-  replies.set(`${interaction.id}-send`, response);
-
-  return response;
+  return tryReply(interaction, payloadOptions as MessageCreateOptions);
 }
 
 function resolvePayload<T extends MessageHandlerOptions>(
@@ -154,34 +131,23 @@ function resolvePayload<T extends MessageHandlerOptions>(
   } as T;
 }
 
-function resolveEditPayload(
-  currentMessage: Message,
-  options: string | MessageEditOptions,
-) {
-  options = resolvePayload(options);
-
-  if (currentMessage.embeds.length) {
-    options.embeds ??= [];
-  }
-
-  if (currentMessage.attachments.size) {
-    options.files ??= [];
-  }
-
-  return options;
-}
-
 async function tryReply(
   message: Repliable,
   payload: InteractionReplyOptions | MessageCreateOptions,
 ): Promise<Message> {
-  if (isAnyInteractableInteraction(message)) {
-    await message.reply(payload as InteractionReplyOptions);
-    return message.fetchReply();
-  }
-
   try {
-    return await message.reply(payload as MessageReplyOptions);
+    if (isAnyInteractableInteraction(message)) {
+      if (message.deferred) {
+        return message.editReply(payload as InteractionReplyOptions);
+      }
+
+      return message.reply({
+        ...(payload as InteractionReplyOptions),
+        fetchReply: true,
+      });
+    }
+
+    return message.reply(payload as MessageReplyOptions);
   } catch (error) {
     if (!(error instanceof DiscordAPIError)) {
       throw error;
@@ -197,39 +163,10 @@ async function tryReply(
       throw error;
     }
 
+    if (!message.channel) {
+      throw new Error("No channel specified.");
+    }
+
     return message.channel.send(payload as MessageCreateOptions);
-  }
-}
-
-async function tryEdit(
-  message: Repliable,
-  response: Repliable,
-  payload: Exclude<MessageHandlerEditOptions, MessageCreateOptions>,
-) {
-  try {
-    if (isAnyInteractableInteraction(response)) {
-      return await response.editReply(payload);
-    }
-
-    return await response.edit(payload satisfies MessageEditOptions);
-  } catch (error) {
-    if (!(error instanceof DiscordAPIError)) {
-      throw error;
-    }
-
-    if (
-      error.code !== RESTJSONErrorCodes.InvalidFormBodyOrContentType &&
-      error.code !== RESTJSONErrorCodes.UnknownMessage
-    ) {
-      throw error;
-    }
-
-    if (isAnyInteractableInteraction(message)) {
-      await message.reply(payload as InteractionReplyOptions);
-      return message.fetchReply();
-    }
-
-    replies.delete(`${message.id}-send`);
-    return message.reply(payload as MessageCreateOptions);
   }
 }

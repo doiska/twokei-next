@@ -1,5 +1,11 @@
 import type { APIEmbed, ButtonInteraction } from "discord.js";
-import { chatInputApplicationCommandMention, EmbedBuilder } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  chatInputApplicationCommandMention,
+  EmbedBuilder,
+} from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
 import {
   container,
@@ -9,10 +15,11 @@ import {
   type Option,
 } from "@sapphire/framework";
 
-import { EmbedButtons } from "@/constants/music/player-buttons";
+import { EmbedButtons, NewsButtons } from "@/constants/music/player-buttons";
 import { sendPresetMessage } from "@/lib/message-handler/helper";
 
 import { fetchT } from "@sapphire/plugin-i18next";
+import { RawIcons } from "@/constants/icons";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "news-button",
@@ -49,13 +56,15 @@ export class NewsButtonInteraction extends InteractionHandler {
 
     const newsEmbed = EmbedBuilder.from(newsText);
 
-    // const donatorButton = new ButtonBuilder()
-    //   .setLabel(t('news:buttons.donator'))
-    //   .setCustomId(NewsButtons.DONATE)
-    //   .setStyle(ButtonStyle.Primary)
-    //   .setEmoji(RawIcons.Premium);
-    //
-    // const row = new ActionRowBuilder<ButtonBuilder>({ components: [donatorButton] });
+    const donatorButton = new ButtonBuilder()
+      .setLabel(t("news:buttons.donator"))
+      .setStyle(ButtonStyle.Link)
+      .setURL("https://twokei.com")
+      .setEmoji(RawIcons.Premium);
+
+    const row = new ActionRowBuilder<ButtonBuilder>({
+      components: [donatorButton],
+    });
 
     await sendPresetMessage({
       interaction,
@@ -63,7 +72,7 @@ export class NewsButtonInteraction extends InteractionHandler {
       ephemeral: true,
       deleteIn: 0,
       embeds: [newsEmbed],
-      // components: [row],
+      components: [row],
     });
   }
 

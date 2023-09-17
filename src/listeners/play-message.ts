@@ -11,7 +11,7 @@ import { playSong } from "@/features/music/play-song";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
 import { sendPresetMessage } from "@/lib/message-handler/helper";
-import { followUp } from "@/lib/message-handler";
+import { send } from "@/lib/message-handler";
 
 @ApplyOptions<Listener.Options>({
   name: "play-message-event",
@@ -39,8 +39,6 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         return;
       }
 
-      await message.delete().catch(noop);
-
       if (!hasMentions) {
         await sendPresetMessage({
           interaction: message,
@@ -54,8 +52,9 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
       }
 
       await playSong(message, contentOnly);
+      await message.delete().catch(noop);
     } catch (e) {
-      await followUp(message, {
+      await send(message, {
         content: getReadableException(e),
       });
     }

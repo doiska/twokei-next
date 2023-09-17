@@ -16,27 +16,22 @@ interface Recommendation {
   duration_ms: number;
 }
 
-const limitInMillis =
-  process.env.NODE_ENV === "production" ? 2 * 60 * 1000 : 1000;
+interface Props {
+  isrc?: string[];
+  limit?: number;
+}
 
-const rateLimitManager = new RateLimitManager(limitInMillis);
+export async function getRecommendations(userId: string, config?: Props) {
+  const { isrc, limit } = config ?? {};
 
-export async function getRecommendations(userId: string, isrc?: string[]) {
-  const seeds = isrc ? `?seeds=${encodeURI(isrc.join(","))}` : "";
-
-  const rateLimit = rateLimitManager.acquire(userId);
-
-  if (rateLimit.limited) {
-    throw new FriendlyException(
-      "Em espera, aguarde mais alguns segundos para usar novamente.",
-    );
-  }
-
-  rateLimit.consume();
+  const urlParams = new URLSearchParams({
+    limit: limit?.toString() ?? "20",
+    seeds: isrc?.join(",") ?? "",
+  });
 
   try {
     return await fetchApi<Recommendation[]>(
-      `/recommendations/${userId}${seeds}`,
+      `/recommendations/${userId}?${urlParams.toString()}`,
     );
   } catch (error) {
     logger.error(error);
