@@ -1,6 +1,5 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import {
-  container,
   InteractionHandler,
   InteractionHandlerTypes,
   type Option,
@@ -27,6 +26,7 @@ import { RateLimitManager } from "@sapphire/ratelimits";
 import { createPlayEmbed } from "@/constants/music/create-play-embed";
 import { LoadType } from "@/music/interfaces/player.types";
 import { logger } from "@/lib/logger";
+import { isUserPremium } from "@/lib/user-benefits/benefits";
 
 const limitInMillis =
   process.env.NODE_ENV === "production" ? 2 * 60 * 1000 : 1000; // 2 minutes
@@ -48,9 +48,7 @@ export class IaModeInteraction extends InteractionHandler {
 
     await defer(interaction);
 
-    const isPremium = await container.profiles.isUserPremium(
-      interaction.user.id,
-    );
+    const isPremium = await isUserPremium(interaction.user.id);
 
     const premiumButton = new ActionRowBuilder<ButtonBuilder>({
       components: [
