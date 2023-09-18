@@ -72,8 +72,7 @@ export class IaModeInteraction extends InteractionHandler {
       await send(interaction, {
         embeds: [embed],
         components: [premiumButton],
-        ephemeral: true,
-      });
+      }).dispose();
       return;
     }
 
