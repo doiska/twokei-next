@@ -43,7 +43,7 @@ export class RankingButtonInteraction extends InteractionHandler {
     if (!ranking || ranking.status === "error") {
       await send(interaction, {
         embeds: Embed.error("Não foi possível carregar o ranking."),
-      });
+      }).dispose();
       return;
     }
 

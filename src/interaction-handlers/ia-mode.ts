@@ -160,7 +160,7 @@ export class IaModeInteraction extends InteractionHandler {
       await send(interaction, {
         embeds: [premiumEmbed, ...playerEmbed.embeds],
         components: [premiumButton],
-      });
+      }).dispose();
     } catch (e) {
       await send(interaction, {
         embeds: Embed.error(
