@@ -177,11 +177,6 @@ class SpotifyTrackResolver implements TrackResolver {
   }
 
   private parseTrack(spotifyTrack: SpotifyTrackResponse, requester?: User) {
-    logger.debug(
-      `[Spotify] ${spotifyTrack.name} - ${spotifyTrack.id}`,
-      spotifyTrack,
-    );
-
     const thumbnail =
       spotifyTrack.images?.[0].url ?? spotifyTrack.album?.images[0]?.url;
     logger.debug(
@@ -198,7 +193,7 @@ class SpotifyTrackResolver implements TrackResolver {
           author: spotifyTrack.artists[0]
             ? spotifyTrack.artists[0].name
             : "Unknown",
-          length: spotifyTrack.duration_ms,
+          duration: spotifyTrack.duration_ms,
           isSeekable: true,
           isStream: false,
           position: 0,

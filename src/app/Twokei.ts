@@ -7,6 +7,7 @@ import "@sapphire/plugin-i18next/register";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import {
   ApplicationCommandRegistries,
+  container,
   LogLevel,
   RegisterBehavior,
 } from "@sapphire/framework";
@@ -18,6 +19,7 @@ import { DEFAULT_LOCALE, isValidLocale } from "@/locales/i18n";
 import { TwokeiClient } from "@/structures/TwokeiClient";
 import type { InternationalizationContext } from "@sapphire/plugin-i18next";
 import pt_br from "@/locales/pt_br";
+import * as fs from "fs";
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
   RegisterBehavior.BulkOverwrite,
@@ -84,5 +86,7 @@ const main = async () => {
     ],
   });
 };
-
-void main();
+void (
+  //223bfdbbbac3cb2e89b939fb8b96bead
+  void main()
+);

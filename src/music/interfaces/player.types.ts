@@ -68,7 +68,6 @@ export interface VentiInitOptions {
   deaf?: boolean;
   mute?: boolean;
   shardId?: number;
-  nodeName?: string;
 }
 
 export interface PlayOptions {

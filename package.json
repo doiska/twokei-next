@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node --watch dist/init.js",
     "build": "swc src -d dist",
-    "watch": "nodemon --watch src --ext ts --exec \"swc src -d dist && node ./dist/init.js\"",
+    "watch": "nodemon --watch src --ext ts --exec \"swc src -d dist && node --preserve-symlinks ./dist/init.js\"",
     "lint": "eslint --fix src --ext .ts",
     "migrations": "npx drizzle-kit generate:pg"
   },
@@ -20,6 +20,7 @@
     "discord-api-types": "0.37.20"
   },
   "dependencies": {
+    "@moscowcity/shoukaku": "../twokei-shoukaku",
     "@sapphire/decorators": "^6.0.2",
     "@sapphire/discord-utilities": "^3.1.1",
     "@sapphire/discord.js-utilities": "7.0.2",
@@ -50,7 +51,7 @@
     "pg": "^8.11.3",
     "postgres": "^3.3.5",
     "reflect-metadata": "^0.1.13",
-    "shoukaku": "../shoukaku",
+    "shoukaku": "../twokei-shoukaku",
     "ts-pattern": "^5.0.5",
     "winston": "^3.10.0",
     "winston-transport": "^4.5.0",

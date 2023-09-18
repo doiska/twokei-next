@@ -83,7 +83,7 @@ export class YoutubeTrackResolver implements TrackResolver {
           title: track.info.title,
           identifier: track.info.identifier,
           author: track.info.author ?? "Unknown",
-          length: track.info.length,
+          duration: track.info.duration,
           isSeekable: true,
           isStream: false,
           position: 0,

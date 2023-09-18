@@ -117,7 +117,7 @@ export class IaModeInteraction extends InteractionHandler {
                 author: rec.artists[0].name,
                 sourceName: "spotify",
                 title: rec.name,
-                length: rec.duration_ms,
+                duration: rec.duration_ms,
                 position: 0,
                 isStream: false,
                 isSeekable: true,

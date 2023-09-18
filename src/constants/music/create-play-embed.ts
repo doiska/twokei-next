@@ -76,7 +76,7 @@ function getTrackDescription(result: XiaoSearchResult, t: TFunction) {
     .setDescription(
       [
         `### ${t("player:play.added_to_queue")}`,
-        `(${formatMillis(track.length ?? 0)}) **[${track.title} - ${
+        `(${formatMillis(track.duration ?? 0)}) **[${track.title} - ${
           track.author
         }](${track.uri})**`,
       ].join("\n"),
@@ -95,7 +95,7 @@ function getPlaylistDescription(result: XiaoSearchResult, t: TFunction) {
     .slice(0, maxShownTracks)
     .map(
       (track) =>
-        `- (${formatMillis(track.length ?? 0)}) [${track.title}](${
+        `- (${formatMillis(track.duration ?? 0)}) [${track.title}](${
           track.uri
         }) - ${track.author}`,
     );

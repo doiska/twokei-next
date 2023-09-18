@@ -247,7 +247,8 @@ export class Venti {
         this.queue.current = resolvedTrack;
 
         const shoukakuPlayOptions: ShoukakuPlayOptions = {
-          track: resolvedTrack.track,
+          info: resolvedTrack.getRaw().info,
+          ...resolvedTrack,
           options: {
             ...playOptions,
             noReplace: !playOptions?.replace,

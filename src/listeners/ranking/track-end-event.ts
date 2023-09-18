@@ -26,7 +26,7 @@ export class TrackEndEvent extends Listener<typeof Events.TrackEnd> {
       return;
     }
 
-    if (current.length && current.length < 10000) {
+    if (current.duration && current.duration < 10000) {
       return;
     }
 

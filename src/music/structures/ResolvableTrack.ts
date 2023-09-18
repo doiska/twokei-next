@@ -46,7 +46,7 @@ export class ResolvableTrack {
   public author?: string;
 
   /** Track's length */
-  public length?: number;
+  public duration?: number;
 
   /** Track's position (I don't know this) */
   public position?: number;
@@ -65,7 +65,7 @@ export class ResolvableTrack {
 
     this.requester = options?.requester;
     this.track = track.encoded;
-    this.sourceName = info.sourceName;
+    this.sourceName = info.sourceName ?? "Unknown";
     this.title = info.title;
     this.uri = info.uri;
     this.isrc = track.isrc;
@@ -73,7 +73,7 @@ export class ResolvableTrack {
     this.isSeekable = info.isSeekable;
     this.isStream = info.isStream;
     this.author = info.author;
-    this.length = info.length;
+    this.duration = info.duration;
     this.position = info.position;
 
     if (this.identifier && this.sourceName === "youtube") {
@@ -90,7 +90,7 @@ export class ResolvableTrack {
       !!this.sourceName &&
       !!this.identifier &&
       !!this.author &&
-      !!this.length &&
+      !!this.duration &&
       !!this.title &&
       !!this.uri &&
       !!this.realUri
@@ -110,13 +110,13 @@ export class ResolvableTrack {
 
     this.track = resolvedTrack.encoded;
     this.realUri = resolvedTrack.info.uri;
-    this.length = resolvedTrack.info.length;
+    this.duration = resolvedTrack.info.duration;
 
     if (overwrite) {
       this.title = resolvedTrack.info.title;
       this.isSeekable = resolvedTrack.info.isSeekable;
       this.author = resolvedTrack.info.author;
-      this.length = resolvedTrack.info.length;
+      this.duration = resolvedTrack.info.duration;
       this.isStream = resolvedTrack.info.isStream;
     }
 
@@ -131,7 +131,7 @@ export class ResolvableTrack {
         isSeekable: this.isSeekable,
         uri: this.uri,
         title: this.title,
-        length: this.length ?? 0,
+        duration: this.duration ?? 0,
         author: this.author ?? "",
         isStream: this.isStream,
         position: this.position ?? 0,
@@ -234,7 +234,7 @@ export class ResolvableTrack {
         identifier: track.identifier,
         sourceName: track.sourceName,
         author: track.author ?? "",
-        length: track.length ?? 0,
+        duration: track.duration ?? 0,
         position: track.position ?? 0,
       },
       pluginInfo: {},

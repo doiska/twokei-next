@@ -2,6 +2,7 @@ import { type Guild, type GuildResolvable } from "discord.js";
 import { type Awaitable, isObject, noop } from "@sapphire/utilities";
 import {
   type Connector,
+  LoadType,
   type NodeOption,
   type PlayerUpdate,
   Shoukaku,
@@ -25,9 +26,9 @@ import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 import { type Maybe } from "@/utils/types-helper";
 import {
   Events,
-  XiaoLoadType,
   type VentiInitOptions,
   type XiaoInitOptions,
+  XiaoLoadType,
   type XiaoSearchOptions,
   type XiaoSearchResult,
 } from "../interfaces/player.types";
@@ -39,6 +40,7 @@ import { EventEmitter } from "events";
 import type { Logger } from "winston";
 import { spotifyTrackResolver } from "@/music/resolvers/spotify/spotify-track-resolver";
 import { TwokeiClient } from "@/structures/TwokeiClient";
+import { playerSessions } from "@/db/schemas/player-sessions";
 
 export interface XiaoEvents {
   /**
@@ -172,6 +174,7 @@ export class Xiao extends EventEmitter {
    * @param nodes Shoukaku nodes
    * @param connector Shoukaku connector
    * @param optionsShoukaku Shoukaku options
+   * @param dumps
    */
   constructor(
     private readonly client: TwokeiClient,
@@ -179,44 +182,70 @@ export class Xiao extends EventEmitter {
     connector: Connector,
     nodes: NodeOption[],
     optionsShoukaku: ShoukakuOptions = {},
+    dumps: any = {},
   ) {
     super();
 
     this.logger = createLogger("Xiao");
 
-    this.shoukaku = new Shoukaku(connector, nodes, optionsShoukaku);
+    this.shoukaku = new Shoukaku(connector, nodes, optionsShoukaku, dumps);
 
     this.players = new Map<string, Venti>();
 
-    this.shoukaku.on("ready", (name) =>
+    this.shoukaku.on("ready", (name: string) =>
       this.logger.info(`[Shoukaku] Node ${name} is now connected`),
     );
 
-    this.shoukaku.on("close", (name, code, reason) =>
-      this.logger.debug(
-        `[Shoukaku] Node ${name} closed with code ${code} and reason ${reason}`,
-      ),
-    );
-
-    this.shoukaku.on("error", (name, error) =>
+    this.shoukaku.on("error", (name: string, error: Error) =>
       this.logger.error(
         `[Shoukaku] Node ${name} emitted error: ${error.name}`,
         { message: error.message, stack: error.stack },
       ),
     );
 
-    this.shoukaku.on("debug", (name, info) =>
+    this.shoukaku.on("debug", (name: string, info: string) =>
       this.logger.debug(`${name} ${info}`),
     );
+
+    this.shoukaku.on("raw", async (node: string, event: unknown) => {
+      this.logger.debug(`[Shoukaku] Raw event: ${node}`, { data: event });
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      if (!("op" in event && event.op === "playerUpdate")) {
+        return;
+      }
+
+      if (event.op === "playerUpdate") {
+        const playerUpdate = event as PlayerUpdate;
+
+        const dump = this.shoukaku.playersDump.get(playerUpdate.guildId);
+
+        await kil
+          .insert(playerSessions)
+          .values({
+            guildId: playerUpdate.guildId,
+            state: dump,
+          })
+          .onConflictDoUpdate({
+            target: playerSessions.guildId,
+            set: {
+              state: dump,
+            },
+          });
+      }
+    });
 
     this.on(Events.Debug, (message) => this.logger.debug(message));
 
     this.on(Events.TrackStart, (venti) => {
       manualUpdate(venti, { embed: true, components: true });
     });
+
     this.on(Events.TrackAdd, (venti) => {
       manualUpdate(venti, { embed: true, components: true });
     });
+
     this.on(Events.TrackPause, (venti) => {
       manualUpdate(venti, { embed: true, components: true });
     });
@@ -333,7 +362,7 @@ export class Xiao extends EventEmitter {
       };
     }
 
-    if (result.loadType === XiaoLoadType.SEARCH_RESULT) {
+    if (result.loadType === LoadType.SEARCH) {
       return {
         type: XiaoLoadType.SEARCH_RESULT,
         tracks: [
@@ -344,7 +373,7 @@ export class Xiao extends EventEmitter {
       };
     }
 
-    if (result.loadType === XiaoLoadType.PLAYLIST_LOADED) {
+    if (result.loadType === LoadType.PLAYLIST) {
       return {
         type: XiaoLoadType.PLAYLIST_LOADED,
         playlist: {

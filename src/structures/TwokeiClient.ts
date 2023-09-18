@@ -10,12 +10,36 @@ import { Xiao } from "@/music/controllers/Xiao";
 import { Connectors } from "shoukaku";
 import { env } from "@/app/env";
 import { logger } from "@/lib/logger";
+import { kil } from "@/db/Kil";
+import { playerSessions } from "@/db/schemas/player-sessions";
 
 export class TwokeiClient extends SapphireClient {
-  public xiao: Xiao;
+  public xiao!: Xiao;
 
   public constructor(options: ClientOptions) {
     super(options);
+
+    container.sc = new SongChannelManager();
+    container.analytics = new Analytics();
+
+    process.on("unhandledRejection", (error) => {
+      logger.error("Unhandled rejection:", error);
+    });
+
+    process.on("uncaughtException", (error) => {
+      logger.error("Uncaught exception:", error);
+    });
+
+    this.start();
+  }
+
+  private async start() {
+    const sessions = await kil.select().from(playerSessions);
+
+    const dumpState = sessions.map((session) => [
+      session.guildId,
+      session.state,
+    ]);
 
     this.xiao = new Xiao(
       this,
@@ -31,27 +55,12 @@ export class TwokeiClient extends SapphireClient {
       [],
       {
         resume: true,
-        resumeByLibrary: true,
         reconnectInterval: 5000,
         reconnectTries: 10,
         userAgent: `Twokei (${env.NODE_ENV})`,
       },
+      dumpState,
     );
-
-    container.sc = new SongChannelManager();
-    container.analytics = new Analytics();
     container.xiao = this.xiao;
-
-    process.on("unhandledRejection", (error) => {
-      logger.error("Unhandled rejection:", error);
-    });
-
-    process.on("uncaughtException", (error) => {
-      logger.error("Uncaught exception:", error);
-    });
-  }
-
-  public getContainer() {
-    return container;
   }
 }

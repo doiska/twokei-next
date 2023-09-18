@@ -59,12 +59,7 @@ const defaultLoggerOptions = {
     format.errors({ stack: true }),
     format.json(),
   ),
-  transports: [
-    consoleTransportInstance,
-    new transports.File({
-      dirname: "logs",
-    }),
-  ],
+  transports: [consoleTransportInstance],
 };
 
 export const logger = createLogger("CORE");
