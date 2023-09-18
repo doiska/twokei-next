@@ -261,11 +261,6 @@ export class Venti {
         this.instance.playTrack(shoukakuPlayOptions);
       })
       .catch((err: Error) => {
-        this.emit(
-          Events.Debug,
-          `Error while resolving track for guild ${this.guildId}} ${err.message}`,
-        );
-
         this.logger.error(
           `Error while resolving track for guild ${this.guildId} - ${err.message}`,
           err.stack,

@@ -37,7 +37,6 @@ export interface XiaoSearchOptions {
   requester?: User;
   engine?: SearchEngines;
   nodeName?: string;
-  searchType?: "track" | "playlist";
   resolver?: string;
 }
 

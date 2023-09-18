@@ -314,8 +314,6 @@ export class Xiao extends EventEmitter {
       }
     }
 
-    const searchType = options?.searchType ?? "track";
-
     const search = !isUrl ? `${engine}:${query}` : query;
 
     const result = await node.rest.resolve(search);
@@ -324,10 +322,18 @@ export class Xiao extends EventEmitter {
       throw new FriendlyException(ErrorCodes.PLAYER_NO_TRACKS_FOUND);
     }
 
-    if (
-      result.loadType === XiaoLoadType.SEARCH_RESULT &&
-      searchType === "track"
-    ) {
+    if (result.loadType === XiaoLoadType.TRACK_LOADED) {
+      return {
+        type: XiaoLoadType.TRACK_LOADED,
+        tracks: [
+          new ResolvableTrack(result.data, {
+            requester: options?.requester,
+          }),
+        ],
+      };
+    }
+
+    if (result.loadType === XiaoLoadType.SEARCH_RESULT) {
       return {
         type: XiaoLoadType.SEARCH_RESULT,
         tracks: [
