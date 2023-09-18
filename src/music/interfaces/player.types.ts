@@ -8,14 +8,17 @@ import {
 import { type Locale } from "@/locales/i18n";
 import { type Maybe } from "@/utils/types-helper";
 import { type ResolvableTrack } from "../structures/ResolvableTrack";
+import { LoadType } from "shoukaku";
 
-export enum LoadType {
-  TRACK_LOADED = "TRACK_LOADED",
-  PLAYLIST_LOADED = "PLAYLIST_LOADED",
-  SEARCH_RESULT = "SEARCH_RESULT",
-  NO_MATCHES = "NO_MATCHES",
-  LOAD_FAILED = "LOAD_FAILED",
-}
+export const XiaoLoadType = {
+  TRACK_LOADED: LoadType.TRACK,
+  PLAYLIST_LOADED: LoadType.PLAYLIST,
+  SEARCH_RESULT: LoadType.SEARCH,
+  NO_MATCHES: LoadType.EMPTY,
+  LOAD_FAILED: LoadType.ERROR,
+} as const;
+
+export type XiaoLoadType = (typeof XiaoLoadType)[keyof typeof XiaoLoadType];
 
 export type SearchEngines = "youtube" | "soundcloud" | "youtube_music" | string;
 
@@ -39,7 +42,7 @@ export interface XiaoSearchOptions {
 }
 
 interface PlaylistLoaded {
-  type: LoadType.PLAYLIST_LOADED;
+  type: typeof XiaoLoadType.PLAYLIST_LOADED;
   playlist: {
     name: string;
     owner?: {
@@ -52,7 +55,7 @@ interface PlaylistLoaded {
 }
 
 interface TrackLoaded {
-  type: Exclude<LoadType, LoadType.PLAYLIST_LOADED>;
+  type: Exclude<XiaoLoadType, typeof XiaoLoadType.PLAYLIST_LOADED>;
   tracks: ResolvableTrack[];
 }
 

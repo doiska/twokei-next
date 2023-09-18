@@ -7,7 +7,7 @@ import {
 import { isConnectedTo } from "@/preconditions/vc-conditions";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { PlayerException } from "@/structures/exceptions/PlayerException";
-import { Events, LoadType } from "../interfaces/player.types";
+import { Events, XiaoLoadType } from "../interfaces/player.types";
 import { createPlayerInstance } from "./create-player-instance";
 import type { ResolvableTrack } from "@/music/structures/ResolvableTrack";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
@@ -62,7 +62,7 @@ export async function addNewSong(input: string, member: GuildMember) {
     throw new FriendlyException(ErrorCodes.PLAYER_NO_TRACKS_FOUND);
   }
 
-  if (result.type === LoadType.PLAYLIST_LOADED) {
+  if (result.type === XiaoLoadType.PLAYLIST_LOADED) {
     result.tracks.sort(() => Math.random() - 0.5);
     player.queue.add(...result.tracks);
   } else {

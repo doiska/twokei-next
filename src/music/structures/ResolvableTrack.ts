@@ -26,7 +26,7 @@ export class ResolvableTrack {
   public title: string;
 
   /** Track's URI */
-  public uri: string;
+  public uri?: string;
 
   /**
    * Track International Recording
@@ -55,16 +55,16 @@ export class ResolvableTrack {
   public thumbnail?: string;
 
   /** The YouTube/soundcloud URI for spotify and other unsupported source */
-  public realUri: string | null;
+  public realUri?: string | null;
 
   public constructor(
-    track: Track & { thumbnail?: string; isrc?: string },
+    track: Omit<Track, "pluginInfo"> & { thumbnail?: string; isrc?: string },
     options?: ResolvableTrackOptions,
   ) {
     const { info } = track;
 
     this.requester = options?.requester;
-    this.track = track.track;
+    this.track = track.encoded;
     this.sourceName = info.sourceName;
     this.title = info.title;
     this.uri = info.uri;
@@ -108,7 +108,7 @@ export class ResolvableTrack {
       throw new Error("Track not found");
     }
 
-    this.track = resolvedTrack.track;
+    this.track = resolvedTrack.encoded;
     this.realUri = resolvedTrack.info.uri;
     this.length = resolvedTrack.info.length;
 
@@ -125,7 +125,7 @@ export class ResolvableTrack {
 
   public getRaw(): Track {
     return {
-      track: this.track,
+      encoded: this.track,
       info: {
         identifier: this.identifier,
         isSeekable: this.isSeekable,
@@ -137,6 +137,7 @@ export class ResolvableTrack {
         position: this.position ?? 0,
         sourceName: this.sourceName,
       },
+      pluginInfo: {},
     };
   }
 
@@ -224,7 +225,7 @@ export class ResolvableTrack {
     const track = resolvable as ResolvableTrack;
 
     return {
-      track: track.track,
+      encoded: track.track,
       info: {
         isSeekable: track.isSeekable,
         isStream: track.isStream,
@@ -236,6 +237,7 @@ export class ResolvableTrack {
         length: track.length ?? 0,
         position: track.position ?? 0,
       },
+      pluginInfo: {},
     };
   }
 

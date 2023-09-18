@@ -1,7 +1,7 @@
 import { type User } from "discord.js";
 
 import {
-  LoadType,
+  XiaoLoadType,
   type XiaoSearchOptions,
   type XiaoSearchResult,
 } from "../../interfaces/player.types";
@@ -71,7 +71,7 @@ class SpotifyTrackResolver implements TrackResolver {
 
     return {
       tracks: [],
-      type: LoadType.NO_MATCHES,
+      type: XiaoLoadType.NO_MATCHES,
     };
   }
 
@@ -89,7 +89,7 @@ class SpotifyTrackResolver implements TrackResolver {
     if (!resolved?.tracks || resolved.tracks?.items?.length === 0) {
       return {
         tracks: [],
-        type: LoadType.NO_MATCHES,
+        type: XiaoLoadType.NO_MATCHES,
       };
     }
 
@@ -97,7 +97,7 @@ class SpotifyTrackResolver implements TrackResolver {
       tracks: resolved.tracks.items.map((item) =>
         this.parseTrack(item, requester),
       ),
-      type: LoadType.SEARCH_RESULT,
+      type: XiaoLoadType.SEARCH_RESULT,
     };
   }
 
@@ -117,7 +117,7 @@ class SpotifyTrackResolver implements TrackResolver {
     if (!playlist || tracks.length === 0) {
       return {
         tracks: [],
-        type: LoadType.NO_MATCHES,
+        type: XiaoLoadType.NO_MATCHES,
       };
     }
 
@@ -154,7 +154,7 @@ class SpotifyTrackResolver implements TrackResolver {
           url: playlist.owner.href,
         },
       },
-      type: LoadType.PLAYLIST_LOADED,
+      type: XiaoLoadType.PLAYLIST_LOADED,
     };
   }
 
@@ -166,13 +166,13 @@ class SpotifyTrackResolver implements TrackResolver {
     if (!response) {
       return {
         tracks: [],
-        type: LoadType.NO_MATCHES,
+        type: XiaoLoadType.NO_MATCHES,
       };
     }
 
     return {
       tracks: [this.parseTrack(response, requester)],
-      type: LoadType.TRACK_LOADED,
+      type: XiaoLoadType.TRACK_LOADED,
     };
   }
 
@@ -190,7 +190,7 @@ class SpotifyTrackResolver implements TrackResolver {
 
     return new ResolvableTrack(
       {
-        track: "",
+        encoded: "",
         info: {
           sourceName: "spotify",
           title: spotifyTrack.name,

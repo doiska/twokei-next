@@ -6,7 +6,7 @@ import type {
   XiaoSearchOptions,
   XiaoSearchResult,
 } from "@/music/interfaces/player.types";
-import { LoadType } from "@/music/interfaces/player.types";
+import { XiaoLoadType } from "@/music/interfaces/player.types";
 import { type TrackResolver } from "@/music/resolvers/resolver";
 import { ResolvableTrack } from "@/music/structures/ResolvableTrack";
 
@@ -22,7 +22,7 @@ export class YoutubeTrackResolver implements TrackResolver {
     query: string,
     options: XiaoSearchOptions | undefined,
   ): Promise<XiaoSearchResult> {
-    const node = container.xiao.shoukaku.getNode();
+    const node = container.xiao.shoukaku.getIdealNode();
 
     if (!node) {
       throw new Error("No node setup.");
@@ -32,40 +32,41 @@ export class YoutubeTrackResolver implements TrackResolver {
 
     if (
       !ytResponse ||
-      !ytResponse.tracks.length ||
-      ytResponse.loadType === LoadType.NO_MATCHES
+      ytResponse.loadType === XiaoLoadType.NO_MATCHES ||
+      ytResponse.loadType === XiaoLoadType.LOAD_FAILED ||
+      !ytResponse.data
     ) {
       return {
-        type: LoadType.NO_MATCHES,
+        type: XiaoLoadType.NO_MATCHES,
         tracks: [],
       };
     }
 
-    if (ytResponse.loadType === "TRACK_LOADED") {
+    if (ytResponse.loadType === XiaoLoadType.TRACK_LOADED) {
       return {
-        tracks: [this.parseTrack(ytResponse.tracks[0], options?.requester)],
-        type: LoadType.TRACK_LOADED,
+        tracks: [this.parseTrack(ytResponse.data, options?.requester)],
+        type: XiaoLoadType.TRACK_LOADED,
       };
     }
 
-    if (ytResponse.loadType === "PLAYLIST_LOADED") {
+    if (ytResponse.loadType === XiaoLoadType.PLAYLIST_LOADED) {
       return {
-        tracks: ytResponse.tracks.map((track) =>
+        tracks: ytResponse.data.tracks.map((track) =>
           this.parseTrack(track, options?.requester),
         ),
-        type: LoadType.PLAYLIST_LOADED,
+        type: XiaoLoadType.PLAYLIST_LOADED,
         playlist: {
-          name: ytResponse.playlistInfo.name ?? "Playlist",
+          name: ytResponse.data.info.name ?? "Playlist",
           url: query,
         },
       };
     }
 
     return {
-      tracks: ytResponse.tracks.map((track) =>
+      tracks: ytResponse.data.map((track) =>
         this.parseTrack(track, options?.requester),
       ),
-      type: LoadType.SEARCH_RESULT,
+      type: XiaoLoadType.SEARCH_RESULT,
     };
   }
 
@@ -76,7 +77,7 @@ export class YoutubeTrackResolver implements TrackResolver {
   private parseTrack(track: Track, requester?: User) {
     return new ResolvableTrack(
       {
-        track: "",
+        encoded: "",
         info: {
           sourceName: "youtube",
           title: track.info.title,

@@ -25,7 +25,7 @@ import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 import { type Maybe } from "@/utils/types-helper";
 import {
   Events,
-  LoadType,
+  XiaoLoadType,
   type VentiInitOptions,
   type XiaoInitOptions,
   type XiaoSearchOptions,
@@ -240,15 +240,7 @@ export class Xiao extends EventEmitter {
       return current;
     }
 
-    const node = options.nodeName
-      ? this.shoukaku.getNode(options.nodeName)
-      : this.shoukaku.getNode();
-
-    if (!node) {
-      throw new Error("No available nodes");
-    }
-
-    const player = await node.joinChannel({
+    const player = await this.shoukaku.joinVoiceChannel({
       guildId: options.guild.id,
       channelId: options.voiceChannel,
       deaf: options.deaf,
@@ -298,9 +290,7 @@ export class Xiao extends EventEmitter {
     query: string,
     options?: XiaoSearchOptions,
   ): Promise<XiaoSearchResult> {
-    const node = options?.nodeName
-      ? this.shoukaku.getNode(options.nodeName)
-      : this.shoukaku.getNode();
+    const node = this.shoukaku.getIdealNode();
 
     const engine = options?.engine ?? "spsearch";
 
@@ -330,31 +320,41 @@ export class Xiao extends EventEmitter {
 
     const result = await node.rest.resolve(search);
 
-    if (!result || result.loadType === "NO_MATCHES") {
+    if (!result || result.loadType === XiaoLoadType.NO_MATCHES) {
       throw new FriendlyException(ErrorCodes.PLAYER_NO_TRACKS_FOUND);
     }
 
-    if (result.loadType === "SEARCH_RESULT" && searchType === "track") {
+    if (
+      result.loadType === XiaoLoadType.SEARCH_RESULT &&
+      searchType === "track"
+    ) {
       return {
-        type: LoadType.SEARCH_RESULT,
+        type: XiaoLoadType.SEARCH_RESULT,
         tracks: [
-          new ResolvableTrack(result.tracks[0], {
+          new ResolvableTrack(result.data[0], {
             requester: options?.requester,
           }),
         ],
       };
     }
 
+    if (result.loadType === XiaoLoadType.PLAYLIST_LOADED) {
+      return {
+        type: XiaoLoadType.PLAYLIST_LOADED,
+        playlist: {
+          name: result.data.info.name ?? "Playlist",
+          url: query,
+        },
+        tracks: result.data.tracks.map(
+          (track) =>
+            new ResolvableTrack(track, { requester: options?.requester }),
+        ),
+      };
+    }
+
     return {
-      type: LoadType.PLAYLIST_LOADED,
-      playlist: {
-        name: result.playlistInfo.name ?? "Playlist",
-        url: query,
-      },
-      tracks: result.tracks.map(
-        (track) =>
-          new ResolvableTrack(track, { requester: options?.requester }),
-      ),
+      type: XiaoLoadType.NO_MATCHES,
+      tracks: [],
     };
   }
 

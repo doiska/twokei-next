@@ -123,7 +123,7 @@ export class Venti {
         return;
       }
 
-      if (data.reason === "REPLACED") {
+      if (data.reason === "replaced") {
         this.emit(Events.TrackEnd, this, this.queue?.current, "Replaced");
         return;
       }

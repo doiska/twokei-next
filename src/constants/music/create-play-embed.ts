@@ -17,6 +17,7 @@ import { fetchT, resolveKey, TFunction } from "@sapphire/plugin-i18next";
 import { inlineCode } from "@discordjs/formatters";
 import { addMilliseconds, format } from "date-fns";
 import { send } from "@/lib/message-handler";
+import { XiaoLoadType } from "@/music/interfaces/player.types";
 
 export const createPlayEmbed = async (
   member: GuildMember,
@@ -33,17 +34,22 @@ export const createPlayEmbed = async (
   );
 
   const sourceUrl =
-    result.type === "PLAYLIST_LOADED" && result.playlist.url.startsWith("http")
+    result.type === XiaoLoadType.PLAYLIST_LOADED &&
+    result.playlist.url.startsWith("http")
       ? result.playlist.url
       : track.uri;
 
-  const viewOnSource = new ButtonBuilder()
-    .setStyle(ButtonStyle.Link)
-    .setLabel(viewSource)
-    .setURL(sourceUrl);
+  const viewOnSource = sourceUrl
+    ? [
+        new ButtonBuilder()
+          .setStyle(ButtonStyle.Link)
+          .setLabel(viewSource)
+          .setURL(sourceUrl),
+      ]
+    : [];
 
   const feedbackRow = new ActionRowBuilder<ButtonBuilder>({
-    components: [viewOnSource],
+    components: viewOnSource,
   });
 
   const embed =
@@ -78,7 +84,7 @@ function getTrackDescription(result: XiaoSearchResult, t: TFunction) {
 }
 
 function getPlaylistDescription(result: XiaoSearchResult, t: TFunction) {
-  if (result.type !== "PLAYLIST_LOADED") {
+  if (result.type !== XiaoLoadType.PLAYLIST_LOADED) {
     return;
   }
 
