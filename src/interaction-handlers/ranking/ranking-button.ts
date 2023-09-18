@@ -24,6 +24,7 @@ import { getDateLocale } from "@/locales/i18n";
 import { formatDuration, intervalToDuration } from "date-fns";
 import { defer, followUp, send } from "@/lib/message-handler";
 import { isValidCustomId } from "@/utils/helpers";
+import { Embed } from "@/utils/messages";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "ranking-button",
@@ -32,16 +33,19 @@ import { isValidCustomId } from "@/utils/helpers";
 })
 export class RankingButtonInteraction extends InteractionHandler {
   public async run(interaction: ButtonInteraction): Promise<void> {
+    await defer(interaction, { ephemeral: true });
+
     const ranking = await fetchApi<{
       ranking: { userId: string; listened: number }[];
       current: { userId: string; listened: number; position: number };
-    }>(`/ranking?include=${interaction.user.id}`);
+    }>(`/ranking?include=${interaction.user.id}`).catch(() => null);
 
-    if (ranking.status !== "success") {
+    if (!ranking || ranking.status === "error") {
+      await send(interaction, {
+        embeds: Embed.error("Não foi possível carregar o ranking."),
+      });
       return;
     }
-
-    await defer(interaction);
 
     const usersWithName = await kil
       .select({

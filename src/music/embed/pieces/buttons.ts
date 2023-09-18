@@ -52,9 +52,7 @@ export async function createStaticButtons(guild: Guild, venti?: Venti) {
       {
         style: ButtonStyle.Secondary,
         emoji: ":a:premium:1129096922943197300",
-        customId: venti?.playing
-          ? EmbedButtons.IA_MODE
-          : EmbedButtons.QUICK_PLAYLIST,
+        customId: venti ? EmbedButtons.IA_MODE : EmbedButtons.QUICK_PLAYLIST,
       },
     ].map((button) =>
       parseButtonLabel(t, button),

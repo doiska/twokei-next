@@ -8,8 +8,9 @@ import { setupSongMessage } from "@/features/song-channel/setup-song-message";
 import { logger } from "@/lib/logger";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
-import { sendPresetMessage } from "@/lib/message-handler/helper";
-import { defer } from "@/lib/message-handler";
+import { defer, send } from "@/lib/message-handler";
+import { resolveKey } from "@sapphire/plugin-i18next";
+import { Embed } from "@/utils/messages";
 
 @ApplyOptions<Command.Options>({
   name: "setup",
@@ -37,10 +38,11 @@ export class PlayCommand extends Command {
     const isAdmin = member.permissions.has(PermissionFlagsBits.Administrator);
 
     if (!isAdmin) {
-      await sendPresetMessage({
-        interaction,
-        preset: "error",
-        message: ErrorCodes.MISSING_ADMIN_PERMISSIONS,
+      await send(interaction, {
+        embeds: Embed.error(
+          await resolveKey(interaction, ErrorCodes.MISSING_ADMIN_PERMISSIONS),
+        ),
+        ephemeral: true,
       });
       return;
     }
@@ -51,29 +53,23 @@ export class PlayCommand extends Command {
       const response = await setupNewChannel(guild);
       const channelId = `<#${response.id}>`;
 
-      await sendPresetMessage({
-        interaction,
-        preset: "success",
-        message: "commands:setup.channel_created",
-        i18n: {
-          channel: channelId,
-        },
+      await send(interaction, {
+        embeds: Embed.info(
+          await resolveKey(interaction, "commands:setup.channel_created", {
+            channel: channelId,
+          }),
+        ),
       });
-
-      // await setupGuildLanguage(response).catch((e) => {
-      //   logger.info("Error while setupGuildLanguage");
-      //   logger.error(e);
-      // });
 
       await setupSongMessage(guild, response).catch((e) => {
         logger.info("Error while setupSongMessage");
         logger.error(e);
       });
     } catch (error) {
-      await sendPresetMessage({
-        interaction,
-        preset: "error",
-        message: getReadableException(error),
+      await send(interaction, {
+        embeds: Embed.error(
+          await resolveKey(interaction, getReadableException(error)),
+        ),
       });
     }
   }

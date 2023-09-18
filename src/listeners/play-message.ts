@@ -10,8 +10,9 @@ import { noop } from "@sapphire/utilities";
 import { playSong } from "@/features/music/play-song";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
-import { sendPresetMessage } from "@/lib/message-handler/helper";
 import { send } from "@/lib/message-handler";
+import { Embed } from "@/utils/messages";
+import { resolveKey } from "@sapphire/plugin-i18next";
 
 @ApplyOptions<Listener.Options>({
   name: "play-message-event",
@@ -40,14 +41,14 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
       }
 
       if (!hasMentions) {
-        await sendPresetMessage({
-          interaction: message,
-          message: ErrorCodes.MISSING_MESSAGE,
-          preset: "error",
-          i18n: {
-            mention: container.client.user?.toString() ?? "@Twokei",
-          },
-        });
+        await send(message, {
+          embeds: Embed.error(
+            await resolveKey(message, ErrorCodes.MISSING_MESSAGE, {
+              mention: container.client.user?.toString() ?? "@Twokei",
+            }),
+          ),
+        }).dispose();
+
         return;
       }
 
@@ -75,7 +76,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
       return false;
     }
 
-    // TODO: fix, é possível que o songChannel não exista, deve ser validado antes!
+    //TODO: checar se o canal existe antes de sugerir usar.
 
     const isUsableChannel = songChannel?.channelId === typedChannel.id;
 
@@ -85,22 +86,19 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
       }
 
       if (!songChannel?.channelId) {
-        await sendPresetMessage({
-          interaction: message,
-          preset: "error",
-          message: ErrorCodes.MISSING_SONG_CHANNEL,
-        });
+        await send(message, {
+          embeds: Embed.error(
+            await resolveKey(message, ErrorCodes.MISSING_SONG_CHANNEL),
+          ),
+        }).dispose();
       } else {
-        await sendPresetMessage({
-          interaction: message,
-          preset: "error",
-          message: ErrorCodes.USE_SONG_CHANNEL,
-          i18n: {
-            song_channel: songChannel?.channelId
-              ? channelMention(songChannel.channelId)
-              : "",
-          },
-        });
+        await send(message, {
+          embeds: Embed.error(
+            await resolveKey(message, ErrorCodes.USE_SONG_CHANNEL, {
+              song_channel: channelMention(songChannel.channelId),
+            }),
+          ),
+        }).dispose();
       }
       return false;
     }

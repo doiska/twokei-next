@@ -2,19 +2,24 @@ import type { TrackExceptionEvent } from "shoukaku";
 
 import type { Venti } from "@/music/controllers/Venti";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
-import { sendPresetMessage } from "@/lib/message-handler/helper";
+import { send } from "@/lib/message-handler";
+import { Embed } from "@/utils/messages";
+import { resolveKey } from "@sapphire/plugin-i18next";
 
 export async function handlePlayerException(
   venti: Venti,
   exception: TrackExceptionEvent,
 ) {
-  if (!venti.embedMessage) {
+  if (!venti.embedMessage || !venti.embedMessage.guild) {
     return;
   }
 
-  await sendPresetMessage({
-    interaction: venti.embedMessage,
-    preset: "error",
-    message: getReadableException(exception),
+  await send(venti.embedMessage, {
+    embeds: Embed.error(
+      await resolveKey(
+        venti.embedMessage.guild,
+        getReadableException(exception),
+      ),
+    ),
   });
 }

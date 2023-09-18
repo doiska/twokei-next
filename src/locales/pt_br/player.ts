@@ -31,8 +31,8 @@ export default {
       [EmbedButtons.VIEW_PROFILE]: "Meu Perfil",
       [EmbedButtons.VIEW_RANKING]: "Ver Ranking",
       [EmbedButtons.PLAYLIST_SYNC]: "Playlists Sincronizadas",
-      [EmbedButtons.IA_MODE]: "Músicas recomendadas",
-      [EmbedButtons.QUICK_PLAYLIST]: "Ouvir Playlist recomendada",
+      [EmbedButtons.IA_MODE]: "Adicionar recomendações",
+      [EmbedButtons.QUICK_PLAYLIST]: "Ouvir minhas recomendações",
       invite: "Convite",
       donate: "Apoiar desenvolvimento",
       [EmbedButtons.NEWS]: "Ver Novidades",
@@ -40,7 +40,7 @@ export default {
   },
   play: {
     added_to_queue: `${Icons.Lightning} Adicionado à fila!`,
-    more_songs: "+ {{amount}} mais faixas",
+    more_songs: "+ {{amount}} faixas",
     buttons: {
       like: "Like",
       dislike: "Dislike",

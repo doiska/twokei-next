@@ -64,7 +64,7 @@ class MessageHandlerPromise extends CustomHandler<Message> {
 
 export async function defer(
   interaction: Repliable,
-  options?: { ephemeral: true },
+  options?: { ephemeral: boolean | false },
 ) {
   if (isAnyInteractableInteraction(interaction)) {
     return interaction.deferReply({
@@ -139,16 +139,16 @@ async function tryReply(
   try {
     if (isAnyInteractableInteraction(message)) {
       if (message.deferred) {
-        return message.editReply(payload as InteractionReplyOptions);
+        return await message.editReply(payload as InteractionReplyOptions);
       }
 
-      return message.reply({
+      return await message.reply({
         ...(payload as InteractionReplyOptions),
         fetchReply: true,
       });
     }
 
-    return message.reply(payload as MessageReplyOptions);
+    return await message.reply(payload as MessageReplyOptions);
   } catch (error) {
     logger.error(`Failed to reply to message: ${error}`);
 
