@@ -21,5 +21,5 @@ export async function handlePlayerException(
         getReadableException(exception),
       ),
     ),
-  });
+  }).dispose();
 }
