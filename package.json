@@ -20,7 +20,6 @@
     "discord-api-types": "0.37.20"
   },
   "dependencies": {
-    "@moscowcity/shoukaku": "../twokei-shoukaku",
     "@sapphire/decorators": "^6.0.2",
     "@sapphire/discord-utilities": "^3.1.1",
     "@sapphire/discord.js-utilities": "7.0.2",
@@ -36,6 +35,7 @@
     "@sapphire/utilities": "^3.13.0",
     "@skyra/env-utilities": "^1.2.1",
     "@t3-oss/env-core": "^0.6.1",
+    "@twokei/shoukaku": "https://github.com/doiska/twokei-shoukaku",
     "date-fns": "^2.30.0",
     "discord-hybrid-sharding": "github:meister03/discord-hybrid-sharding",
     "discord.js": "^14.13.0",
@@ -51,7 +51,6 @@
     "pg": "^8.11.3",
     "postgres": "^3.3.5",
     "reflect-metadata": "^0.1.13",
-    "shoukaku": "../twokei-shoukaku",
     "ts-pattern": "^5.0.5",
     "winston": "^3.10.0",
     "winston-transport": "^4.5.0",

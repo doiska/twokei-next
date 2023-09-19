@@ -7,7 +7,7 @@ import { container, SapphireClient } from "@sapphire/framework";
 import { Analytics } from "@/structures/Analytics";
 import { SongChannelManager } from "@/structures/SongChannels";
 import { Xiao } from "@/music/controllers/Xiao";
-import { Connectors } from "shoukaku";
+import { Connectors } from "@twokei/shoukaku";
 import { env } from "@/app/env";
 import { logger } from "@/lib/logger";
 import { kil } from "@/db/Kil";

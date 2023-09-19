@@ -10,7 +10,7 @@ import {
   type TrackExceptionEvent,
   type TrackStuckEvent,
   type WebSocketClosedEvent,
-} from "shoukaku";
+} from "@twokei/shoukaku";
 
 import { eq } from "drizzle-orm";
 import { kil } from "@/db/Kil";

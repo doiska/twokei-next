@@ -5,7 +5,7 @@ import {
   type PlayOptions as ShoukakuPlayOptions,
   type TrackStuckEvent,
   type WebSocketClosedEvent,
-} from "shoukaku";
+} from "@twokei/shoukaku";
 
 import { type Locale } from "@/locales/i18n";
 import { createLogger, playerLogger } from "@/lib/logger";

@@ -8,7 +8,7 @@ import {
 import { type Locale } from "@/locales/i18n";
 import { type Maybe } from "@/utils/types-helper";
 import { type ResolvableTrack } from "../structures/ResolvableTrack";
-import { LoadType } from "shoukaku";
+import { LoadType } from "@twokei/shoukaku";
 
 export const XiaoLoadType = {
   TRACK_LOADED: LoadType.TRACK,

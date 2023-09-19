@@ -1,6 +1,6 @@
 import { type User } from "discord.js";
 import { container } from "@sapphire/framework";
-import type { Track } from "shoukaku";
+import type { Track } from "@twokei/shoukaku";
 
 import type {
   XiaoSearchOptions,
