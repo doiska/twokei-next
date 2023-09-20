@@ -4,6 +4,7 @@ import {
   type Connector,
   LoadType,
   type NodeOption,
+  PlayerDump,
   type PlayerUpdate,
   Shoukaku,
   type ShoukakuOptions,
@@ -40,7 +41,7 @@ import { EventEmitter } from "events";
 import type { Logger } from "winston";
 import { spotifyTrackResolver } from "@/music/resolvers/spotify/spotify-track-resolver";
 import { TwokeiClient } from "@/structures/TwokeiClient";
-import { playerSessions } from "@/db/schemas/player-sessions";
+import { onShoukakuRestore, storeSession } from "@/music/events/player-restore";
 
 export interface XiaoEvents {
   /**
@@ -207,34 +208,9 @@ export class Xiao extends EventEmitter {
       this.logger.debug(`${name} ${info}`),
     );
 
-    this.shoukaku.on("raw", async (node: string, event: unknown) => {
-      this.logger.debug(`[Shoukaku] Raw event: ${node}`, { data: event });
+    this.shoukaku.on("raw", storeSession);
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      if (!("op" in event && event.op === "playerUpdate")) {
-        return;
-      }
-
-      if (event.op === "playerUpdate") {
-        const playerUpdate = event as PlayerUpdate;
-
-        const dump = this.shoukaku.playersDump.get(playerUpdate.guildId);
-
-        await kil
-          .insert(playerSessions)
-          .values({
-            guildId: playerUpdate.guildId,
-            state: dump,
-          })
-          .onConflictDoUpdate({
-            target: playerSessions.guildId,
-            set: {
-              state: dump,
-            },
-          });
-      }
-    });
+    this.shoukaku.on("restore", onShoukakuRestore);
 
     this.on(Events.Debug, (message) => this.logger.debug(message));
 

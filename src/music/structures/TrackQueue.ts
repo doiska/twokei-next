@@ -1,10 +1,27 @@
 import { type Maybe } from "@/utils/types-helper";
 import { type ResolvableTrack } from "./ResolvableTrack";
+import { logger } from "@/lib/logger";
 
 export class TrackQueue<T = ResolvableTrack> extends Array<T> {
   public current: Maybe<T>;
 
   public previous: Maybe<T>;
+
+  public restore(dump: ReturnType<(typeof this)["dump"]>) {
+    logger.debug(`Restoring queue`, { dump });
+
+    this.current = dump?.current ?? null;
+    this.previous = dump?.previous ?? null;
+    this.unshift(...(dump?.queue ?? []));
+  }
+
+  public dump() {
+    return {
+      current: this.current ?? null,
+      previous: this.previous ?? null,
+      queue: this.slice(),
+    };
+  }
 
   get totalSize(): number {
     return this.length;

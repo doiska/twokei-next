@@ -251,7 +251,7 @@ export class Venti {
           ...resolvedTrack,
           options: {
             ...playOptions,
-            noReplace: !playOptions?.replace,
+            noReplace: false,
           },
         };
 
@@ -318,10 +318,6 @@ export class Venti {
       state = !this.paused;
     }
 
-    if (this.paused === state) {
-      return;
-    }
-
     this.paused = state;
     this.playing = !state;
     this.instance.setPaused(state);
@@ -333,6 +329,10 @@ export class Venti {
     this.emit(Events.TrackPause, this);
 
     return this.paused;
+  }
+
+  public isPaused() {
+    return this.instance.paused;
   }
 
   /**

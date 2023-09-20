@@ -84,9 +84,9 @@ export async function createDynamicButtons(venti: Venti) {
       disabled: !venti.queue.previous,
     },
     {
-      style: venti.playing ? ButtonStyle.Secondary : ButtonStyle.Primary,
+      style: !venti.isPaused() ? ButtonStyle.Secondary : ButtonStyle.Primary,
       emoji: "⏸️",
-      customId: venti.playing ? PlayerButtons.PAUSE : PlayerButtons.RESUME,
+      customId: !venti.isPaused() ? PlayerButtons.PAUSE : PlayerButtons.RESUME,
     },
     {
       style: ButtonStyle.Secondary,

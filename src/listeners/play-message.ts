@@ -57,7 +57,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
     } catch (e) {
       await send(message, {
         content: getReadableException(e),
-      });
+      }).dispose();
     }
   }
 
