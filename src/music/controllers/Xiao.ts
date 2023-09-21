@@ -4,7 +4,6 @@ import {
   type Connector,
   LoadType,
   type NodeOption,
-  PlayerDump,
   type PlayerUpdate,
   Shoukaku,
   type ShoukakuOptions,
@@ -210,7 +209,7 @@ export class Xiao extends EventEmitter {
 
     this.shoukaku.on("raw", storeSession);
 
-    this.shoukaku.on("restored", onShoukakuRestore);
+    this.shoukaku.once("restored", onShoukakuRestore);
 
     this.on(Events.Debug, (message) => this.logger.debug(message));
 
