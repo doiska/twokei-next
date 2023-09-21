@@ -210,7 +210,7 @@ export class Xiao extends EventEmitter {
 
     this.shoukaku.on("raw", storeSession);
 
-    this.shoukaku.on("restore", onShoukakuRestore);
+    this.shoukaku.on("restored", onShoukakuRestore);
 
     this.on(Events.Debug, (message) => this.logger.debug(message));
 

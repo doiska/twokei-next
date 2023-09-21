@@ -165,8 +165,7 @@ export class IaModeInteraction extends InteractionHandler {
         embeds: Embed.error(
           await resolveKey(interaction, getReadableException(e)),
         ),
-        ephemeral: true,
-      });
+      }).dispose();
     }
   }
 
