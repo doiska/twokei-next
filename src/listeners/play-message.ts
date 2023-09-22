@@ -49,15 +49,15 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
 
       const validationError = errors?.[validation as keyof typeof errors];
 
-      const channel = (await container.sc.get(message.guild!)) ?? null;
+      const songChannel = (await container.sc.get(message.guild!)) ?? null;
 
       if (validationError) {
         await send(message, {
           embeds: Embed.error(
             await resolveKey(message, validationError, {
               mention: container.client.user?.toString() ?? "@Twokei",
-              channel: channel?.channelId
-                ? channelMention(channel.channelId)
+              channel: songChannel?.channelId
+                ? channelMention(songChannel.channelId)
                 : "#twokei-music",
             }),
           ),
@@ -79,7 +79,21 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
       }
 
       await playSong(message, contentOnly);
-      await message.delete().catch(noop);
+
+      try {
+        const deletableMessages = await message.channel.messages.fetch();
+
+        if (!isTextChannel(message.channel)) {
+          return;
+        }
+
+        await message.channel.bulkDelete(
+          deletableMessages.filter((m) => m.id !== songChannel?.messageId),
+          true,
+        );
+      } catch (e) {
+        logger.warn(`Failed to bulk delete messages in ${message.channel.id}`);
+      }
     } catch (e) {
       await send(message, {
         content: getReadableException(e),
