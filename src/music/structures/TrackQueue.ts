@@ -20,7 +20,9 @@ export class TrackQueue extends Array<ResolvableTrack> {
     }
 
     if (dump.queue && Array.isArray(dump.queue) && dump.queue.length > 0) {
-      this.unshift(...dump.queue);
+      this.unshift(
+        ...dump.queue.map((track) => ResolvableTrack.from(track.track)),
+      );
     }
   }
 
@@ -28,7 +30,7 @@ export class TrackQueue extends Array<ResolvableTrack> {
     return {
       current: this.current?.getRaw() ?? null,
       previous: this.previous?.getRaw() ?? null,
-      queue: this.slice(),
+      queue: this.map((track) => ({ track: track.getRaw() })),
     };
   }
 
