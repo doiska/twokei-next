@@ -256,4 +256,12 @@ export class ResolvableTrack {
       source: source,
     };
   }
+
+  public dump() {
+    return this.getRaw();
+  }
+
+  public static from(track: Track, options?: ResolvableTrackOptions) {
+    return new ResolvableTrack(track, options);
+  }
 }

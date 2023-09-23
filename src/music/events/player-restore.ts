@@ -5,7 +5,7 @@ import { container } from "@sapphire/framework";
 import { Venti } from "@/music/controllers/Venti";
 import { kil } from "@/db/Kil";
 import { playerSessions } from "@/db/schemas/player-sessions";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 
 const eventSchema = z.object({
@@ -48,6 +48,7 @@ export async function storeSession(node: string, event: unknown) {
       set: {
         state: dump,
         queue: container.xiao.players.get(playerEvent.guildId)?.queue.dump(),
+        updatedAt: sql`NOW()`,
       },
     });
 }
@@ -59,6 +60,10 @@ export async function onShoukakuRestore(dumps: PlayerDump[]) {
     }
 
     const restored = container.xiao.shoukaku.players.get(dump.options.guildId);
+
+    if (!restored) {
+      continue;
+    }
 
     const guild = container.client.guilds.resolve(dump.options.guildId);
     const voiceId = restored?.connection.channelId;
@@ -81,8 +86,6 @@ export async function onShoukakuRestore(dumps: PlayerDump[]) {
       ventiOptions.embedMessage = message;
     }
 
-    const venti = new Venti(container.xiao, restored, ventiOptions);
-
     const [restorableQueue] = await kil
       .select({
         queue: playerSessions.queue,
@@ -90,9 +93,9 @@ export async function onShoukakuRestore(dumps: PlayerDump[]) {
       .from(playerSessions)
       .where(eq(playerSessions.guildId, guild.id));
 
-    if (restorableQueue) {
-      venti.queue.restore(restorableQueue.queue);
-    }
+    const venti = new Venti(container.xiao, restored, ventiOptions);
+
+    venti.queue.restore(restorableQueue.queue);
 
     container.xiao.players.set(dump.options.guildId, venti);
     container.xiao.emit(Events.ManualUpdate, venti, {

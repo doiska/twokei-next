@@ -1,24 +1,33 @@
 import { type Maybe } from "@/utils/types-helper";
-import { type ResolvableTrack } from "./ResolvableTrack";
-import { logger } from "@/lib/logger";
+import { ResolvableTrack } from "./ResolvableTrack";
+import { Track } from "@twokei/shoukaku";
 
-export class TrackQueue<T = ResolvableTrack> extends Array<T> {
-  public current: Maybe<T>;
+export class TrackQueue extends Array<ResolvableTrack> {
+  public current: Maybe<ResolvableTrack>;
+  public previous: Maybe<ResolvableTrack>;
 
-  public previous: Maybe<T>;
+  public restore(dump?: ReturnType<(typeof this)["dump"]>) {
+    if (!dump) {
+      return;
+    }
 
-  public restore(dump: ReturnType<(typeof this)["dump"]>) {
-    logger.debug(`Restoring queue`, { dump });
+    if (dump.current) {
+      this.current = ResolvableTrack.from(dump.current as Track);
+    }
 
-    this.current = dump?.current ?? null;
-    this.previous = dump?.previous ?? null;
-    this.unshift(...(dump?.queue ?? []));
+    if (dump.previous) {
+      this.previous = ResolvableTrack.from(dump.previous as Track);
+    }
+
+    if (dump.queue && Array.isArray(dump.queue) && dump.queue.length > 0) {
+      this.unshift(...dump.queue);
+    }
   }
 
   public dump() {
     return {
-      current: this.current ?? null,
-      previous: this.previous ?? null,
+      current: this.current?.getRaw() ?? null,
+      previous: this.previous?.getRaw() ?? null,
       queue: this.slice(),
     };
   }
@@ -27,11 +36,11 @@ export class TrackQueue<T = ResolvableTrack> extends Array<T> {
     return this.length;
   }
 
-  add(...item: T[]): void {
+  add(...item: ResolvableTrack[]): void {
     this.push(...item);
   }
 
-  remove(item: T | number): void {
+  remove(item: ResolvableTrack | number): void {
     if (typeof item === "number") {
       this.removeAt(item);
     } else {
@@ -44,10 +53,6 @@ export class TrackQueue<T = ResolvableTrack> extends Array<T> {
 
   removeAt(index: number, count = 1): void {
     this.splice(index, count);
-  }
-
-  get(index: number): T | undefined {
-    return this.at(index);
   }
 
   isEmpty(): boolean {
