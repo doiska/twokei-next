@@ -26,6 +26,7 @@ import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 import { type Maybe } from "@/utils/types-helper";
 import {
   Events,
+  PlayerState,
   type VentiInitOptions,
   type XiaoInitOptions,
   XiaoLoadType,
@@ -277,15 +278,19 @@ export class Xiao extends EventEmitter {
       reason,
     });
 
-    await guild.members.me?.voice?.disconnect().catch(noop);
-
     const player = this.players.get(guild.id);
 
-    if (!player) {
-      return;
+    if (player) {
+      player.state = PlayerState.DESTROYING;
     }
 
-    await player.destroy();
+    await guild.members.me?.voice?.disconnect().catch(noop);
+    await this.shoukaku.leaveVoiceChannel(guild.id);
+
+    if (player) {
+      player.state = PlayerState.DESTROYED;
+    }
+
     this.players.delete(guild.id);
   }
 
