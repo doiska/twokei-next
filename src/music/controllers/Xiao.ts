@@ -282,14 +282,10 @@ export class Xiao extends EventEmitter {
     const player = this.players.get(guild.id);
 
     if (!player) {
-      this.logger.warn(
-        `destroyPlayer - Player for guild ${guild.id} does not exist.`,
-      );
       return;
     }
 
-    player.destroy();
-
+    await player.destroy();
     this.players.delete(guild.id);
   }
 

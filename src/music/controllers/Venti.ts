@@ -219,7 +219,7 @@ export class Venti {
       this.queue.unshift(this.queue.current);
     }
 
-    if (this.queue.current) {
+    if (this.queue.current?.getRaw) {
       this.queue.previous = new ResolvableTrack(this.queue.current.getRaw());
     }
 
@@ -251,7 +251,7 @@ export class Venti {
           ...resolvedTrack,
           options: {
             ...playOptions,
-            noReplace: false,
+            noReplace: !playOptions.replace,
           },
         };
 
@@ -389,7 +389,7 @@ export class Venti {
   /**
    * Destroy the player and remove it from the cache.
    */
-  public destroy() {
+  public async destroy() {
     if (
       this.state === PlayerState.DESTROYING ||
       this.state === PlayerState.DESTROYED
@@ -397,13 +397,13 @@ export class Venti {
       throw new Error("Player is already destroyed");
     }
 
-    this.disconnect();
     this.state = PlayerState.DESTROYING;
-
-    this.instance.connection.disconnect();
-    this.instance.removeAllListeners();
-
+    await this.instance.destroyPlayer();
     this.state = PlayerState.DESTROYED;
+
+    // this.disconnect();
+    // this.instance.connection.disconnect();
+    // this.instance.removeAllListeners();
 
     this.emit(Events.PlayerDestroy, this);
     this.emit(Events.Debug, `Player destroyed for guild ${this.guildId}`);

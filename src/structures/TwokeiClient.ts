@@ -62,8 +62,7 @@ export class TwokeiClient extends SapphireClient {
       },
     );
 
-    logger.info(`Resuming ${sessions.valid.length} sessions.`);
-    logger.info(`Found ${sessions.expired.length} expired sessions.`);
+    logger.info(`Resuming ${sessions.valid.length} of ${allSessions.length}.`);
 
     const dumpState = sessions.valid.map((session) => {
       const now = Date.now();

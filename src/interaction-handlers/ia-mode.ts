@@ -172,14 +172,8 @@ export class IaModeInteraction extends InteractionHandler {
   public override parse(
     interaction: ButtonInteraction,
   ): Awaitable<Option<unknown>> {
-    if (
-      [EmbedButtons.IA_MODE, EmbedButtons.QUICK_PLAYLIST].includes(
-        interaction.customId,
-      )
-    ) {
-      return this.some();
-    }
-
-    return this.none();
+    return interaction.customId === EmbedButtons.QUICK_PLAYLIST
+      ? this.some()
+      : this.none();
   }
 }
