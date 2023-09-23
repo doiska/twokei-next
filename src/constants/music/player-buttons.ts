@@ -33,7 +33,6 @@ export enum EmbedButtons {
   DONATE = "DONATE",
   INVITE = "INVITE",
   NEWS = "news",
-  IA_MODE = "IA_MODE",
   PLAYLIST_SYNC = "PLAYLIST_SYNC",
   QUICK_PLAYLIST = "QUICK_PLAYLIST",
 }

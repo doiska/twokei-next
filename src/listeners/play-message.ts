@@ -88,11 +88,22 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         }
 
         await message.channel.bulkDelete(
-          deletableMessages.filter((m) => m.id !== songChannel?.messageId),
+          deletableMessages.filter((m) => {
+            const duration = Date.now() - m.createdTimestamp;
+            const isMine = m.author.id === self;
+
+            const isRecent = duration < 60000 && isMine;
+            const isSongChannelMessage = m.id === songChannel?.messageId;
+
+            return !isRecent && !isSongChannelMessage;
+          }),
           true,
         );
       } catch (e) {
-        logger.warn(`Failed to bulk delete messages in ${message.channel.id}`);
+        logger.warn(
+          `Failed to bulk delete messages in ${message.channel.id}`,
+          e,
+        );
       }
     } catch (e) {
       await send(message, {
