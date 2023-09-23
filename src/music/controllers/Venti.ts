@@ -391,7 +391,7 @@ export class Venti {
         });
       }
 
-      this.logger.debug(
+      this.logger.silly(
         `[Venti] Emitting ${event} ${inspect(args.slice(1), false, 2, true)}`,
       );
     }

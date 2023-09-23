@@ -35,7 +35,7 @@
     "@sapphire/utilities": "^3.13.0",
     "@skyra/env-utilities": "^1.2.1",
     "@t3-oss/env-core": "^0.6.1",
-    "@twokei/shoukaku": "github:doiska/twokei-shoukaku",
+    "@twokei/shoukaku": "^1.0.1",
     "date-fns": "^2.30.0",
     "discord-hybrid-sharding": "github:meister03/discord-hybrid-sharding",
     "discord.js": "^14.13.0",

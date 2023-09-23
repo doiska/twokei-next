@@ -7,6 +7,16 @@ export async function GET(ctx: ParameterizedContext, next: Next) {
     return;
   }
 
+  const nodesRunning = container.xiao.shoukaku.nodes.size > 0;
+
+  if (!nodesRunning) {
+    ctx.status = 500;
+    ctx.body = {
+      message: "No nodes running",
+    };
+    return;
+  }
+
   if (container.client.shard) {
     const anyShardRunning = (container.client?.shard?.ids.length ?? 0) > 0;
 

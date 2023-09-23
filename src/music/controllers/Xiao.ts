@@ -284,11 +284,13 @@ export class Xiao extends EventEmitter {
       player.state = PlayerState.DESTROYING;
     }
 
-    await guild.members.me?.voice?.disconnect().catch(noop);
-    await this.shoukaku.leaveVoiceChannel(guild.id);
+    await this.shoukaku.leaveVoiceChannel(guild.id).catch(async () => {
+      await guild.members.me?.voice?.disconnect().catch(noop);
+    });
 
     if (player) {
       player.state = PlayerState.DESTROYED;
+      this.emit(Events.PlayerDestroy, player);
     }
 
     this.players.delete(guild.id);

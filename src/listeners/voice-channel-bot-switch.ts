@@ -7,7 +7,7 @@ import { getVoiceStateUpdateType } from "@/utils/voice-state";
   name: "voiceChannelSwitch",
   event: Events.VoiceStateUpdate,
 })
-export class VoiceChannelSwitch extends Listener {
+export class VoiceChannelBotSwitch extends Listener {
   public async run(oldState: VoiceState, newState: VoiceState) {
     const updateType = getVoiceStateUpdateType(oldState, newState);
 

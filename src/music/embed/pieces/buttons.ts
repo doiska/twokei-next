@@ -16,7 +16,7 @@ import { fetchT, type TFunction } from "@sapphire/plugin-i18next";
 import { isButton, isButtonLink } from "@/utils/validator";
 import { capitalizeFirst } from "@/utils/helpers";
 
-export async function createStaticButtons(guild: Guild, venti?: Venti) {
+export async function createStaticButtons(guild: Guild) {
   const t = await fetchT(guild);
 
   const staticPrimaryRow = new ActionRowBuilder<ButtonBuilder>({
@@ -84,9 +84,9 @@ export async function createDynamicButtons(venti: Venti) {
       disabled: !venti.queue.previous,
     },
     {
-      style: !venti.isPaused() ? ButtonStyle.Secondary : ButtonStyle.Primary,
+      style: !venti.paused ? ButtonStyle.Secondary : ButtonStyle.Primary,
       emoji: "⏸️",
-      customId: !venti.isPaused() ? PlayerButtons.PAUSE : PlayerButtons.RESUME,
+      customId: !venti.paused ? PlayerButtons.PAUSE : PlayerButtons.RESUME,
     },
     {
       style: ButtonStyle.Secondary,
