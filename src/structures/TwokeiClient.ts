@@ -11,7 +11,7 @@ import { Connectors } from "@twokei/shoukaku";
 import { env } from "@/app/env";
 import { logger } from "@/lib/logger";
 import { kil } from "@/db/Kil";
-import { playerSessions } from "@/db/schemas/player-sessions";
+import { PlayerSession, playerSessions } from "@/db/schemas/player-sessions";
 
 export class TwokeiClient extends SapphireClient {
   public xiao!: Xiao;
@@ -34,12 +34,52 @@ export class TwokeiClient extends SapphireClient {
   }
 
   private async start() {
-    const sessions = await kil.select().from(playerSessions);
+    const allSessions = await kil.select().from(playerSessions);
 
-    const dumpState = sessions.map((session) => [
-      session.guildId,
-      session.state,
-    ]);
+    const sessions = allSessions.reduce<{
+      expired: PlayerSession[];
+      valid: PlayerSession[];
+    }>(
+      (acc, session) => {
+        const isQueueValid =
+          session.queue.current || session.queue.queue.length > 0;
+
+        const isSessionExpired =
+          !session.updatedAt ||
+          session.updatedAt.getTime() + 30000 < Date.now();
+
+        if (isSessionExpired || !isQueueValid) {
+          acc.expired.push(session);
+        } else {
+          acc.valid.push(session);
+        }
+
+        return acc;
+      },
+      {
+        expired: [],
+        valid: [],
+      },
+    );
+
+    logger.info(`Resuming ${sessions.valid.length} sessions.`);
+    logger.info(`Found ${sessions.expired.length} expired sessions.`);
+
+    const dumpState = sessions.valid.map((session) => {
+      const now = Date.now();
+      const lastUpdate = session.state.timestamp;
+
+      const duration = session.state.player.position;
+
+      const correction = now - lastUpdate + 5000;
+
+      logger.debug(
+        `Session ${session.guildId} was last updated ${correction}ms ago. Correcting by ${correction}ms.`,
+      );
+
+      session.state.player.position = (duration ?? 0) + correction;
+      return [session.guildId, session.state];
+    });
 
     this.xiao = new Xiao(
       this,
@@ -55,12 +95,26 @@ export class TwokeiClient extends SapphireClient {
       [],
       {
         resume: true,
-        reconnectInterval: 5000,
-        reconnectTries: 10,
+        moveOnDisconnect: true,
+        reconnectInterval: 3000,
+        reconnectTries: 5,
         userAgent: `Twokei (${env.NODE_ENV})`,
       },
       dumpState,
     );
+
     container.xiao = this.xiao;
+
+    for (const session of sessions.expired) {
+      logger.debug(`Cleaning up session ${session.guildId}.`);
+      const guild = await container.client.guilds.fetch(session.guildId);
+
+      if (!guild) {
+        continue;
+      }
+
+      logger.debug(`Cleaned session ${session.guildId}.`);
+      await container.sc.reset(guild);
+    }
   }
 }
