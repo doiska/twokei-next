@@ -14,6 +14,7 @@ import { send } from "@/lib/message-handler";
 import { Embed } from "@/utils/messages";
 import { resolveKey } from "@sapphire/plugin-i18next";
 import { logger } from "@/lib/logger";
+import { isShoukakuReady } from "@/preconditions/shoukaku-ready";
 
 @ApplyOptions<Listener.Options>({
   name: "play-message-event",
@@ -25,7 +26,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
 
     const { author, channel: typedChannel, member, guild } = message;
 
-    if (!self || author.bot || !guild || !member) {
+    if (!self || author.bot || !guild || !member || !isShoukakuReady()) {
       return;
     }
 
