@@ -54,8 +54,6 @@ class SpotifyTrackResolver implements TrackResolver {
   ): Promise<XiaoSearchResult> {
     const spotifyUrl = SPOTIFY_URL.exec(query);
 
-    logger.debug(`[Spotify] ${query} - ${spotifyUrl?.[1]}`);
-
     if (spotifyUrl) {
       const [, type, id] = spotifyUrl;
 
