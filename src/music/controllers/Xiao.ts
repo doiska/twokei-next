@@ -282,6 +282,9 @@ export class Xiao extends EventEmitter {
     const player = this.players.get(guild.id);
 
     if (!player) {
+      this.logger.warn(
+        `destroyPlayer - Player for guild ${guild.id} does not exist.`,
+      );
       return;
     }
 
@@ -366,6 +369,16 @@ export class Xiao extends EventEmitter {
       type: XiaoLoadType.NO_MATCHES,
       tracks: [],
     };
+  }
+
+  public setVoiceId(guildId: string, voiceId: string) {
+    const player = this.players.get(guildId);
+
+    if (!player) {
+      return;
+    }
+
+    player.voiceId = voiceId;
   }
 
   public async loadNodes() {
