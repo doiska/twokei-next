@@ -29,11 +29,9 @@ export class TwokeiClient extends SapphireClient {
     process.on("uncaughtException", (error) => {
       logger.error("Uncaught exception:", error);
     });
-
-    this.start();
   }
 
-  private async start() {
+  public async start() {
     const allSessions = await kil.select().from(playerSessions);
 
     const sessions = allSessions.reduce<{
