@@ -10,6 +10,7 @@ import { kil } from "@/db/Kil";
 import { type SongChannel, songChannels } from "@/db/schemas/song-channels";
 
 import { createDefaultEmbed } from "@/music/embed/pieces";
+import { logger } from "@/lib/logger";
 
 export class SongChannelManager {
   private readonly cache = new Map<string, SongChannel>();
@@ -79,8 +80,13 @@ export class SongChannelManager {
     }
 
     const channel = await guild.channels
-      .fetch(songChannel.channelId)
-      .catch(() => null);
+      .fetch(songChannel.channelId, {
+        force: true,
+      })
+      .catch((e) => {
+        logger.error(e);
+        return null;
+      });
 
     if (!isGuildBasedChannel(channel) || !isTextChannel(channel)) {
       return;
@@ -88,7 +94,10 @@ export class SongChannelManager {
 
     const message = await channel.messages
       .fetch(songChannel.messageId)
-      .catch(() => null);
+      .catch((e) => {
+        logger.error(e);
+        return null;
+      });
 
     if (!message) {
       return;

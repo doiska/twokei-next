@@ -390,7 +390,7 @@ export class Xiao extends EventEmitter {
         if (!this.shoukaku.id) {
           reject(new Error("Shoukaku could not be loaded in time."));
         }
-      }, 20000);
+      }, 30000);
 
       const interval = setInterval(() => {
         if (this.shoukaku.id) {
