@@ -26,7 +26,7 @@ export default {
   [ErrorCodes.MISSING_SONG_CHANNEL]:
     "O canal de música não foi definido neste servidor, use /setup e garanta que o bot tenha as permissões necessárias.",
   [ErrorCodes.USE_SONG_CHANNEL]:
-    "Envie a mensagem no {{- song_channel}} para que eu possa tocar a música.",
+    "Envie a mensagem no {{- channel}} para que eu possa tocar a música.",
   [ErrorCodes.MISSING_ADMIN_PERMISSIONS]:
     "Você não tem permissão (administrador) para usar este comando.",
   [ErrorCodes.PLAYER_NO_TRACKS_FOUND]:

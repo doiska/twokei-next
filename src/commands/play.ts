@@ -8,7 +8,7 @@ import { playSong } from "@/features/music/play-song";
   aliases: ["p"],
   description: "Play a song from any source!",
   enabled: true,
-  preconditions: ["GuildTextOnly"],
+  preconditions: ["GuildTextOnly", "ShoukakuReady"],
   cooldownDelay: 1_000,
 })
 export class PlayCommand extends Command {

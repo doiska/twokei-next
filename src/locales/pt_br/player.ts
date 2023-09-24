@@ -5,8 +5,6 @@ export default {
   embed: {
     description: [
       "## <a:raio:1121849523854118973> [Twokei Music](https://twokei.com)",
-      "### Nova versão 2.5 - Teste já!",
-      " ",
       `### ${Icons.Hanakin} Como usar?`,
       "- **Mencione** o bot com o nome/url da música para adicionar à fila.",
       '- Exemplo: "**{{- mention}} lofi hiphop**"',
@@ -31,10 +29,7 @@ export default {
       [EmbedButtons.VIEW_PROFILE]: "Meu Perfil",
       [EmbedButtons.VIEW_RANKING]: "Ver Ranking",
       [EmbedButtons.PLAYLIST_SYNC]: "Playlists Sincronizadas",
-      [EmbedButtons.IA_MODE]: "Adicionar recomendações",
-      [EmbedButtons.QUICK_PLAYLIST]: "Ouvir minhas recomendações",
-      invite: "Convite",
-      donate: "Apoiar desenvolvimento",
+      [EmbedButtons.QUICK_PLAYLIST]: "Ouvir Mix recomendado",
       [EmbedButtons.NEWS]: "Ver Novidades",
     },
   },

@@ -27,6 +27,4 @@ if (env.SHARDING_MANAGER_ENABLED) {
   manager.spawn({
     amount: 1,
   });
-} else {
-  import("./app/Twokei");
 }

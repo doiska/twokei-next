@@ -7,15 +7,17 @@ interface BaseProperties {
   event: SongEvent["event"];
 }
 
+type BaseTrack = {
+  title?: string;
+  author?: string;
+  source: "spotify" | "deezer" | "youtube";
+  uri?: string;
+  isrc?: string;
+};
+
 interface SongEvent {
   event: "liked_song" | "disliked_song" | "added_song" | "heard_song";
-  track: {
-    title?: string;
-    author?: string;
-    isrc?: string;
-    uri: string;
-    source: "spotify" | "deezer" | "youtube";
-  };
+  track: BaseTrack;
 }
 
 type TrackableEvent = BaseProperties & SongEvent;

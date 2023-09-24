@@ -1,4 +1,4 @@
-import type { NodeOption } from "shoukaku";
+import type { NodeOption } from "@twokei/shoukaku";
 
 import { jsonb, pgSchema, varchar } from "drizzle-orm/pg-core";
 import { env } from "@/app/env";

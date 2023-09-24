@@ -1,4 +1,4 @@
-import type { TrackExceptionEvent } from "shoukaku";
+import type { TrackExceptionEvent } from "@twokei/shoukaku";
 
 import type { Venti } from "@/music/controllers/Venti";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
@@ -21,5 +21,5 @@ export async function handlePlayerException(
         getReadableException(exception),
       ),
     ),
-  });
+  }).dispose();
 }

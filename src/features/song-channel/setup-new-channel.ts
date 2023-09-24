@@ -47,6 +47,10 @@ export const setupNewChannel = async (guild: Guild) => {
     throw new FriendlyException("I can't create a new channel.");
   }
 
+  logger.info(`Successfully created new song channel ${newChannel?.id}`, {
+    guild: { name: guild.name, id: guild.id },
+  });
+
   if (!canSendMessages(newChannel)) {
     throw new FriendlyException("I can't send messages in the new channel.");
   }

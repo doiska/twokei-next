@@ -5,7 +5,7 @@ import {
   type PlayOptions as ShoukakuPlayOptions,
   type TrackStuckEvent,
   type WebSocketClosedEvent,
-} from "shoukaku";
+} from "@twokei/shoukaku";
 
 import { type Locale } from "@/locales/i18n";
 import { createLogger, playerLogger } from "@/lib/logger";
@@ -53,19 +53,9 @@ export class Venti {
   public loop: LoopStates = LoopStates.NONE;
 
   /**
-   * If the player is connected to a voice channel and playing.
-   */
-  public playing = false;
-
-  /**
    * The player's state.
    */
   public state: PlayerState = PlayerState.CONNECTING;
-
-  /**
-   * Pause state of the player.
-   */
-  public paused = false;
 
   /**
    * Song queue.
@@ -104,8 +94,9 @@ export class Venti {
 
     this.logger = createLogger("Venti");
 
+    this.logger.debug(`Created player for guild ${this.guildId}`);
+
     this.instance.on("start", () => {
-      this.playing = true;
       if (this.queue.current) {
         this.emit(Events.TrackStart, this, this.queue.current);
       }
@@ -123,14 +114,13 @@ export class Venti {
         return;
       }
 
-      if (data.reason === "REPLACED") {
+      if (data.reason === "replaced") {
         this.emit(Events.TrackEnd, this, this.queue?.current, "Replaced");
         return;
       }
 
       if (["LOAD_FAILED", "CLEAN_UP"].includes(data.reason)) {
         this.queue.previous = this.queue.current;
-        this.playing = false;
 
         playerLogger.info("Track ended with reason LOAD_FAILED or CLEAN_UP", {
           reason: data.reason,
@@ -171,7 +161,6 @@ export class Venti {
       this.queue.current = null;
 
       if (!this.queue.length) {
-        this.playing = false;
         this.emit(Events.QueueEmpty, this);
         return;
       }
@@ -180,12 +169,10 @@ export class Venti {
     });
 
     this.instance.on("closed", (data: WebSocketClosedEvent) => {
-      this.playing = false;
       this.emit(Events.PlayerClosed, this, data);
     });
 
     this.instance.on("exception", (error) => {
-      this.playing = false;
       this.emit(Events.PlayerException, this, error);
     });
 
@@ -219,7 +206,7 @@ export class Venti {
       this.queue.unshift(this.queue.current);
     }
 
-    if (this.queue.current) {
+    if (this.queue.current?.getRaw) {
       this.queue.previous = new ResolvableTrack(this.queue.current.getRaw());
     }
 
@@ -247,10 +234,11 @@ export class Venti {
         this.queue.current = resolvedTrack;
 
         const shoukakuPlayOptions: ShoukakuPlayOptions = {
-          track: resolvedTrack.track,
+          info: resolvedTrack.getRaw().info,
+          ...resolvedTrack,
           options: {
             ...playOptions,
-            noReplace: !playOptions?.replace,
+            noReplace: !playOptions.replace,
           },
         };
 
@@ -261,11 +249,6 @@ export class Venti {
         this.instance.playTrack(shoukakuPlayOptions);
       })
       .catch((err: Error) => {
-        this.emit(
-          Events.Debug,
-          `Error while resolving track for guild ${this.guildId}} ${err.message}`,
-        );
-
         this.logger.error(
           `Error while resolving track for guild ${this.guildId} - ${err.message}`,
           err.stack,
@@ -317,26 +300,26 @@ export class Venti {
     return this;
   }
 
-  public pause(state?: boolean) {
-    if (typeof state !== "boolean") {
-      state = !this.paused;
-    }
+  public pause() {
+    this.logger.debug(
+      `Pausing player for guild ${this.guildId} - ${!this.instance.paused}`,
+    );
 
-    if (this.paused === state) {
-      return;
-    }
-
-    this.paused = state;
-    this.playing = !state;
-    this.instance.setPaused(state);
+    this.instance.setPaused(!this.instance.paused);
 
     this.logger.debug(
-      `Player for guild ${this.guildId} is now ${state ? "paused" : "playing"}`,
+      `Player for guild ${this.guildId} is now ${
+        !this.instance.paused ? "paused" : "playing"
+      }`,
     );
 
     this.emit(Events.TrackPause, this);
 
     return this.paused;
+  }
+
+  public get paused() {
+    return this.instance.paused;
   }
 
   /**
@@ -390,31 +373,6 @@ export class Venti {
     return this;
   }
 
-  /**
-   * Destroy the player and remove it from the cache.
-   */
-  public destroy() {
-    if (
-      this.state === PlayerState.DESTROYING ||
-      this.state === PlayerState.DESTROYED
-    ) {
-      throw new Error("Player is already destroyed");
-    }
-
-    this.disconnect();
-    this.state = PlayerState.DESTROYING;
-
-    this.instance.connection.disconnect();
-    this.instance.removeAllListeners();
-
-    this.state = PlayerState.DESTROYED;
-
-    this.emit(Events.PlayerDestroy, this);
-    this.emit(Events.Debug, `Player destroyed for guild ${this.guildId}`);
-
-    return this;
-  }
-
   public emit<U extends keyof XiaoEvents>(
     event: U,
     ...args: Parameters<XiaoEvents[U]>
@@ -439,5 +397,13 @@ export class Venti {
     }
 
     return this.xiao.emit(event, ...args);
+  }
+
+  public get playing() {
+    return !!(
+      !this.paused &&
+      this.state === PlayerState.CONNECTING &&
+      this.queue.current
+    );
   }
 }

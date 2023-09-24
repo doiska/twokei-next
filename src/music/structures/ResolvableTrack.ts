@@ -1,6 +1,6 @@
 import { type User } from "discord.js";
 import { container } from "@sapphire/framework";
-import { type Track } from "shoukaku";
+import { type Track } from "@twokei/shoukaku";
 
 import { playerLogger } from "@/lib/logger";
 import { spotifyTrackResolver } from "@/music/resolvers/spotify/spotify-track-resolver";
@@ -26,7 +26,7 @@ export class ResolvableTrack {
   public title: string;
 
   /** Track's URI */
-  public uri: string;
+  public uri?: string;
 
   /**
    * Track International Recording
@@ -46,7 +46,7 @@ export class ResolvableTrack {
   public author?: string;
 
   /** Track's length */
-  public length?: number;
+  public duration?: number;
 
   /** Track's position (I don't know this) */
   public position?: number;
@@ -55,17 +55,17 @@ export class ResolvableTrack {
   public thumbnail?: string;
 
   /** The YouTube/soundcloud URI for spotify and other unsupported source */
-  public realUri: string | null;
+  public realUri?: string | null;
 
   public constructor(
-    track: Track & { thumbnail?: string; isrc?: string },
+    track: Omit<Track, "pluginInfo"> & { thumbnail?: string; isrc?: string },
     options?: ResolvableTrackOptions,
   ) {
     const { info } = track;
 
     this.requester = options?.requester;
-    this.track = track.track;
-    this.sourceName = info.sourceName;
+    this.track = track.encoded;
+    this.sourceName = info.sourceName ?? "Unknown";
     this.title = info.title;
     this.uri = info.uri;
     this.isrc = track.isrc;
@@ -73,7 +73,7 @@ export class ResolvableTrack {
     this.isSeekable = info.isSeekable;
     this.isStream = info.isStream;
     this.author = info.author;
-    this.length = info.length;
+    this.duration = info.duration;
     this.position = info.position;
 
     if (this.identifier && this.sourceName === "youtube") {
@@ -90,7 +90,7 @@ export class ResolvableTrack {
       !!this.sourceName &&
       !!this.identifier &&
       !!this.author &&
-      !!this.length &&
+      !!this.duration &&
       !!this.title &&
       !!this.uri &&
       !!this.realUri
@@ -108,15 +108,15 @@ export class ResolvableTrack {
       throw new Error("Track not found");
     }
 
-    this.track = resolvedTrack.track;
+    this.track = resolvedTrack.encoded;
     this.realUri = resolvedTrack.info.uri;
-    this.length = resolvedTrack.info.length;
+    this.duration = resolvedTrack.info.duration;
 
     if (overwrite) {
       this.title = resolvedTrack.info.title;
       this.isSeekable = resolvedTrack.info.isSeekable;
       this.author = resolvedTrack.info.author;
-      this.length = resolvedTrack.info.length;
+      this.duration = resolvedTrack.info.duration;
       this.isStream = resolvedTrack.info.isStream;
     }
 
@@ -125,18 +125,19 @@ export class ResolvableTrack {
 
   public getRaw(): Track {
     return {
-      track: this.track,
+      encoded: this.track,
       info: {
         identifier: this.identifier,
         isSeekable: this.isSeekable,
         uri: this.uri,
         title: this.title,
-        length: this.length ?? 0,
+        duration: this.duration ?? 0,
         author: this.author ?? "",
         isStream: this.isStream,
         position: this.position ?? 0,
         sourceName: this.sourceName,
       },
+      pluginInfo: {},
     };
   }
 
@@ -224,7 +225,7 @@ export class ResolvableTrack {
     const track = resolvable as ResolvableTrack;
 
     return {
-      track: track.track,
+      encoded: track.track,
       info: {
         isSeekable: track.isSeekable,
         isStream: track.isStream,
@@ -233,9 +234,10 @@ export class ResolvableTrack {
         identifier: track.identifier,
         sourceName: track.sourceName,
         author: track.author ?? "",
-        length: track.length ?? 0,
+        duration: track.duration ?? 0,
         position: track.position ?? 0,
       },
+      pluginInfo: {},
     };
   }
 
@@ -253,5 +255,13 @@ export class ResolvableTrack {
       isrc: this.isrc,
       source: source,
     };
+  }
+
+  public dump() {
+    return this.getRaw();
+  }
+
+  public static from(track: Track, options?: ResolvableTrackOptions) {
+    return new ResolvableTrack(track, options);
   }
 }

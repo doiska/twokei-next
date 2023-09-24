@@ -1,7 +1,7 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import { isVoiceBasedChannel } from "@sapphire/discord.js-utilities";
 import { container, Listener } from "@sapphire/framework";
-import type { Track } from "shoukaku";
+import type { Track } from "@twokei/shoukaku";
 import { logger } from "@/lib/logger";
 import type { Venti } from "@/music/controllers/Venti";
 import { Events } from "@/music/interfaces/player.types";
@@ -26,7 +26,7 @@ export class TrackEndEvent extends Listener<typeof Events.TrackEnd> {
       return;
     }
 
-    if (current.length && current.length < 10000) {
+    if (current.duration && current.duration < 10000) {
       return;
     }
 

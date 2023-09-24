@@ -2,6 +2,7 @@ import { type Guild, type GuildResolvable } from "discord.js";
 import { type Awaitable, isObject, noop } from "@sapphire/utilities";
 import {
   type Connector,
+  LoadType,
   type NodeOption,
   type PlayerUpdate,
   Shoukaku,
@@ -9,7 +10,7 @@ import {
   type TrackExceptionEvent,
   type TrackStuckEvent,
   type WebSocketClosedEvent,
-} from "shoukaku";
+} from "@twokei/shoukaku";
 
 import { eq } from "drizzle-orm";
 import { kil } from "@/db/Kil";
@@ -25,9 +26,10 @@ import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 import { type Maybe } from "@/utils/types-helper";
 import {
   Events,
-  LoadType,
+  PlayerState,
   type VentiInitOptions,
   type XiaoInitOptions,
+  XiaoLoadType,
   type XiaoSearchOptions,
   type XiaoSearchResult,
 } from "../interfaces/player.types";
@@ -39,6 +41,7 @@ import { EventEmitter } from "events";
 import type { Logger } from "winston";
 import { spotifyTrackResolver } from "@/music/resolvers/spotify/spotify-track-resolver";
 import { TwokeiClient } from "@/structures/TwokeiClient";
+import { onShoukakuRestore, storeSession } from "@/music/events/player-restore";
 
 export interface XiaoEvents {
   /**
@@ -172,6 +175,7 @@ export class Xiao extends EventEmitter {
    * @param nodes Shoukaku nodes
    * @param connector Shoukaku connector
    * @param optionsShoukaku Shoukaku options
+   * @param dumps
    */
   constructor(
     private readonly client: TwokeiClient,
@@ -179,44 +183,45 @@ export class Xiao extends EventEmitter {
     connector: Connector,
     nodes: NodeOption[],
     optionsShoukaku: ShoukakuOptions = {},
+    dumps: any = {},
   ) {
     super();
 
     this.logger = createLogger("Xiao");
 
-    this.shoukaku = new Shoukaku(connector, nodes, optionsShoukaku);
+    this.shoukaku = new Shoukaku(connector, nodes, optionsShoukaku, dumps);
 
     this.players = new Map<string, Venti>();
 
-    this.shoukaku.on("ready", (name) =>
+    this.shoukaku.on("ready", (name: string) =>
       this.logger.info(`[Shoukaku] Node ${name} is now connected`),
     );
 
-    this.shoukaku.on("close", (name, code, reason) =>
-      this.logger.debug(
-        `[Shoukaku] Node ${name} closed with code ${code} and reason ${reason}`,
-      ),
-    );
-
-    this.shoukaku.on("error", (name, error) =>
+    this.shoukaku.on("error", (name: string, error: Error) =>
       this.logger.error(
         `[Shoukaku] Node ${name} emitted error: ${error.name}`,
         { message: error.message, stack: error.stack },
       ),
     );
 
-    this.shoukaku.on("debug", (name, info) =>
+    this.shoukaku.on("debug", (name: string, info: string) =>
       this.logger.debug(`${name} ${info}`),
     );
+
+    this.shoukaku.on("raw", storeSession);
+
+    this.shoukaku.once("restored", onShoukakuRestore);
 
     this.on(Events.Debug, (message) => this.logger.debug(message));
 
     this.on(Events.TrackStart, (venti) => {
       manualUpdate(venti, { embed: true, components: true });
     });
+
     this.on(Events.TrackAdd, (venti) => {
       manualUpdate(venti, { embed: true, components: true });
     });
+
     this.on(Events.TrackPause, (venti) => {
       manualUpdate(venti, { embed: true, components: true });
     });
@@ -240,15 +245,7 @@ export class Xiao extends EventEmitter {
       return current;
     }
 
-    const node = options.nodeName
-      ? this.shoukaku.getNode(options.nodeName)
-      : this.shoukaku.getNode();
-
-    if (!node) {
-      throw new Error("No available nodes");
-    }
-
-    const player = await node.joinChannel({
+    const player = await this.shoukaku.joinVoiceChannel({
       guildId: options.guild.id,
       channelId: options.voiceChannel,
       deaf: options.deaf,
@@ -281,15 +278,20 @@ export class Xiao extends EventEmitter {
       reason,
     });
 
-    await guild.members.me?.voice?.disconnect().catch(noop);
-
     const player = this.players.get(guild.id);
 
-    if (!player) {
-      return;
+    if (player) {
+      player.state = PlayerState.DESTROYING;
     }
 
-    player.destroy();
+    await this.shoukaku.leaveVoiceChannel(guild.id).catch(async () => {
+      await guild.members.me?.voice?.disconnect().catch(noop);
+    });
+
+    if (player) {
+      player.state = PlayerState.DESTROYED;
+      this.emit(Events.PlayerDestroy, player);
+    }
 
     this.players.delete(guild.id);
   }
@@ -298,9 +300,7 @@ export class Xiao extends EventEmitter {
     query: string,
     options?: XiaoSearchOptions,
   ): Promise<XiaoSearchResult> {
-    const node = options?.nodeName
-      ? this.shoukaku.getNode(options.nodeName)
-      : this.shoukaku.getNode();
+    const node = this.shoukaku.getIdealNode();
 
     const engine = options?.engine ?? "spsearch";
 
@@ -324,38 +324,64 @@ export class Xiao extends EventEmitter {
       }
     }
 
-    const searchType = options?.searchType ?? "track";
-
     const search = !isUrl ? `${engine}:${query}` : query;
 
     const result = await node.rest.resolve(search);
 
-    if (!result || result.loadType === "NO_MATCHES") {
+    if (!result || result.loadType === XiaoLoadType.NO_MATCHES) {
       throw new FriendlyException(ErrorCodes.PLAYER_NO_TRACKS_FOUND);
     }
 
-    if (result.loadType === "SEARCH_RESULT" && searchType === "track") {
+    if (result.loadType === XiaoLoadType.TRACK_LOADED) {
       return {
-        type: LoadType.SEARCH_RESULT,
+        type: XiaoLoadType.TRACK_LOADED,
         tracks: [
-          new ResolvableTrack(result.tracks[0], {
+          new ResolvableTrack(result.data, {
             requester: options?.requester,
           }),
         ],
       };
     }
 
+    if (result.loadType === LoadType.SEARCH) {
+      return {
+        type: XiaoLoadType.SEARCH_RESULT,
+        tracks: [
+          new ResolvableTrack(result.data[0], {
+            requester: options?.requester,
+          }),
+        ],
+      };
+    }
+
+    if (result.loadType === LoadType.PLAYLIST) {
+      return {
+        type: XiaoLoadType.PLAYLIST_LOADED,
+        playlist: {
+          name: result.data.info.name ?? "Playlist",
+          url: query,
+        },
+        tracks: result.data.tracks.map(
+          (track) =>
+            new ResolvableTrack(track, { requester: options?.requester }),
+        ),
+      };
+    }
+
     return {
-      type: LoadType.PLAYLIST_LOADED,
-      playlist: {
-        name: result.playlistInfo.name ?? "Playlist",
-        url: query,
-      },
-      tracks: result.tracks.map(
-        (track) =>
-          new ResolvableTrack(track, { requester: options?.requester }),
-      ),
+      type: XiaoLoadType.NO_MATCHES,
+      tracks: [],
     };
+  }
+
+  public setVoiceId(guildId: string, voiceId: string) {
+    const player = this.players.get(guildId);
+
+    if (!player) {
+      return;
+    }
+
+    player.voiceId = voiceId;
   }
 
   public async loadNodes() {

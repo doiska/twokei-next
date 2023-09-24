@@ -29,6 +29,13 @@ export class TrackAddEvent extends Listener {
       return;
     }
 
+    if (!track.isrc && !track.uri) {
+      logger.error(
+        `Cannot track (${track?.title}) by user: ${user?.tag} (${user?.id})`,
+      );
+      return;
+    }
+
     await container.analytics.track({
       users: [user.id],
       guild: venti.guildId,

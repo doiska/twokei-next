@@ -16,7 +16,7 @@ import { fetchT, type TFunction } from "@sapphire/plugin-i18next";
 import { isButton, isButtonLink } from "@/utils/validator";
 import { capitalizeFirst } from "@/utils/helpers";
 
-export async function createStaticButtons(guild: Guild, venti?: Venti) {
+export async function createStaticButtons(guild: Guild) {
   const t = await fetchT(guild);
 
   const staticPrimaryRow = new ActionRowBuilder<ButtonBuilder>({
@@ -52,7 +52,7 @@ export async function createStaticButtons(guild: Guild, venti?: Venti) {
       {
         style: ButtonStyle.Secondary,
         emoji: ":a:premium:1129096922943197300",
-        customId: venti ? EmbedButtons.IA_MODE : EmbedButtons.QUICK_PLAYLIST,
+        customId: EmbedButtons.QUICK_PLAYLIST,
       },
     ].map((button) =>
       parseButtonLabel(t, button),
@@ -84,9 +84,9 @@ export async function createDynamicButtons(venti: Venti) {
       disabled: !venti.queue.previous,
     },
     {
-      style: venti.playing ? ButtonStyle.Secondary : ButtonStyle.Primary,
+      style: !venti.paused ? ButtonStyle.Secondary : ButtonStyle.Primary,
       emoji: "⏸️",
-      customId: venti.playing ? PlayerButtons.PAUSE : PlayerButtons.RESUME,
+      customId: !venti.paused ? PlayerButtons.PAUSE : PlayerButtons.RESUME,
     },
     {
       style: ButtonStyle.Secondary,
@@ -100,9 +100,7 @@ export async function createDynamicButtons(venti: Venti) {
     {
       style: ButtonStyle.Primary,
       emoji: ":a:premium:1129096922943197300",
-      customId: venti?.playing
-        ? EmbedButtons.IA_MODE
-        : EmbedButtons.QUICK_PLAYLIST,
+      customId: EmbedButtons.QUICK_PLAYLIST,
     },
     {
       style:

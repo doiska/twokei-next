@@ -23,6 +23,7 @@ declare module "discord.js" {
 
 declare module "@sapphire/framework" {
   interface Preconditions {
+    ShoukakuReady: never;
     SameVoiceChannelCondition: never;
   }
 }

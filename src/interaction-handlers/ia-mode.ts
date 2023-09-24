@@ -23,7 +23,7 @@ import { Icons, RawIcons } from "@/constants/icons";
 import { defer, send } from "@/lib/message-handler";
 import { RateLimitManager } from "@sapphire/ratelimits";
 import { createPlayEmbed } from "@/constants/music/create-play-embed";
-import { LoadType } from "@/music/interfaces/player.types";
+import { XiaoLoadType } from "@/music/interfaces/player.types";
 import { logger } from "@/lib/logger";
 import { isUserPremium } from "@/lib/user-benefits/benefits";
 import { Embed } from "@/utils/messages";
@@ -110,14 +110,14 @@ export class IaModeInteraction extends InteractionHandler {
         recommendations.data.map(
           (rec) =>
             new ResolvableTrack({
-              track: "",
+              encoded: "",
               info: {
                 identifier: rec.id,
                 uri: rec.external_url,
                 author: rec.artists[0].name,
                 sourceName: "spotify",
                 title: rec.name,
-                length: rec.duration_ms,
+                duration: rec.duration_ms,
                 position: 0,
                 isStream: false,
                 isSeekable: true,
@@ -129,7 +129,7 @@ export class IaModeInteraction extends InteractionHandler {
       );
 
       const playerEmbed = await createPlayEmbed(interaction.member, {
-        type: LoadType.PLAYLIST_LOADED,
+        type: XiaoLoadType.PLAYLIST_LOADED,
         tracks: addedSongs,
         playlist: {
           name: "Recomendações",
@@ -165,22 +165,15 @@ export class IaModeInteraction extends InteractionHandler {
         embeds: Embed.error(
           await resolveKey(interaction, getReadableException(e)),
         ),
-        ephemeral: true,
-      });
+      }).dispose();
     }
   }
 
   public override parse(
     interaction: ButtonInteraction,
   ): Awaitable<Option<unknown>> {
-    if (
-      [EmbedButtons.IA_MODE, EmbedButtons.QUICK_PLAYLIST].includes(
-        interaction.customId,
-      )
-    ) {
-      return this.some();
-    }
-
-    return this.none();
+    return interaction.customId === EmbedButtons.QUICK_PLAYLIST
+      ? this.some()
+      : this.none();
   }
 }

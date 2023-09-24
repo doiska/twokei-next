@@ -1,7 +1,7 @@
 import { type User } from "discord.js";
 
 import {
-  LoadType,
+  XiaoLoadType,
   type XiaoSearchOptions,
   type XiaoSearchResult,
 } from "../../interfaces/player.types";
@@ -54,8 +54,6 @@ class SpotifyTrackResolver implements TrackResolver {
   ): Promise<XiaoSearchResult> {
     const spotifyUrl = SPOTIFY_URL.exec(query);
 
-    logger.debug(`[Spotify] ${query} - ${spotifyUrl?.[1]}`);
-
     if (spotifyUrl) {
       const [, type, id] = spotifyUrl;
 
@@ -71,7 +69,7 @@ class SpotifyTrackResolver implements TrackResolver {
 
     return {
       tracks: [],
-      type: LoadType.NO_MATCHES,
+      type: XiaoLoadType.NO_MATCHES,
     };
   }
 
@@ -89,7 +87,7 @@ class SpotifyTrackResolver implements TrackResolver {
     if (!resolved?.tracks || resolved.tracks?.items?.length === 0) {
       return {
         tracks: [],
-        type: LoadType.NO_MATCHES,
+        type: XiaoLoadType.NO_MATCHES,
       };
     }
 
@@ -97,7 +95,7 @@ class SpotifyTrackResolver implements TrackResolver {
       tracks: resolved.tracks.items.map((item) =>
         this.parseTrack(item, requester),
       ),
-      type: LoadType.SEARCH_RESULT,
+      type: XiaoLoadType.SEARCH_RESULT,
     };
   }
 
@@ -117,7 +115,7 @@ class SpotifyTrackResolver implements TrackResolver {
     if (!playlist || tracks.length === 0) {
       return {
         tracks: [],
-        type: LoadType.NO_MATCHES,
+        type: XiaoLoadType.NO_MATCHES,
       };
     }
 
@@ -154,7 +152,7 @@ class SpotifyTrackResolver implements TrackResolver {
           url: playlist.owner.href,
         },
       },
-      type: LoadType.PLAYLIST_LOADED,
+      type: XiaoLoadType.PLAYLIST_LOADED,
     };
   }
 
@@ -166,22 +164,17 @@ class SpotifyTrackResolver implements TrackResolver {
     if (!response) {
       return {
         tracks: [],
-        type: LoadType.NO_MATCHES,
+        type: XiaoLoadType.NO_MATCHES,
       };
     }
 
     return {
       tracks: [this.parseTrack(response, requester)],
-      type: LoadType.TRACK_LOADED,
+      type: XiaoLoadType.TRACK_LOADED,
     };
   }
 
   private parseTrack(spotifyTrack: SpotifyTrackResponse, requester?: User) {
-    logger.debug(
-      `[Spotify] ${spotifyTrack.name} - ${spotifyTrack.id}`,
-      spotifyTrack,
-    );
-
     const thumbnail =
       spotifyTrack.images?.[0].url ?? spotifyTrack.album?.images[0]?.url;
     logger.debug(
@@ -190,7 +183,7 @@ class SpotifyTrackResolver implements TrackResolver {
 
     return new ResolvableTrack(
       {
-        track: "",
+        encoded: "",
         info: {
           sourceName: "spotify",
           title: spotifyTrack.name,
@@ -198,7 +191,7 @@ class SpotifyTrackResolver implements TrackResolver {
           author: spotifyTrack.artists[0]
             ? spotifyTrack.artists[0].name
             : "Unknown",
-          length: spotifyTrack.duration_ms,
+          duration: spotifyTrack.duration_ms,
           isSeekable: true,
           isStream: false,
           position: 0,

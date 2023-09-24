@@ -19,7 +19,7 @@ export async function GET(context: Context, next: Next) {
         },
         queueSize: player.queue.totalSize,
         queueLength: player.queue.reduce(
-          (acc, curr) => acc + (curr.length ?? 0),
+          (acc, curr) => acc + (curr.duration ?? 0),
           0,
         ),
         voiceChannel: player.voiceId,
