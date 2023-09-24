@@ -2,7 +2,6 @@ import { Events, VoiceBasedChannel, type VoiceState } from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
 import { container, Listener } from "@sapphire/framework";
 import { getVoiceStateUpdateType } from "@/utils/voice-state";
-import { logger } from "@/lib/logger";
 
 @ApplyOptions<Listener.Options>({
   name: "voiceChannelUserUpdate",
@@ -45,16 +44,10 @@ export class VoiceChannelUserUpdate extends Listener {
     }
 
     if (!this.hasTwokei(voiceChannel)) {
-      logger.debug(
-        `[VC] Not destroying player for ${voiceChannel.guild.name} because Twokei is not in the channel`,
-      );
       return;
     }
 
     if (!this.isAlone(voiceChannel)) {
-      logger.debug(
-        `[VC] Not destroying player for ${voiceChannel.guild.name} because Twokei is not alone`,
-      );
       return;
     }
 

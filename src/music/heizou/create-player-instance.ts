@@ -1,10 +1,11 @@
-import { type Guild } from "discord.js";
+import { EmbedBuilder, type Guild } from "discord.js";
 import { container } from "@sapphire/framework";
 
 import { type VentiInitOptions } from "@/music/interfaces/player.types";
 
 import { fetchLanguage } from "@sapphire/plugin-i18next";
 import { logger } from "@/lib/logger";
+import { isTextChannel } from "@sapphire/discord.js-utilities";
 
 interface InitOptions {
   guild: Guild;
@@ -42,6 +43,40 @@ export async function createPlayerInstance({
         channel: channel?.id,
       },
     );
+
+    const songChannel = await container.sc.get(guild.id);
+
+    if (!songChannel) {
+      logger.error(
+        `No song channelfound for guild ${guild.name} while creating`,
+        {
+          guildId: guild.id,
+          message: message?.id,
+          channel: channel?.id,
+        },
+      );
+    }
+
+    if (songChannel?.channelId) {
+      const channel = await guild.channels.fetch(songChannel.channelId);
+
+      if (channel && isTextChannel(channel)) {
+        await channel.send({
+          embeds: [
+            new EmbedBuilder().setDescription(
+              [
+                "### Precisamos de sua ajuda!",
+                "**Tivemos um problema ao utilizar o canal de música.**",
+                "Recentemente o ``Discord`` atualizou as permissões necessárias para enviar mensagem.",
+                "**Por favor, convide novamente o Twokei: https://twokei.com/invite** para atualizar as permissões.",
+                " ",
+                "Sentimos pelo inconveniente.",
+              ].join("\n"),
+            ),
+          ],
+        });
+      }
+    }
   }
 
   return await container.xiao.createPlayer(playerOptions);
