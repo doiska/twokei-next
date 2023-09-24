@@ -39,7 +39,7 @@ export const createPlayEmbed = async (
       ? result.playlist.url
       : track.uri;
 
-  const viewOnSource = sourceUrl
+  const viewOnSource = sourceUrl?.startsWith("http")
     ? [
         new ButtonBuilder()
           .setStyle(ButtonStyle.Link)
@@ -72,7 +72,7 @@ function getTrackDescription(result: XiaoSearchResult, t: TFunction) {
   const track = result.tracks[0];
 
   return new EmbedBuilder()
-    .setThumbnail(track.thumbnail ?? "")
+    .setThumbnail(track.thumbnail?.startsWith("http") ? track.thumbnail : null)
     .setDescription(
       [
         `### ${t("player:play.added_to_queue")}`,
