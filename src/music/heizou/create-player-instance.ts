@@ -4,6 +4,7 @@ import { container } from "@sapphire/framework";
 import { type VentiInitOptions } from "@/music/interfaces/player.types";
 
 import { fetchLanguage } from "@sapphire/plugin-i18next";
+import { logger } from "@/lib/logger";
 
 interface InitOptions {
   guild: Guild;
@@ -32,6 +33,15 @@ export async function createPlayerInstance({
 
   if (message && channel) {
     playerOptions.embedMessage = message;
+  } else {
+    logger.warn(
+      `No message or channel found for guild ${guild.name} while creating`,
+      {
+        guildId: guild.id,
+        message: message?.id,
+        channel: channel?.id,
+      },
+    );
   }
 
   return await container.xiao.createPlayer(playerOptions);
