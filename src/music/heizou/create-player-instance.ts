@@ -6,6 +6,7 @@ import { type VentiInitOptions } from "@/music/interfaces/player.types";
 import { fetchLanguage } from "@sapphire/plugin-i18next";
 import { logger } from "@/lib/logger";
 import { isTextChannel } from "@sapphire/discord.js-utilities";
+import { Icons } from "@/constants/icons";
 
 interface InitOptions {
   guild: Guild;
@@ -65,12 +66,12 @@ export async function createPlayerInstance({
           embeds: [
             new EmbedBuilder().setDescription(
               [
-                "### Precisamos de sua ajuda!",
-                "**Tivemos um problema ao utilizar o canal de música.**",
-                "Recentemente o ``Discord`` atualizou as permissões necessárias para enviar mensagem.",
-                "**Por favor, convide novamente o Twokei: https://twokei.com/invite** para atualizar as permissões.",
+                "## Atualize as permissões do Twokei",
+                "### Tivemos um problema ao utilizar o canal de música.",
+                "**Por favor, convide novamente o Twokei: https://twokei.com/invite**",
+                "Somente assim poderá continuar utilizando os botões de música",
                 " ",
-                "Sentimos pelo inconveniente.",
+                `${Icons.Hanakin} Sentimos pelo inconveniente.`,
               ].join("\n"),
             ),
           ],
