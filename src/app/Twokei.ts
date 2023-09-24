@@ -72,8 +72,8 @@ export const Twokei = new TwokeiClient({
 });
 
 const main = async () => {
-  await Twokei.login(process.env.DISCORD_TOKEN);
   await Twokei.start();
+  await Twokei.login(process.env.DISCORD_TOKEN);
 
   Twokei?.user?.setPresence({
     activities: [
