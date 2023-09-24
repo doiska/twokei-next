@@ -387,13 +387,13 @@ export class Xiao extends EventEmitter {
   public async loadNodes() {
     await new Promise((resolve, reject) => {
       setTimeout(() => {
-        if (!this.shoukaku.id) {
+        if (!this.shoukaku) {
           reject(new Error("Shoukaku could not be loaded in time."));
         }
       }, 30000);
 
       const interval = setInterval(() => {
-        if (this.shoukaku.id) {
+        if (this.shoukaku) {
           this.logger.info("Shoukaku is ready! Loading nodes...");
           clearInterval(interval);
           resolve(true);
