@@ -16,7 +16,7 @@ import { eq } from "drizzle-orm";
 import { kil } from "@/db/Kil";
 import { settings } from "@/db/schemas/settings";
 
-import { createLogger } from "@/lib/logger";
+import { logger } from "@/lib/logger";
 import { manualUpdate } from "@/music/embed/events/manual-update";
 import { handlePlayerException } from "@/music/embed/events/player-exception";
 import { playerDestroyed, queueEmpty } from "@/music/embed/events/queue-empty";
@@ -187,7 +187,9 @@ export class Xiao extends EventEmitter {
   ) {
     super();
 
-    this.logger = createLogger("Xiao");
+    this.logger = logger.child({
+      defaultPrefix: "XIAO",
+    });
 
     this.shoukaku = new Shoukaku(connector, nodes, optionsShoukaku, dumps);
 

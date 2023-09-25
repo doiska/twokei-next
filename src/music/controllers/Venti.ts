@@ -8,7 +8,7 @@ import {
 } from "@twokei/shoukaku";
 
 import { type Locale } from "@/locales/i18n";
-import { createLogger, playerLogger } from "@/lib/logger";
+import { logger, playerLogger } from "@/lib/logger";
 import {
   Events,
   PlayerState,
@@ -92,7 +92,9 @@ export class Venti {
 
     this.queue = new TrackQueue();
 
-    this.logger = createLogger("Venti");
+    this.logger = logger.child({
+      defaultPrefix: "VENTI",
+    });
 
     this.logger.debug(`Created player for guild ${this.guildId}`);
 
