@@ -1,7 +1,7 @@
 import { logger } from "@/lib/logger";
 import { env } from "@/app/env";
 
-export async function isUserPremium(userId: string) {
+export async function getPremiumStatus(userId: string) {
   logger.info(`${env.WEBSITE_URL}/api/user/${userId}`);
 
   const response = await fetch(`${env.WEBSITE_URL}/api/user/${userId}`, {
@@ -9,7 +9,12 @@ export async function isUserPremium(userId: string) {
       Authorization: env.RESOLVER_KEY,
     },
   })
-    .then((response) => response.json() as Promise<{ subscribed: boolean }>)
+    .then(
+      (response) =>
+        response.json() as Promise<{
+          subscription: "expired" | "active" | "never-subscribed";
+        }>,
+    )
     .catch((e) => {
       logger.error(e);
       return null;
@@ -20,5 +25,9 @@ export async function isUserPremium(userId: string) {
     return;
   }
 
-  return response.subscribed;
+  return response.subscription;
+}
+
+export async function isUserPremium(userId: string) {
+  return (await getPremiumStatus(userId)) === "active";
 }

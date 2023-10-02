@@ -18,22 +18,39 @@ interface Profile {
   images?: Image[];
 }
 
-export interface ProfileWithPlaylists {
-  userId: string;
-  total: number;
+export interface Playlist {
+  id: string;
+  name: string;
+  description?: string | null;
   href: string;
-  items: Array<{
+  owner?: {
     id: string;
-    description: string;
     name: string;
-    owner: Profile;
-    uri: string;
-    tracks: {
-      total: number;
+    href: string;
+  };
+  images?: Image[];
+  tracks: {
+    total: number;
+    items: Array<{
+      name: string;
       href: string;
-    };
-    images: Image[];
-  }>;
+      external: {
+        isrc?: string;
+      };
+      album?: {
+        id: string;
+        name: string;
+        href: string;
+        images?: Image[];
+      };
+      artists: {
+        id: string;
+        name: string;
+        href: string;
+      }[];
+      duration: number;
+    }>;
+  };
   source: string;
 }
 
@@ -49,5 +66,5 @@ export interface TrackResolver {
 
 export interface ProfileResolver {
   // getProfile: (profileId: string) => Promise<Profile>
-  getPlaylists: (profileId: string) => Promise<ProfileWithPlaylists>;
+  playlist: (playlistId: string) => Promise<Playlist>;
 }

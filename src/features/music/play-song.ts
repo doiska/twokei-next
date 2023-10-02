@@ -1,5 +1,10 @@
-import type { ModalSubmitInteraction, RepliableInteraction } from "discord.js";
-import { channelMention, Message } from "discord.js";
+import type {
+  APIInteractionGuildMember,
+  GuildMember,
+  ModalSubmitInteraction,
+  RepliableInteraction,
+} from "discord.js";
+import { Message } from "discord.js";
 import { isGuildMember, isTextChannel } from "@sapphire/discord.js-utilities";
 import { container } from "@sapphire/framework";
 
@@ -11,17 +16,24 @@ import { getReadableException } from "@/structures/exceptions/utils/get-readable
 import { Embed } from "@/utils/messages";
 
 import { resolveKey } from "@sapphire/plugin-i18next";
-import { followUp, send } from "@/lib/message-handler";
+import { defer, followUp, send } from "@/lib/message-handler";
+import { noop } from "@sapphire/utilities";
 
 export async function playSong(
   interaction: Exclude<RepliableInteraction, ModalSubmitInteraction> | Message,
   query: string,
+  options?: {
+    member?: GuildMember | null | APIInteractionGuildMember;
+  },
 ) {
   const { guild } = interaction;
+  const member = options?.member ?? interaction.member;
 
-  if (!guild || !interaction.member || !isGuildMember(interaction.member)) {
+  if (!guild || !member || !isGuildMember(member)) {
     return;
   }
+
+  await defer(interaction);
 
   const { channelId } = (await container.sc.get(guild)) ?? {};
 
@@ -30,20 +42,17 @@ export async function playSong(
       embeds: Embed.error(
         await resolveKey(interaction, ErrorCodes.MISSING_SONG_CHANNEL),
       ),
-      ephemeral: true,
     });
     return;
   }
 
   const songChannel = await guild.channels.fetch(channelId).catch(() => null);
-  const isSongChannel = interaction.channel?.id === channelId;
 
   if (!songChannel || !isTextChannel(songChannel)) {
     await send(interaction, {
       embeds: Embed.error(
         await resolveKey(interaction, ErrorCodes.MISSING_SONG_CHANNEL),
       ),
-      ephemeral: true,
     });
     return;
   }
@@ -61,31 +70,21 @@ export async function playSong(
   }
 
   try {
-    const result = await addNewSong(query, interaction.member);
+    const result = await addNewSong(query, member);
 
-    const mentionedChannel = songChannel.id
-      ? channelMention(songChannel.id)
-      : "#twokei-music";
-
-    if (!isSongChannel) {
-      await send(interaction, {
-        embeds: Embed.success(
-          `Acompanhe e controle a música no canal ${mentionedChannel}`,
-        ),
-        ephemeral: true,
-      });
-    }
-
-    await send(
-      interaction,
-      await createPlayEmbed(interaction.member, result),
-    ).dispose(60000);
+    songChannel
+      .send(await createPlayEmbed(member, result))
+      .then((message) => {
+        setTimeout(() => {
+          message.delete().catch(noop);
+        }, 60000);
+      })
+      .catch(noop);
   } catch (error) {
     await send(interaction, {
       embeds: Embed.error(
         await resolveKey(interaction, getReadableException(error)),
       ),
-      ephemeral: true,
     }).dispose();
   }
 }

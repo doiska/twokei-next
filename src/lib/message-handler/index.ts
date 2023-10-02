@@ -39,7 +39,7 @@ class MessageHandlerPromise extends CustomHandler<Message> {
   async execute(): Promise<Message> {
     const result = await (this.type === "followUp"
       ? handleFollowUp(this.interaction, this.options)
-      : handle(this.interaction, this.options));
+      : handleReply(this.interaction, this.options));
 
     this.result = result;
     return result;
@@ -67,10 +67,12 @@ export async function defer(
   options?: { ephemeral: boolean | false },
 ) {
   if (isAnyInteractableInteraction(interaction)) {
-    return interaction.deferReply({
-      ephemeral: options?.ephemeral ?? false,
-      fetchReply: true,
-    });
+    return interaction
+      .deferReply({
+        ephemeral: options?.ephemeral ?? false,
+        fetchReply: true,
+      })
+      .catch(noop);
   }
 
   return interaction;
@@ -103,7 +105,7 @@ async function handleFollowUp<T extends MessageHandlerOptions>(
   );
 }
 
-async function handle<T extends MessageHandlerOptions>(
+async function handleReply<T extends MessageHandlerOptions>(
   interaction: Repliable,
   options: string | T,
 ): Promise<Message> {

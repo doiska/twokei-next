@@ -18,6 +18,7 @@ import { DEFAULT_LOCALE, isValidLocale } from "@/locales/i18n";
 import { TwokeiClient } from "@/structures/TwokeiClient";
 import type { InternationalizationContext } from "@sapphire/plugin-i18next";
 import pt_br from "@/locales/pt_br";
+import { env } from "@/app/env";
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
   RegisterBehavior.BulkOverwrite,
@@ -73,12 +74,12 @@ export const Twokei = new TwokeiClient({
 
 const main = async () => {
   await Twokei.start();
-  await Twokei.login(process.env.DISCORD_TOKEN);
+  await Twokei.login(env.DISCORD_TOKEN);
 
   Twokei?.user?.setPresence({
     activities: [
       {
-        name: "Music Bot: Twokei.com",
+        name: "Music Bot (IA): Twokei.com",
         type: ActivityType.Custom,
         url: "https://twokei.com",
       },

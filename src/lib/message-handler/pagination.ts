@@ -14,7 +14,9 @@ import {
   ButtonBuilder,
   ChannelSelectMenuBuilder,
   Collection,
+  DiscordAPIError,
   MentionableSelectMenuBuilder,
+  RESTJSONErrorCodes,
   RoleSelectMenuBuilder,
   SelectMenuInteraction,
   StringSelectMenuBuilder,
@@ -51,22 +53,33 @@ export type CallableAction = (context: Pagination) => RawAction;
 
 export type Action = RawAction | CallableAction;
 
-export class Pagination {
+export type ReadyPage = EmbedBuilder;
+export type ReadyPageCreator = (context: Pagination) => Awaitable<ReadyPage>;
+
+export type Page = ReadyPage | ReadyPageCreator;
+
+export class Pagination<T = any> {
   private response!: Message | InteractionResponse;
 
   public page = 0;
+  public maxPages = 0;
 
   private static readonly handlers: Collection<string, Pagination> =
     new Collection<string, Pagination>();
+
   private collector?: InteractionCollector<any>;
 
   private readonly actions = new Map<string, Action>();
 
+  public state: T = {} as T;
+
   constructor(
-    private readonly interaction: AnyInteractableInteraction,
-    public readonly pages: EmbedBuilder[],
+    public readonly interaction: AnyInteractableInteraction,
+    public readonly pages: Page[],
     actionsArr?: Action[],
   ) {
+    this.maxPages = pages.length;
+
     actionsArr?.forEach((raw) => {
       const action = isFunction(raw) ? raw(this) : raw;
 
@@ -79,13 +92,17 @@ export class Pagination {
   }
 
   public async run(ephemeral = true) {
-    if (this.interaction.replied) {
+    try {
       this.response = await this.interaction.fetchReply();
-    } else {
-      this.response = await this.interaction.deferReply({
-        ephemeral: ephemeral ?? true,
-        fetchReply: true,
-      });
+    } catch (error) {
+      if (error instanceof DiscordAPIError) {
+        if (error.code === RESTJSONErrorCodes.UnknownWebhook) {
+          this.response = await this.interaction.reply({
+            content: "Unknown Webhook",
+            ephemeral: ephemeral,
+          });
+        }
+      }
     }
 
     this.createCollector();
@@ -94,7 +111,7 @@ export class Pagination {
 
   private createCollector() {
     if (this.exists()) {
-      this.stopCollector();
+      this.stop();
     }
 
     this.collector = this.response
@@ -138,24 +155,52 @@ export class Pagination {
     return Pagination.handlers.has(this.interaction.user.id);
   }
 
-  private stopCollector() {
-    Pagination.handlers.get(this.interaction.user.id)?.collector?.stop();
+  public stop() {
+    this?.interaction.deleteReply().catch(noop);
+    this?.collector?.stop();
+
     Pagination.handlers.delete(this.interaction.user.id);
+  }
+
+  public async previous() {
+    if (this.page === 0) {
+      await this.setPage(this.maxPages - 1);
+    } else {
+      await this.setPage(this.page - 1);
+    }
   }
 
   public async setPage(index: number) {
     this.page = index;
-    await this.interaction.editReply(await this.resolvePage());
+    await this.interaction.editReply(await this.resolve());
   }
 
-  private async resolvePage(): Promise<InteractionEditReplyOptions> {
-    const resolved = await this.handleActionLoad(
+  public async next() {
+    if (this.page >= this.maxPages - 1) {
+      await this.setPage(0);
+    } else {
+      await this.setPage(this.page + 1);
+    }
+  }
+
+  private async resolve(): Promise<InteractionEditReplyOptions> {
+    const resolvedPage = await (async () => {
+      if (isFunction(this.pages)) {
+        const page = await this.pages(this);
+        return isFunction(page) ? await page(this) : page;
+      }
+
+      const page = this.pages[this.page];
+      return isFunction(page) ? await page(this) : page;
+    })();
+
+    const components = await this.handleActionLoad(
       Array.from(this.actions.values()),
     );
 
     return {
-      components: createPartitionedMessageRow(resolved),
-      embeds: [this.pages[this.page]],
+      components: createPartitionedMessageRow(components),
+      embeds: [resolvedPage],
     };
   }
 

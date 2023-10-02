@@ -102,16 +102,27 @@ export class TwokeiClient extends SapphireClient {
 
     container.xiao = this.xiao;
 
-    for (const session of sessions.expired) {
-      logger.debug(`Cleaning up session ${session.guildId}.`);
-      const guild = await container.client.guilds.fetch(session.guildId);
+    this.once("ready", async () => {
+      for (const session of sessions.expired) {
+        logger.debug(`Cleaning up session ${session.guildId}.`);
+        const guild = await container.client.guilds.fetch(session.guildId);
 
-      if (!guild) {
-        continue;
+        if (!guild) {
+          continue;
+        }
+
+        container.sc
+          .reset(guild)
+          .then(() => {
+            logger.debug(`Cleaned session ${session.guildId}.`);
+          })
+          .catch((error) => {
+            logger.error(
+              `Error while cleaning session ${session.guildId}.`,
+              error,
+            );
+          });
       }
-
-      logger.debug(`Cleaned session ${session.guildId}.`);
-      await container.sc.reset(guild);
-    }
+    });
   }
 }

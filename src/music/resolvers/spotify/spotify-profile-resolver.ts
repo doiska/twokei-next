@@ -1,35 +1,49 @@
-import type {
-  ProfileResolver,
-  ProfileWithPlaylists,
-} from "@/music/resolvers/resolver";
+import type { Playlist, ProfileResolver } from "@/music/resolvers/resolver";
 import { spotifyRequestManager } from "@/music/resolvers/spotify/spotify-request-manager";
-import type { SpotifyProfileResponse } from "@/music/resolvers/spotify/types/spotify-response.types";
+import { SpotifyPlaylistResponse } from "@/music/resolvers/spotify/types/spotify-response.types";
 
 export class SpotifyProfileResolver implements ProfileResolver {
-  async getPlaylists(profileId: string): Promise<ProfileWithPlaylists> {
+  async playlist(playlistId: string): Promise<Playlist> {
     const response =
-      await spotifyRequestManager.request<SpotifyProfileResponse>(
-        `/users/${profileId}/playlists`,
+      await spotifyRequestManager.request<SpotifyPlaylistResponse>(
+        `/playlists/${playlistId}`,
       );
 
     return {
-      userId: profileId,
-      total: response.total,
-      href: `https://open.spotify.com/user/${profileId}`,
-      items: response.items.map((item) => ({
-        id: item.id,
-        description: item.description,
-        name: item.name,
-        images: item.images,
-        uri: item.external_urls.spotify,
-        owner: {
-          id: item.owner.id,
-          name: item.owner.display_name,
-          href: `https://open.spotify.com/user/${item.owner.id}`,
-          followers: item.owner.followers?.total ?? 0,
-        },
-        tracks: item.tracks,
-      })),
+      id: response.id,
+      name: response.name,
+      description: response.description,
+      href: response.external_urls.spotify,
+      owner: {
+        id: response.owner.id,
+        name: response.owner.display_name,
+        href: response.owner.external_urls.spotify,
+      },
+      images: response.images,
+      tracks: {
+        total: response.tracks.total,
+        items: response.tracks.items.map((item) => ({
+          name: item.track.name,
+          href: item.track.external_urls.spotify,
+          external: {
+            isrc: item.track.external_ids.isrc,
+          },
+          ...(item.track.album && {
+            album: {
+              id: item.track.album?.id,
+              name: item.track.album?.name,
+              href: item.track.album?.external_urls.spotify,
+              images: item.track.album?.images,
+            },
+          }),
+          artists: item.track.artists.map((artist) => ({
+            id: artist.id,
+            name: artist.name,
+            href: artist.external_urls.spotify,
+          })),
+          duration: item.track.duration_ms,
+        })),
+      },
       source: "spotify",
     };
   }

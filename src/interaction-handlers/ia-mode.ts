@@ -145,7 +145,7 @@ export class IaModeInteraction extends InteractionHandler {
       const nonPremiumDescription = [
         "### Se torne **Premium** para adicionar quantas músicas quiser!",
         `${Icons.Hanakin} Você adicionou somente 5 músicas com o Modo IA!`,
-        "Visite https://twokei.com para mais informações.",
+        "Visite https://twokei.com e faça parte de nossa vibe!",
       ];
 
       const premiumEmbed = new EmbedBuilder()

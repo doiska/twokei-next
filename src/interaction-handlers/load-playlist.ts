@@ -1,28 +1,31 @@
-import type { ButtonInteraction } from "discord.js";
-import { ButtonStyle, Colors, ComponentType, EmbedBuilder } from "discord.js";
+import { ButtonBuilder, ButtonInteraction } from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
-import { EmbedLimits } from "@sapphire/discord.js-utilities";
+import { isGuildMember } from "@sapphire/discord.js-utilities";
 import {
   InteractionHandler,
   InteractionHandlerTypes,
   type None,
   type Option,
 } from "@sapphire/framework";
-import { noop } from "@sapphire/utilities";
-
-import { and, eq } from "drizzle-orm";
-import { kil } from "@/db/Kil";
-import { songProfileSources } from "@/db/schemas/song-profile-sources";
-
-import { Icons } from "@/constants/icons";
 import { EmbedButtons } from "@/constants/music/player-buttons";
-import { playSong } from "@/features/music/play-song";
-import { Action, Pagination } from "@/lib/message-handler/pagination";
-import type { ProfileWithPlaylists } from "@/music/resolvers/resolver";
-import { spotifyProfileResolver } from "@/music/resolvers/spotify/spotify-profile-resolver";
-import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
-import { send } from "@/lib/message-handler";
+import { defer, followUp, send } from "@/lib/message-handler";
 import { Embed } from "@/utils/messages";
+import { fetchWebApi } from "@/lib/api-web";
+import { Action, Pagination } from "@/lib/message-handler/pagination";
+import {
+  ActionRowBuilder,
+  ButtonStyle,
+  ComponentType,
+  EmbedBuilder,
+} from "discord.js";
+import { spotifyProfileResolver } from "@/music/resolvers/spotify/spotify-profile-resolver";
+import { inlineCode } from "@discordjs/formatters";
+import { addMilliseconds, format } from "date-fns";
+import { Playlist } from "@/music/resolvers/resolver";
+import { noop } from "@sapphire/utilities";
+import { playSong } from "@/features/music/play-song";
+import { Icons, RawIcons } from "@/constants/icons";
+import { getPremiumStatus, isUserPremium } from "@/lib/user-benefits/benefits";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "load-playlist",
@@ -30,75 +33,256 @@ import { Embed } from "@/utils/messages";
 })
 export class LoadPlaylist extends InteractionHandler {
   public async run(interaction: ButtonInteraction) {
-    const sources = await this.fetchSources(interaction.user.id);
+    const member = interaction.member;
 
-    if (!sources.length) {
-      return this.sendError(interaction, "profile:profile_not_setup");
+    if (!isGuildMember(member)) {
+      return;
     }
-
-    const profiles = await this.fetchProfiles(sources);
-
-    if (!profiles.length) {
-      return this.sendError(interaction, "commands:load-playlist.not_found");
-    }
-
-    const hasAnyTrack = profiles.some((profile) =>
-      profile.items.some((s) => s.tracks.total),
-    );
-
-    if (!hasAnyTrack) {
-      return this.sendError(
-        interaction,
-        "Você não possui playlists com músicas.",
-      );
-    }
-
-    return await this.handlePagination(interaction, profiles);
-  }
-
-  private async fetchSources(userId: string) {
-    return kil
-      .select()
-      .from(songProfileSources)
-      .where(and(eq(songProfileSources.userId, userId)));
-  }
-
-  private async fetchProfiles(sources: any[]) {
-    const promises = sources.map((source) => {
-      if (source.source.toLowerCase() === "spotify") {
-        return spotifyProfileResolver.getPlaylists(source.sourceUrl);
-      }
-      return null;
-    });
-
-    return (await Promise.all(promises)).filter(Boolean).flat();
-  }
-
-  private async sendError(interaction: ButtonInteraction, message: string) {
-    await send(interaction, {
-      embeds: Embed.error(message),
+    await defer(interaction, {
       ephemeral: true,
     });
+
+    const result = await fetchWebApi<Record<string, string[]>>(
+      `/api/user/${member.id}/playlists`,
+    );
+
+    if (result.status !== "success") {
+      await send(interaction, {
+        embeds: Embed.error(
+          "Sinto muito, algo deu errado ao carregar suas playlists, tente novamente mais tarde.",
+        ),
+      });
+      return;
+    }
+
+    const flatten = Object.entries(result.data).flatMap(([key, value]) =>
+      value.map((id) => ({ source: key, id })),
+    );
+
+    if (flatten.length === 0) {
+      await send(interaction, {
+        embeds: Embed.error([
+          "Ops... Parece que você não tem nenhuma playlist salva/sincronizada.",
+        ]),
+        components: [
+          new ActionRowBuilder<ButtonBuilder>({
+            components: [
+              new ButtonBuilder({
+                url: "https://twokei.com/profile/sync",
+                style: ButtonStyle.Link,
+                label: "Gerenciar playlists",
+                emoji: RawIcons.Premium,
+              }),
+            ],
+          }),
+        ],
+      });
+      return;
+    }
+
+    const buttons = this.createButtons();
+
+    const pages = await Promise.all(
+      flatten.map((playlist) => this.preparePage(playlist)),
+    );
+
+    const pagination = new Pagination<{
+      playlist: Playlist;
+    }>(interaction, pages, buttons);
+
+    await pagination.run();
+
+    setTimeout(
+      () => {
+        pagination.stop();
+      },
+      1000 * 60 * 2,
+    );
   }
 
-  private async handlePagination(
-    interaction: ButtonInteraction,
-    profiles: any[],
-  ) {
-    const pages = profiles.flatMap((profile) =>
-      profile.items.map(this.createPageEmbed),
-    );
-    const playlists = profiles.flatMap((profile) => profile.items);
-    const pagination = new Pagination(interaction, pages, [
-      this.getMenu(playlists),
-      ...this.getButtons(playlists),
-    ]);
+  private async preparePage(playlist: {
+    source: string;
+    id: string;
+  }): Promise<(context: Pagination) => Promise<EmbedBuilder>> {
+    return async (context: Pagination) => {
+      const details = await spotifyProfileResolver.playlist(playlist.id);
 
-    try {
-      await pagination.run();
-    } catch (error) {
-      await this.sendError(interaction, getReadableException(error));
-    }
+      const { source, id } = playlist;
+
+      if (!source || !id) {
+        return new EmbedBuilder()
+          .setTitle("No playlists found")
+          .setDescription("You have no playlists saved");
+      }
+
+      context.state.playlist = details;
+
+      const embed = new EmbedBuilder();
+
+      const maxShown = 8;
+      const more = details.tracks.total - maxShown;
+
+      const tracks = details.tracks.items.slice(0, maxShown).map((track) => {
+        const artists = track.artists.map((artist) => artist.name).join(", ");
+        const duration = this.formatMilis(track.duration);
+
+        return `(${duration}) **[${track.name} - ${artists}](${track.href})**`;
+      });
+
+      const description = [
+        `### ${inlineCode(details.name)}`,
+        " ",
+        ...tracks,
+        `+ ${more} tracks`,
+      ].join("\n");
+
+      embed.setDescription(description);
+
+      if (details.images?.length) {
+        embed.setThumbnail(details.images[0].url);
+      }
+
+      if (details.owner?.name) {
+        embed.setFooter({
+          text: `${details.owner.name}'s playlist | https://twokei.com`,
+        });
+      }
+
+      return embed;
+    };
+  }
+
+  private createButtons(): Action[] {
+    return [
+      {
+        customId: "previous",
+        type: ComponentType.Button,
+        style: ButtonStyle.Secondary,
+        emoji: "⏮️",
+        run: async ({ collectedInteraction, handler }) => {
+          await collectedInteraction.deferUpdate().catch(noop);
+          await handler.previous();
+        },
+      },
+      {
+        customId: "play",
+        type: ComponentType.Button,
+        style: ButtonStyle.Primary,
+        emoji: "▶️",
+        run: async ({ collectedInteraction: selectInteraction, handler }) => {
+          if (!selectInteraction.isButton()) {
+            return;
+          }
+
+          const playlist = handler.state.playlist as Playlist;
+
+          await defer(selectInteraction, {
+            ephemeral: true,
+          });
+
+          if (!playlist) {
+            await followUp(selectInteraction, {
+              embeds: Embed.error(
+                "Sinto muito, algo deu errado ao carregar suas playlists, tente novamente mais tarde.",
+              ),
+            });
+            return;
+          }
+
+          const premiumStatus = await getPremiumStatus(
+            selectInteraction.user.id,
+          );
+
+          if (premiumStatus === "expired") {
+            await send(selectInteraction, {
+              ephemeral: true,
+              embeds: Embed.error([
+                `### Parece que você não é mais um usuário ${Icons.Premium} **Premium**.`,
+                "Renove e continue ouvindo suas músicas favoritas!",
+                `Se não puder, tudo bem ${Icons.Hanakin}! Continue ouvindo suas músicas no **Twokei**!`,
+                "Faça parte do Ranking e recupere seu título de **Premium**",
+              ]),
+              components: [
+                new ActionRowBuilder<ButtonBuilder>({
+                  components: [
+                    new ButtonBuilder({
+                      url: "https://twokei.com/profile/premium",
+                      style: ButtonStyle.Link,
+                      label: "Premium",
+                      emoji: RawIcons.Premium,
+                    }),
+                  ],
+                }),
+              ],
+            });
+            return;
+          } else if (premiumStatus === "never-subscribed") {
+            await followUp(selectInteraction, {
+              ephemeral: true,
+              embeds: Embed.error([
+                `### ${Icons.Hanakin} Oops... Esse é um recurso ${Icons.Premium} **Premium**.`,
+                "Sabia que você pode ouvir suas playlists diretamente no Twokei?",
+                `Tenha acesso a este e mais diversos benefícios, como nossa **IA Personalizada**`,
+                `Se torne um usuário ${Icons.Premium} **Premium**!`,
+              ]),
+              components: [
+                new ActionRowBuilder<ButtonBuilder>({
+                  components: [
+                    new ButtonBuilder({
+                      url: "https://twokei.com/profile/premium",
+                      style: ButtonStyle.Link,
+                      label: "Premium",
+                      emoji: RawIcons.Premium,
+                    }),
+                  ],
+                }),
+              ],
+            });
+            return;
+          }
+
+          await selectInteraction.deleteReply();
+
+          await playSong(selectInteraction, playlist.href, {
+            member: selectInteraction.member,
+          }).catch(noop);
+
+          selectInteraction.channel
+            ?.send({
+              embeds: Embed.info([
+                `${selectInteraction.member!.toString()} utilizou uma função ${
+                  Icons.Premium
+                } **Premium**.`,
+                `Obrigado por fazer parte de nossa vibe!`,
+              ]),
+            })
+            .then((message) => {
+              setTimeout(() => {
+                message.delete().catch(noop);
+              }, 1000 * 10);
+            });
+
+          handler.stop();
+        },
+      },
+      {
+        customId: "next",
+        type: ComponentType.Button,
+        style: ButtonStyle.Secondary,
+        emoji: "⏭️",
+        run: async ({ collectedInteraction, handler }) => {
+          await collectedInteraction.deferUpdate().catch(noop);
+          await handler.next();
+        },
+      },
+      {
+        url: "https://twokei.com/profile/sync",
+        style: ButtonStyle.Link,
+        type: ComponentType.Button,
+        label: "Gerenciar playlists",
+        emoji: RawIcons.Premium,
+      },
+    ];
   }
 
   public parse(buttonInteraction: ButtonInteraction): Option<None> {
@@ -109,129 +293,11 @@ export class LoadPlaylist extends InteractionHandler {
     return this.none();
   }
 
-  private getMenu(playlists: ProfileWithPlaylists["items"]): (
-    context: Pagination,
-  ) => {
-    options: {
-      default: boolean;
-      description: string;
-      label: string;
-      value: string;
-    }[];
-    run: ({
-      collectedInteraction,
-      handler,
-    }: {
-      collectedInteraction: any;
-      handler: any;
-    }) => Promise<void>;
-    placeholder: string;
-    type: any;
-    customId: string;
-  } {
-    return (context: Pagination) => {
-      return {
-        customId: "play-select-menu",
-        type: ComponentType.StringSelect,
-        placeholder: "Select a playlist",
-        options: playlists.map((item, index) => ({
-          label: item.name ?? "No name",
-          value: `${index}`,
-          description: item.description.substring(0, 100) ?? "",
-          default: index === context.page,
-        })),
-        run: async ({ collectedInteraction, handler }) =>
-          collectedInteraction.isStringSelectMenu() &&
-          handler.setPage(parseInt(collectedInteraction.values[0], 10)),
-      };
-    };
-  }
+  private formatMilis(millis: number) {
+    const referenceDate = new Date(0);
 
-  private getButtons(response: ProfileWithPlaylists["items"]): Action[] {
-    return [
-      {
-        label: "Anterior",
-        customId: "previous",
-        type: ComponentType.Button,
-        style: ButtonStyle.Secondary,
-        run: async ({ collectedInteraction, handler }) => {
-          await collectedInteraction.deferUpdate().catch(noop);
+    const newDate = addMilliseconds(referenceDate, millis);
 
-          if (handler.page === 0) {
-            await handler.setPage(handler.pages.length - 1);
-          } else {
-            await handler.setPage(handler.page - 1);
-          }
-        },
-      },
-      {
-        label: "Ouvir",
-        customId: "play",
-        type: ComponentType.Button,
-        style: ButtonStyle.Primary,
-        run: async ({
-          collector,
-          collectedInteraction: selectInteraction,
-          handler,
-        }) => {
-          if (!selectInteraction.isButton()) {
-            return;
-          }
-
-          const index = handler.page;
-
-          const playlist = response?.[index];
-
-          if (!playlist) {
-            await selectInteraction.followUp("Playlist not found");
-            return;
-          }
-
-          await playSong(selectInteraction, playlist.uri).catch(noop);
-
-          collector.stop();
-        },
-      },
-      {
-        label: "Próxima",
-        customId: "next",
-        type: ComponentType.Button,
-        style: ButtonStyle.Secondary,
-        run: async ({ collectedInteraction, handler }) => {
-          await collectedInteraction.deferUpdate().catch(noop);
-
-          if (handler.page >= handler.pages.length - 1) {
-            await handler.setPage(0);
-          } else {
-            await handler.setPage(handler.page + 1);
-          }
-        },
-      },
-      (context) => {
-        const current = response?.[context.page];
-        return {
-          label: "Ver no Spotify",
-          url: current?.uri ?? "",
-          type: ComponentType.Button,
-          style: ButtonStyle.Link,
-          emoji: Icons.SpotifyLogo,
-        };
-      },
-    ];
-  }
-
-  private createPageEmbed(playlist: ProfileWithPlaylists["items"][number]) {
-    return new EmbedBuilder()
-      .setTitle(`${playlist.name}`.substring(0, EmbedLimits.MaximumTitleLength))
-      .setAuthor({
-        name: playlist.owner.name ?? "No display",
-        url: playlist.owner.href,
-      })
-      .setColor(Colors.Aqua)
-      .setFooter({
-        text: `Spotify Playlist - ${playlist.tracks.total} músicas | https://twokei.com`,
-      })
-      .setThumbnail(playlist?.owner.images?.[0].url ?? null)
-      .setImage(playlist?.images[0]?.url ?? null);
+    return format(newDate, "mm:ss");
   }
 }
