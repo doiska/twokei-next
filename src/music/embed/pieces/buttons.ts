@@ -51,7 +51,7 @@ export async function createStaticButtons(guild: Guild) {
       },
       {
         style: ButtonStyle.Secondary,
-        emoji: ":a:premium:1129096922943197300",
+        emoji: RawIcons.NitroBlack,
         customId: EmbedButtons.QUICK_PLAYLIST,
       },
     ].map((button) =>
