@@ -36,7 +36,6 @@ export class SongChannelManager {
       })
       .returning();
 
-    this.cache.set(guildId, result);
     return result;
   }
 
@@ -47,16 +46,11 @@ export class SongChannelManager {
       return;
     }
 
-    if (this.cache.has(guildId)) {
-      return this.cache.get(guildId);
-    }
-
     const [result] = await kil
       .select()
       .from(songChannels)
       .where(eq(songChannels.guildId, guildId));
 
-    this.cache.set(guildId, result);
     return result;
   }
 
