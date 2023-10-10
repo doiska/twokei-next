@@ -31,14 +31,16 @@ export class VoiceChannelBotLeave extends Listener {
 
     const player = container.xiao.getPlayer(guild.id);
 
-    const isDisconnected = [
+    const disconnectedPlayerStates = [
       PlayerState.DISCONNECTING,
       PlayerState.DISCONNECTED,
       PlayerState.DESTROYING,
       PlayerState.DESTROYED,
     ];
 
-    if (isDisconnected.includes(player?.state ?? PlayerState.DESTROYED)) {
+    if (
+      disconnectedPlayerStates.includes(player?.state ?? PlayerState.DESTROYED)
+    ) {
       return;
     }
 

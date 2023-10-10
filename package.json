@@ -7,7 +7,7 @@
     "node": "18"
   },
   "scripts": {
-    "start": "node --watch dist/init.js",
+    "start": "node dist/init.js",
     "build": "swc src -d dist",
     "watch": "nodemon --watch src --ext ts --exec \"swc src -d dist && node --preserve-symlinks ./dist/init.js\"",
     "lint": "eslint --fix src --ext .ts",
