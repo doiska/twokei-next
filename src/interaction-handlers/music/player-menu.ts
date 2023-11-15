@@ -64,7 +64,7 @@ export class PlayerMenu extends InteractionHandler {
 
     try {
       if (option === "pause") {
-        player.pause(true);
+        player.pause();
       } else if (option === "previous" && player.queue.previous) {
         await player.play(player.queue.previous, { replace: true });
       } else if (typeof option === "number") {

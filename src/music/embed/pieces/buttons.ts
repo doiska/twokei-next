@@ -42,27 +42,7 @@ export async function createStaticButtons(guild: Guild) {
     ) as InteractionButtonComponentData[],
   });
 
-  const staticSecondaryRow = new ActionRowBuilder<ButtonBuilder>({
-    components: [
-      {
-        style: ButtonStyle.Secondary,
-        customId: EmbedButtons.PLAYLIST_SYNC,
-        emoji: RawIcons.SpotifyLogo,
-      },
-      {
-        style: ButtonStyle.Secondary,
-        emoji: ":a:premium:1129096922943197300",
-        customId: EmbedButtons.QUICK_PLAYLIST,
-      },
-    ].map((button) =>
-      parseButtonLabel(t, button),
-    ) as InteractionButtonComponentData[],
-  });
-
-  return {
-    primary: staticPrimaryRow,
-    secondary: staticSecondaryRow,
-  };
+  return [staticPrimaryRow];
 }
 
 export async function createDynamicButtons(venti: Venti) {
@@ -97,11 +77,6 @@ export async function createDynamicButtons(venti: Venti) {
   ].map((button) => parseButtonLabel(t, button));
 
   const secondary = [
-    {
-      style: ButtonStyle.Primary,
-      emoji: ":a:premium:1129096922943197300",
-      customId: EmbedButtons.QUICK_PLAYLIST,
-    },
     {
       style:
         venti.loop === "none" ? ButtonStyle.Secondary : ButtonStyle.Primary,

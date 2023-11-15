@@ -9,26 +9,23 @@ import { createDefaultSongEmbed } from "@/music/embed/pieces/embed";
 import { createSelectMenu } from "@/music/embed/pieces/menu";
 
 export async function createDefaultEmbed(guild: Guild) {
-  const { primary, secondary } = await createStaticButtons(guild);
-
   return {
     embeds: [await createDefaultSongEmbed(guild)],
-    components: [primary, secondary],
+    components: [await createStaticButtons(guild)].flat(),
   };
 }
 
 export async function createSongEmbed(venti: Venti) {
-  const [newEmbed, { primary: staticPrimary }, { primary, secondary }] =
-    await Promise.all([
-      createDefaultSongEmbed(venti.guild),
-      createStaticButtons(venti.guild, venti),
-      createDynamicButtons(venti),
-    ]);
+  const [newEmbed, staticRow, { primary, secondary }] = await Promise.all([
+    createDefaultSongEmbed(venti.guild),
+    createStaticButtons(venti.guild),
+    createDynamicButtons(venti),
+  ]);
 
   const menu = createSelectMenu(venti.queue);
 
   return {
     embeds: [newEmbed],
-    components: [staticPrimary, secondary, primary, menu],
+    components: [...staticRow, secondary, primary, menu],
   };
 }
