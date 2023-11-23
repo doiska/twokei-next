@@ -1,6 +1,6 @@
 import { type APIEmbed, Colors, formatEmoji, type Guild } from "discord.js";
 
-import { fetchT } from "@sapphire/plugin-i18next";
+import { resolveKey } from "@sapphire/plugin-i18next";
 
 const arts = [
   {
@@ -19,9 +19,7 @@ export const createDefaultSongEmbed = async (
   const lightEmoji = formatEmoji("1069597636950249523");
   const randomArt = arts[Math.floor(Math.random() * arts.length)];
 
-  const t = await fetchT(guild);
-
-  const description = t("player:embed.description", {
+  const description = await resolveKey(guild, "player:embed.description", {
     joinArrays: "\n",
     returnObjects: false,
     emoji: lightEmoji,

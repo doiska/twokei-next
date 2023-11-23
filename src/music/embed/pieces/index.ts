@@ -16,7 +16,7 @@ export async function createDefaultEmbed(guild: Guild) {
 }
 
 export async function createSongEmbed(venti: Venti) {
-  const [newEmbed, staticRow, { primary, secondary }] = await Promise.all([
+  const [newEmbed, staticRow, dynamicButtons] = await Promise.all([
     createDefaultSongEmbed(venti.guild),
     createStaticButtons(venti.guild),
     createDynamicButtons(venti),
@@ -26,6 +26,6 @@ export async function createSongEmbed(venti: Venti) {
 
   return {
     embeds: [newEmbed],
-    components: [...staticRow, secondary, primary, menu],
+    components: [staticRow, dynamicButtons, menu].flat(),
   };
 }

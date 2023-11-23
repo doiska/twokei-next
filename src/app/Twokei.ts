@@ -7,6 +7,7 @@ import "@sapphire/plugin-i18next/register";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import {
   ApplicationCommandRegistries,
+  container,
   LogLevel,
   RegisterBehavior,
 } from "@sapphire/framework";
@@ -18,6 +19,7 @@ import { DEFAULT_LOCALE, isValidLocale } from "@/locales/i18n";
 import { TwokeiClient } from "@/structures/TwokeiClient";
 import type { InternationalizationContext } from "@sapphire/plugin-i18next";
 import pt_br from "@/locales/pt_br";
+import { reset } from "@/music/embed/events/manual-update";
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
   RegisterBehavior.BulkOverwrite,
@@ -37,7 +39,7 @@ export const Twokei = new TwokeiClient({
   loadMessageCommandListeners: true,
   enableLoaderTraceLoggings: false,
   i18n: {
-    defaultLanguageDirectory: "./dist/locales",
+    defaultLanguageDirectory: "./src/locales",
     i18next: {
       fallbackLng: "pt_br",
       supportedLngs: ["pt_br", "en_us"],
@@ -74,6 +76,10 @@ export const Twokei = new TwokeiClient({
 const main = async () => {
   await Twokei.start();
   await Twokei.login(process.env.DISCORD_TOKEN);
+
+  for (const guild of Twokei.guilds.cache.values()) {
+    await container.sc.reset(guild);
+  }
 
   Twokei?.user?.setPresence({
     activities: [

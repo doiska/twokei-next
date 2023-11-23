@@ -2,10 +2,6 @@ export enum Menus {
   SelectSongMenu = "SELECT_SONG_MENU",
 }
 
-export enum Modals {
-  ProfileModal = "PROFILE_MODAL",
-}
-
 export enum ProfileModalFields {
   Spotify = "SPOTIFY",
   YouTube = "YOUTUBE",
@@ -31,10 +27,8 @@ export enum EmbedButtons {
   VIEW_RANKING = "VIEW_RANKING",
   VIEW_PROFILE = "VIEW_PROFILE",
   DONATE = "DONATE",
-  INVITE = "INVITE",
   NEWS = "news",
   PLAYLIST_SYNC = "PLAYLIST_SYNC",
-  QUICK_PLAYLIST = "QUICK_PLAYLIST",
 }
 
 export enum NewsButtons {

@@ -51,7 +51,7 @@ export async function createDynamicButtons(venti: Venti) {
   const source = capitalizeFirst(venti.queue.current?.sourceName ?? "Source");
   const emoji = getSourceLogo(source);
 
-  const primary = [
+  const secondary = [
     {
       style: ButtonStyle.Secondary,
       emoji: "⏹️",
@@ -76,13 +76,25 @@ export async function createDynamicButtons(venti: Venti) {
     },
   ].map((button) => parseButtonLabel(t, button));
 
-  const secondary = [
+  const primary = [
+    {
+      style: ButtonStyle.Success,
+      emoji: "👍",
+      customId: "like",
+      label: "Like",
+    },
     {
       style:
         venti.loop === "none" ? ButtonStyle.Secondary : ButtonStyle.Primary,
       emoji: "🔁",
       label: t(`player:embed.buttons.loop.${venti.loop.toLowerCase()}`),
       customId: PlayerButtons.LOOP,
+    },
+    {
+      style: ButtonStyle.Secondary,
+      emoji: "🔁",
+      label: "Shuffle",
+      customId: PlayerButtons.SHUFFLE,
     },
     {
       url: venti.queue?.current?.uri ?? "https://twokei.com",
@@ -92,14 +104,14 @@ export async function createDynamicButtons(venti: Venti) {
     },
   ].map((button) => parseButtonLabel(t, button));
 
-  return {
-    primary: new ActionRowBuilder<ButtonBuilder>({
+  return [
+    new ActionRowBuilder<ButtonBuilder>({
       components: primary as InteractionButtonComponentData[],
     }),
-    secondary: new ActionRowBuilder<ButtonBuilder>({
+    new ActionRowBuilder<ButtonBuilder>({
       components: secondary as InteractionButtonComponentData[],
     }),
-  };
+  ];
 }
 
 function parseButtonLabel(

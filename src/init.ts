@@ -6,7 +6,7 @@ import { inspect } from "node:util";
 if (env.SHARDING_MANAGER_ENABLED) {
   const manager = new ShardingManager("./dist/app/Twokei.js", {
     token: env.DISCORD_TOKEN,
-    mode: "process",
+    mode: "worker",
   });
 
   process.on("unhandledRejection", (error) => {
@@ -27,4 +27,6 @@ if (env.SHARDING_MANAGER_ENABLED) {
   manager.spawn({
     amount: 1,
   });
+} else {
+  import("./app/Twokei");
 }

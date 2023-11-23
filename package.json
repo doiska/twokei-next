@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node dist/init.js",
     "build": "swc src -d dist",
-    "watch": "nodemon --watch src --ext ts --exec \"swc src -d dist && node --preserve-symlinks ./dist/init.js\"",
+    "dev": "nodemon --watch src --ext ts --exec \"swc src -d dist && node --env-file=.env --preserve-symlinks ./dist/init.js\"",
     "lint": "eslint --fix src --ext .ts",
     "migrations": "npx drizzle-kit generate:pg"
   },
@@ -79,6 +79,7 @@
     "nodemon": "^3.0.1",
     "prettier": "^3.0.3",
     "tslib": "^2.6.2",
+    "tsx": "^4.4.0",
     "typescript": "^5.2.2"
   }
 }
