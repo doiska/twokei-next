@@ -28,5 +28,5 @@ if (env.SHARDING_MANAGER_ENABLED) {
     amount: 1,
   });
 } else {
-  import("./app/Twokei");
+  import("./app/Twokei.js");
 }

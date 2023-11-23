@@ -28,7 +28,6 @@ export default {
       select_language: "Alterar idioma",
       [EmbedButtons.VIEW_PROFILE]: "Meu Perfil",
       [EmbedButtons.VIEW_RANKING]: "Ver Ranking",
-      [EmbedButtons.PLAYLIST_SYNC]: "Playlists Sincronizadas",
       [EmbedButtons.NEWS]: "Ver Novidades",
     },
   },

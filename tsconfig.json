@@ -12,8 +12,9 @@
     "outDir": "dist",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "moduleResolution": "nodenext"
   },
   "include": [
     "src/**/*"
-  ],
+  ]
 }

@@ -27,7 +27,7 @@ export const env = createEnv({
     PORT: z.union([z.number(), z.string()]).default(3005),
     SHARDING_MANAGER_ENABLED: z
       .string()
-      .default("true")
+      .default("false")
       .transform((value) => value === "true"),
   },
   runtimeEnv: process.env,
