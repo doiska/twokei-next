@@ -77,20 +77,3 @@ export async function addNewSong(input: string, member: GuildMember) {
 
   return result;
 }
-
-export async function addISRCSongs(
-  tracks: ResolvableTrack[],
-  member: GuildMember,
-) {
-  const player = await createPlayer(member);
-
-  player.queue.add(...tracks);
-
-  if (!player.playing) {
-    await player.play();
-  } else {
-    player.emit(Events.TrackAdd, player, tracks);
-  }
-
-  return tracks;
-}
