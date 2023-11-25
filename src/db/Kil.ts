@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { pgSchema } from "drizzle-orm/pg-core";
 
-import { logger, queryLogger } from "@/lib/logger";
+import { queryLogger } from "@/lib/logger";
 
 import { Pool } from "pg";
 import { env } from "@/app/env";
@@ -19,5 +19,3 @@ export const kil = drizzle(dbClient, {
     },
   },
 });
-
-logger.info("Connected to database!");

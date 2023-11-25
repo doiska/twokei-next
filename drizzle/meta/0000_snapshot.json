@@ -1,12 +1,12 @@
 {
+  "id": "b80a62bf-be55-46e3-b6fe-453d6ad50510",
+  "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
-  "id": "3c259352-5e1c-45a8-b0df-47c82cb8f40b",
-  "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
-    "guilds": {
-      "name": "guilds",
-      "schema": "",
+    "core_guilds": {
+      "name": "core_guilds",
+      "schema": "dev",
       "columns": {
         "guild_id": {
           "name": "guild_id",
@@ -25,7 +25,7 @@
           "type": "varchar",
           "primaryKey": false,
           "notNull": true,
-          "default": "'en_us'"
+          "default": "'pt_br'"
         },
         "created_at": {
           "name": "created_at",
@@ -44,11 +44,12 @@
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {}
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     },
-    "played_songs": {
-      "name": "played_songs",
-      "schema": "",
+    "core_users": {
+      "name": "core_users",
+      "schema": "dev",
       "columns": {
         "user_id": {
           "name": "user_id",
@@ -56,96 +57,65 @@
           "primaryKey": true,
           "notNull": true
         },
-        "guild_id": {
-          "name": "guild_id",
+        "name": {
+          "name": "name",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
-        "count": {
-          "name": "count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 1
-        },
-        "song_name": {
-          "name": "song_name",
+        "locale": {
+          "name": "locale",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": true
-        },
-        "song_url": {
-          "name": "song_url",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "song_length": {
-          "name": "song_length",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
+          "notNull": false,
+          "default": "'pt_br'"
         },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
           "default": "now()"
         }
       },
-      "indexes": {
-        "songUrlUnique": {
-          "name": "songUrlUnique",
-          "columns": [
-            "song_url",
-            "user_id"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {
-        "played_songs_user_id_users_user_id_fk": {
-          "name": "played_songs_user_id_users_user_id_fk",
-          "tableFrom": "played_songs",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "user_id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {}
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     },
-    "users_playlists": {
-      "name": "users_playlists",
-      "schema": "",
+    "player_sessions": {
+      "name": "player_sessions",
+      "schema": "dev",
       "columns": {
-        "user_id": {
-          "name": "user_id",
+        "guild_id": {
+          "name": "guild_id",
           "type": "varchar",
           "primaryKey": true,
           "notNull": true
         },
-        "playlist_name": {
-          "name": "playlist_name",
-          "type": "varchar",
+        "queue": {
+          "name": "queue",
+          "type": "jsonb",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "'[]'::jsonb"
         },
-        "playlist_url": {
-          "name": "playlist_url",
-          "type": "varchar",
+        "state": {
+          "name": "state",
+          "type": "jsonb",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "'{}'::jsonb"
         },
-        "created_at": {
-          "name": "created_at",
+        "updated_at": {
+          "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
@@ -154,11 +124,34 @@
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {}
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "core_settings": {
+      "name": "core_settings",
+      "schema": "dev",
+      "columns": {
+        "name": {
+          "name": "name",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     },
     "song_channels": {
       "name": "song_channels",
-      "schema": "",
+      "schema": "dev",
       "columns": {
         "guild_id": {
           "name": "guild_id",
@@ -181,11 +174,47 @@
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {}
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     },
-    "users": {
-      "name": "users",
-      "schema": "",
+    "song_profile_actions": {
+      "name": "song_profile_actions",
+      "schema": "dev",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_id": {
+          "name": "target_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "action": {
+          "name": "action",
+          "type": "song_profile_action",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "song_profile_sources": {
+      "name": "song_profile_sources",
+      "schema": "dev",
       "columns": {
         "user_id": {
           "name": "user_id",
@@ -193,18 +222,17 @@
           "primaryKey": true,
           "notNull": true
         },
-        "name": {
-          "name": "name",
-          "type": "varchar",
+        "source": {
+          "name": "source",
+          "type": "source",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "locale": {
-          "name": "locale",
+        "source_url": {
+          "name": "source_url",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'en_us'"
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -222,8 +250,23 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {}
+      "foreignKeys": {
+        "song_profile_sources_user_id_core_users_user_id_fk": {
+          "name": "song_profile_sources_user_id_core_users_user_id_fk",
+          "tableFrom": "song_profile_sources",
+          "tableTo": "core_users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     }
   },
   "enums": {},

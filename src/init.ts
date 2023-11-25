@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { ShardingManager } from "discord.js";
 import { env } from "@/app/env";
 import { inspect } from "node:util";

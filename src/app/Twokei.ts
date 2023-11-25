@@ -19,7 +19,6 @@ import { DEFAULT_LOCALE, isValidLocale } from "@/locales/i18n";
 import { TwokeiClient } from "@/structures/TwokeiClient";
 import type { InternationalizationContext } from "@sapphire/plugin-i18next";
 import pt_br from "@/locales/pt_br";
-import { reset } from "@/music/embed/events/manual-update";
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
   RegisterBehavior.BulkOverwrite,

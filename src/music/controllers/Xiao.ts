@@ -14,7 +14,7 @@ import {
 
 import { eq } from "drizzle-orm";
 import { kil } from "@/db/Kil";
-import { settings } from "@/db/schemas/settings";
+import { coreSettings } from "@/db/schemas/core-settings";
 
 import { logger } from "@/lib/logger";
 import { manualUpdate } from "@/music/embed/events/manual-update";
@@ -406,9 +406,9 @@ export class Xiao extends EventEmitter {
     this.shoukaku.nodes.clear();
 
     const [rawNodes] = await kil
-      .select({ value: settings.value })
-      .from(settings)
-      .where(eq(settings.name, "Nodes"));
+      .select({ value: coreSettings.value })
+      .from(coreSettings)
+      .where(eq(coreSettings.name, "Nodes"));
 
     if (!rawNodes?.value) {
       this.logger.error("Could not retrieve Nodes from the Database");
