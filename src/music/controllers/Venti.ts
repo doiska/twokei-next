@@ -98,12 +98,6 @@ export class Venti {
 
     this.logger.debug(`Created player for guild ${this.guildId}`);
 
-    this.instance.on("start", () => {
-      if (this.queue.current) {
-        this.emit(Events.TrackStart, this, this.queue.current);
-      }
-    });
-
     this.instance.on("end", (data) => {
       if (
         this.state === PlayerState.DESTROYING ||
@@ -249,6 +243,8 @@ export class Venti {
         );
 
         this.instance.playTrack(shoukakuPlayOptions);
+
+        this.emit(Events.TrackStart, this, resolvedTrack);
       })
       .catch((err: Error) => {
         this.logger.error(
