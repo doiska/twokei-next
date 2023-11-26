@@ -7,19 +7,13 @@ import { container } from "@sapphire/framework";
 
 import { eq } from "drizzle-orm";
 import { kil } from "@/db/Kil";
-import { type SongChannel, songChannels } from "@/db/schemas/song-channels";
+import { songChannels } from "@/db/schemas/song-channels";
 
 import { createDefaultEmbed } from "@/music/embed/pieces";
 import { logger } from "@/lib/logger";
 
 export class SongChannelManager {
-  private readonly cache = new Map<string, SongChannel>();
-
-  public async set(
-    guildId: string,
-    channelId: string,
-    messageId: string,
-  ): Promise<SongChannel> {
+  public async set(guildId: string, channelId: string, messageId: string) {
     const [result] = await kil
       .insert(songChannels)
       .values({
@@ -39,7 +33,7 @@ export class SongChannelManager {
     return result;
   }
 
-  public async get(guild: GuildResolvable): Promise<SongChannel | undefined> {
+  public async get(guild: GuildResolvable) {
     const guildId = container.client.guilds.resolveId(guild);
 
     if (!guildId) {

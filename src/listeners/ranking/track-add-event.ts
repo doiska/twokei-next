@@ -4,6 +4,7 @@ import { logger } from "@/lib/logger";
 import type { Venti } from "@/music/controllers/Venti";
 import { Events } from "@/music/interfaces/player.types";
 import { ResolvableTrack } from "@/music/structures/ResolvableTrack";
+import { trackEvent } from "@/lib/analytics/track-event";
 
 @ApplyOptions<Listener.Options>({
   name: "song-user-tracker",
@@ -29,18 +30,20 @@ export class TrackAddEvent extends Listener {
       return;
     }
 
-    if (!track.isrc && !track.uri) {
+    if (!track.isrc) {
       logger.error(
         `Cannot track (${track?.title}) by user: ${user?.tag} (${user?.id})`,
       );
       return;
     }
 
-    await container.analytics.track({
+    await trackEvent({
       users: [user.id],
       guild: venti.guildId,
       event: "added_song",
-      track: track.short(),
+      track: {
+        isrc: track.isrc,
+      },
     });
   }
 }

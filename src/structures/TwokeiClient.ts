@@ -4,7 +4,6 @@ import "@/app/server/hooks/HttpServerHook";
 import { type ClientOptions } from "discord.js";
 import { container, SapphireClient } from "@sapphire/framework";
 
-import { Analytics } from "@/structures/Analytics";
 import { SongChannelManager } from "@/structures/SongChannels";
 import { Xiao } from "@/music/controllers/Xiao";
 import { Connectors } from "@twokei/shoukaku";
@@ -20,7 +19,6 @@ export class TwokeiClient extends SapphireClient {
     super(options);
 
     container.sc = new SongChannelManager();
-    container.analytics = new Analytics();
 
     process.on("unhandledRejection", (error) => {
       logger.error("Unhandled rejection:", error);

@@ -8,7 +8,7 @@ import {
 import { ResolvableTrack } from "../../structures/ResolvableTrack";
 import { type TrackResolver } from "../resolver";
 import { spotifyRequestManager } from "./spotify-request-manager";
-import { type PlaylistTracks } from "./types/spotify.types";
+import { type PlaylistTracks, SpotifyTrack } from "./types/spotify.types";
 import type {
   SpotifyPlaylistResponse,
   SpotifySearchResponse,
@@ -170,6 +170,25 @@ class SpotifyTrackResolver implements TrackResolver {
 
     return {
       tracks: [this.parseTrack(response, requester)],
+      type: XiaoLoadType.TRACK_LOADED,
+    };
+  }
+
+  public async getBatchTracks(ids: string[]) {
+    const endpoint = `/tracks?ids=${ids.join(",")}`;
+    const response = await spotifyRequestManager.request<{
+      tracks: SpotifyTrack[];
+    }>(endpoint);
+
+    if (!response) {
+      return {
+        tracks: [],
+        type: XiaoLoadType.NO_MATCHES,
+      };
+    }
+
+    return {
+      tracks: response.tracks.map((track) => this.parseTrack(track)),
       type: XiaoLoadType.TRACK_LOADED,
     };
   }

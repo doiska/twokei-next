@@ -8,7 +8,7 @@
     "build": "swc src -d dist",
     "lint": "eslint --fix src --ext .ts",
     "migrations": "npx drizzle-kit generate:pg",
-    "dev": "node --watch --env-file=.env --import tsx ./src/init.ts"
+    "dev": "nodemon --watch src --ext ts --exec \"swc src -d dist && node --env-file=.env --preserve-symlinks ./dist/init.js\""
   },
   "keywords": [],
   "author": "",

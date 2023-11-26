@@ -49,15 +49,6 @@ export interface SpotifySearchResponse {
   };
 }
 
-export interface SpotifyProfileResponse {
-  href: string;
-  items: SpotifyPlaylistResponse[];
-  limit: number;
-  total: number;
-  previous: string | null;
-  next: string | null;
-}
-
 export interface SpotifyTrackResponse {
   images: Image[];
   album?: Album;

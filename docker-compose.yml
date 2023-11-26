@@ -11,6 +11,7 @@ services:
       - postgres
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
+      PG_SCHEMA: dev
   postgres:
     image: postgres:14.1-alpine
     restart: always

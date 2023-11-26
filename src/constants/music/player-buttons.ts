@@ -2,12 +2,6 @@ export enum Menus {
   SelectSongMenu = "SELECT_SONG_MENU",
 }
 
-export enum ProfileModalFields {
-  Spotify = "SPOTIFY",
-  YouTube = "YOUTUBE",
-  Deezer = "DEEZER",
-}
-
 export enum PlayerButtons {
   STOP = "STOP",
   PREVIOUS = "PREVIOUS",
@@ -29,16 +23,4 @@ export enum EmbedButtons {
   DONATE = "DONATE",
   NEWS = "news",
   PLAYLIST_SYNC = "PLAYLIST_SYNC",
-}
-
-export enum NewsButtons {
-  DONATE = "DONATOR_BUTTON",
-}
-
-export enum SongProfileButtons {
-  EDIT_PROFILE = "edit-profile",
-  LIKE_PROFILE = "like_profile",
-  FOLLOW_PROFILE = "follow_profile",
-  VIEW_PLAYLISTS = "view_playlists",
-  VIEW_ALBUMS = "view_albums",
 }
