@@ -8,13 +8,12 @@ import {
 import { ResolvableTrack } from "../../structures/ResolvableTrack";
 import { type TrackResolver } from "../resolver";
 import { spotifyRequestManager } from "./spotify-request-manager";
-import { type PlaylistTracks, SpotifyTrack } from "./types/spotify.types";
+import { type PlaylistTracks } from "./types/spotify.types";
 import type {
   SpotifyPlaylistResponse,
   SpotifySearchResponse,
   SpotifyTrackResponse,
 } from "./types/spotify-response.types";
-import { logger } from "@/lib/logger";
 
 interface SpotifyClient {
   clientId: string;
@@ -44,7 +43,7 @@ class SpotifyTrackResolver implements TrackResolver {
     this.options = spotifyRequestManager.options;
   }
 
-  public matches(url: string): boolean {
+  public matches(url: string) {
     return SPOTIFY_URL.test(url);
   }
 
@@ -174,31 +173,9 @@ class SpotifyTrackResolver implements TrackResolver {
     };
   }
 
-  public async getBatchTracks(ids: string[]) {
-    const endpoint = `/tracks?ids=${ids.join(",")}`;
-    const response = await spotifyRequestManager.request<{
-      tracks: SpotifyTrack[];
-    }>(endpoint);
-
-    if (!response) {
-      return {
-        tracks: [],
-        type: XiaoLoadType.NO_MATCHES,
-      };
-    }
-
-    return {
-      tracks: response.tracks.map((track) => this.parseTrack(track)),
-      type: XiaoLoadType.TRACK_LOADED,
-    };
-  }
-
   private parseTrack(spotifyTrack: SpotifyTrackResponse, requester?: User) {
     const thumbnail =
       spotifyTrack.images?.[0].url ?? spotifyTrack.album?.images[0]?.url;
-    logger.debug(
-      `[Spotify] ${spotifyTrack.name} - ${spotifyTrack.id} - ${thumbnail}`,
-    );
 
     return new ResolvableTrack(
       {

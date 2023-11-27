@@ -6,6 +6,22 @@ export class TrackQueue extends Array<ResolvableTrack> {
   public current: Maybe<ResolvableTrack>;
   public previous: Maybe<ResolvableTrack>;
 
+  get totalSize(): number {
+    return this.length;
+  }
+
+  add(...item: ResolvableTrack[]): void {
+    this.push(...item);
+  }
+
+  removeAt(index: number, count = 1): void {
+    this.splice(index, count);
+  }
+
+  shuffle(): void {
+    this.sort(() => Math.random() - 0.5);
+  }
+
   public restore(dump?: ReturnType<(typeof this)["dump"]>) {
     if (!dump) {
       return;
@@ -32,40 +48,5 @@ export class TrackQueue extends Array<ResolvableTrack> {
       previous: this.previous?.getRaw() ?? null,
       queue: this.map((track) => ({ track: track.getRaw() })),
     };
-  }
-
-  get totalSize(): number {
-    return this.length;
-  }
-
-  add(...item: ResolvableTrack[]): void {
-    this.push(...item);
-  }
-
-  remove(item: ResolvableTrack | number): void {
-    if (typeof item === "number") {
-      this.removeAt(item);
-    } else {
-      const index = this.indexOf(item);
-      if (index !== -1) {
-        this.removeAt(index);
-      }
-    }
-  }
-
-  removeAt(index: number, count = 1): void {
-    this.splice(index, count);
-  }
-
-  isEmpty(): boolean {
-    return this.length === 0;
-  }
-
-  clear(): void {
-    this.splice(0, this.length);
-  }
-
-  shuffle(): void {
-    this.sort(() => Math.random() - 0.5);
   }
 }
