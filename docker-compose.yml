@@ -9,15 +9,25 @@ services:
       - .:/app
     depends_on:
       - postgres
+      - lavalink
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
       PG_SCHEMA: dev
   postgres:
     image: postgres:14.1-alpine
-    restart: always
+    restart: no
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
     ports:
         - "5432:5432"
+  lavalink:
+    container_name: lavalink
+    image: ghcr.io/lavalink-devs/lavalink:4.0.0-beta.5
+    restart: no
+    volumes:
+      - ./.meta/lavalink/application.yml:/opt/Lavalink/application.yml
+      - ./.meta/lavalink/plugins/:/opt/Lavalink/plugins/
+    ports:
+      - "2333:2333"

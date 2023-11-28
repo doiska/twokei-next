@@ -73,8 +73,9 @@ export const Twokei = new TwokeiClient({
 });
 
 const main = async () => {
-  await Twokei.start();
+  const { expired } = await Twokei.start();
   await Twokei.login(process.env.DISCORD_TOKEN);
+  await Twokei.restore(expired);
 
   for (const guild of Twokei.guilds.cache.values()) {
     await container.sc.reset(guild);

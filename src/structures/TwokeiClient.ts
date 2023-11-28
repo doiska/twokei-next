@@ -30,7 +30,7 @@ export class TwokeiClient extends SapphireClient {
   }
 
   public async start() {
-    const allSessions = await kil.select().from(playerSessions);
+    const allSessions = (await kil.select().from(playerSessions)) ?? [];
 
     const sessions = allSessions.reduce<{
       expired: PlayerSession[];
@@ -100,7 +100,11 @@ export class TwokeiClient extends SapphireClient {
 
     container.xiao = this.xiao;
 
-    for (const session of sessions.expired) {
+    return sessions;
+  }
+
+  public async restore(invalidSessions: PlayerSession[]) {
+    for (const session of invalidSessions) {
       logger.debug(`Cleaning up session ${session.guildId}.`);
       const guild = await container.client.guilds.fetch(session.guildId);
 
