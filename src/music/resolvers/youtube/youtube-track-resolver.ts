@@ -13,7 +13,6 @@ import { ResolvableTrack } from "@/music/structures/ResolvableTrack";
 export class YoutubeTrackResolver implements TrackResolver {
   readonly name = "youtube";
 
-  // eslint-disable-next-line prefer-regex-literals
   readonly YOUTUBE_REGEX = new RegExp(
     "^(https?://)?(www\\.)?(youtube\\.com|youtu\\.?be|music\\.youtube\\.com)/.+$",
   );
@@ -25,16 +24,16 @@ export class YoutubeTrackResolver implements TrackResolver {
     const node = container.xiao.shoukaku.getIdealNode();
 
     if (!node) {
-      throw new Error("No node setup.");
+      throw new Error("No node set-up.");
     }
 
     const ytResponse = await node.rest.resolve(query);
 
     if (
       !ytResponse ||
+      !ytResponse.data ||
       ytResponse.loadType === XiaoLoadType.NO_MATCHES ||
-      ytResponse.loadType === XiaoLoadType.LOAD_FAILED ||
-      !ytResponse.data
+      ytResponse.loadType === XiaoLoadType.LOAD_FAILED
     ) {
       return {
         type: XiaoLoadType.NO_MATCHES,

@@ -5,11 +5,17 @@ import { getReadableException } from "@/structures/exceptions/utils/get-readable
 import { send } from "@/lib/message-handler";
 import { Embed } from "@/utils/messages";
 import { resolveKey } from "@sapphire/plugin-i18next";
+import { playerLogger } from "@/lib/logger";
 
 export async function handlePlayerException(
   venti: Venti,
   exception: TrackExceptionEvent,
 ) {
+  playerLogger.error(`Player Exception: ${exception.type}`, {
+    guild: venti.guild.id,
+    exception: exception.exception.message,
+  });
+
   if (!venti.embedMessage || !venti.embedMessage.guild) {
     return;
   }

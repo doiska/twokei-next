@@ -10,6 +10,15 @@ interface ResolvableTrackOptions {
   requester?: User;
 }
 
+type ExtendedTrack = Omit<Track, "pluginInfo"> & {
+  info: Track["info"] & {
+    length?: number;
+    isrc?: string;
+  };
+  thumbnail?: string;
+  isrc?: string;
+};
+
 export class ResolvableTrack {
   /**
    * Track Requester
@@ -57,10 +66,7 @@ export class ResolvableTrack {
   /** The YouTube/soundcloud URI for spotify and other unsupported source */
   public realUri?: string | null;
 
-  public constructor(
-    track: Omit<Track, "pluginInfo"> & { thumbnail?: string; isrc?: string },
-    options?: ResolvableTrackOptions,
-  ) {
+  public constructor(track: ExtendedTrack, options?: ResolvableTrackOptions) {
     const { info } = track;
 
     this.requester = options?.requester;
@@ -68,12 +74,12 @@ export class ResolvableTrack {
     this.sourceName = info.sourceName ?? "Unknown";
     this.title = info.title;
     this.uri = info.uri;
-    this.isrc = track.isrc;
+    this.isrc = track.isrc ?? track.info.isrc;
     this.identifier = info.identifier;
     this.isSeekable = info.isSeekable;
     this.isStream = info.isStream;
     this.author = info.author;
-    this.duration = info.duration;
+    this.duration = info.length ?? info.duration;
     this.position = info.position;
 
     if (this.identifier && this.sourceName === "youtube") {
@@ -81,7 +87,7 @@ export class ResolvableTrack {
     }
 
     this.thumbnail = track.thumbnail;
-    this.realUri = ["youtube"].includes(this.sourceName) ? this.uri : null;
+    this.realUri = track.info.uri;
   }
 
   get isReadyToPlay(): boolean {
@@ -99,6 +105,7 @@ export class ResolvableTrack {
 
   public async resolve(overwrite = false): Promise<ResolvableTrack> {
     if (this.isReadyToPlay) {
+      playerLogger.debug(`[ResolvableTrack] Track is already ready to play!`);
       return this;
     }
 
@@ -205,6 +212,8 @@ export class ResolvableTrack {
   }
 
   private searchByISRC(isrc: string) {
+    playerLogger.debug(`[ResolvableTrack] Searching by ISRC ${isrc}`);
+
     return container.xiao.search(isrc, {
       engine: "dzisrc",
       requester: this.requester,
@@ -239,26 +248,6 @@ export class ResolvableTrack {
       },
       pluginInfo: {},
     };
-  }
-
-  public short() {
-    const source = ["youtube", "spotify", "deezer"].includes(
-      this.sourceName.toLowerCase(),
-    )
-      ? (this.sourceName as "youtube" | "spotify" | "deezer")
-      : "spotify";
-
-    return {
-      title: this.title,
-      author: this.author,
-      uri: this.uri,
-      isrc: this.isrc,
-      source: source,
-    };
-  }
-
-  public dump() {
-    return this.getRaw();
   }
 
   public static from(track: Track, options?: ResolvableTrackOptions) {

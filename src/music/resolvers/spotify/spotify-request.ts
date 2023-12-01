@@ -1,5 +1,3 @@
-import { logger } from "@/lib/logger";
-
 const BASE_URL = "https://api.spotify.com/v1";
 const AUTH_URL =
   "https://accounts.spotify.com/api/token?grant_type=client_credentials";
@@ -57,8 +55,6 @@ export class SpotifyRequest {
     this.currentApiStatus.requests += 1;
 
     const data = (await request.json()) as { error: { message: string } } & T;
-
-    logger.debug(`Request made to Spotify ${endpoint}`);
 
     if (data?.error) {
       throw new Error(data.error.message);
