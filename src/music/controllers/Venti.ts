@@ -279,22 +279,13 @@ export class Venti {
     }
 
     if (amount > this.queue.totalSize) {
-      // eslint-disable-next-line no-param-reassign
       amount = this.queue.totalSize;
     }
 
     this.setLoop(LoopStates.NONE);
 
-    this.queue.removeAt(0, amount - 1);
-
-    this.logger.debug(
-      `Skipping ${amount} tracks for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`,
-    );
-
-    this.logger.debug(`Current track: ${this.queue.current?.title ?? "none"}`);
-    this.logger.debug(`Next track: ${this.queue[0]?.title ?? "none"}`);
-
-    this.instance.stopTrack();
+    this.queue.splice(0, amount - 1);
+    await this.instance.stopTrack();
     return this;
   }
 
@@ -341,34 +332,6 @@ export class Venti {
 
     this.emit(Events.ManualUpdate, this, { components: true });
     return newLoopState;
-  }
-
-  /**
-   * Disconnects the player from the voice channel.
-   */
-  public disconnect() {
-    if (this.state === PlayerState.DISCONNECTED || !this.voiceId) {
-      throw new Error("Player is already disconnected");
-    }
-
-    this.state = PlayerState.DISCONNECTING;
-
-    this.xiao.options.send(this.guildId, {
-      op: 4,
-      d: {
-        guild_id: this.guildId,
-        channel_id: null,
-        self_deaf: false,
-        self_mute: false,
-      },
-    });
-
-    this.voiceId = null;
-    this.state = PlayerState.DISCONNECTED;
-
-    this.emit(Events.Debug, `Player disconnected for guild ${this.guildId}`);
-
-    return this;
   }
 
   public emit<U extends keyof XiaoEvents>(
