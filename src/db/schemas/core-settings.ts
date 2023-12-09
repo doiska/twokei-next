@@ -1,12 +1,9 @@
 import type { NodeOption } from "@twokei/shoukaku";
 
-import { jsonb, pgSchema, varchar } from "drizzle-orm/pg-core";
-import { env } from "@/app/env";
+import { jsonb, varchar } from "drizzle-orm/pg-core";
+import { createTable } from "@/db/Kil";
 
-export const coreSettings = pgSchema(env.PG_SCHEMA ?? "app").table(
-  "core_settings",
-  {
-    name: varchar("name").primaryKey(),
-    value: jsonb("value").$type<NodeOption[]>(),
-  },
-);
+export const coreSettings = createTable("core_settings", {
+  name: varchar("name").primaryKey(),
+  value: jsonb("value").$type<NodeOption[]>(),
+});

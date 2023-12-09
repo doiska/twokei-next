@@ -8,11 +8,13 @@ services:
     volumes:
       - .:/app
     depends_on:
-      - postgres
-      - lavalink
+      lavalink:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
       PG_SCHEMA: dev
+    logging:
+      driver: none
   postgres:
     image: postgres:14.1-alpine
     restart: no
@@ -26,6 +28,16 @@ services:
     container_name: lavalink
     image: ghcr.io/lavalink-devs/lavalink:4.0.0-beta.5
     restart: no
+    healthcheck:
+      test: [
+        "CMD",
+        "bash",
+        "-c",
+        "sleep 10 && echo ok || exit 1"
+      ]
+      interval: 10s
+
+
     volumes:
       - ./.meta/lavalink/application.yml:/opt/Lavalink/application.yml
       - ./.meta/lavalink/plugins/:/opt/Lavalink/plugins/
