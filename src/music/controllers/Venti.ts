@@ -1,4 +1,4 @@
-import { type Guild, type Message, type Snowflake } from "discord.js";
+import { type Guild, type Snowflake } from "discord.js";
 import {
   type Player,
   type PlayerUpdate,
@@ -73,12 +73,6 @@ export class Venti {
    */
   private readonly xiao: Xiao;
 
-  /**
-   * The SongChannel embed message.
-   * @private
-   */
-  public embedMessage?: Message;
-
   private readonly logger: Logger;
 
   constructor(xiao: Xiao, player: Player, options: VentiInitOptions) {
@@ -88,15 +82,12 @@ export class Venti {
     this.guildId = options.guild.id;
     this.voiceId = options.voiceChannel;
     this.locale = options.lang;
-    this.embedMessage = options.embedMessage;
 
     this.queue = new TrackQueue();
 
     this.logger = logger.child({
       defaultPrefix: "VENTI",
     });
-
-    this.logger.debug(`Created player for guild ${this.guildId}`);
 
     this.instance.on("end", (data) => {
       if (

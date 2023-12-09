@@ -7,7 +7,6 @@ import { kil } from "@/db/Kil";
 import { playerSessions } from "@/db/schemas/player-sessions";
 import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
-import { logger } from "@/lib/logger";
 
 const eventSchema = z.object({
   op: z.enum(["playerUpdate", "event"]),
@@ -80,21 +79,6 @@ export async function onShoukakuRestore(dumps: PlayerDump[]) {
       guild: guild,
       shardId: dump.options.shardId,
     };
-
-    const { message, channel } = (await container.sc.getEmbed(guild)) ?? {};
-
-    if (message && channel) {
-      ventiOptions.embedMessage = message;
-    } else {
-      logger.warn(
-        `No message or channel found for guild ${guild.name} while restoring...`,
-        {
-          guildId: guild.id,
-          message: message?.id,
-          channel: channel?.id,
-        },
-      );
-    }
 
     const [restorableQueue] = await kil
       .select({

@@ -17,7 +17,7 @@ import { kil } from "@/db/Kil";
 import { coreSettings } from "@/db/schemas/core-settings";
 
 import { logger } from "@/lib/logger";
-import { manualUpdate } from "@/music/embed/events/manual-update";
+import { refresh } from "@/music/embed/events/manual-update";
 import { handlePlayerException } from "@/music/embed/events/player-exception";
 import { playerDestroyed, queueEmpty } from "@/music/embed/events/queue-empty";
 import { youtubeTrackResolver } from "@/music/resolvers/youtube/youtube-track-resolver";
@@ -216,22 +216,13 @@ export class Xiao extends EventEmitter {
 
     this.on(Events.Debug, (message) => this.logger.debug(message));
 
-    this.on(Events.TrackStart, (venti) => {
-      manualUpdate(venti, { embed: true, components: true });
-    });
-
-    this.on(Events.TrackAdd, (venti) => {
-      manualUpdate(venti, { embed: true, components: true });
-    });
-
-    this.on(Events.TrackPause, (venti) => {
-      manualUpdate(venti, { embed: true, components: true });
-    });
+    this.on(Events.TrackStart, refresh);
+    this.on(Events.TrackAdd, refresh);
+    this.on(Events.TrackPause, refresh);
+    this.on(Events.ManualUpdate, refresh);
 
     this.on(Events.PlayerDestroy, playerDestroyed);
     this.on(Events.QueueEmpty, queueEmpty);
-
-    this.on(Events.ManualUpdate, manualUpdate);
 
     this.on(Events.PlayerException, handlePlayerException);
 

@@ -3,26 +3,26 @@ import type { Venti } from "@/music/controllers/Venti";
 import { createDefaultEmbed, createSongEmbed } from "@/music/embed/pieces";
 import type { XiaoEvents } from "../../controllers/Xiao";
 import { type Events } from "../../interfaces/player.types";
+import { container } from "@sapphire/framework";
 
 export async function reset(venti: Venti) {
-  await venti.embedMessage
-    ?.edit(await createDefaultEmbed(venti.guild))
-    .catch((err) => {
-      logger.error(err);
-    });
+  const songChannel = await container.sc.getEmbed(venti.guild);
+
+  if (!songChannel?.message) {
+    logger.error("No song channel found");
+    return;
+  }
+
+  await songChannel.message.edit(await createDefaultEmbed(venti.guild));
 }
 
 export async function refresh(venti: Venti) {
-  const message = venti.embedMessage;
+  const songChannel = await container.sc.getEmbed(venti.guild);
 
-  if (!message) {
+  if (!songChannel) {
     logger.error("No embed message found");
     return;
   }
 
-  await message.edit(await createSongEmbed(venti));
+  await songChannel.message.edit(await createSongEmbed(venti));
 }
-
-export const manualUpdate: XiaoEvents[Events.ManualUpdate] = (venti) => {
-  void refresh(venti);
-};
