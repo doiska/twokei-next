@@ -3,7 +3,7 @@ import {
   postInitialization,
   SapphireClient,
 } from "@sapphire/framework";
-import { Server } from "@/app/server/server";
+import { Server } from "@/http/server";
 
 export class HttpServerHook extends Plugin {
   public static [postInitialization](this: SapphireClient) {

@@ -1,8 +1,8 @@
-import { type Xiao } from "@/music/controllers/Xiao";
-import { type SongChannelManager } from "@/structures/SongChannels";
+import type { Xiao } from "@/music/controllers/Xiao";
+import type { SongChannelManager } from "@/structures/SongChannels";
+import type { Server } from "@/http/server";
 
 import "@total-typescript/ts-reset";
-import { Server } from "@/app/server/server";
 
 declare module "@sapphire/pieces" {
   interface Container {
