@@ -21,7 +21,6 @@ import type { Xiao, XiaoEvents } from "./Xiao";
 
 import { inspect } from "node:util";
 import type { Logger } from "winston";
-import type { Maybe } from "@/utils/types-helper";
 
 export enum LoopStates {
   NONE = "none",
@@ -42,10 +41,6 @@ export class Venti {
   public readonly guild: Guild;
 
   public readonly guildId: Snowflake;
-  /**
-   * The voice channel id.
-   */
-  public voiceId: Maybe<Snowflake>;
 
   /**
    * Loop state of the player.
@@ -80,7 +75,6 @@ export class Venti {
     this.instance = player;
     this.guild = options.guild;
     this.guildId = options.guild.id;
-    this.voiceId = options.voiceChannel;
     this.locale = options.lang;
 
     this.queue = new TrackQueue();
@@ -357,5 +351,9 @@ export class Venti {
       this.state === PlayerState.CONNECTING &&
       this.queue.current
     );
+  }
+
+  public get voiceId() {
+    return this.instance?.connection?.channelId;
   }
 }

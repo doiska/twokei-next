@@ -367,16 +367,6 @@ export class Xiao extends EventEmitter {
     };
   }
 
-  public setVoiceId(guildId: string, voiceId: string) {
-    const player = this.players.get(guildId);
-
-    if (!player) {
-      return;
-    }
-
-    player.voiceId = voiceId;
-  }
-
   public async loadNodes() {
     await new Promise((resolve, reject) => {
       setTimeout(() => {
