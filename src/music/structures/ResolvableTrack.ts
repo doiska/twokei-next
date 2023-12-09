@@ -10,15 +10,6 @@ interface ResolvableTrackOptions {
   requester?: User;
 }
 
-type ExtendedTrack = Omit<Track, "pluginInfo"> & {
-  info: Track["info"] & {
-    length?: number;
-    isrc?: string;
-  };
-  thumbnail?: string;
-  isrc?: string;
-};
-
 export class ResolvableTrack {
   /**
    * Track Requester
@@ -55,18 +46,21 @@ export class ResolvableTrack {
   public author?: string;
 
   /** Track's length */
-  public duration?: number;
+  public length?: number;
 
   /** Track's position (I don't know this) */
   public position?: number;
 
   /** Track's thumbnail, if available */
-  public thumbnail?: string;
+  public artworkUrl?: string;
 
   /** The YouTube/soundcloud URI for spotify and other unsupported source */
   public realUri?: string | null;
 
-  public constructor(track: ExtendedTrack, options?: ResolvableTrackOptions) {
+  public constructor(
+    track: Omit<Track, "pluginInfo">,
+    options?: ResolvableTrackOptions,
+  ) {
     const { info } = track;
 
     this.requester = options?.requester;
@@ -74,19 +68,19 @@ export class ResolvableTrack {
     this.sourceName = info.sourceName ?? "Unknown";
     this.title = info.title;
     this.uri = info.uri;
-    this.isrc = track.isrc ?? track.info.isrc;
+    this.isrc = track.info.isrc;
     this.identifier = info.identifier;
     this.isSeekable = info.isSeekable;
     this.isStream = info.isStream;
     this.author = info.author;
-    this.duration = info.length ?? info.duration;
+    this.length = info.length;
     this.position = info.position;
+    this.artworkUrl = track.info.artworkUrl;
 
     if (this.identifier && this.sourceName === "youtube") {
-      this.thumbnail = `https://img.youtube.com/vi/${this.identifier}/hqdefault.jpg`;
+      this.artworkUrl = `https://img.youtube.com/vi/${this.identifier}/hqdefault.jpg`;
     }
 
-    this.thumbnail = track.thumbnail;
     this.realUri = track.info.uri;
   }
 
@@ -96,7 +90,7 @@ export class ResolvableTrack {
       !!this.sourceName &&
       !!this.identifier &&
       !!this.author &&
-      !!this.duration &&
+      !!this.length &&
       !!this.title &&
       !!this.uri &&
       !!this.realUri
@@ -117,13 +111,13 @@ export class ResolvableTrack {
 
     this.track = resolvedTrack.encoded;
     this.realUri = resolvedTrack.info.uri;
-    this.duration = resolvedTrack.info.duration;
+    this.length = resolvedTrack.info.length;
 
     if (overwrite) {
       this.title = resolvedTrack.info.title;
       this.isSeekable = resolvedTrack.info.isSeekable;
       this.author = resolvedTrack.info.author;
-      this.duration = resolvedTrack.info.duration;
+      this.length = resolvedTrack.info.length;
       this.isStream = resolvedTrack.info.isStream;
     }
 
@@ -138,7 +132,7 @@ export class ResolvableTrack {
         isSeekable: this.isSeekable,
         uri: this.uri,
         title: this.title,
-        duration: this.duration ?? 0,
+        length: this.length ?? 0,
         author: this.author ?? "",
         isStream: this.isStream,
         position: this.position ?? 0,
@@ -191,7 +185,7 @@ export class ResolvableTrack {
 
     const [track] = spotifyResponse.tracks;
 
-    this.thumbnail = track.thumbnail;
+    this.artworkUrl = track.artworkUrl;
 
     if (!track.isrc) {
       const newSearchQuery = cleanUpSong(track.title, track.author);
@@ -243,7 +237,7 @@ export class ResolvableTrack {
         identifier: track.identifier,
         sourceName: track.sourceName,
         author: track.author ?? "",
-        duration: track.duration ?? 0,
+        length: track.length ?? 0,
         position: track.position ?? 0,
       },
       pluginInfo: {},

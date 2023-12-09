@@ -29,6 +29,8 @@ export class YoutubeTrackResolver implements TrackResolver {
 
     const ytResponse = await node.rest.resolve(query);
 
+    console.log(ytResponse);
+
     if (
       !ytResponse ||
       !ytResponse.data ||
@@ -74,6 +76,8 @@ export class YoutubeTrackResolver implements TrackResolver {
   }
 
   private parseTrack(track: Track, requester?: User) {
+    console.log(track);
+
     return new ResolvableTrack(
       {
         encoded: "",
@@ -82,13 +86,13 @@ export class YoutubeTrackResolver implements TrackResolver {
           title: track.info.title,
           identifier: track.info.identifier,
           author: track.info.author ?? "Unknown",
-          duration: track.info.duration,
+          length: track.info.length,
           isSeekable: true,
           isStream: false,
           position: 0,
           uri: track.info.uri,
+          artworkUrl: `https://img.youtube.com/vi/${track.info.identifier}/hqdefault.jpg`,
         },
-        thumbnail: `https://img.youtube.com/vi/${track.info.identifier}/hqdefault.jpg`,
       },
       { requester },
     );

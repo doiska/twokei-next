@@ -187,14 +187,14 @@ class SpotifyTrackResolver implements TrackResolver {
           author: spotifyTrack.artists[0]
             ? spotifyTrack.artists[0].name
             : "Unknown",
-          duration: spotifyTrack.duration_ms,
+          length: spotifyTrack.duration_ms,
           isSeekable: true,
           isStream: false,
           position: 0,
           uri: `https://open.spotify.com/track/${spotifyTrack.id}`,
+          isrc: spotifyTrack.external_ids.isrc,
+          artworkUrl: thumbnail ?? "",
         },
-        thumbnail: thumbnail ?? "",
-        isrc: spotifyTrack.external_ids.isrc,
       },
       { requester },
     );
