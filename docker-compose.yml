@@ -7,12 +7,12 @@ services:
       - "3000:3000"
     volumes:
       - .:/app
+#      - ../twokei-shoukaku:/app/node_modules/@twokei/shoukaku
     depends_on:
+      postgres:
+        condition: service_started
       lavalink:
         condition: service_healthy
-    environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
-      PG_SCHEMA: dev
     logging:
       driver: none
   postgres:
@@ -36,8 +36,6 @@ services:
         "sleep 10 && echo ok || exit 1"
       ]
       interval: 10s
-
-
     volumes:
       - ./.meta/lavalink/application.yml:/opt/Lavalink/application.yml
       - ./.meta/lavalink/plugins/:/opt/Lavalink/plugins/

@@ -13,7 +13,7 @@ import { undefined } from "zod";
   interactionHandlerType: InteractionHandlerTypes.Button,
 })
 export class ProfileViewInteraction extends InteractionHandler {
-  run(interaction: ButtonInteraction): unknown {
+  run(): unknown {
     return undefined;
   }
 }
