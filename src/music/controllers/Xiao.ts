@@ -1,5 +1,5 @@
-import { type Guild, type GuildResolvable } from "discord.js";
-import { type Awaitable, isObject, noop } from "@sapphire/utilities";
+import { type Guild } from "discord.js";
+import { type Awaitable, noop } from "@sapphire/utilities";
 import {
   type Connector,
   LoadType,
@@ -11,10 +11,6 @@ import {
   type TrackStuckEvent,
   type WebSocketClosedEvent,
 } from "@twokei/shoukaku";
-
-import { eq } from "drizzle-orm";
-import { kil } from "@/db/Kil";
-import { coreSettings } from "@/db/schemas/core-settings";
 
 import { logger } from "@/lib/logger";
 import { refresh } from "@/music/embed/events/manual-update";
@@ -28,7 +24,6 @@ import {
   Events,
   PlayerState,
   type VentiInitOptions,
-  type XiaoInitOptions,
   XiaoLoadType,
   type XiaoSearchOptions,
   type XiaoSearchResult,
@@ -40,7 +35,6 @@ import { Venti } from "./Venti";
 import { EventEmitter } from "events";
 import type { Logger } from "winston";
 import { spotifyTrackResolver } from "@/music/resolvers/spotify/spotify-track-resolver";
-import { TwokeiClient } from "@/structures/TwokeiClient";
 import { onShoukakuRestore, storeSession } from "@/music/events/player-restore";
 
 export interface XiaoEvents {
@@ -170,20 +164,16 @@ export class Xiao extends EventEmitter {
   private readonly logger: Logger;
 
   /**
-   * @param client
-   * @param options Xiao options
    * @param nodes Shoukaku nodes
    * @param connector Shoukaku connector
    * @param optionsShoukaku Shoukaku options
    * @param dumps
    */
   constructor(
-    private readonly client: TwokeiClient,
-    public options: XiaoInitOptions,
     connector: Connector,
     nodes: NodeOption[],
     optionsShoukaku: ShoukakuOptions = {},
-    dumps: any = {},
+    dumps: any[] = [],
   ) {
     super();
 
@@ -225,8 +215,6 @@ export class Xiao extends EventEmitter {
     this.on(Events.QueueEmpty, queueEmpty);
 
     this.on(Events.PlayerException, handlePlayerException);
-
-    void this.loadNodes();
   }
 
   public async createPlayer<T extends Venti>(
@@ -254,14 +242,8 @@ export class Xiao extends EventEmitter {
     return venti;
   }
 
-  public getPlayer(guildId: GuildResolvable): Venti | undefined {
-    const resolvedGuildId = this.client.guilds.resolveId(guildId);
-
-    if (!resolvedGuildId) {
-      return;
-    }
-
-    return this.players.get(resolvedGuildId);
+  public getPlayer(guildId: string): Venti | undefined {
+    return this.players.get(guildId);
   }
 
   public async destroyPlayer(guild: Guild, reason = "Unknown") {
@@ -365,58 +347,5 @@ export class Xiao extends EventEmitter {
       type: XiaoLoadType.NO_MATCHES,
       tracks: [],
     };
-  }
-
-  public async loadNodes() {
-    await new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (!this.shoukaku.id) {
-          reject(new Error("Shoukaku could not be loaded in time."));
-        }
-      }, 30000);
-
-      const interval = setInterval(() => {
-        if (this.shoukaku.id) {
-          this.logger.info("Shoukaku is ready! Loading nodes...");
-          clearInterval(interval);
-          resolve(true);
-        }
-      }, 300);
-    });
-
-    this.shoukaku.nodes.clear();
-
-    const [rawNodes] = await kil
-      .select({ value: coreSettings.value })
-      .from(coreSettings)
-      .where(eq(coreSettings.name, "Nodes"));
-
-    if (!rawNodes?.value) {
-      this.logger.error("Could not retrieve Nodes from the Database");
-      return;
-    }
-
-    rawNodes?.value.forEach((node) => {
-      if (!this.isNode(node)) {
-        this.logger.error("Trying to insert invalid Node.", { node });
-        return;
-      }
-
-      if ("active" in node && node.active === false) {
-        return;
-      }
-
-      this.shoukaku.addNode(node);
-    });
-  }
-
-  private isNode(value: unknown): value is NodeOption {
-    const requiredKeys = ["name", "url", "auth"];
-
-    if (!isObject(value)) {
-      return false;
-    }
-
-    return requiredKeys.every((key) => Object.keys(value).includes(key));
   }
 }

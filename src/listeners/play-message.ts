@@ -50,7 +50,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
 
       const validationError = errors?.[validation as keyof typeof errors];
 
-      const songChannel = (await container.sc.get(message.guild!)) ?? null;
+      const songChannel = await container.sc.get(message.guild!);
 
       if (validationError) {
         await send(message, {
@@ -121,7 +121,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
       return "no-channel";
     }
 
-    const songChannel = await container.sc.get(guild).catch(() => null);
+    const songChannel = await container.sc.get(guild);
     const hasMentions = message.mentions.members?.has(self);
 
     if (hasMentions && songChannel?.channelId === typedChannel.id) {

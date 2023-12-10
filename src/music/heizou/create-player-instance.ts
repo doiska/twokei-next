@@ -33,11 +33,9 @@ export async function createPlayerInstance({
 
   const { message, channel } = (await container.sc.getEmbed(guild)) ?? {};
 
-  if (message && channel) {
-    playerOptions.embedMessage = message;
-  } else {
+  if (!message || !channel) {
     logger.warn(
-      `No message or channel found for guild ${guild.name} while creating`,
+      `No message or channel found for guild ${guild.name} while creating player instance.`,
       {
         guildId: guild.id,
         message: message?.id,
@@ -49,7 +47,7 @@ export async function createPlayerInstance({
 
     if (!songChannel) {
       logger.error(
-        `No song channelfound for guild ${guild.name} while creating`,
+        `No song channel found for guild ${guild.name} while creating player instance.`,
         {
           guildId: guild.id,
           message: message?.id,

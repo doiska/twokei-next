@@ -48,11 +48,11 @@ export class PlayerMenu extends InteractionHandler {
     interaction: StringSelectMenuInteraction,
     option: InteractionHandler.ParseResult<this>,
   ) {
-    if (!interaction.guildId) {
+    if (!interaction.guild || !interaction.guildId) {
       return;
     }
 
-    const player = this.container.xiao.getPlayer(interaction.guildId);
+    const player = this.container.xiao.getPlayer(interaction.guild.id);
 
     if (!player?.voiceId) {
       return;

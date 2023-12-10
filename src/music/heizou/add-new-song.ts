@@ -9,7 +9,6 @@ import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { PlayerException } from "@/structures/exceptions/PlayerException";
 import { Events, XiaoLoadType } from "../interfaces/player.types";
 import { createPlayerInstance } from "./create-player-instance";
-import type { ResolvableTrack } from "@/music/structures/ResolvableTrack";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 import { container } from "@sapphire/framework";
 

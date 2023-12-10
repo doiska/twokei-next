@@ -43,7 +43,5 @@ export class VoiceChannelBotSwitch extends Listener {
         }
       }, 5000);
     }
-
-    container.xiao.setVoiceId(newState.guild.id, newChannel.id);
   }
 }

@@ -31,7 +31,7 @@ export class PlayerButtonsInteraction extends InteractionHandler {
       return;
     }
 
-    const player = container.xiao.getPlayer(interaction.guild);
+    const player = container.xiao.getPlayer(interaction.guild.id);
 
     if (!player) {
       await container.sc.reset(interaction.guild);
