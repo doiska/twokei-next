@@ -97,5 +97,3 @@ export class SongChannelManager {
     };
   }
 }
-
-container.sc = new SongChannelManager();

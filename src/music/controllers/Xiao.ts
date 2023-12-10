@@ -191,7 +191,9 @@ export class Xiao extends EventEmitter {
       sessions.dump,
     );
 
-    await restoreExpiredSessions(sessions.expired);
+    client.once("ready", async () => {
+      await restoreExpiredSessions(sessions.expired);
+    });
   }
 
   /**
