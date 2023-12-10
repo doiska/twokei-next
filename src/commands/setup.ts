@@ -9,8 +9,8 @@ import { ApplyOptions } from "@sapphire/decorators";
 import { isGuildMember } from "@sapphire/discord.js-utilities";
 import { Command, container } from "@sapphire/framework";
 
-import { setupNewChannel } from "@/features/song-channel/setup-new-channel";
-import { setupSongMessage } from "@/features/song-channel/setup-song-message";
+import { setupNewChannel } from "@/music/song-channel/setup-new-channel";
+import { setupSongMessage } from "@/music/song-channel/setup-song-message";
 import { logger } from "@/lib/logger";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
@@ -61,6 +61,7 @@ export class PlayCommand extends Command {
     try {
       const response = await setupNewChannel(guild);
 
+      //TODO: improve error handling here
       await setupSongMessage(guild, response).catch((e) => {
         logger.info("Error while setupSongMessage");
         logger.error(e);

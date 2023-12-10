@@ -1,4 +1,4 @@
-import { channelMention, Events, type Message, TextChannel } from "discord.js";
+import { channelMention, Events, type Message } from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
 import {
   isGuildBasedChannel,
@@ -12,11 +12,12 @@ import { getReadableException } from "@/structures/exceptions/utils/get-readable
 import { followUp, send } from "@/lib/message-handler";
 import { Embed } from "@/utils/messages";
 import { resolveKey } from "@sapphire/plugin-i18next";
-import { logger } from "@/lib/logger";
 import { isShoukakuReady } from "@/preconditions/shoukaku-ready";
 import { youtubeTrackResolver } from "@/music/resolvers/youtube/youtube-track-resolver";
 import { addNewSong } from "@/music/heizou/add-new-song";
 import { createPlayEmbed } from "@/constants/music/create-play-embed";
+import { validateSongChannel } from "@/listeners/play/validate-sc-message";
+import { cleanupSongChannel } from "@/listeners/play/cleanup-sc";
 
 const errors = {
   "same-channel-no-mention": ErrorCodes.MISSING_MESSAGE,
@@ -29,11 +30,9 @@ const errors = {
 })
 export class PlayMessage extends Listener<typeof Events.MessageCreate> {
   public override async run(message: Message) {
-    const self = this.container.client.id;
-
     const { author, channel: typedChannel, member, guild } = message;
 
-    if (!self || author.bot || !guild || !member || !isShoukakuReady()) {
+    if (author.bot || !guild || !member || !isShoukakuReady()) {
       return;
     }
 
@@ -42,10 +41,9 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         return;
       }
 
-      const contentOnly = message.content.replace(/<@!?\d+>/g, "").trim();
       const songChannel = await container.sc.getEmbed(message.guild!);
 
-      const validation = await this.validateSongChannel(
+      const validation = await validateSongChannel(
         message,
         songChannel?.channel.id,
       );
@@ -72,6 +70,8 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         return;
       }
 
+      const contentOnly = message.content.replace(/<@!?\d+>/g, "").trim();
+
       if (!contentOnly) {
         await send(message, {
           embeds: Embed.error(
@@ -83,24 +83,19 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         return;
       }
 
-      const isYouTubeLink = youtubeTrackResolver.matches(contentOnly);
-
-      if (isYouTubeLink) {
-        const warning = Embed.info(
-          await resolveKey(message, "player:youtube_disabled"),
-        );
-
+      if (youtubeTrackResolver.matches(contentOnly)) {
         await followUp(message, {
-          embeds: warning,
+          embeds: Embed.info(
+            await resolveKey(message, "player:youtube_disabled"),
+          ),
         }).dispose(5000);
       }
 
       const result = await addNewSong(contentOnly, member);
 
       if (validation === "not-in-song-channel") {
-        const mentionedChannel = songChannel?.channel.id
-          ? channelMention(songChannel.channel.id)
-          : "#twokei-music";
+        const mentionedChannel =
+          songChannel?.channel.toString() ?? "#twokei-music";
 
         await send(message, {
           embeds: Embed.success(
@@ -115,10 +110,9 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
           setTimeout(() => {
             message.delete().catch(noop);
           }, 60000);
-        })
-        .catch(noop);
+        });
 
-      await this.cleanUpChannel(songChannel!.channel, songChannel!.message.id!);
+      await cleanupSongChannel(songChannel!.channel, songChannel!.message.id!);
     } catch (e) {
       const exception = getReadableException(e);
 
@@ -128,63 +122,5 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         })) satisfies string,
       }).dispose();
     }
-  }
-
-  private async cleanUpChannel(channel: TextChannel, messageId: string) {
-    try {
-      const deletableMessages = await channel.messages.fetch();
-
-      await channel.bulkDelete(
-        deletableMessages.filter((m) => {
-          const duration = Date.now() - m.createdTimestamp;
-          const isMine = m.author.id === container.client.id;
-
-          const isRecent = duration < 60000 && isMine;
-          const isSongChannelMessage = m.id === messageId;
-
-          return !isRecent && !isSongChannelMessage;
-        }),
-        true,
-      );
-    } catch (e) {
-      logger.warn(
-        `Failed to bulk delete messages in ${channel.id} (${channel.guild.id})`,
-        e,
-      );
-    }
-  }
-
-  private async validateSongChannel(message: Message, songChannelId?: string) {
-    const self = this.container.client.id;
-    const { channel: typedChannel, guild } = message;
-
-    if (!self || !guild || !typedChannel) {
-      return "no-channel";
-    }
-
-    const hasMentionedTwokei = message.mentions.members?.has(self);
-    const isInSongChannel = songChannelId === typedChannel.id;
-
-    if (!isInSongChannel) {
-      // Caso tenha mencionado o Twokei, mas NÃO esteja no canal de música
-      if (hasMentionedTwokei) {
-        // Caso o canal de música não exista
-        if (!songChannelId) {
-          return "song-channel-does-not-exists";
-        }
-
-        // Caso o canal de música exista, mas não seja o canal atual
-        return "not-in-song-channel";
-      }
-
-      // Caso NÃO tenha mencionado o Twokei e também NÃO esteja no canal de música
-      return "ignore";
-    }
-
-    if (hasMentionedTwokei) {
-      return "same-channel";
-    }
-
-    return "same-channel-no-mention";
   }
 }

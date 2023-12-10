@@ -61,18 +61,28 @@ export async function addNewSong(input: string, member: GuildMember) {
     throw new FriendlyException(ErrorCodes.PLAYER_NO_TRACKS_FOUND);
   }
 
-  if (result.type === XiaoLoadType.PLAYLIST_LOADED) {
-    result.tracks.sort(() => Math.random() - 0.5);
-    player.queue.add(...result.tracks);
-  } else {
-    player.queue.add(result.tracks?.[0]);
-  }
+  const addedTracks = XiaoLoadType.PLAYLIST_LOADED
+    ? result.tracks
+    : [result.tracks?.[0]];
+
+  player.queue.add(...addedTracks);
 
   if (!player.playing) {
     await player.play();
   } else {
-    player.emit(Events.TrackAdd, player, result.tracks);
+    player.emit(Events.TrackAdd, player, addedTracks);
   }
 
   return result;
+}
+
+export async function searchSongs(input: string, member: GuildMember) {
+  if (!input) {
+    throw new PlayerException(ErrorCodes.PLAYER_MISSING_INPUT);
+  }
+
+  return await container.xiao.search(input, {
+    requester: member.user,
+    resolver: "spotify",
+  });
 }

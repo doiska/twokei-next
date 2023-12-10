@@ -6,8 +6,8 @@ import { sql } from "drizzle-orm";
 import { kil } from "@/db/Kil";
 import { coreGuilds } from "@/db/schemas/core-guilds";
 
-import { setupNewChannel } from "@/features/song-channel/setup-new-channel";
-import { setupSongMessage } from "@/features/song-channel/setup-song-message";
+import { setupNewChannel } from "@/music/song-channel/setup-new-channel";
+import { setupSongMessage } from "@/music/song-channel/setup-song-message";
 import { logger } from "@/lib/logger";
 
 @ApplyOptions<Listener.Options>({

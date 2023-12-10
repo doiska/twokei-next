@@ -357,11 +357,10 @@ export class Xiao extends EventEmitter {
     if (result.loadType === LoadType.SEARCH) {
       return {
         type: XiaoLoadType.SEARCH_RESULT,
-        tracks: [
-          new ResolvableTrack(result.data[0], {
-            requester: options?.requester,
-          }),
-        ],
+        tracks: result.data.map(
+          (track) =>
+            new ResolvableTrack(track, { requester: options?.requester }),
+        ),
       };
     }
 

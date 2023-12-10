@@ -30,3 +30,5 @@ export const env = createEnv({
   },
   runtimeEnv: process.env,
 });
+
+export const IS_DEV = env.NODE_ENV === "development";

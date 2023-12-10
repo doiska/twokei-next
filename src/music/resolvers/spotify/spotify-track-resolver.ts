@@ -75,7 +75,7 @@ class SpotifyTrackResolver implements TrackResolver {
   public async search(
     query: string,
     requester?: User,
-    limit = 1,
+    limit = 10,
   ): Promise<XiaoSearchResult> {
     const encodedQuery = encodeURIComponent(query);
     const endpoint = `/search?q=${encodedQuery}&type=track&limit=${limit}&market=${this.options.region}`;

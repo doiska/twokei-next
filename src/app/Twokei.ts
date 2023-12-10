@@ -3,13 +3,11 @@ import "./env";
 import "../db/Kil";
 
 import "@sapphire/plugin-i18next/register";
-import "@sapphire/plugin-i18next/register";
 import "@/http/hooks/HttpServerHook";
 
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import {
   ApplicationCommandRegistries,
-  container,
   LogLevel,
   RegisterBehavior,
 } from "@sapphire/framework";
@@ -78,12 +76,9 @@ export const Twokei = new TwokeiClient({
 
 const main = async () => {
   logger.debug("Starting Twokei.");
+
   await Xiao.init(Twokei);
   await Twokei.login(process.env.DISCORD_TOKEN);
-
-  for (const guild of Twokei.guilds.cache.values()) {
-    await container.sc.reset(guild);
-  }
 
   Twokei?.user?.setPresence({
     activities: [
