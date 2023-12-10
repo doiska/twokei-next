@@ -2,6 +2,7 @@ import { type Guild } from "discord.js";
 import { type Awaitable, noop } from "@sapphire/utilities";
 import {
   type Connector,
+  Connectors,
   LoadType,
   type NodeOption,
   type PlayerUpdate,
@@ -35,7 +36,17 @@ import { Venti } from "./Venti";
 import { EventEmitter } from "events";
 import type { Logger } from "winston";
 import { spotifyTrackResolver } from "@/music/resolvers/spotify/spotify-track-resolver";
-import { onShoukakuRestore, storeSession } from "@/music/events/player-restore";
+import { container } from "@sapphire/framework";
+import { env } from "@/app/env";
+import { type TwokeiClient } from "@/structures/TwokeiClient";
+
+import { nodeManager } from "@/music/controllers/NodeManager";
+import { playerSessionRestored } from "@/music/sessions/player-session-restored";
+import { playerSessionStore } from "@/music/sessions/player-session-store";
+import {
+  getSessions,
+  restoreExpiredSessions,
+} from "@/music/sessions/player-session-manager";
 
 export interface XiaoEvents {
   /**
@@ -163,6 +174,26 @@ export class Xiao extends EventEmitter {
 
   private readonly logger: Logger;
 
+  static async init(client: TwokeiClient) {
+    const nodes = await nodeManager.getNodes();
+    const sessions = await getSessions();
+
+    container.xiao = new Xiao(
+      new Connectors.DiscordJS(client),
+      nodes,
+      {
+        resume: true,
+        moveOnDisconnect: true,
+        reconnectInterval: 3000,
+        reconnectTries: 5,
+        userAgent: `Twokei (${env.NODE_ENV})`,
+      },
+      sessions.dump,
+    );
+
+    await restoreExpiredSessions(sessions.expired);
+  }
+
   /**
    * @param nodes Shoukaku nodes
    * @param connector Shoukaku connector
@@ -180,6 +211,10 @@ export class Xiao extends EventEmitter {
     this.logger = logger.child({
       defaultPrefix: "XIAO",
     });
+
+    this.logger.info(
+      `Xiao is being initialized with ${nodes.length} nodes and ${dumps.length} to restore.`,
+    );
 
     this.shoukaku = new Shoukaku(connector, nodes, optionsShoukaku, dumps);
 
@@ -200,9 +235,8 @@ export class Xiao extends EventEmitter {
       this.logger.debug(`${name} ${info}`),
     );
 
-    this.shoukaku.on("raw", storeSession);
-
-    this.shoukaku.once("restored", onShoukakuRestore);
+    this.shoukaku.on("raw", playerSessionStore);
+    this.shoukaku.once("restored", playerSessionRestored);
 
     this.on(Events.Debug, (message) => this.logger.debug(message));
 

@@ -3,6 +3,8 @@ import "./env";
 import "../db/Kil";
 
 import "@sapphire/plugin-i18next/register";
+import "@sapphire/plugin-i18next/register";
+import "@/http/hooks/HttpServerHook";
 
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import {
@@ -19,6 +21,8 @@ import { DEFAULT_LOCALE, isValidLocale } from "@/locales/i18n";
 import { TwokeiClient } from "@/structures/TwokeiClient";
 import type { InternationalizationContext } from "@sapphire/plugin-i18next";
 import pt_br from "@/locales/pt_br";
+import { logger } from "@/lib/logger";
+import { Xiao } from "@/music/controllers/Xiao";
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
   RegisterBehavior.BulkOverwrite,
@@ -73,9 +77,9 @@ export const Twokei = new TwokeiClient({
 });
 
 const main = async () => {
-  const { expired } = await Twokei.start();
+  logger.debug("Starting Twokei.");
+  await Xiao.init(Twokei);
   await Twokei.login(process.env.DISCORD_TOKEN);
-  await Twokei.restore(expired);
 
   for (const guild of Twokei.guilds.cache.values()) {
     await container.sc.reset(guild);
