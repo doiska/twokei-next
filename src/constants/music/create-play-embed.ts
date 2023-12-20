@@ -69,7 +69,7 @@ export const createPlayEmbed = async (
 };
 
 function getTrackDescription(result: XiaoSearchResult, t: TFunction) {
-  const track = result.tracks[0];
+  const [track] = result.tracks;
 
   return new EmbedBuilder()
     .setThumbnail(

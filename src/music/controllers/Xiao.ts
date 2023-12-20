@@ -40,13 +40,14 @@ import { container } from "@sapphire/framework";
 import { env } from "@/app/env";
 import { type TwokeiClient } from "@/structures/TwokeiClient";
 
-import { nodeManager } from "@/music/controllers/NodeManager";
 import { playerSessionRestored } from "@/music/sessions/player-session-restored";
 import { playerSessionStore } from "@/music/sessions/player-session-store";
 import {
   getSessions,
   restoreExpiredSessions,
 } from "@/music/sessions/player-session-manager";
+import { kil } from "@/db/Kil";
+import { coreNodes } from "@/db/schemas/core-nodes";
 
 export interface XiaoEvents {
   /**
@@ -175,7 +176,8 @@ export class Xiao extends EventEmitter {
   private readonly logger: Logger;
 
   static async init(client: TwokeiClient) {
-    const nodes = await nodeManager.getNodes();
+    const nodes = await kil.select().from(coreNodes);
+
     const sessions = await getSessions();
 
     container.xiao = new Xiao(

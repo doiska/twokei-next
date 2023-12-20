@@ -48,6 +48,8 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         songChannel?.channel.id,
       );
 
+      logger.debug(`Play message validation: ${validation}`);
+
       if (validation === "ignore") {
         return;
       }

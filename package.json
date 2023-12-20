@@ -4,8 +4,9 @@
   "description": "",
   "main": "./dist/single-shard.js",
   "scripts": {
-    "start": "node dist/init.js",
-    "build": "swc src -d dist",
+    "build": "rimraf ./dist && swc src -d dist",
+    "start": "node --env-file=.env --preserve-symlinks ./dist/init.js",
+    "dev": "nodemon --watch src --exec \"npm run build && npm run start\"",
     "lint": "eslint --fix src --ext .ts",
     "migrations": "npx drizzle-kit generate:pg",
     "dev": "nodemon --watch src --ext ts --exec \"swc src -d dist && node --env-file=.env --preserve-symlinks ./dist/init.js\""
