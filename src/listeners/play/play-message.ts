@@ -1,4 +1,4 @@
-import { channelMention, Events, type Message } from "discord.js";
+import { Events, type Message, TextChannel } from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
 import {
   isGuildBasedChannel,
@@ -16,8 +16,8 @@ import { isShoukakuReady } from "@/preconditions/shoukaku-ready";
 import { youtubeTrackResolver } from "@/music/resolvers/youtube/youtube-track-resolver";
 import { addNewSong } from "@/music/heizou/add-new-song";
 import { createPlayEmbed } from "@/constants/music/create-play-embed";
-import { validateSongChannel } from "@/listeners/play/validate-sc-message";
-import { cleanupSongChannel } from "@/listeners/play/cleanup-sc";
+
+import { logger } from "@/lib/logger";
 
 const errors = {
   "same-channel-no-mention": ErrorCodes.MISSING_MESSAGE,
@@ -43,7 +43,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
 
       const songChannel = await container.sc.getEmbed(message.guild!);
 
-      const validation = await validateSongChannel(
+      const validation = await this.validateSongChannel(
         message,
         songChannel?.channel.id,
       );
@@ -54,14 +54,12 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
 
       const validationError = errors?.[validation as keyof typeof errors];
 
-      if (validationError) {
+      if (validationError || !songChannel) {
         await send(message, {
           embeds: Embed.error(
             await resolveKey(message, validationError, {
               mention: container.client.user?.toString() ?? "@Twokei",
-              channel: songChannel?.channel.id
-                ? channelMention(songChannel.channel.id)
-                : "#twokei-music",
+              channel: songChannel?.channel.toString() ?? "#twokei-music",
             }),
           ),
         }).dispose(8000);
@@ -112,7 +110,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
           }, 60000);
         });
 
-      await cleanupSongChannel(songChannel!.channel, songChannel!.message.id!);
+      await this.cleanupSongChannel(songChannel);
     } catch (e) {
       const exception = getReadableException(e);
 
@@ -122,5 +120,71 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         })) satisfies string,
       }).dispose();
     }
+  }
+
+  private async cleanupSongChannel({
+    message,
+    channel,
+  }: {
+    message: Message;
+    channel: TextChannel;
+  }) {
+    try {
+      const deletableMessages = await channel.messages.fetch();
+
+      await channel.bulkDelete(
+        deletableMessages.filter((m) => {
+          const duration = Date.now() - m.createdTimestamp;
+          const isMine = m.author.id === container.client.id;
+
+          const isRecent = duration < 60000 && isMine;
+          const isSongChannelMessage = m.id === message.id;
+
+          return !isRecent && !isSongChannelMessage;
+        }),
+        true,
+      );
+    } catch (e) {
+      logger.warn(
+        `Failed to bulk delete messages in ${channel.id} (${channel.guild.id})`,
+        e,
+      );
+    }
+  }
+
+  async validateSongChannel(message: Message, songChannelId?: string) {
+    const { channel: typedChannel, guild } = message;
+
+    if (!guild || !typedChannel) {
+      return "no-channel";
+    }
+
+    const hasMentionedTwokei = message.mentions.members?.has(
+      container.client.id!,
+    );
+
+    const isInSongChannel = songChannelId === typedChannel.id;
+
+    if (!isInSongChannel) {
+      // Caso tenha mencionado o Twokei, mas NÃO esteja no canal de música
+      if (hasMentionedTwokei) {
+        // Caso o canal de música não exista
+        if (!songChannelId) {
+          return "song-channel-does-not-exists";
+        }
+
+        // Caso o canal de música exista, mas não seja o canal atual
+        return "not-in-song-channel";
+      }
+
+      // Caso NÃO tenha mencionado o Twokei e também NÃO esteja no canal de música
+      return "ignore";
+    }
+
+    if (hasMentionedTwokei) {
+      return "same-channel";
+    }
+
+    return "same-channel-no-mention";
   }
 }

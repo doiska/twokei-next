@@ -1,11 +1,11 @@
 import "@sapphire/plugin-logger/register";
 import "@sapphire/plugin-subcommands/register";
 
+import { createEnv } from "@t3-oss/env-core";
 import {
   ApplicationCommandRegistries,
   RegisterBehavior,
 } from "@sapphire/framework";
-import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(

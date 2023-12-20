@@ -29,13 +29,6 @@ export const createDefaultSongEmbed = async (
   return {
     description,
     color: Colors.Blurple,
-    image: {
-      url: randomArt.url,
-      height: 300,
-      width: 300,
-      proxy_url:
-        "https://media.tenor.com/XAS0z1xPCIcAAAAd/cyberpunk-vaporwave.gif",
-    },
     author: {
       name: "Feito por: doiska.dev",
       url: "https://twitter.com/dois2ka",

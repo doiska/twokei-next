@@ -3,7 +3,6 @@ import "./env";
 import "../db/Kil";
 
 import "@sapphire/plugin-i18next/register";
-import "@/http/hooks/HttpServerHook";
 
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import {

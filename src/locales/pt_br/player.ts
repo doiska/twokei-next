@@ -27,8 +27,8 @@ export default {
       },
       select_language: "Alterar idioma",
       [EmbedButtons.VIEW_PROFILE]: "Meu Perfil",
-      [EmbedButtons.VIEW_RANKING]: "Ver Ranking",
-      [EmbedButtons.NEWS]: "Ver Novidades",
+      [EmbedButtons.VIEW_RANKING]: "Ranking Global",
+      [EmbedButtons.NEWS]: "Novidades",
     },
   },
   play: {
