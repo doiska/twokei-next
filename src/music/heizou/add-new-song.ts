@@ -46,10 +46,6 @@ async function createPlayer(member: GuildMember) {
 }
 
 export async function addNewSong(input: string, member: GuildMember) {
-  if (!input) {
-    throw new PlayerException(ErrorCodes.PLAYER_MISSING_INPUT);
-  }
-
   const player = await createPlayer(member);
 
   const result = await container.xiao.search(input, {
@@ -74,15 +70,4 @@ export async function addNewSong(input: string, member: GuildMember) {
   }
 
   return result;
-}
-
-export async function searchSongs(input: string, member: GuildMember) {
-  if (!input) {
-    throw new PlayerException(ErrorCodes.PLAYER_MISSING_INPUT);
-  }
-
-  return await container.xiao.search(input, {
-    requester: member.user,
-    resolver: "spotify",
-  });
 }
