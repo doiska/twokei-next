@@ -7,7 +7,6 @@ services:
       - "3000:3000"
     volumes:
       - .:/app
-#      - ../twokei-shoukaku:/app/node_modules/@twokei/shoukaku
     depends_on:
       postgres:
         condition: service_started
@@ -15,6 +14,7 @@ services:
         condition: service_healthy
     logging:
       driver: none
+    network_mode: host
   postgres:
     image: postgres:14.1-alpine
     restart: no
@@ -23,10 +23,10 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
     ports:
-        - "5432:5432"
+      - "5432:5432"
   lavalink:
     container_name: lavalink
-    image: ghcr.io/lavalink-devs/lavalink:4.0.0-beta.5
+    image: ghcr.io/lavalink-devs/lavalink:4.0.0
     restart: no
     healthcheck:
       test: [
