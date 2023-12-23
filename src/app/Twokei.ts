@@ -20,6 +20,7 @@ import type { InternationalizationContext } from "@sapphire/plugin-i18next";
 import pt_br from "@/locales/pt_br";
 import { logger } from "@/lib/logger";
 import { Xiao } from "@/music/controllers/Xiao";
+import { startCronJobs } from "@/lib/cron/cron";
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
   RegisterBehavior.BulkOverwrite,
@@ -28,13 +29,14 @@ ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
 export const Twokei = new TwokeiClient({
   caseInsensitiveCommands: true,
   logger: {
-    level: LogLevel.Error,
+    level: LogLevel.Debug,
   },
   intents: [
     GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.Guilds,
   ],
+  baseUserDirectory: null,
   partials: [Partials.Channel],
   loadMessageCommandListeners: true,
   enableLoaderTraceLoggings: false,
@@ -73,7 +75,7 @@ export const Twokei = new TwokeiClient({
   },
 });
 
-const main = async () => {
+export const init = async () => {
   logger.debug("Starting Twokei.");
 
   await Xiao.init(Twokei);
@@ -88,6 +90,6 @@ const main = async () => {
       },
     ],
   });
-};
 
-void main();
+  await startCronJobs();
+};

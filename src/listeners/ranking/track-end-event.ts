@@ -66,3 +66,9 @@ export class TrackEndEvent extends Listener<typeof Events.TrackEnd> {
     });
   }
 }
+
+void container.stores.loadPiece({
+  name: "song-user-track-end",
+  piece: TrackEndEvent,
+  store: "listeners",
+});

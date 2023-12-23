@@ -1,6 +1,6 @@
 import { Events, type Guild } from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
-import { Listener } from "@sapphire/framework";
+import { container, Listener } from "@sapphire/framework";
 
 import { sql } from "drizzle-orm";
 import { kil } from "@/db/Kil";
@@ -64,3 +64,9 @@ export class GuildSetup extends Listener<Events.GuildCreate> {
     });
   }
 }
+
+void container.stores.loadPiece({
+  name: "guild-setup-event",
+  piece: GuildSetup,
+  store: "listeners",
+});

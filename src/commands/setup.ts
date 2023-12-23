@@ -123,3 +123,9 @@ export class PlayCommand extends Command {
     }
   }
 }
+
+void container.stores.loadPiece({
+  name: "play-command",
+  piece: PlayCommand,
+  store: "commands",
+});

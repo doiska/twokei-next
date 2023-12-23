@@ -77,3 +77,9 @@ export class VoiceChannelUserUpdate extends Listener {
     return channel.members.has(channel.guild.members.me.id);
   }
 }
+
+void container.stores.loadPiece({
+  name: "voiceChannelUserUpdate",
+  piece: VoiceChannelUserUpdate,
+  store: "listeners",
+});

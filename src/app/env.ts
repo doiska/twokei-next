@@ -1,5 +1,4 @@
-import "@sapphire/plugin-logger/register";
-import "@sapphire/plugin-subcommands/register";
+import "dotenv/config";
 
 import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
@@ -22,5 +21,3 @@ export const env = createEnv({
   },
   runtimeEnv: process.env,
 });
-
-export const IS_DEV = env.NODE_ENV === "development";

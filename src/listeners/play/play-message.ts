@@ -190,3 +190,9 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
     return "same-channel-no-mention";
   }
 }
+
+void container.stores.loadPiece({
+  name: "play-message-event",
+  piece: PlayMessage,
+  store: "listeners",
+});
