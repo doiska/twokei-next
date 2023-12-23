@@ -2,7 +2,7 @@ import { ShardingManager } from "discord.js";
 import { env } from "@/app/env";
 import { inspect } from "node:util";
 
-const manager = new ShardingManager("./dist/app/Twokei.js", {
+const manager = new ShardingManager("./dist/init.js", {
   token: env.DISCORD_TOKEN,
   mode: "worker",
 });

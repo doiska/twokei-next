@@ -12,12 +12,9 @@ services:
         condition: service_started
       lavalink:
         condition: service_healthy
-    logging:
-      driver: none
     network_mode: host
   postgres:
     image: postgres:14.1-alpine
-    restart: no
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -33,7 +30,7 @@ services:
         "CMD",
         "bash",
         "-c",
-        "sleep 10 && echo ok || exit 1"
+        "sleep 5 && echo ok || exit 1"
       ]
       interval: 10s
     volumes:

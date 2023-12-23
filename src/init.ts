@@ -1,5 +1,4 @@
 import "dotenv/config";
+import { init } from "./app/Twokei";
 
-(async () => {
-  await import("./app/Twokei.js");
-})();
+init();
