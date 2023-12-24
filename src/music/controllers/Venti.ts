@@ -80,7 +80,7 @@ export class Venti {
     this.queue = new TrackQueue();
 
     this.logger = logger.child({
-      defaultPrefix: "VENTI",
+      module: "VENTI",
     });
 
     this.instance.on("end", (data) => {

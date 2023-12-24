@@ -16,7 +16,8 @@
     "skipDefaultLibCheck": true,
     "strict": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "noUncheckedIndexedAccess": true
   },
   "include": [
     "src/**/*"

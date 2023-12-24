@@ -1,28 +1,27 @@
-import { blue, type Color, cyan, green, red, reset, yellow } from "kleur";
 import {
   createLogger as createWinstonLogger,
   format,
   transports,
 } from "winston";
-import { type CliConfigSetLevels } from "winston/lib/winston/config";
+import { red, blue, cyan, green, reset, yellow } from "ansis";
 
-const colors: Record<keyof CliConfigSetLevels, Color> = {
+const colors = {
   error: red,
   info: blue,
   warn: yellow,
   debug: cyan,
   verbose: green,
-};
+} as Record<string, (str: string) => string>;
 
 const consoleTransportInstance = new transports.Console({
   format: format.combine(
     format.printf((info) => {
       const {
         timestamp,
-        level: uncoloredLevel,
-        message,
+        level: uncoloredLevel = "info",
+        message = "",
         stack,
-        defaultPrefix = "CORE",
+        module = "CORE",
         ...rest
       } = info as Record<string, string>;
 
@@ -31,7 +30,7 @@ const consoleTransportInstance = new transports.Console({
       const color = colors[info.level] ?? blue;
 
       const prefix = color(
-        `${timestamp} [${defaultPrefix}] - [${uncoloredLevel.toUpperCase()}]:`,
+        `${timestamp} [${module}] - [${uncoloredLevel.toUpperCase()}]:`,
       );
 
       const trace = stack ? `\n${stack.replace(/\n/g, `\n${prefix}`)}` : "";
@@ -61,18 +60,16 @@ const defaultLoggerOptions = {
   transports: [consoleTransportInstance],
 };
 
-export const logger = createWinstonLogger({
-  ...defaultLoggerOptions,
-});
+export const logger = createWinstonLogger(defaultLoggerOptions);
 
 export const playerLogger = logger.child({
-  defaultPrefix: "PLAYER",
+  module: "PLAYER",
 });
 
 export const queryLogger = logger.child({
-  defaultPrefix: "QUERY",
+  module: "QUERY",
 });
 
 export const ventiLogger = logger.child({
-  defaultPrefix: "VENTI",
+  module: "VENTI",
 });

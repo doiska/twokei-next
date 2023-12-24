@@ -6,6 +6,7 @@ export default defineConfig({
   dts: false,
   entry: ["src/**/*.ts", "!src/**/*.d.ts"],
   format: ["cjs"],
+  platform: "node",
   minify: false,
   tsconfig: "tsconfig.json",
   target: "es2020",

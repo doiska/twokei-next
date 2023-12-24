@@ -48,6 +48,7 @@ import {
 } from "@/music/sessions/player-session-manager";
 import { kil } from "@/db/Kil";
 import { coreNodes } from "@/db/schemas/core-nodes";
+import { eq } from "drizzle-orm";
 
 export interface XiaoEvents {
   /**
@@ -176,7 +177,10 @@ export class Xiao extends EventEmitter {
   private readonly logger: Logger;
 
   static async init(client: TwokeiClient) {
-    const nodes = await kil.select().from(coreNodes);
+    const nodes = await kil
+      .select()
+      .from(coreNodes)
+      .where(eq(coreNodes.enabled, true));
 
     const sessions = await getSessions();
 
@@ -213,7 +217,7 @@ export class Xiao extends EventEmitter {
     super();
 
     this.logger = logger.child({
-      defaultPrefix: "XIAO",
+      module: "XIAO",
     });
 
     this.logger.info(

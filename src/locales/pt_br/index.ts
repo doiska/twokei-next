@@ -8,8 +8,6 @@ import profile from "@/locales/pt_br/profile";
 import tutorial from "@/locales/pt_br/tutorial";
 import interactions from "@/locales/pt_br/interactions";
 
-import type { Resource } from "i18next";
-
 export default {
   interactions,
   common,
@@ -20,4 +18,4 @@ export default {
   messages,
   profile,
   news,
-} satisfies Resource;
+} as const;

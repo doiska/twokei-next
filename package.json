@@ -31,7 +31,7 @@
     "@sapphire/ratelimits": "^2.4.8",
     "@sapphire/utilities": "^3.14.0",
     "@t3-oss/env-core": "^0.6.1",
-    "@twokei/shoukaku": "^1.0.3",
+    "@twokei/shoukaku": "github:doiska/twokei-shoukaku",
     "ansis": "^2.0.3",
     "croner": "^8.0.0",
     "date-fns": "^2.30.0",

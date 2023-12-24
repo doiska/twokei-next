@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   app:
+    tty: true
     build: .
     ports:
       - "3000:3000"
@@ -22,6 +23,7 @@ services:
     ports:
       - "5432:5432"
   lavalink:
+    tty: true
     container_name: lavalink
     image: ghcr.io/lavalink-devs/lavalink:4.0.0
     restart: no

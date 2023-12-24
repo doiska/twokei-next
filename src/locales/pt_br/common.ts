@@ -2,8 +2,6 @@ import { hyperlink } from "discord.js";
 
 import { Icons } from "@/constants/icons";
 
-import { type ResourceLanguage } from "i18next";
-
 export default {
   name: "Twokei",
   join_embed: {
@@ -66,4 +64,4 @@ export default {
     "Ouça música em alta qualidade no próprio Discord.",
     "Sem anúncios ou interrupções!",
   ],
-} satisfies ResourceLanguage;
+};
