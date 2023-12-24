@@ -89,3 +89,9 @@ export class PlayerButtonsInteraction extends InteractionHandler {
     return this.none();
   }
 }
+
+void container.stores.loadPiece({
+  name: "player-buttons",
+  piece: PlayerButtonsInteraction,
+  store: "interaction-handlers",
+});

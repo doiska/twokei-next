@@ -1,6 +1,7 @@
 import { type StringSelectMenuInteraction } from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
 import {
+  container,
   InteractionHandler,
   InteractionHandlerTypes,
   type Option,
@@ -78,3 +79,9 @@ export class PlayerMenu extends InteractionHandler {
     }
   }
 }
+
+void container.stores.loadPiece({
+  name: "player-menu",
+  piece: PlayerMenu,
+  store: "interaction-handlers",
+});

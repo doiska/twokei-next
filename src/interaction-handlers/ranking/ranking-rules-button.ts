@@ -1,5 +1,6 @@
 import { ApplyOptions } from "@sapphire/decorators";
 import {
+  container,
   InteractionHandler,
   InteractionHandlerTypes,
 } from "@sapphire/framework";
@@ -29,3 +30,9 @@ export class RankingRulesButtonInteraction extends InteractionHandler {
     return isValidCustomId(interaction.customId, "ranking-rules-button");
   }
 }
+
+void container.stores.loadPiece({
+  name: "ranking-rules-button",
+  piece: RankingRulesButtonInteraction,
+  store: "interaction-handlers",
+});

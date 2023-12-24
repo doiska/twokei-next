@@ -10,6 +10,7 @@ import {
 import { ApplyOptions } from "@sapphire/decorators";
 import { isGuildMember } from "@sapphire/discord.js-utilities";
 import {
+  container,
   InteractionHandler,
   InteractionHandlerTypes,
   type None,
@@ -25,7 +26,7 @@ import { fetchT } from "@sapphire/plugin-i18next";
   enabled: true,
   interactionHandlerType: InteractionHandlerTypes.Button,
 })
-export class PlayerButtonsInteraction extends InteractionHandler {
+export class DonateButton extends InteractionHandler {
   public async run(interaction: ButtonInteraction) {
     if (!interaction.guild || !isGuildMember(interaction.member)) {
       return;
@@ -96,3 +97,9 @@ export class PlayerButtonsInteraction extends InteractionHandler {
     return this.some();
   }
 }
+
+void container.stores.loadPiece({
+  name: "donate-button",
+  piece: DonateButton,
+  store: "interaction-handlers",
+});

@@ -41,17 +41,21 @@ export class NewsButtonInteraction extends InteractionHandler {
         .chatInputCommands.values(),
     ];
 
+    const profileCommand = chatInputApplicationCommandMention(
+      profileCommandName!,
+      profileCommandId!,
+    );
+
+    const topCommand = chatInputApplicationCommandMention(
+      topCommandName!,
+      topCommandId!,
+    );
+
     const newsText: APIEmbed = t("news:embed", {
       returnObjects: true,
-      command_profile: profileCommandName
-        ? chatInputApplicationCommandMention(
-            profileCommandName,
-            profileCommandId,
-          )
-        : "/profile",
-      command_ranking: topCommandName
-        ? chatInputApplicationCommandMention(topCommandName, topCommandId)
-        : "/top",
+      command_profile:
+        profileCommandName && profileCommandId ? profileCommand : "/profile",
+      command_ranking: topCommandName && topCommandId ? topCommand : "/top",
     });
 
     const newsEmbed = EmbedBuilder.from(newsText);
@@ -81,3 +85,9 @@ export class NewsButtonInteraction extends InteractionHandler {
     return this.some();
   }
 }
+
+void container.stores.loadPiece({
+  name: "news-button",
+  piece: NewsButtonInteraction,
+  store: "interaction-handlers",
+});
