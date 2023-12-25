@@ -5,7 +5,9 @@ import { z } from "zod";
 
 export const env = createEnv({
   server: {
-    CLIENT_ID: z.string().optional(),
+    LOG_LEVEL: z
+      .enum(["error", "warn", "info", "verbose", "debug", "silly"])
+      .default("debug"),
     NODE_ENV: z.enum(["production", "development"]),
     DISCORD_TOKEN: z.string(),
     DATABASE_URL: z.string().url(),
@@ -13,11 +15,6 @@ export const env = createEnv({
     RESOLVER_KEY: z.string(),
     SPOTIFY_CLIENT_SECRET: z.string(),
     SPOTIFY_CLIENT_ID: z.string(),
-    PORT: z.union([z.number(), z.string()]).default(3005),
-    SHARDING_MANAGER_ENABLED: z
-      .string()
-      .default("false")
-      .transform((value) => value === "true"),
   },
   runtimeEnv: process.env,
 });
