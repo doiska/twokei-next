@@ -5,7 +5,7 @@ import { kil } from "@/db/Kil";
 import { coreNodes } from "@/db/schemas/core-nodes";
 import { inArray } from "drizzle-orm";
 
-export default async function () {
+export async function execute() {
   const entries = Array.from(container.xiao.shoukaku.nodes.values());
 
   if (entries.length === 0) {

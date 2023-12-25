@@ -7,13 +7,11 @@ const cronLogger = logger.child({ module: "cron" });
 
 export async function startCronJobs() {
   Cron(
-    "*/5 * * * * *",
+    "* */1 * * * *",
     {
       name: "refresh-cron-jobs",
     },
     async () => {
-      const activeJobs = Cron.scheduledJobs.map((job) => job.name);
-
       const services = await kil
         .select({
           service: coreScheduler.service,
@@ -31,34 +29,35 @@ export async function startCronJobs() {
           continue;
         }
 
-        const keepAlive =
-          activeJobs.includes(service.service) && service.enabled;
+        if (current) {
+          if (!service.enabled) {
+            current.stop();
+            continue;
+          }
 
-        if (keepAlive) {
-          continue;
-        }
+          if (current.getPattern() === service.schedule) {
+            continue;
+          }
 
-        if (!keepAlive && current) {
           current.stop();
-          logger.info(`Stopped cron job ${service.service}.`);
-          continue;
         }
 
-        await import(`./jobs/${service.service}.ts`)
-          .then((m) => {
-            cronLogger.info(`Loaded cron job ${service.service}.`);
-            Cron(
-              service.schedule,
-              {
-                name: service.service,
-              },
-              m.default,
-            );
-          })
-          .catch((err) => {
-            cronLogger.error(`Failed to load cron job ${service.service}.`);
-            cronLogger.error(err);
-          });
+        try {
+          const { execute: jobFn } = await import(
+            `./jobs/${service.service}.ts`
+          );
+
+          Cron(
+            service.schedule,
+            {
+              name: service.service,
+            },
+            jobFn,
+          );
+        } catch (err) {
+          cronLogger.error(`Failed to load cron job ${service.service}.`);
+          cronLogger.error(err);
+        }
       }
     },
   );

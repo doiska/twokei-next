@@ -4,6 +4,7 @@ import {
   transports,
 } from "winston";
 import { red, blue, cyan, green, reset, yellow } from "ansis";
+import { env } from "@/app/env";
 
 const colors = {
   error: red,
@@ -21,7 +22,7 @@ const consoleTransportInstance = new transports.Console({
         level: uncoloredLevel = "info",
         message = "",
         stack,
-        module = "CORE",
+        module: group = "CORE",
         ...rest
       } = info as Record<string, string>;
 
@@ -30,7 +31,7 @@ const consoleTransportInstance = new transports.Console({
       const color = colors[info.level] ?? blue;
 
       const prefix = color(
-        `${timestamp} [${module}] - [${uncoloredLevel.toUpperCase()}]:`,
+        `${timestamp} [${uncoloredLevel.toUpperCase()}] [${group.toUpperCase()}]:`,
       );
 
       const trace = stack ? `\n${stack.replace(/\n/g, `\n${prefix}`)}` : "";
@@ -51,7 +52,7 @@ const consoleTransportInstance = new transports.Console({
 });
 
 const defaultLoggerOptions = {
-  level: "debug",
+  level: env.LOG_LEVEL,
   format: format.combine(
     format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
     format.errors({ stack: true }),
