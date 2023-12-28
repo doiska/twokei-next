@@ -70,7 +70,3 @@ export const playerLogger = logger.child({
 export const queryLogger = logger.child({
   module: "QUERY",
 });
-
-export const ventiLogger = logger.child({
-  module: "VENTI",
-});
