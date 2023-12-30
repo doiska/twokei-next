@@ -26,7 +26,7 @@ import { Icons, RawIcons } from "@/constants/icons";
   description: "Setup the bot music channel",
   enabled: true,
   preconditions: ["GuildTextOnly"],
-  cooldownDelay: 1_000,
+  cooldownDelay: 2_000,
 })
 export class PlayCommand extends Command {
   registerApplicationCommands(registry: Command.Registry) {
@@ -67,8 +67,10 @@ export class PlayCommand extends Command {
         logger.error(e);
       });
 
+      //TODO: i18n
       await response
         .send({
+          content: member.user.toString(),
           embeds: Embed.info(
             await resolveKey(interaction, "commands:setup.channel_created", {
               channel: response.toString(),
