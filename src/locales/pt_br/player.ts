@@ -11,7 +11,9 @@ export default {
       "- **Controle a fila no Menu de Faixas abaixo!**",
       `### ${Icons.SpotifyLogo} Não sabe o que ouvir? Use nossos Presets!`,
       `- **Clique no menu abaixo e escolha uma categoria**.`,
-      `- A **fila deve estar vazia** para usar ${Icons.Hanakin}!`,
+      `- A **fila deve estar vazia** para usar ${Icons.Hanakin}`,
+      "### 🎨 Arte feita por: [{{- artwork.name}}]({{- artwork.url}})",
+      "- Quer ver sua arte aqui? Envie em [nosso site](https://artwork.twokei.com)!",
     ],
     buttons: {
       [PlayerButtons.STOP]: "Parar",
