@@ -3,7 +3,6 @@ import { ApplyOptions } from "@sapphire/decorators";
 import { container, Listener } from "@sapphire/framework";
 import { getVoiceStateUpdateType } from "@/utils/voice-state";
 import { PlayerState } from "@/music/interfaces/player.types";
-import { GuildSetup } from "@/listeners/guild-setup";
 
 @ApplyOptions<Listener.Options>({
   name: "voiceChannelLeave",

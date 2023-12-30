@@ -5,8 +5,6 @@ import type { Venti } from "@/music/controllers/Venti";
 import { Events } from "@/music/interfaces/player.types";
 import { ResolvableTrack } from "@/music/structures/ResolvableTrack";
 import { trackEvent } from "@/lib/analytics/track-event";
-import { VoiceChannelUserUpdate } from "@/listeners/voice-channel-user-update";
-import { TrackEndEvent } from "@/listeners/ranking/track-end-event";
 
 @ApplyOptions<Listener.Options>({
   name: "song-user-tracker",

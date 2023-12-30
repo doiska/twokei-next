@@ -2,7 +2,6 @@ import { container, Listener } from "@sapphire/framework";
 import { ApplyOptions } from "@sapphire/decorators";
 import { Events, VoiceState } from "discord.js";
 import { getVoiceStateUpdateType } from "@/utils/voice-state";
-import { VoiceChannelBotLeave } from "@/listeners/voice-channel-bot-leave";
 
 @ApplyOptions<Listener.Options>({
   name: "voiceChannelSwitch",
