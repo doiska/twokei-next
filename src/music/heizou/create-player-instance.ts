@@ -31,6 +31,8 @@ export async function createPlayerInstance({
     deaf: true,
   };
 
+  //TODO: revisar este fluxo, é possível que o erro de canal inexiste não esteja sendo tratado
+
   const { message, channel } = (await container.sc.getEmbed(guild)) ?? {};
 
   if (!message || !channel) {

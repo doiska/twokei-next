@@ -29,8 +29,6 @@ export class YoutubeTrackResolver implements TrackResolver {
 
     const ytResponse = await node.rest.resolve(query);
 
-    console.log(ytResponse);
-
     if (
       !ytResponse ||
       !ytResponse.data ||
@@ -76,8 +74,6 @@ export class YoutubeTrackResolver implements TrackResolver {
   }
 
   private parseTrack(track: Track, requester?: User) {
-    console.log(track);
-
     return new ResolvableTrack(
       {
         encoded: "",

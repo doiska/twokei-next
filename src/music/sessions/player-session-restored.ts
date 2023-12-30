@@ -43,7 +43,9 @@ export async function playerSessionRestored(dumps: PlayerDump[]) {
 
     const venti = new Venti(container.xiao, restored, ventiOptions);
 
-    venti.queue.restore(restorableQueue.queue);
+    if (restorableQueue.queue) {
+      venti.queue.restore(restorableQueue.queue);
+    }
 
     container.xiao.players.set(dump.options.guildId, venti);
     container.xiao.emit(Events.ManualUpdate, venti, {

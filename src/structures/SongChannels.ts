@@ -7,7 +7,7 @@ import { container } from "@sapphire/framework";
 
 import { eq } from "drizzle-orm";
 import { kil } from "@/db/Kil";
-import { songChannels } from "@/db/schemas/song-channels";
+import { playerSongChannels } from "@/db/schemas/player-song-channels";
 
 import { createDefaultEmbed } from "@/music/embed/pieces";
 import { logger } from "@/lib/logger";
@@ -15,7 +15,7 @@ import { logger } from "@/lib/logger";
 export class SongChannelManager {
   public async set(guildId: string, channelId: string, messageId: string) {
     const [result] = await kil
-      .insert(songChannels)
+      .insert(playerSongChannels)
       .values({
         guildId,
         channelId,
@@ -26,7 +26,7 @@ export class SongChannelManager {
           channelId,
           messageId,
         },
-        target: songChannels.guildId,
+        target: playerSongChannels.guildId,
       })
       .returning();
 
@@ -42,8 +42,8 @@ export class SongChannelManager {
 
     const [result] = await kil
       .select()
-      .from(songChannels)
-      .where(eq(songChannels.guildId, guildId));
+      .from(playerSongChannels)
+      .where(eq(playerSongChannels.guildId, guildId));
 
     return result;
   }

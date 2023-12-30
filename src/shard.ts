@@ -26,6 +26,4 @@ manager.on("shardCreate", (shard) => {
   shard.on("error", (error) => console.error(error));
 });
 
-manager.spawn({
-  amount: 1,
-});
+manager.spawn();
