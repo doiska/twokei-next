@@ -119,4 +119,4 @@ dist
 out/
 .idea
 /.meta/
-/.meta/lavalink
+/lavalink/

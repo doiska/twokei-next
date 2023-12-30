@@ -14,6 +14,10 @@ const colors = {
   verbose: green,
 } as Record<string, (str: string) => string>;
 
+function getColorByLevel(level: string): (str: string) => string {
+  return colors[level] ?? blue;
+}
+
 const consoleTransportInstance = new transports.Console({
   format: format.combine(
     format.printf((info) => {
@@ -28,7 +32,7 @@ const consoleTransportInstance = new transports.Console({
 
       const content = stack || reset(message);
 
-      const color = colors[info.level] ?? blue;
+      const color = getColorByLevel(uncoloredLevel);
 
       const prefix = color(
         `${timestamp} [${uncoloredLevel.toUpperCase()}] [${group.toUpperCase()}]:`,
@@ -52,7 +56,7 @@ const consoleTransportInstance = new transports.Console({
 });
 
 const defaultLoggerOptions = {
-  level: env.LOG_LEVEL,
+  level: env.LOG_LEVEL ?? "info",
   format: format.combine(
     format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
     format.errors({ stack: true }),
