@@ -9,7 +9,6 @@ import { noop } from "@sapphire/utilities";
 
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
-import { followUp, send } from "@/lib/message-handler";
 import { Embed } from "@/utils/messages";
 import { resolveKey } from "@sapphire/plugin-i18next";
 import { isShoukakuReady } from "@/preconditions/shoukaku-ready";
@@ -18,6 +17,7 @@ import { addNewSong } from "@/music/heizou/add-new-song";
 import { createPlayEmbed } from "@/constants/music/create-play-embed";
 
 import { logger } from "@/lib/logger";
+import { dispose, stripContent } from "@/lib/message-handler/utils";
 
 const errors = {
   "same-channel-no-mention": ErrorCodes.MISSING_MESSAGE,
@@ -43,12 +43,10 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
 
       const songChannel = await container.sc.getEmbed(message.guild!);
 
-      const validation = await this.validateSongChannel(
+      const validation = await this.getMessageValidation(
         message,
         songChannel?.channel.id,
       );
-
-      logger.debug(`Play message validation: ${validation}`);
 
       if (validation === "ignore") {
         return;
@@ -57,70 +55,76 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
       const validationError = errors?.[validation as keyof typeof errors];
 
       if (validationError || !songChannel) {
-        await send(message, {
-          embeds: Embed.error(
-            await resolveKey(message, validationError, {
-              mention: container.client.user?.toString() ?? "@Twokei",
-              channel: songChannel?.channel.toString() ?? "#twokei-music",
-            }),
-          ),
-        }).dispose(8000);
+        await typedChannel
+          .send({
+            embeds: Embed.error(
+              await resolveKey(message, validationError, {
+                mention: container.client.user?.toString() ?? "@Twokei",
+                channel: songChannel?.channel.toString() ?? "#twokei-music",
+              }),
+            ),
+          })
+          .then((errorMessage) => {
+            dispose(errorMessage, 8000);
+            dispose(message, 8000);
+          })
+          .catch(noop);
 
-        await message.delete().catch(noop);
         return;
       }
 
-      const contentOnly = message.content.replace(/<@!?\d+>/g, "").trim();
+      const contentOnly = stripContent(message.content);
 
-      if (!contentOnly) {
-        await send(message, {
-          embeds: Embed.error(
-            await resolveKey(message, ErrorCodes.PLAYER_MISSING_INPUT),
-          ),
-        }).dispose(8000);
+      if (!contentOnly.length) {
+        message
+          .reply({
+            embeds: Embed.error(
+              await resolveKey(message, ErrorCodes.PLAYER_MISSING_INPUT),
+            ),
+          })
+          .then((errorMessage) => {
+            dispose(errorMessage, 8000);
+            dispose(message, 8000);
+          });
 
-        await message.delete().catch(noop);
         return;
       }
 
       if (youtubeTrackResolver.matches(contentOnly)) {
-        await followUp(message, {
-          embeds: Embed.info(
-            await resolveKey(message, "player:youtube_disabled"),
-          ),
-        }).dispose(5000);
+        message
+          .reply({
+            embeds: Embed.info(
+              await resolveKey(message, "player:youtube_disabled"),
+            ),
+          })
+          .then(dispose);
       }
 
       const result = await addNewSong(contentOnly, member);
 
       if (validation === "not-in-song-channel") {
-        const mentionedChannel =
-          songChannel?.channel.toString() ?? "#twokei-music";
-
-        await send(message, {
-          embeds: Embed.success(
-            `Acompanhe e controle a música no canal ${mentionedChannel}`,
-          ),
-        });
+        await message
+          .reply({
+            embeds: Embed.success(
+              `Acompanhe e controle a música no canal ${songChannel.channel.toString()}`,
+            ),
+          })
+          .then(dispose);
       }
 
       songChannel?.channel
         .send(await createPlayEmbed(member, result))
-        .then((message) => {
-          setTimeout(() => {
-            message.delete().catch(noop);
-          }, 60000);
-        });
+        .then((message) => dispose(message, 60000));
 
       await this.cleanupSongChannel(songChannel);
     } catch (e) {
       const exception = getReadableException(e);
 
-      await send(message, {
-        content: (await resolveKey(message, exception, {
-          defaultValue: exception,
-        })) satisfies string,
-      }).dispose();
+      await message.channel
+        .send({
+          embeds: Embed.error(await resolveKey(message, exception)),
+        })
+        .then(dispose);
     }
   }
 
@@ -154,40 +158,37 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
     }
   }
 
-  async validateSongChannel(message: Message, songChannelId?: string) {
+  async getMessageValidation(message: Message, songChannelId?: string) {
     const { channel: typedChannel, guild } = message;
 
     if (!guild || !typedChannel) {
       return "no-channel";
     }
 
-    const hasMentionedTwokei = message.mentions.members?.has(
-      container.client.id!,
-    );
-
     const isInSongChannel = songChannelId === typedChannel.id;
+    const hasAvailableContent = message.content.length > 0;
 
-    if (!isInSongChannel) {
-      // Caso tenha mencionado o Twokei, mas NÃO esteja no canal de música
-      if (hasMentionedTwokei) {
-        // Caso o canal de música não exista
-        if (!songChannelId) {
-          return "song-channel-does-not-exists";
-        }
-
-        // Caso o canal de música exista, mas não seja o canal atual
-        return "not-in-song-channel";
+    if (isInSongChannel) {
+      if (hasAvailableContent) {
+        return "same-channel";
       }
 
-      // Caso NÃO tenha mencionado o Twokei e também NÃO esteja no canal de música
-      return "ignore";
+      return "same-channel-no-mention";
     }
 
-    if (hasMentionedTwokei) {
-      return "same-channel";
+    // Caso tenha mencionado o Twokei, mas NÃO esteja no canal de música
+    if (hasAvailableContent) {
+      // Caso o canal de música não exista
+      if (!songChannelId) {
+        return "song-channel-does-not-exists";
+      }
+
+      // Caso o canal de música exista, mas não seja o canal atual
+      return "not-in-song-channel";
     }
 
-    return "same-channel-no-mention";
+    // Caso NÃO tenha mencionado o Twokei e também NÃO esteja no canal de música
+    return "ignore";
   }
 }
 
