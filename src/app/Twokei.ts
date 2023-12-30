@@ -4,7 +4,7 @@ import "../db/Kil";
 
 import "@sapphire/plugin-i18next/register";
 
-import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
+import { GatewayIntentBits, Partials } from "discord.js";
 import {
   ApplicationCommandRegistries,
   LogLevel,
@@ -80,16 +80,6 @@ export const init = async () => {
 
   await Xiao.init(Twokei);
   await Twokei.login(process.env.DISCORD_TOKEN);
-
-  Twokei?.user?.setPresence({
-    activities: [
-      {
-        name: "Music Bot: Twokei.com",
-        type: ActivityType.Custom,
-        url: "https://twokei.com",
-      },
-    ],
-  });
 
   await startCronJobs();
 };
