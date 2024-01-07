@@ -3,14 +3,11 @@
   "version": "2.6.0",
   "main": "./dist/init.js",
   "type": "commonjs",
-  "imports": {
-    "#/*": "./dist/*.mjs"
-  },
   "scripts": {
     "build": "tsup",
-    "start": "node --env-file=.env --preserve-symlinks ./dist/shard.js",
-    "start:dev": "tsup --watch --onSuccess \"node --env-file=.env --preserve-symlinks ./dist/init.js\"",
-    "start:dev-shard": "tsup --watch --onSuccess \"node --env-file=.env --preserve-symlinks ./dist/shard.js\"",
+    "start": "node --env-file=.env --preserve-symlinks ./dist/init.js",
+    "start:bun": "bun --bun ./dist/init.js",
+    "start:dev": "tsup --watch --onSuccess \"npm run start\"",
     "lint": "eslint --fix src --ext .ts",
     "migrations": "npx drizzle-kit generate:pg"
   },
@@ -30,8 +27,10 @@
     "@sapphire/plugin-i18next": "^7.0.1",
     "@sapphire/ratelimits": "^2.4.8",
     "@sapphire/utilities": "^3.14.0",
+    "@spotify/web-api-ts-sdk": "^1.1.2",
     "@t3-oss/env-core": "^0.6.1",
     "@twokei/shoukaku": "github:doiska/twokei-shoukaku",
+    "@types/node": "^20.10.6",
     "ansis": "^2.0.3",
     "croner": "^8.0.0",
     "date-fns": "^2.30.0",
@@ -40,7 +39,6 @@
     "dotenv": "^16.3.1",
     "drizzle-orm": "^0.29.0",
     "express-router-fs": "^1.2.0",
-    "kleur": "^4.1.5",
     "pg": "^8.11.3",
     "postgres": "^3.3.5",
     "reflect-metadata": "^0.1.13",

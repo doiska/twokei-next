@@ -11,6 +11,7 @@ import { Events, XiaoLoadType } from "../interfaces/player.types";
 import { createPlayerInstance } from "./create-player-instance";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 import { container } from "@sapphire/framework";
+import { ResolvableTrack } from "@/music/structures/ResolvableTrack";
 
 async function createPlayer(member: GuildMember) {
   const { guild } = member;
@@ -43,6 +44,25 @@ async function createPlayer(member: GuildMember) {
   }
 
   return player;
+}
+
+export async function addResolvableTrack(
+  track: ResolvableTrack[] | ResolvableTrack,
+  member: GuildMember,
+) {
+  const player = await createPlayer(member);
+
+  const addedTracks = Array.isArray(track) ? track : [track];
+
+  player.queue.add(...addedTracks);
+
+  if (!player.playing) {
+    await player.play();
+  } else {
+    player.emit(Events.TrackAdd, player, addedTracks);
+  }
+
+  return track;
 }
 
 export async function addNewSong(input: string, member: GuildMember) {

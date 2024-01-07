@@ -7,11 +7,15 @@ import {
 } from "@/music/embed/pieces/buttons";
 import { createDefaultSongEmbed } from "@/music/embed/pieces/embed";
 import { createSelectMenu } from "@/music/embed/pieces/menu";
+import { getPresetMenu } from "@/music/embed/pieces/preset-menu";
 
 export async function createDefaultEmbed(guild: Guild) {
   return {
     embeds: [await createDefaultSongEmbed(guild)],
-    components: [await createStaticButtons(guild)].flat(),
+    components: [
+      await createStaticButtons(guild),
+      await getPresetMenu(guild),
+    ].flat(),
   };
 }
 

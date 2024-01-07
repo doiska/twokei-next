@@ -1,5 +1,6 @@
 export enum Menus {
   SelectSongMenu = "SELECT_SONG_MENU",
+  PresetMenu = "PRESET_MENU",
 }
 
 export enum PlayerButtons {

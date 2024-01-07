@@ -1,19 +1,6 @@
 version: '3.8'
 
 services:
-  app:
-    tty: true
-    build: .
-    ports:
-      - "3000:3000"
-    volumes:
-      - .:/app
-    depends_on:
-      postgres:
-        condition: service_started
-      lavalink:
-        condition: service_healthy
-    network_mode: host
   postgres:
     image: postgres:14.1-alpine
     environment:

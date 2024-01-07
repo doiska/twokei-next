@@ -21,7 +21,7 @@ class SpotifyRequestManager {
     return await requester.request(endpoint, useUri);
   }
 
-  private getLeastUsedRequest() {
+  public getLeastUsedRequest() {
     const isNotRateLimited = (request: SpotifyRequest) =>
       !request.currentApiStatus.rateLimited;
 
@@ -43,7 +43,7 @@ export const spotifyRequestManager = new SpotifyRequestManager({
   region: "BR",
   limits: {
     search: 5,
-    playlists: 5,
+    playlists: 10,
     tracks: 5,
     albums: 10,
   },
