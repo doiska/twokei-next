@@ -19,9 +19,3 @@ export function cache<Fn extends (...args: any[]) => Awaitable<any>>(
     return result;
   }) as Fn;
 }
-
-const sum = (a: number, b: number) => a + b;
-
-const cachedSum = cache(sum);
-
-cachedSum(1, 2); // 3

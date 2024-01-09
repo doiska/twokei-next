@@ -7,6 +7,7 @@ import player from "@/locales/pt_br/player";
 import profile from "@/locales/pt_br/profile";
 import tutorial from "@/locales/pt_br/tutorial";
 import interactions from "@/locales/pt_br/interactions";
+import genres from "@/locales/pt_br/genres";
 
 export default {
   interactions,
@@ -18,4 +19,5 @@ export default {
   messages,
   profile,
   news,
+  genres,
 } as const;

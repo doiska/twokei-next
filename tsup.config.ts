@@ -15,4 +15,6 @@ export default defineConfig({
   sourcemap: true,
   shims: false,
   keepNames: true,
+  silent: true,
+  onSuccess: "node dist/init.js",
 });
