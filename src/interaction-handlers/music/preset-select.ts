@@ -15,12 +15,14 @@ import { Menus } from "@/constants/music/player-buttons";
 import { Spotify } from "@/music/resolvers/spotify/spotify-revamp";
 import { kil } from "@/db/Kil";
 import { playerPresets } from "@/db/schemas/player-presets";
-import { eq } from "drizzle-orm";
+import { eq, ilike, inArray, sql } from "drizzle-orm";
 import type { Track as SpotifyTrack } from "@spotify/web-api-ts-sdk";
 import { addResolvableTrack } from "@/music/heizou/add-new-song";
 import { ResolvableTrack } from "@/music/structures/ResolvableTrack";
 import { logger } from "@/lib/logger";
 import * as fs from "fs";
+import { playerCategories } from "@/db/schemas/player-categories";
+import { playerPlaylists } from "@/db/schemas/player-playlists";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "preset-select-menu",
@@ -46,33 +48,37 @@ export class PresetSelectMenuInteraction extends InteractionHandler {
       return;
     }
 
-    const [{ search, market }] = await kil
+    const [preset] = await kil
       .select()
       .from(playerPresets)
-      .where(eq(playerPresets.id, option));
+      .where(eq(playerPresets.id, option.toLowerCase()));
 
-    logger.debug(`PresetSelect: Searching for ${search} in ${market}`);
-
-    const result = await Spotify.search(
-      `${search} locale:pt_br`,
-      ["playlist"],
-      market ?? "US",
-      20,
-    );
-
-    fs.writeFileSync("./test.json", JSON.stringify(result, null, 2));
-
-    const names = result?.playlists?.items?.map((item) => item.name);
-
-    logger.debug(`PresetSelect: Found ${names?.join(", ")}`);
-
-    const playlists = result?.playlists?.items ?? [];
-
-    if (!playlists.length) {
+    if (!preset?.categories?.length) {
       return;
     }
 
-    const playlist = await Spotify.playlists.getPlaylist(playlists[0].id);
+    const selectedCategory = preset.categories
+      .sort(() => Math.random() - Math.random())
+      .at(0)!;
+
+    logger.debug(`Selected category ${selectedCategory}`, {
+      preset,
+      selectedCategory,
+    });
+
+    const [playlistCategory] = await kil
+      .select()
+      .from(playerPlaylists)
+      .where(eq(playerPlaylists.id, selectedCategory));
+
+    if (!playlistCategory) {
+      logger.error(`No playlist found for category ${selectedCategory}`, {
+        playlistCategory,
+      });
+      return;
+    }
+
+    const playlist = await Spotify.playlists.getPlaylist(playlistCategory.id);
 
     const isTrack = (track: any): track is SpotifyTrack =>
       track?.type === "track";
@@ -100,14 +106,17 @@ export class PresetSelectMenuInteraction extends InteractionHandler {
       });
     });
 
-    await addResolvableTrack(
-      resolvableTracks,
-      interaction.member as GuildMember,
-    );
+    // await addResolvableTrack(
+    //   resolvableTracks,
+    //   interaction.member as GuildMember,
+    // );
 
     const embed = new EmbedBuilder()
       .setDescription(
-        `Added **${playlist.tracks.total}** tracks from **${playlist.name}**`,
+        [
+          `Added **${playlist.tracks.total}** tracks from **${playlist.name}**`,
+          ...playlist.tracks.items.map((item) => item.track.name),
+        ].join("\n"),
       )
       .setThumbnail(playlist.images[0].url)
       .setTimestamp();

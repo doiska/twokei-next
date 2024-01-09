@@ -13,9 +13,9 @@ export async function execute() {
     return;
   }
 
-  const result = groupBy(entries, "state");
+  const result = groupBy(entries, (node) => node.state);
 
-  for (const [state, nodes] of result.entries()) {
+  for (const [state, nodes] of Object.entries(result)) {
     logger.info(`Found ${nodes.length} nodes in state ${state}.`);
 
     await kil

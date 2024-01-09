@@ -6,8 +6,7 @@
   "scripts": {
     "build": "tsup",
     "start": "node --env-file=.env --preserve-symlinks ./dist/init.js",
-    "start:bun": "bun --bun ./dist/init.js",
-    "start:dev": "tsup --watch --onSuccess \"npm run start\"",
+    "dev": "tsup --watch --onSuccess \"npm run start\"",
     "lint": "eslint --fix src --ext .ts",
     "migrations": "npx drizzle-kit generate:pg"
   },

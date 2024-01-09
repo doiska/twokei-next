@@ -1,6 +1,5 @@
 import { ActionRowBuilder, Guild, StringSelectMenuBuilder } from "discord.js";
 import { Menus } from "@/constants/music/player-buttons";
-import { capitalizeFirst } from "@/utils/helpers";
 import { cache } from "@/utils/caching";
 import { playerPresets } from "@/db/schemas/player-presets";
 import { kil } from "@/db/Kil";
@@ -14,9 +13,9 @@ export async function getPresetMenu(guild: Guild) {
 
   const options = genres
     .map((genre) => ({
-      label: t(`music:genres.${genre.id}`),
+      label: t(`music:genres.${genre.id}.name`),
       value: genre.id,
-      description: genre.genres?.map((g) => capitalizeFirst(g)).join(", "),
+      description: t(`music:genres.${genre.id}.description`),
     }))
     .slice(0, 25);
 
