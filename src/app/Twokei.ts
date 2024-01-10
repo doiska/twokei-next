@@ -29,7 +29,7 @@ ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
 export const Twokei = new TwokeiClient({
   caseInsensitiveCommands: true,
   logger: {
-    level: LogLevel.Debug,
+    level: LogLevel.Error,
   },
   intents: [
     GatewayIntentBits.GuildVoiceStates,
@@ -79,7 +79,11 @@ export const init = async () => {
   logger.debug("Starting Twokei.");
 
   await Xiao.init(Twokei);
-  await Twokei.login(process.env.DISCORD_TOKEN);
 
+  await import("../listeners/_load");
+  await import("../interaction-handlers/_load");
+  await import("../commands/_load");
+
+  await Twokei.login(process.env.DISCORD_TOKEN);
   await startCronJobs();
 };
