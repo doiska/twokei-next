@@ -11,7 +11,6 @@ import { Command, container } from "@sapphire/framework";
 
 import { setupNewChannel } from "@/music/song-channel/setup-new-channel";
 import { setupSongMessage } from "@/music/song-channel/setup-song-message";
-import { logger } from "@/lib/logger";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
 import { defer, send } from "@/lib/message-handler";
@@ -26,7 +25,7 @@ import { Icons, RawIcons } from "@/constants/icons";
   description: "Setup the bot music channel",
   enabled: true,
   preconditions: ["GuildTextOnly"],
-  cooldownDelay: 2_000,
+  cooldownDelay: 10_000,
 })
 export class PlayCommand extends Command {
   registerApplicationCommands(registry: Command.Registry) {
@@ -59,63 +58,57 @@ export class PlayCommand extends Command {
     await defer(interaction);
 
     try {
-      const response = await setupNewChannel(guild);
+      const newChannel = await setupNewChannel(guild);
 
       //TODO: improve error handling here
-      await setupSongMessage(guild, response).catch((e) => {
-        logger.info("Error while setupSongMessage");
-        logger.error(e);
+      await setupSongMessage(guild, newChannel);
+
+      const row = new ActionRowBuilder<ButtonBuilder>({
+        components: [
+          new ButtonBuilder()
+            .setCustomId("delete-setup-message")
+            .setLabel("Entendi, valeu!")
+            .setEmoji(RawIcons.Lightning)
+            .setStyle(ButtonStyle.Success),
+          new ButtonBuilder()
+            .setCustomId(EmbedButtons.NEWS)
+            .setLabel("Ver novidades")
+            .setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder()
+            .setURL("https://discord.gg/twokei")
+            .setLabel("Preciso de ajuda")
+            .setEmoji(RawIcons.Hanakin)
+            .setStyle(ButtonStyle.Link),
+        ],
       });
 
       //TODO: i18n
-      await response
-        .send({
-          content: member.user.toString(),
-          embeds: Embed.info(
-            await resolveKey(interaction, "commands:setup.channel_created", {
-              channel: response.toString(),
-              user: member.user.toString(),
-              serverName: guild.name,
-              mention: container.client.user?.toString() ?? "@Twokei",
-            }),
-          ),
-          components: [
-            new ActionRowBuilder<ButtonBuilder>().addComponents(
-              new ButtonBuilder()
-                .setCustomId("delete-setup-message")
-                .setLabel("Entendi, valeu!")
-                .setEmoji(RawIcons.Lightning)
-                .setStyle(ButtonStyle.Success),
-              new ButtonBuilder()
-                .setCustomId(EmbedButtons.NEWS)
-                .setLabel("Ver novidades")
-                .setEmoji(Icons.News)
-                .setStyle(ButtonStyle.Secondary),
-              new ButtonBuilder()
-                .setURL("https://discord.gg/twokei")
-                .setLabel("Preciso de ajuda")
-                .setEmoji(RawIcons.Hanakin)
-                .setStyle(ButtonStyle.Link),
-            ),
-          ],
-        })
-        .then(async (message) => {
-          message
-            .awaitMessageComponent({
-              filter: (i) => i.customId === "delete-setup-message",
-              time: 120 * 1000,
-              componentType: ComponentType.Button,
-            })
-            .then(async (i) => {
-              await i.deferUpdate().catch(noop);
-              await message.delete().catch(noop);
-            })
-            .catch(() => {
-              message.delete().catch(noop);
-            });
-        });
+      const setupMessage = await newChannel.send({
+        content: member.user.toString(),
+        embeds: Embed.info(
+          await resolveKey(interaction, "commands:setup.channel_created", {
+            channel: newChannel.toString(),
+            user: member.user.toString(),
+            serverName: guild.name,
+            mention: container.client.user?.toString() ?? "@Twokei",
+          }),
+        ),
+        components: [row],
+      });
 
-      await interaction.deleteReply().catch(noop);
+      setupMessage
+        .awaitMessageComponent({
+          filter: (i) => i.customId === "delete-setup-message",
+          time: 120 * 1000,
+          componentType: ComponentType.Button,
+        })
+        .then(async (i) => {
+          await i.deferUpdate();
+          await setupMessage.delete();
+        })
+        .catch(() => setupMessage.delete().catch(noop));
+
+      await interaction.deleteReply();
     } catch (error) {
       await member.send({
         embeds: Embed.error(

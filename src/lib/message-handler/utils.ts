@@ -3,7 +3,7 @@ import { isNumber, noop } from "@sapphire/utilities";
 import { isAnyInteraction } from "@sapphire/discord.js-utilities";
 
 export function stripContent(content: string) {
-  return content.replace(/<@!?\d+>/g, "").replace(/[^\w\s]/gi, "");
+  return content.replace(/<@!?\d+>/g, "");
 }
 
 export function dispose(

@@ -7,3 +7,5 @@ import "./play/play-message";
 
 import "./ranking/track-add-event";
 import "./ranking/track-end-event";
+
+import "./music/song-added";

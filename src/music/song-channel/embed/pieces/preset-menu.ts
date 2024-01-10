@@ -1,15 +1,12 @@
 import { ActionRowBuilder, Guild, StringSelectMenuBuilder } from "discord.js";
 import { Menus } from "@/constants/music/player-buttons";
-import { cache } from "@/utils/caching";
 import { playerPresets } from "@/db/schemas/player-presets";
 import { kil } from "@/db/Kil";
 import { fetchT } from "@sapphire/plugin-i18next";
 
-const getPlayerGenres = cache(async () => kil.select().from(playerPresets));
-
 export async function getPresetMenu(guild: Guild) {
   const t = await fetchT(guild);
-  const genres = await getPlayerGenres();
+  const genres = await kil.select().from(playerPresets);
 
   const options = genres
     .map((genre) => {

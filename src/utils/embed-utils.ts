@@ -37,7 +37,9 @@ export const assertEmbedSize = (embed: APIEmbed): APIEmbed => ({
   },
 });
 
-export const assertMenuSize = (options: SelectMenuComponentOptionData[]) => {
+export function assertMenuSizeLimits(
+  options: SelectMenuComponentOptionData[],
+): SelectMenuComponentOptionData[] {
   if (!options) return options;
 
   const slicedOptions = options?.slice(
@@ -56,4 +58,4 @@ export const assertMenuSize = (options: SelectMenuComponentOptionData[]) => {
       SelectMenuLimits.MaximumLengthOfNameOfOption,
     ),
   }));
-};
+}

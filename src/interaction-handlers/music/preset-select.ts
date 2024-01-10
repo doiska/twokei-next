@@ -15,13 +15,11 @@ import { Menus } from "@/constants/music/player-buttons";
 import { Spotify } from "@/music/resolvers/spotify/spotify-revamp";
 import { kil } from "@/db/Kil";
 import { playerPresets } from "@/db/schemas/player-presets";
-import { eq, ilike, inArray, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import type { Track as SpotifyTrack } from "@spotify/web-api-ts-sdk";
-import { addResolvableTrack } from "@/music/heizou/add-new-song";
 import { ResolvableTrack } from "@/music/structures/ResolvableTrack";
 import { logger } from "@/lib/logger";
-import * as fs from "fs";
-import { playerCategories } from "@/db/schemas/player-categories";
+
 import { playerPlaylists } from "@/db/schemas/player-playlists";
 
 @ApplyOptions<InteractionHandler.Options>({
@@ -105,11 +103,6 @@ export class PresetSelectMenuInteraction extends InteractionHandler {
         },
       });
     });
-
-    // await addResolvableTrack(
-    //   resolvableTracks,
-    //   interaction.member as GuildMember,
-    // );
 
     const embed = new EmbedBuilder()
       .setDescription(

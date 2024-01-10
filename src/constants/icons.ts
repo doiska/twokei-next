@@ -1,7 +1,5 @@
-import { formatEmoji } from "discord.js";
+import { APIMessageComponentEmoji, formatEmoji } from "discord.js";
 import { SnowflakeRegex } from "@sapphire/discord-utilities";
-
-type Emoji<C extends string> = `<:_:${C}>` | `<a:_:${C}>`;
 
 export const getSourceLogo = (source: string) => {
   const icon = {
@@ -34,9 +32,6 @@ export const RawIcons = {
     id: "1129096922943197300",
     animated: true,
   },
-  News: {
-    id: "🔔",
-  },
   Ranking: {
     id: "1145760481555009556",
     animated: true,
@@ -49,15 +44,17 @@ export const RawIcons = {
     id: "1121849523854118973",
     animated: true,
   },
-} as const;
+};
 
-type KVEmoji = Record<
-  keyof typeof RawIcons,
-  Emoji<(typeof RawIcons)[keyof typeof RawIcons]["id"]>
->;
+type KVEmoji = Record<keyof typeof RawIcons, APIMessageComponentEmoji>;
 
 export const Icons: KVEmoji = Object.entries(RawIcons).reduce<any>(
   (acc, [name, icon]) => {
+    if (typeof icon === "string") {
+      acc[name] = icon;
+      return acc;
+    }
+
     const isAnimated = "animated" in icon ? icon.animated : false;
     const isSnowflake = SnowflakeRegex.test(icon.id);
 

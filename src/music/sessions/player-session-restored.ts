@@ -34,7 +34,7 @@ export async function playerSessionRestored(dumps: PlayerDump[]) {
       shardId: dump.options.shardId,
     };
 
-    const [restorableQueue] = await kil
+    const [restoreQueue] = await kil
       .select({
         queue: playerSessions.queue,
       })
@@ -43,8 +43,8 @@ export async function playerSessionRestored(dumps: PlayerDump[]) {
 
     const venti = new Venti(container.xiao, restored, ventiOptions);
 
-    if (restorableQueue.queue) {
-      venti.queue.restore(restorableQueue.queue);
+    if (restoreQueue.queue) {
+      venti.queue.restore(restoreQueue.queue);
     }
 
     container.xiao.players.set(dump.options.guildId, venti);

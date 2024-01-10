@@ -1,4 +1,4 @@
-import { type Guild } from "discord.js";
+import { type Guild, GuildMember } from "discord.js";
 import { type Awaitable, noop } from "@sapphire/utilities";
 import {
   type Connector,
@@ -14,9 +14,12 @@ import {
 } from "@twokei/shoukaku";
 
 import { logger } from "@/lib/logger";
-import { refresh } from "@/music/embed/events/manual-update";
-import { handlePlayerException } from "@/music/embed/events/player-exception";
-import { playerDestroyed, queueEmpty } from "@/music/embed/events/queue-empty";
+import { refresh } from "@/music/song-channel/embed/events/manual-update";
+import { handlePlayerException } from "@/music/song-channel/embed/events/player-exception";
+import {
+  handleEmptyQueue,
+  handlePlayerDestroyed,
+} from "@/music/song-channel/embed/events/queue-empty";
 import { youtubeTrackResolver } from "@/music/resolvers/youtube/youtube-track-resolver";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
@@ -64,7 +67,11 @@ export interface XiaoEvents {
   /**
    * Emitted when a track is added to the queue.
    */
-  [Events.TrackAdd]: (venti: Venti, track: ResolvableTrack[]) => void;
+  [Events.TrackAdd]: (
+    venti: Venti,
+    result: XiaoSearchResult,
+    requester?: GuildMember,
+  ) => void;
 
   /**
    * Emitted when a track starts playing.
@@ -132,7 +139,7 @@ export interface XiaoEvents {
    */
   [Events.ManualUpdate]: (
     venti: Venti,
-    update?: { embed?: boolean; components?: boolean },
+    update?: Partial<{ embed: boolean; components: boolean }>,
   ) => void;
 
   /**
@@ -253,8 +260,8 @@ export class Xiao extends EventEmitter {
     this.on(Events.TrackPause, refresh);
     this.on(Events.ManualUpdate, refresh);
 
-    this.on(Events.PlayerDestroy, playerDestroyed);
-    this.on(Events.QueueEmpty, queueEmpty);
+    this.on(Events.PlayerDestroy, handlePlayerDestroyed);
+    this.on(Events.QueueEmpty, handleEmptyQueue);
 
     this.on(Events.PlayerException, handlePlayerException);
   }

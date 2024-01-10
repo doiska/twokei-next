@@ -14,7 +14,6 @@ import { resolveKey } from "@sapphire/plugin-i18next";
 import { isShoukakuReady } from "@/preconditions/shoukaku-ready";
 import { youtubeTrackResolver } from "@/music/resolvers/youtube/youtube-track-resolver";
 import { addNewSong } from "@/music/heizou/add-new-song";
-import { createPlayEmbed } from "@/constants/music/create-play-embed";
 
 import { logger } from "@/lib/logger";
 import { dispose, stripContent } from "@/lib/message-handler/utils";
@@ -41,7 +40,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         return;
       }
 
-      const songChannel = await container.sc.getEmbed(message.guild!);
+      const songChannel = await container.sc.getEmbed(guild);
 
       const validation = await this.getMessageValidation(
         message,
@@ -100,7 +99,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
           .then(dispose);
       }
 
-      const result = await addNewSong(contentOnly, member);
+      await addNewSong(contentOnly, member);
 
       if (validation === "not-in-song-channel") {
         await message
@@ -111,10 +110,6 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
           })
           .then(dispose);
       }
-
-      songChannel?.channel
-        .send(await createPlayEmbed(member, result))
-        .then((message) => dispose(message, 60000));
 
       await this.cleanupSongChannel(songChannel);
     } catch (e) {

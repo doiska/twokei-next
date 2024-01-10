@@ -6,7 +6,7 @@ import {
 
 import { Menus } from "@/constants/music/player-buttons";
 import { type TrackQueue } from "@/music/structures/TrackQueue";
-import { assertMenuSize } from "@/utils/embed-utils";
+import { assertMenuSizeLimits } from "@/utils/embed-utils";
 
 export const createSelectMenu = (tracks?: TrackQueue) => {
   const noTrack = tracks?.length === 0 && !tracks.current && !tracks.previous;
@@ -65,5 +65,5 @@ const parseTracksToMenuItem = (tracks: TrackQueue) => {
     });
   }
 
-  return assertMenuSize(items);
+  return assertMenuSizeLimits(items);
 };

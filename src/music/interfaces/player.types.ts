@@ -60,16 +60,6 @@ export interface PlayOptions {
   replace?: boolean;
 }
 
-export interface Payload {
-  op: number;
-  d: {
-    guild_id: string;
-    channel_id: Maybe<string>;
-    self_mute: Maybe<boolean>;
-    self_deaf: Maybe<boolean>;
-  };
-}
-
 export enum Events {
   PlayerDestroy = "playerDestroy",
   PlayerCreate = "playerCreate",

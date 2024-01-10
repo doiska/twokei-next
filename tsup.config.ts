@@ -4,7 +4,7 @@ export default defineConfig({
   clean: true,
   bundle: true,
   dts: false,
-  entry: ["src/**/*.ts", "!src/**/*.d.ts"],
+  entry: ["src/init.ts"],
   format: ["cjs"],
   platform: "node",
   minify: false,

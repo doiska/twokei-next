@@ -1,5 +1,6 @@
 import {
   ActionRowBuilder,
+  APIMessageComponentEmoji,
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
@@ -26,7 +27,6 @@ export async function createStaticButtons(guild: Guild) {
         label: t(`player:embed.buttons.${EmbedButtons.NEWS}`),
         style: ButtonStyle.Primary,
         type: ComponentType.Button,
-        emoji: RawIcons.News,
       },
       {
         custom_id: EmbedButtons.VIEW_RANKING,
@@ -103,14 +103,14 @@ export async function createDynamicButtons(venti: Venti) {
       emoji: emoji,
       label: source,
     },
-  ];
+  ].map((button) => parseButtonLabel(t, button));
 
   return [
     new ActionRowBuilder<ButtonBuilder>({
-      components: primary as InteractionButtonComponentData[],
+      components: primary,
     }),
     new ActionRowBuilder<ButtonBuilder>({
-      components: secondary as InteractionButtonComponentData[],
+      components: secondary,
     }),
   ];
 }
