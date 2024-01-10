@@ -9,7 +9,7 @@ import { eq } from "drizzle-orm";
 import { kil } from "@/db/Kil";
 import { playerSongChannels } from "@/db/schemas/player-song-channels";
 
-import { createDefaultEmbed } from "@/music/embed/pieces";
+import { createDefaultEmbed } from "@/music/song-channel/embed/pieces";
 import { logger } from "@/lib/logger";
 
 export class SongChannelManager {
@@ -55,9 +55,7 @@ export class SongChannelManager {
       return;
     }
 
-    const { message } = embed;
-
-    await message.edit(await createDefaultEmbed(guild));
+    await embed.message.edit(await createDefaultEmbed(guild));
   }
 
   public async getEmbed(guild: Guild) {
@@ -67,33 +65,23 @@ export class SongChannelManager {
       return;
     }
 
-    const channel = await guild.channels
-      .fetch(songChannel.channelId, {
+    try {
+      const channel = await guild.channels.fetch(songChannel.channelId, {
         force: true,
-      })
-      .catch((e) => {
-        logger.error(e);
-        return null;
       });
 
-    if (!isGuildBasedChannel(channel) || !isTextChannel(channel)) {
-      return;
+      if (!isGuildBasedChannel(channel) || !isTextChannel(channel)) {
+        return;
+      }
+
+      const message = await channel.messages.fetch(songChannel.messageId);
+
+      return {
+        message,
+        channel,
+      };
+    } catch (e) {
+      logger.error(e);
     }
-
-    const message = await channel.messages
-      .fetch(songChannel.messageId)
-      .catch((e) => {
-        logger.error(e);
-        return null;
-      });
-
-    if (!message) {
-      return;
-    }
-
-    return {
-      message,
-      channel,
-    };
   }
 }
