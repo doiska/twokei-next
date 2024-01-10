@@ -1,6 +1,6 @@
 import {
   ActionRowBuilder,
-  type ButtonBuilder,
+  ButtonBuilder,
   ButtonStyle,
   ComponentType,
   type Guild,
@@ -19,30 +19,31 @@ import { capitalizeFirst } from "@/utils/helpers";
 export async function createStaticButtons(guild: Guild) {
   const t = await fetchT(guild);
 
-  const staticPrimaryRow = new ActionRowBuilder<ButtonBuilder>({
+  return new ActionRowBuilder<ButtonBuilder>({
     components: [
       {
+        custom_id: EmbedButtons.NEWS,
+        label: t(`player:embed.buttons.${EmbedButtons.NEWS}`),
         style: ButtonStyle.Primary,
-        customId: EmbedButtons.NEWS,
-        emoji: RawIcons.News.id,
+        type: ComponentType.Button,
+        emoji: RawIcons.News,
       },
       {
+        custom_id: EmbedButtons.VIEW_RANKING,
+        label: t(`player:embed.buttons.${EmbedButtons.VIEW_RANKING}`),
         style: ButtonStyle.Secondary,
-        customId: EmbedButtons.VIEW_RANKING,
+        type: ComponentType.Button,
         emoji: RawIcons.Ranking,
       },
       {
-        style: ButtonStyle.Link,
-        url: `https://twokei.com/profile`,
         label: t(`player:embed.buttons.${EmbedButtons.VIEW_PROFILE}`),
+        url: `https://twokei.com/profile`,
+        style: ButtonStyle.Link,
+        type: ComponentType.Button,
         emoji: RawIcons.Premium,
       },
-    ].map((button) =>
-      parseButtonLabel(t, button),
-    ) as InteractionButtonComponentData[],
+    ],
   });
-
-  return [staticPrimaryRow];
 }
 
 export async function createDynamicButtons(venti: Venti) {
@@ -102,7 +103,7 @@ export async function createDynamicButtons(venti: Venti) {
       emoji: emoji,
       label: source,
     },
-  ].map((button) => parseButtonLabel(t, button));
+  ];
 
   return [
     new ActionRowBuilder<ButtonBuilder>({

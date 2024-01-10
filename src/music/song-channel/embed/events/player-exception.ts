@@ -11,13 +11,4 @@ export async function handlePlayerException(
     guild: venti.guild.id,
     exception: exception.exception.message,
   });
-
-  // await send(venti.embedMessage, {
-  //   embeds: Embed.error(
-  //     await resolveKey(
-  //       venti.embedMessage.guild,
-  //       getReadableException(exception),
-  //     ),
-  //   ),
-  // }).dispose();
 }
