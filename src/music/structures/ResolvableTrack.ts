@@ -3,8 +3,8 @@ import { container } from "@sapphire/framework";
 import { type Track } from "@twokei/shoukaku";
 
 import { playerLogger } from "@/lib/logger";
-import { spotifyTrackResolver } from "@/music/resolvers/spotify/spotify-track-resolver";
 import { cleanUpSong } from "@/music/utils/cleanup";
+import { spotifyResolver } from "@/music/resolvers/spotify";
 
 interface ResolvableTrackOptions {
   requester?: User;
@@ -85,6 +85,26 @@ export class ResolvableTrack {
   }
 
   get isReadyToPlay(): boolean {
+    const ready = {
+      track: !!this.track,
+      sourceName: !!this.sourceName,
+      identifier: !!this.identifier,
+      author: !!this.author,
+      length: !!this.length,
+      title: !!this.title,
+      uri: !!this.uri,
+      realUri: !!this.realUri,
+    };
+
+    const isReady = Object.values(ready).every((value) => value);
+
+    playerLogger.debug(
+      `[ResolvableTrack] Track is ${isReady ? "READY" : "NOT READY"} to play:`,
+      {
+        ...ready,
+      },
+    );
+
     return (
       !!this.track &&
       !!this.sourceName &&
@@ -137,6 +157,8 @@ export class ResolvableTrack {
         isStream: this.isStream,
         position: this.position ?? 0,
         sourceName: this.sourceName,
+        isrc: this.isrc,
+        artworkUrl: this.artworkUrl,
       },
       pluginInfo: {},
     };
@@ -172,12 +194,14 @@ export class ResolvableTrack {
 
   private async resolveQuery(query: string) {
     if (this.isrc) {
+      playerLogger.debug(
+        `[ResolvableTrack] Track already has ISRC: ${this.isrc}`,
+      );
+
       return this.searchByISRC(this.isrc);
     }
 
-    const spotifyResponse = await spotifyTrackResolver.resolve(query, {
-      requester: this.requester,
-    });
+    const spotifyResponse = await spotifyResolver.resolve(query);
 
     if (!spotifyResponse.tracks?.length) {
       return spotifyResponse;
@@ -201,7 +225,6 @@ export class ResolvableTrack {
     );
 
     this.isrc = track.isrc;
-
     return this.searchByISRC(track.isrc);
   }
 

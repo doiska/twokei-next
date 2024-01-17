@@ -20,7 +20,7 @@ import {
   handleEmptyQueue,
   handlePlayerDestroyed,
 } from "@/music/song-channel/embed/events/queue-empty";
-import { youtubeTrackResolver } from "@/music/resolvers/youtube/youtube-track-resolver";
+import { youtubeResolver } from "@/music/resolvers/youtube";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 import { type Maybe } from "@/utils/types-helper";
@@ -32,13 +32,11 @@ import {
   type XiaoSearchOptions,
   type XiaoSearchResult,
 } from "../interfaces/player.types";
-import { type TrackResolver } from "../resolvers/resolver";
 import { ResolvableTrack } from "../structures/ResolvableTrack";
 import { Venti } from "./Venti";
 
 import { EventEmitter } from "events";
 import type { Logger } from "winston";
-import { spotifyTrackResolver } from "@/music/resolvers/spotify/spotify-track-resolver";
 import { container } from "@sapphire/framework";
 import { env } from "@/app/env";
 import { type TwokeiClient } from "@/structures/TwokeiClient";
@@ -52,6 +50,7 @@ import {
 import { kil } from "@/db/Kil";
 import { coreNodes } from "@/db/schemas/core-nodes";
 import { eq } from "drizzle-orm";
+import { spotifyResolver } from "@/music/resolvers/spotify";
 
 export interface XiaoEvents {
   /**
@@ -176,10 +175,7 @@ export class Xiao extends EventEmitter {
    */
   public readonly players = new Map<string, Venti>();
 
-  public resolvers: TrackResolver[] = [
-    youtubeTrackResolver,
-    spotifyTrackResolver,
-  ];
+  public resolvers = [youtubeResolver, spotifyResolver];
 
   private readonly logger: Logger;
 
@@ -321,7 +317,7 @@ export class Xiao extends EventEmitter {
   }
 
   public async search(
-    query: string,
+    _query: string,
     options?: XiaoSearchOptions,
   ): Promise<XiaoSearchResult> {
     const node = this.shoukaku.getIdealNode();
@@ -332,7 +328,11 @@ export class Xiao extends EventEmitter {
       throw new Error("No available nodes");
     }
 
-    const isUrl = /^https?:\/\//.test(query);
+    const query = _query.trim();
+
+    logger.debug(`Received search query: ${query}`);
+
+    const isUrl = query.startsWith("http");
 
     if (options?.resolver ?? true) {
       const resolver = this.resolvers.find(
@@ -343,14 +343,16 @@ export class Xiao extends EventEmitter {
 
       this.logger.debug(`Resolving ${query} with ${resolver?.name ?? engine}.`);
 
-      if (resolver) {
-        return await resolver.resolve(query, options);
+      if (resolver?.resolve) {
+        return await resolver.resolve(query, options?.requester);
       }
     }
 
     const search = !isUrl ? `${engine}:${query}` : query;
 
     const result = await node.rest.resolve(search);
+
+    logger.debug(`Search result for ${search} with ${node.name}.`, result);
 
     if (!result || result.loadType === XiaoLoadType.NO_MATCHES) {
       throw new FriendlyException(ErrorCodes.PLAYER_NO_TRACKS_FOUND);

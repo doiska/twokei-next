@@ -2,15 +2,11 @@ import { type User } from "discord.js";
 import { container } from "@sapphire/framework";
 import type { Track } from "@twokei/shoukaku";
 
-import type {
-  XiaoSearchOptions,
-  XiaoSearchResult,
-} from "@/music/interfaces/player.types";
+import type { XiaoSearchResult } from "@/music/interfaces/player.types";
 import { XiaoLoadType } from "@/music/interfaces/player.types";
-import { type TrackResolver } from "@/music/resolvers/resolver";
 import { ResolvableTrack } from "@/music/structures/ResolvableTrack";
 
-export class YoutubeTrackResolver implements TrackResolver {
+class YoutubeResolver {
   readonly name = "youtube";
 
   readonly YOUTUBE_REGEX = new RegExp(
@@ -19,7 +15,7 @@ export class YoutubeTrackResolver implements TrackResolver {
 
   public async resolve(
     query: string,
-    options: XiaoSearchOptions | undefined,
+    requester?: User,
   ): Promise<XiaoSearchResult> {
     const node = container.xiao.shoukaku.getIdealNode();
 
@@ -43,7 +39,7 @@ export class YoutubeTrackResolver implements TrackResolver {
 
     if (ytResponse.loadType === XiaoLoadType.TRACK_LOADED) {
       return {
-        tracks: [this.parseTrack(ytResponse.data, options?.requester)],
+        tracks: [this.parseTrack(ytResponse.data, requester)],
         type: XiaoLoadType.TRACK_LOADED,
       };
     }
@@ -51,7 +47,7 @@ export class YoutubeTrackResolver implements TrackResolver {
     if (ytResponse.loadType === XiaoLoadType.PLAYLIST_LOADED) {
       return {
         tracks: ytResponse.data.tracks.map((track) =>
-          this.parseTrack(track, options?.requester),
+          this.parseTrack(track, requester),
         ),
         type: XiaoLoadType.PLAYLIST_LOADED,
         playlist: {
@@ -62,9 +58,7 @@ export class YoutubeTrackResolver implements TrackResolver {
     }
 
     return {
-      tracks: ytResponse.data.map((track) =>
-        this.parseTrack(track, options?.requester),
-      ),
+      tracks: ytResponse.data.map((track) => this.parseTrack(track, requester)),
       type: XiaoLoadType.SEARCH_RESULT,
     };
   }
@@ -95,4 +89,4 @@ export class YoutubeTrackResolver implements TrackResolver {
   }
 }
 
-export const youtubeTrackResolver = new YoutubeTrackResolver();
+export const youtubeResolver = new YoutubeResolver();
