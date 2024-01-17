@@ -163,7 +163,6 @@ export class Venti {
     userPlayOptions?: ShoukakuPlayOptions["options"],
   ) {
     const playOptions = {
-      replace: false,
       ...userPlayOptions,
     };
 
@@ -175,7 +174,7 @@ export class Venti {
       throw new Error("No track provided and queue is empty");
     }
 
-    if (track && !playOptions.replace && this.queue.current) {
+    if (track && playOptions.noReplace && this.queue.current) {
       this.logger.debug(
         `Queueing track ${track.title} for guild ${this.guildId}`,
       );
@@ -212,10 +211,7 @@ export class Venti {
         const shoukakuPlayOptions: ShoukakuPlayOptions = {
           info: resolvedTrack.getRaw().info,
           ...resolvedTrack,
-          options: {
-            ...playOptions,
-            noReplace: !playOptions.replace,
-          },
+          options: playOptions,
         };
 
         this.logger.debug(

@@ -1,9 +1,14 @@
 import { logger } from "@/lib/logger";
 import type { Venti } from "@/music/controllers/Venti";
-import { createSongEmbed } from "@/music/song-channel/embed/pieces";
 import { container } from "@sapphire/framework";
+import { createSongEmbed } from "@/music/song-channel/embed/pieces";
 
-export async function refresh(venti: Venti) {
+interface Updatable {
+  embed: boolean;
+  components: boolean;
+}
+
+export async function refresh(venti: Venti, update?: Partial<Updatable>) {
   const songChannel = await container.sc.getEmbed(venti.guild);
 
   if (!songChannel) {
@@ -11,5 +16,18 @@ export async function refresh(venti: Venti) {
     return;
   }
 
-  await songChannel.message.edit(await createSongEmbed(venti));
+  const { embed, components } = update || {
+    embed: true,
+    components: true,
+  };
+
+  const { embeds: newEmbed, components: newComponents } =
+    await createSongEmbed(venti);
+
+  const newMessage = {
+    embeds: embed ? newEmbed : undefined,
+    components: components ? newComponents : undefined,
+  };
+
+  await songChannel.message.edit(newMessage);
 }

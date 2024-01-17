@@ -14,5 +14,5 @@ export const previousSong = async (member: GuildMember): Promise<void> => {
     throw new FriendlyException("No previous song found");
   }
 
-  await player.play(player.queue.previous, { replace: true });
+  await player.play(player.queue.previous, { noReplace: false });
 };

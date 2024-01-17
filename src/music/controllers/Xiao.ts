@@ -251,9 +251,9 @@ export class Xiao extends EventEmitter {
 
     this.on(Events.Debug, (message) => this.logger.debug(message));
 
-    this.on(Events.TrackStart, refresh);
-    this.on(Events.TrackAdd, refresh);
-    this.on(Events.TrackPause, refresh);
+    this.on(Events.TrackStart, (venti) => refresh(venti));
+    this.on(Events.TrackAdd, (venti) => refresh(venti, { components: true }));
+    this.on(Events.TrackPause, (venti) => refresh(venti, { components: true }));
     this.on(Events.ManualUpdate, refresh);
 
     this.on(Events.PlayerDestroy, handlePlayerDestroyed);
@@ -351,8 +351,6 @@ export class Xiao extends EventEmitter {
     const search = !isUrl ? `${engine}:${query}` : query;
 
     const result = await node.rest.resolve(search);
-
-    logger.debug(`Search result for ${search} with ${node.name}.`, result);
 
     if (!result || result.loadType === XiaoLoadType.NO_MATCHES) {
       throw new FriendlyException(ErrorCodes.PLAYER_NO_TRACKS_FOUND);
