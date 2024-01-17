@@ -12,7 +12,7 @@ import {
 
 import { Menus } from "@/constants/music/player-buttons";
 
-import { Spotify } from "@/music/resolvers/spotify/spotify-revamp";
+import { Spotify } from "@/music/resolvers/spotify";
 import { kil } from "@/db/Kil";
 import { playerPresets } from "@/db/schemas/player-presets";
 import { eq } from "drizzle-orm";

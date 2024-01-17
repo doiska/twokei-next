@@ -26,7 +26,6 @@ export async function createPlayerInstance({
   const playerOptions: VentiInitOptions = {
     guild,
     voiceChannel,
-    lang: (await fetchLanguage(guild)) as "pt_br",
     shardId: guild.shardId,
     deaf: true,
   };

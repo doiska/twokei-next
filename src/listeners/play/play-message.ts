@@ -12,7 +12,7 @@ import { getReadableException } from "@/structures/exceptions/utils/get-readable
 import { Embed } from "@/utils/messages";
 import { resolveKey } from "@sapphire/plugin-i18next";
 import { isShoukakuReady } from "@/preconditions/shoukaku-ready";
-import { youtubeTrackResolver } from "@/music/resolvers/youtube/youtube-track-resolver";
+import { youtubeResolver } from "@/music/resolvers/youtube";
 import { addNewSong } from "@/music/heizou/add-new-song";
 
 import { logger } from "@/lib/logger";
@@ -89,7 +89,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         return;
       }
 
-      if (youtubeTrackResolver.matches(contentOnly)) {
+      if (youtubeResolver.matches(contentOnly)) {
         message
           .reply({
             embeds: Embed.info(

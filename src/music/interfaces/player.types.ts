@@ -47,17 +47,9 @@ export type XiaoSearchResult = PlaylistLoaded | TrackLoaded;
 export interface VentiInitOptions {
   guild: Guild;
   voiceChannel: Snowflake;
-  lang: Locale;
   deaf?: boolean;
   mute?: boolean;
   shardId?: number;
-}
-
-export interface PlayOptions {
-  pause?: boolean;
-  startTime?: number;
-  endTime?: number;
-  replace?: boolean;
 }
 
 export enum Events {

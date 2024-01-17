@@ -7,12 +7,10 @@ import {
   type WebSocketClosedEvent,
 } from "@twokei/shoukaku";
 
-import { type Locale } from "@/locales/i18n";
 import { logger, playerLogger } from "@/lib/logger";
 import {
   Events,
   PlayerState,
-  type PlayOptions,
   type VentiInitOptions,
 } from "../interfaces/player.types";
 import { ResolvableTrack } from "../structures/ResolvableTrack";
@@ -58,11 +56,6 @@ export class Venti {
   public queue: TrackQueue;
 
   /**
-   * The locale of the player.
-   */
-  public locale: Locale;
-
-  /**
    * The Xiao instance.
    * @private
    */
@@ -75,7 +68,6 @@ export class Venti {
     this.instance = player;
     this.guild = options.guild;
     this.guildId = options.guild.id;
-    this.locale = options.lang;
 
     this.queue = new TrackQueue();
 
@@ -166,7 +158,10 @@ export class Venti {
     this.instance.on("resumed", () => this.emit(Events.PlayerResumed, this));
   }
 
-  public async play(track?: ResolvableTrack, userPlayOptions?: PlayOptions) {
+  public async play(
+    track?: ResolvableTrack,
+    userPlayOptions?: ShoukakuPlayOptions["options"],
+  ) {
     const playOptions = {
       replace: false,
       ...userPlayOptions,

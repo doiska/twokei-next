@@ -1,7 +1,6 @@
 import { PlayerDump } from "@twokei/shoukaku";
 import { container } from "@sapphire/framework";
 import { Events, VentiInitOptions } from "@/music/interfaces/player.types";
-import { fetchLanguage } from "@sapphire/plugin-i18next";
 import { kil } from "@/db/Kil";
 import { playerSessions } from "@/db/schemas/player-sessions";
 import { eq } from "drizzle-orm";
@@ -27,7 +26,6 @@ export async function playerSessionRestored(dumps: PlayerDump[]) {
     }
 
     const ventiOptions: VentiInitOptions = {
-      lang: (await fetchLanguage(guild)) as "pt_br",
       voiceChannel: voiceId,
       deaf: dump.options.deaf,
       guild: guild,
