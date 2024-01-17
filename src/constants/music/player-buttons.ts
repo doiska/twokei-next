@@ -13,15 +13,9 @@ export enum PlayerButtons {
   LOOP = "LOOP",
 }
 
-export enum OnPlayButtons {
-  LIKE = "LIKE_SONG",
-  DISLIKE = "DISLIKE_SONG",
-}
-
 export enum EmbedButtons {
   VIEW_RANKING = "VIEW_RANKING",
   VIEW_PROFILE = "VIEW_PROFILE",
   DONATE = "DONATE",
   NEWS = "news",
-  PLAYLIST_SYNC = "PLAYLIST_SYNC",
 }
