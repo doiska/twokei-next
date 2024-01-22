@@ -102,7 +102,7 @@ class SpotifyResolver {
       tracks: tracks,
       playlist: {
         name: playlist.name,
-        url: playlist.href,
+        url: playlist.external_urls.spotify,
       },
     };
   }

@@ -101,9 +101,9 @@ export async function addNewSong(input: string, member: GuildMember) {
 
   if (!player.playing) {
     await player.play();
-  } else {
-    player.emit(Events.TrackAdd, player, result, member);
   }
+
+  player.emit(Events.TrackAdd, player, result, member);
 
   return result;
 }

@@ -11,16 +11,15 @@ import {
 } from "@sapphire/framework";
 
 import { Menus } from "@/constants/music/player-buttons";
-
-import { Spotify } from "@/music/resolvers/spotify";
 import { kil } from "@/db/Kil";
 import { playerPresets } from "@/db/schemas/player-presets";
 import { eq } from "drizzle-orm";
-import type { Track as SpotifyTrack } from "@spotify/web-api-ts-sdk";
-import { ResolvableTrack } from "@/music/structures/ResolvableTrack";
 import { logger } from "@/lib/logger";
 
 import { playerPlaylists } from "@/db/schemas/player-playlists";
+import { addNewSong } from "@/music/heizou/add-new-song";
+import { isGuildMember } from "@sapphire/discord.js-utilities";
+import { Icons } from "@/constants/icons";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "preset-select-menu",
@@ -42,7 +41,12 @@ export class PresetSelectMenuInteraction extends InteractionHandler {
     interaction: StringSelectMenuInteraction,
     option: InteractionHandler.ParseResult<this>,
   ) {
-    if (!interaction.guild || !interaction.guildId || !option) {
+    if (
+      !interaction.guild ||
+      !interaction.guildId ||
+      !option ||
+      !isGuildMember(interaction.member)
+    ) {
       return;
     }
 
@@ -76,47 +80,23 @@ export class PresetSelectMenuInteraction extends InteractionHandler {
       return;
     }
 
-    const playlist = await Spotify.playlists.getPlaylist(playlistCategory.id);
+    const playlistUrl = `https://open.spotify.com/playlist/${playlistCategory.id}`;
 
-    const isTrack = (track: any): track is SpotifyTrack =>
-      track?.type === "track";
+    await addNewSong(playlistUrl, interaction.member);
 
-    const tracks = playlist.tracks.items
-      .map((item) => item.track)
-      .filter((t) => isTrack(t)) as SpotifyTrack[];
-
-    const resolvableTracks = tracks.map((track) => {
-      return new ResolvableTrack({
-        encoded: "",
-        info: {
-          sourceName: "spotify",
-          title: track.name,
-          identifier: track.id,
-          author: track.artists[0] ? track.artists[0].name : "Unknown",
-          length: track.duration_ms,
-          isSeekable: true,
-          isStream: false,
-          position: 0,
-          uri: `https://open.spotify.com/track/${track.id}`,
-          isrc: track.external_ids.isrc,
-          artworkUrl: track.album.images[0].url,
-        },
-      });
-    });
-
-    const embed = new EmbedBuilder()
-      .setDescription(
-        [
-          `Added **${playlist.tracks.total}** tracks from **${playlist.name}**`,
-          ...playlist.tracks.items.map((item) => item.track.name),
-        ].join("\n"),
-      )
-      .setThumbnail(playlist.images[0].url)
-      .setTimestamp();
+    const curatorsWarning = new EmbedBuilder().setDescription(
+      [
+        " ",
+        `### ${Icons.HanakoEating} Quer ver sua playlist aqui?`,
+        "Entre em contato comigo em meu servidor de suporte!",
+        "Contribua com a comunidade e ajude a manter a playlist atualizada!",
+        "Entre em: https://twokei.com/discord",
+        " ",
+      ].join("\n"),
+    );
 
     await interaction.reply({
-      embeds: [embed],
-      ephemeral: true,
+      embeds: [curatorsWarning],
     });
   }
 }
