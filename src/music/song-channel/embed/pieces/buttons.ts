@@ -1,6 +1,5 @@
 import {
   ActionRowBuilder,
-  APIMessageComponentEmoji,
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
@@ -9,7 +8,7 @@ import {
   type LinkButtonComponentData,
 } from "discord.js";
 
-import { getSourceLogo, RawIcons } from "@/constants/icons";
+import { getSourceLogo, Icons } from "@/constants/icons";
 import { EmbedButtons, PlayerButtons } from "@/constants/music/player-buttons";
 import type { Venti } from "@/music/controllers/Venti";
 
@@ -20,29 +19,29 @@ import { capitalizeFirst } from "@/utils/helpers";
 export async function createStaticButtons(guild: Guild) {
   const t = await fetchT(guild);
 
+  const newsButton = new ButtonBuilder({
+    customId: EmbedButtons.NEWS,
+    label: t(`player:embed.buttons.${EmbedButtons.NEWS}`),
+    style: ButtonStyle.Primary,
+    emoji: Icons.News,
+  });
+
+  const viewRankingButton = new ButtonBuilder({
+    customId: EmbedButtons.VIEW_RANKING,
+    label: t(`player:embed.buttons.${EmbedButtons.VIEW_RANKING}`),
+    style: ButtonStyle.Secondary,
+    emoji: Icons.Ranking,
+  });
+
+  const viewProfileButton = new ButtonBuilder({
+    label: t(`player:embed.buttons.${EmbedButtons.VIEW_PROFILE}`),
+    style: ButtonStyle.Link,
+    url: `https://twokei.com/profile`,
+    emoji: Icons.Premium,
+  });
+
   return new ActionRowBuilder<ButtonBuilder>({
-    components: [
-      {
-        custom_id: EmbedButtons.NEWS,
-        label: t(`player:embed.buttons.${EmbedButtons.NEWS}`),
-        style: ButtonStyle.Primary,
-        type: ComponentType.Button,
-      },
-      {
-        custom_id: EmbedButtons.VIEW_RANKING,
-        label: t(`player:embed.buttons.${EmbedButtons.VIEW_RANKING}`),
-        style: ButtonStyle.Secondary,
-        type: ComponentType.Button,
-        emoji: RawIcons.Ranking,
-      },
-      {
-        label: t(`player:embed.buttons.${EmbedButtons.VIEW_PROFILE}`),
-        url: `https://twokei.com/profile`,
-        style: ButtonStyle.Link,
-        type: ComponentType.Button,
-        emoji: RawIcons.Premium,
-      },
-    ],
+    components: [newsButton, viewRankingButton, viewProfileButton],
   });
 }
 

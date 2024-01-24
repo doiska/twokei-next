@@ -18,7 +18,7 @@ import { resolveKey } from "@sapphire/plugin-i18next";
 import { Embed } from "@/utils/messages";
 import { noop } from "@sapphire/utilities";
 import { EmbedButtons } from "@/constants/music/player-buttons";
-import { Icons, RawIcons } from "@/constants/icons";
+import { Icons } from "@/constants/icons";
 
 @ApplyOptions<Command.Options>({
   name: "setup",
@@ -27,7 +27,7 @@ import { Icons, RawIcons } from "@/constants/icons";
   preconditions: ["GuildTextOnly"],
   cooldownDelay: 10_000,
 })
-export class PlayCommand extends Command {
+export class SetupCommand extends Command {
   registerApplicationCommands(registry: Command.Registry) {
     registry.registerChatInputCommand((builder) =>
       builder.setName(this.name).setDescription(this.description),
@@ -68,16 +68,17 @@ export class PlayCommand extends Command {
           new ButtonBuilder()
             .setCustomId("delete-setup-message")
             .setLabel("Entendi, valeu!")
-            .setEmoji(RawIcons.Lightning)
+            .setEmoji(Icons.Lightning)
             .setStyle(ButtonStyle.Success),
           new ButtonBuilder()
             .setCustomId(EmbedButtons.NEWS)
             .setLabel("Ver novidades")
+            .setEmoji(Icons.News)
             .setStyle(ButtonStyle.Secondary),
           new ButtonBuilder()
             .setURL("https://discord.gg/twokei")
             .setLabel("Preciso de ajuda")
-            .setEmoji(RawIcons.Hanakin)
+            .setEmoji(Icons.Hanakin)
             .setStyle(ButtonStyle.Link),
         ],
       });
@@ -108,7 +109,7 @@ export class PlayCommand extends Command {
         })
         .catch(() => setupMessage.delete().catch(noop));
 
-      await interaction.deleteReply();
+      await interaction.deleteReply().catch(noop);
     } catch (error) {
       await member.send({
         embeds: Embed.error(
@@ -120,7 +121,7 @@ export class PlayCommand extends Command {
 }
 
 void container.stores.loadPiece({
-  name: "play-command",
-  piece: PlayCommand,
+  name: "setup-command",
+  piece: SetupCommand,
   store: "commands",
 });

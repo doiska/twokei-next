@@ -1,17 +1,44 @@
-import { APIMessageComponentEmoji, formatEmoji } from "discord.js";
-import { SnowflakeRegex } from "@sapphire/discord-utilities";
+import { formatEmoji } from "discord.js";
+
+class Emoji {
+  public id?: string;
+  public name?: string;
+  public animated = false;
+
+  constructor(raw: string | { id: string; animated?: boolean }) {
+    if (typeof raw === "string") {
+      this.name = raw;
+      return;
+    }
+
+    this.id = raw.id;
+    this.animated = raw.animated ?? false;
+  }
+
+  public toString() {
+    if (this.name) {
+      return this.name;
+    }
+
+    if (this.id) {
+      return formatEmoji(this.id!, this.animated);
+    }
+
+    return "❓";
+  }
+}
 
 export const getSourceLogo = (source: string) => {
   const icon = {
-    spotify: RawIcons.SpotifyLogo,
-    youtube: RawIcons.YoutubeLogo,
-    deezer: RawIcons.DeezerLogo,
+    spotify: Icons.SpotifyLogo,
+    youtube: Icons.YoutubeLogo,
+    deezer: Icons.DeezerLogo,
   } as Record<string, { id: string; animated?: boolean }>;
 
-  return icon?.[source.toLowerCase()] ?? RawIcons.Hanakin;
+  return icon?.[source.toLowerCase()] ?? Icons.Hanakin;
 };
 
-export const RawIcons = {
+const RawIcons = {
   SpotifyLogo: {
     id: "1129098176968806440",
   },
@@ -44,22 +71,9 @@ export const RawIcons = {
     id: "1121849523854118973",
     animated: true,
   },
+  News: "🔔",
 };
 
-type KVEmoji = Record<keyof typeof RawIcons, APIMessageComponentEmoji>;
-
-export const Icons: KVEmoji = Object.entries(RawIcons).reduce<any>(
-  (acc, [name, icon]) => {
-    if (typeof icon === "string") {
-      acc[name] = icon;
-      return acc;
-    }
-
-    const isAnimated = "animated" in icon ? icon.animated : false;
-    const isSnowflake = SnowflakeRegex.test(icon.id);
-
-    acc[name] = isSnowflake ? formatEmoji(icon.id, isAnimated) : icon.id;
-    return acc;
-  },
-  {},
-);
+export const Icons = Object.fromEntries(
+  Object.entries(RawIcons).map(([key, value]) => [key, new Emoji(value)]),
+) as Record<keyof typeof RawIcons, Emoji>;

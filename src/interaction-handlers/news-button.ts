@@ -18,7 +18,7 @@ import {
 import { EmbedButtons } from "@/constants/music/player-buttons";
 
 import { fetchT } from "@sapphire/plugin-i18next";
-import { RawIcons } from "@/constants/icons";
+import { Icons } from "@/constants/icons";
 import { send } from "@/lib/message-handler";
 
 @ApplyOptions<InteractionHandler.Options>({
@@ -64,7 +64,7 @@ export class NewsButtonInteraction extends InteractionHandler {
       .setLabel(t("news:buttons.donator"))
       .setStyle(ButtonStyle.Link)
       .setURL("https://twokei.com")
-      .setEmoji(RawIcons.Premium);
+      .setEmoji(Icons.Premium);
 
     const row = new ActionRowBuilder<ButtonBuilder>({
       components: [donatorButton],
