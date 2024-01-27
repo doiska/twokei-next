@@ -41,9 +41,7 @@ export class TrackAddEvent extends Listener {
       users: [user.id],
       guild: venti.guildId,
       event: "added_song",
-      track: {
-        isrc: track.isrc,
-      },
+      track: track,
     });
   }
 }

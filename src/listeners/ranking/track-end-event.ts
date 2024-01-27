@@ -60,9 +60,7 @@ export class TrackEndEvent extends Listener<typeof Events.TrackEnd> {
       event: "heard_song",
       guild: venti.guildId,
       users: connected.map((member) => member.id),
-      track: {
-        isrc: current.isrc,
-      },
+      track: current,
     });
   }
 }
