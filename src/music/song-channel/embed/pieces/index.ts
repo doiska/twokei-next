@@ -24,17 +24,16 @@ export async function createDefaultEmbed(
   };
 }
 
-export async function createSongEmbed(venti: Venti) {
-  const [newEmbed, staticRow, dynamicButtons] = await Promise.all([
-    createDefaultSongEmbed(venti.guild),
+export async function getComponents(venti: Venti) {
+  const menu = createSelectMenu(venti.queue);
+  const [staticRow, dynamicButtons] = await Promise.all([
     createStaticButtons(venti.guild),
     createDynamicButtons(venti),
   ]);
 
-  const menu = createSelectMenu(venti.queue);
+  return [staticRow, dynamicButtons, menu].flat();
+}
 
-  return {
-    embeds: [newEmbed],
-    components: [staticRow, dynamicButtons, menu].flat(),
-  };
+export async function getEmbed(guild: Guild) {
+  return createDefaultSongEmbed(guild);
 }

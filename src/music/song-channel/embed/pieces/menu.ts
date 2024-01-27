@@ -8,20 +8,16 @@ import { Menus } from "@/constants/music/player-buttons";
 import { type TrackQueue } from "@/music/structures/TrackQueue";
 import { assertMenuSizeLimits } from "@/utils/embed-utils";
 
-export const createSelectMenu = (tracks?: TrackQueue) => {
-  const noTrack = tracks?.length === 0 && !tracks.current && !tracks.previous;
+export const createSelectMenu = (queue?: TrackQueue) => {
+  const hasTracks = !!queue?.length || !!queue?.current;
 
-  const options = tracks
-    ? parseTracksToMenuItem(tracks)
+  const options = hasTracks
+    ? parseTracksToMenuItem(queue)
     : [
         {
           default: true,
           label: "Add more songs to use the select-menu!",
           value: "add-more-songs",
-          emoji: {
-            name: "light",
-            id: "1069597636950249523",
-          },
         },
       ];
 
@@ -32,7 +28,7 @@ export const createSelectMenu = (tracks?: TrackQueue) => {
         .setPlaceholder("Select a song")
         .setMinValues(0)
         .setMaxValues(1)
-        .setDisabled(noTrack)
+        .setDisabled(!hasTracks)
         .setOptions(options),
     ],
   });

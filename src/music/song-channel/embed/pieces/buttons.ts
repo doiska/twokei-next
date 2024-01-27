@@ -48,8 +48,11 @@ export async function createStaticButtons(guild: Guild) {
 export async function createDynamicButtons(venti: Venti) {
   const t = await fetchT(venti.guild);
 
-  const source = capitalizeFirst(venti.queue.current?.sourceName ?? "Source");
-  const emoji = getSourceLogo(source);
+  const capitalizedSourceName = capitalizeFirst(
+    venti.queue.current?.sourceName ?? "Source",
+  );
+
+  const sourceLogo = getSourceLogo(capitalizedSourceName);
 
   const secondary = [
     {
@@ -78,7 +81,7 @@ export async function createDynamicButtons(venti: Venti) {
 
   const primary = [
     {
-      style: ButtonStyle.Success,
+      style: ButtonStyle.Secondary,
       emoji: "👍",
       customId: "like",
       label: "Like",
@@ -99,8 +102,8 @@ export async function createDynamicButtons(venti: Venti) {
     {
       url: venti.queue?.current?.uri ?? "https://twokei.com",
       style: ButtonStyle.Link,
-      emoji: emoji,
-      label: source,
+      emoji: sourceLogo,
+      label: capitalizedSourceName,
     },
   ].map((button) => parseButtonLabel(t, button));
 
