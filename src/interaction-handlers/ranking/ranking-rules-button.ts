@@ -6,7 +6,7 @@ import {
 } from "@sapphire/framework";
 import { isValidCustomId } from "@/utils/helpers";
 import type { ButtonInteraction } from "discord.js";
-import { resolveKey } from "@sapphire/plugin-i18next";
+import { resolveKey } from "@/i18n";
 import { send } from "@/lib/message-handler";
 import { Colors, EmbedBuilder } from "discord.js";
 

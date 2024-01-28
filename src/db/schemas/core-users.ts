@@ -1,13 +1,10 @@
-import type { InferSelectModel } from "drizzle-orm";
 import { timestamp, varchar } from "drizzle-orm/pg-core";
 import { createTable } from "@/db/Kil";
 
 export const coreUsers = createTable("core_users", {
   id: varchar("user_id").primaryKey().notNull(),
-  name: varchar("name"),
+  name: varchar("name").notNull(),
   locale: varchar("locale").default("pt_br"),
-  created_at: timestamp("created_at").notNull().defaultNow(),
-  updated_at: timestamp("updated_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
-
-export type RegisteredUser = InferSelectModel<typeof coreUsers>;

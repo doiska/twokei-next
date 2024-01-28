@@ -68,6 +68,7 @@ export const listeningRanking = pgMaterializedView("ranking").as((qb) => {
         sql<number>`ROW_NUMBER() OVER (ORDER BY SUM(${analyticsTrackInfo.durationInMs} * ${analyticsUserListenedTracks.listened}) DESC)`.as(
           "position",
         ),
+      refreshedAt: sql<Date>`NOW()`.as("refreshed_at"),
     })
     .from(analyticsUserListenedTracks)
     .innerJoin(
