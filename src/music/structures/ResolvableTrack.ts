@@ -117,7 +117,7 @@ export class ResolvableTrack {
     );
   }
 
-  public async resolve(overwrite = false): Promise<ResolvableTrack> {
+  public async resolve(): Promise<ResolvableTrack> {
     if (this.isReadyToPlay) {
       playerLogger.debug(`[ResolvableTrack] Track is already ready to play!`);
       return this;
@@ -130,16 +130,12 @@ export class ResolvableTrack {
     }
 
     this.track = resolvedTrack.encoded;
+    this.title = resolvedTrack.info.title;
+    this.isSeekable = resolvedTrack.info.isSeekable;
+    this.author = resolvedTrack.info.author;
+    this.isStream = resolvedTrack.info.isStream;
     this.realUri = resolvedTrack.info.uri;
     this.length = resolvedTrack.info.length;
-
-    if (overwrite) {
-      this.title = resolvedTrack.info.title;
-      this.isSeekable = resolvedTrack.info.isSeekable;
-      this.author = resolvedTrack.info.author;
-      this.length = resolvedTrack.info.length;
-      this.isStream = resolvedTrack.info.isStream;
-    }
 
     return this;
   }

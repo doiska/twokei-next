@@ -10,7 +10,7 @@ const colors = {
   error: red,
   info: blue,
   warn: yellow,
-  debug: cyan,
+  debug: green,
   verbose: green,
 } as Record<string, (str: string) => string>;
 
@@ -56,7 +56,7 @@ const consoleTransportInstance = new transports.Console({
 });
 
 const defaultLoggerOptions = {
-  level: env.LOG_LEVEL ?? "info",
+  level: env.LOG_LEVEL,
   format: format.combine(
     format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
     format.errors({ stack: true }),

@@ -3,7 +3,6 @@ import { container } from "@sapphire/framework";
 
 import { type VentiInitOptions } from "@/music/interfaces/player.types";
 
-import { fetchLanguage } from "@sapphire/plugin-i18next";
 import { logger } from "@/lib/logger";
 import { isTextChannel } from "@sapphire/discord.js-utilities";
 import { Icons } from "@/constants/icons";

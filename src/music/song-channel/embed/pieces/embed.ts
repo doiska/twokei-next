@@ -1,6 +1,6 @@
 import { type APIEmbed, Colors, type Guild } from "discord.js";
 
-import { resolveKey } from "@sapphire/plugin-i18next";
+import { resolveKey } from "@/i18n";
 import { kil } from "@/db/Kil";
 import { playerEmbedArts } from "@/db/schemas/player-embed-arts";
 import { sql } from "drizzle-orm";

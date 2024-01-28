@@ -7,16 +7,11 @@ import {
 import { isConnectedTo } from "@/preconditions/vc-conditions";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { PlayerException } from "@/structures/exceptions/PlayerException";
-import {
-  Events,
-  XiaoLoadType,
-  XiaoSearchResult,
-} from "../interfaces/player.types";
+import { Events, XiaoLoadType } from "../interfaces/player.types";
 import { createPlayerInstance } from "./create-player-instance";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 import { container } from "@sapphire/framework";
-import { ResolvableTrack } from "@/music/structures/ResolvableTrack";
-import { Playlist } from "@twokei/shoukaku";
+import { playerLogger } from "@/lib/logger";
 
 async function createPlayer(member: GuildMember) {
   const { guild } = member;
@@ -51,36 +46,6 @@ async function createPlayer(member: GuildMember) {
   return player;
 }
 
-type Input =
-  | string
-  | ResolvableTrack
-  | ResolvableTrack[]
-  | {
-      name: string;
-      tracks: ResolvableTrack[];
-    };
-
-function getResult(input: Input, member?: GuildMember) {
-  if (typeof input === "string") {
-    return container.xiao.search(input, {
-      requester: member?.user,
-      resolver: "spotify",
-    });
-  }
-
-  if (Array.isArray(input)) {
-    return {
-      tracks: input,
-      type: XiaoLoadType.PLAYLIST_LOADED,
-    };
-  }
-
-  return {
-    tracks: input,
-    type: XiaoLoadType.TRACK_LOADED,
-  };
-}
-
 export async function addNewSong(input: string, member: GuildMember) {
   const player = await createPlayer(member);
 
@@ -104,6 +69,5 @@ export async function addNewSong(input: string, member: GuildMember) {
   }
 
   player.emit(Events.TrackAdd, player, result, member);
-
   return result;
 }

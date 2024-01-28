@@ -1,8 +1,7 @@
 import "reflect-metadata";
 import "./env";
 import "../db/Kil";
-
-import "@sapphire/plugin-i18next/register";
+import "@/i18n/register";
 
 import { GatewayIntentBits, Partials } from "discord.js";
 import {
@@ -14,13 +13,11 @@ import {
 import { eq } from "drizzle-orm";
 import { kil } from "@/db/Kil";
 import { coreGuilds } from "@/db/schemas/core-guilds";
-import { DEFAULT_LOCALE, isValidLocale } from "@/locales/i18n";
 import { TwokeiClient } from "@/structures/TwokeiClient";
-import type { InternationalizationContext } from "@sapphire/plugin-i18next";
-import pt_br from "@/locales/pt_br";
 import { logger } from "@/lib/logger";
 import { Xiao } from "@/music/controllers/Xiao";
 import { startCronJobs } from "@/lib/cron/cron";
+import pt_br from "@/i18n/locales/pt_br";
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
   RegisterBehavior.BulkOverwrite,
@@ -41,8 +38,8 @@ export const Twokei = new TwokeiClient({
   loadMessageCommandListeners: true,
   enableLoaderTraceLoggings: false,
   i18n: {
-    defaultLanguageDirectory: "./src/locales",
-    i18next: {
+    defaultLanguage: "pt_br",
+    i18nOptions: {
       fallbackLng: "pt_br",
       supportedLngs: ["pt_br", "en_us"],
       resources: {
@@ -56,9 +53,9 @@ export const Twokei = new TwokeiClient({
       },
       joinArrays: "\n",
     },
-    fetchLanguage: async (context: InternationalizationContext) => {
-      if (!context.guild?.id) {
-        return DEFAULT_LOCALE;
+    fetchLanguage: async (context) => {
+      if (!context.guild) {
+        return;
       }
 
       const [guild] = await kil
@@ -66,16 +63,20 @@ export const Twokei = new TwokeiClient({
         .from(coreGuilds)
         .where(eq(coreGuilds.guildId, context.guild.id));
 
-      if (!guild || !isValidLocale(guild.locale)) {
-        return DEFAULT_LOCALE;
-      }
-
-      return isValidLocale(guild.locale) ? guild.locale : DEFAULT_LOCALE;
+      return guild?.locale ?? "pt_br";
     },
   },
 });
 
 export const init = async () => {
+  process.on("unhandledRejection", (reason) => {
+    logger.error("Unhandled Rejection at:", reason);
+  });
+
+  process.on("uncaughtException", (error) => {
+    logger.error("Uncaught Exception thrown", error);
+  });
+
   logger.debug("Starting Twokei.");
 
   await Xiao.init(Twokei);

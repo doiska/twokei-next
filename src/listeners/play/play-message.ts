@@ -10,7 +10,7 @@ import { noop } from "@sapphire/utilities";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
 import { Embed } from "@/utils/messages";
-import { resolveKey } from "@sapphire/plugin-i18next";
+import { resolveKey } from "@/i18n";
 import { isShoukakuReady } from "@/preconditions/shoukaku-ready";
 import { youtubeResolver } from "@/music/resolvers/youtube";
 import { addNewSong } from "@/music/heizou/add-new-song";

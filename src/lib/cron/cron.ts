@@ -7,7 +7,7 @@ const cronLogger = logger.child({ module: "cron" });
 
 export async function startCronJobs() {
   Cron(
-    "* */1 * * * *",
+    "*/5 * * * *",
     {
       name: "refresh-cron-jobs",
     },

@@ -14,7 +14,7 @@ import { setupSongMessage } from "@/music/song-channel/setup-song-message";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
 import { defer, send } from "@/lib/message-handler";
-import { resolveKey } from "@sapphire/plugin-i18next";
+import { resolveKey } from "@/i18n";
 import { Embed } from "@/utils/messages";
 import { noop } from "@sapphire/utilities";
 import { EmbedButtons } from "@/constants/music/player-buttons";

@@ -1,7 +1,5 @@
 import { type Guild, type Snowflake, type User } from "discord.js";
 
-import { type Locale } from "@/locales/i18n";
-import { type Maybe } from "@/utils/types-helper";
 import { type ResolvableTrack } from "../structures/ResolvableTrack";
 import { LoadType } from "@twokei/shoukaku";
 
@@ -56,6 +54,7 @@ export enum Events {
   PlayerDestroy = "playerDestroy",
   PlayerCreate = "playerCreate",
 
+  TrackAdd = "trackAdd",
   TrackStart = "trackStart",
   TrackPause = "trackPause",
   TrackEnd = "trackEnd",
@@ -71,7 +70,6 @@ export enum Events {
   PlayerMoved = "playerMoved",
 
   Debug = "debug",
-  TrackAdd = "trackAdd",
   TrackRemove = "trackRemove",
 
   ManualUpdate = "manualUpdate",

@@ -4,16 +4,18 @@ export default {
   embed: {
     main: [
       `# ${Icons.Ranking} Twokei Global Ranking`,
-      "> Usuários que mais ouviram músicas no Twokei.",
-      `### Seja parte do **Top 3** e receba todos os benefícios do **${Icons.Premium} Premium**!`,
+      "### Usuários que mais ouviram músicas no Twokei.",
+      // `### Seja parte do **Top 3** e receba todos os benefícios do **${Icons.Premium} Premium**!`,
+      "> Ranking atualizado a cada **15 minutos**.",
       "",
     ].join("\n"),
     ephemeral: [
       `Você está em **#{{currentPosition.position}} lugar** com **{{currentPosition.listened}} ouvidos**.`,
-      `Suba no Ranking **escutando** músicas no {{- twokeiMention}}.`,
+      `Suba no Ranking **escutando** músicas no {{- mention}}.`,
       " ",
       `Obrigado por fazer parte da nossa vibe! ${Icons.HanakoEating}`,
     ],
+    refreshedAt: "**Última atualização:** {{- time}}",
   },
   rules: [
     `# ${Icons.Ranking} Regras do Ranking`,

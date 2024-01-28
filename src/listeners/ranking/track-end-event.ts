@@ -59,8 +59,8 @@ export class TrackEndEvent extends Listener<typeof Events.TrackEnd> {
     await trackEvent({
       event: "heard_song",
       guild: venti.guildId,
-      users: connected.map((member) => member.id),
-      track: current,
+      users: connected.map((member) => member.user),
+      tracks: [current],
     });
   }
 }

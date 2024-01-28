@@ -14,18 +14,12 @@ import { kil } from "@/db/Kil";
 import { coreGuilds } from "@/db/schemas/core-guilds";
 
 import { Twokei } from "@/app/Twokei";
-import { type Locale, LocaleFlags, VALID_LOCALES } from "@/locales/i18n";
+import { getLanguages } from "@/i18n";
 
-import { fetchT } from "@sapphire/plugin-i18next";
+import { fetchT } from "@/i18n";
 
 export async function setupGuildLanguage(channel: GuildTextBasedChannel) {
   const { guild } = channel;
-
-  //TODO: update language
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore - guild#preferredLocale
-  const language: Locale =
-    guild.preferredLocale === "pt-BR" ? "pt_br" : "en_us";
 
   const ft = await fetchT(channel);
 
@@ -34,9 +28,8 @@ export async function setupGuildLanguage(channel: GuildTextBasedChannel) {
     .setDescription(ft("tutorial:language.description", { joinArrays: "\n" }))
     .setThumbnail(Twokei.user?.displayAvatarURL({ size: 2048 }) ?? "");
 
-  const languageButtons = VALID_LOCALES.map((locale) =>
+  const languageButtons = getLanguages().map((locale) =>
     new ButtonBuilder()
-      .setEmoji(LocaleFlags[locale])
       .setCustomId(`language-${locale}`)
       .setStyle(ButtonStyle.Secondary),
   );
@@ -70,12 +63,12 @@ export async function setupGuildLanguage(channel: GuildTextBasedChannel) {
 
   await message.delete().catch(noop);
 
-  const newLocale = interaction?.customId.split("-")?.[1] ?? language;
+  const newLocale = interaction?.customId.split("-")?.[1];
 
   await kil
     .update(coreGuilds)
     .set({ locale: newLocale })
     .where(eq(coreGuilds.guildId, guild.id));
 
-  return newLocale as Locale;
+  return newLocale;
 }

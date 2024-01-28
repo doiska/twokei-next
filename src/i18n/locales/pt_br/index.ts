@@ -21,3 +21,16 @@ export default {
   news,
   genres,
 } as const;
+
+export const namespaces = {
+  interactions,
+  common,
+  error,
+  player,
+  tutorial,
+  commands,
+  messages,
+  profile,
+  news,
+  genres,
+} as const;

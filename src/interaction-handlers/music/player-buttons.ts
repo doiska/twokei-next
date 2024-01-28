@@ -18,7 +18,7 @@ import { skipSong } from "@/music/heizou/skip-song";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
 import { send } from "@/lib/message-handler";
 import { Embed } from "@/utils/messages";
-import { resolveKey } from "@sapphire/plugin-i18next";
+import { resolveKey } from "@/i18n";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "buttons-player",

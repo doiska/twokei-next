@@ -15,7 +15,7 @@ import {
   EmbedBuilder,
   GuildMember,
 } from "discord.js";
-import { fetchT, TFunction } from "@sapphire/plugin-i18next";
+import { fetchT, TFunction } from "@/i18n";
 import { addMilliseconds, format } from "date-fns";
 import { LoadType } from "@twokei/shoukaku";
 import { capitalizeFirst } from "@/utils/helpers";

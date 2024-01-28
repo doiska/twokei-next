@@ -17,7 +17,7 @@ import {
 
 import { EmbedButtons } from "@/constants/music/player-buttons";
 
-import { fetchT } from "@sapphire/plugin-i18next";
+import { fetchT } from "@/i18n";
 import { Icons } from "@/constants/icons";
 import { send } from "@/lib/message-handler";
 

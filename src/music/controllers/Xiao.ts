@@ -243,7 +243,7 @@ export class Xiao extends EventEmitter {
     );
 
     this.shoukaku.on("debug", (name: string, info: string) =>
-      this.logger.debug(`${name} ${info}`),
+      this.logger.debug(`[Shoukaku] ${name} ${info}`),
     );
 
     this.shoukaku.on("raw", playerSessionStore);
@@ -251,7 +251,7 @@ export class Xiao extends EventEmitter {
 
     this.on(Events.Debug, (message) => this.logger.debug(message));
 
-    this.on(Events.TrackStart, (venti) => refresh(venti));
+    this.on(Events.TrackStart, (venti) => refresh(venti, { components: true }));
     this.on(Events.TrackAdd, (venti) => refresh(venti, { components: true }));
     this.on(Events.TrackPause, (venti) => refresh(venti, { components: true }));
     this.on(Events.ManualUpdate, refresh);
@@ -330,7 +330,9 @@ export class Xiao extends EventEmitter {
 
     const query = _query.trim();
 
-    logger.debug(`Received search query: ${query}`);
+    if (!query) {
+      throw new Error("No query provided");
+    }
 
     const isUrl = query.startsWith("http");
 
