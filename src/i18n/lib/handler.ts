@@ -9,16 +9,12 @@ import i18next, {
   Resource,
   TFunction,
   TFunctionReturn,
-  TFunctionReturnOptionalDetails,
   TOptions,
 } from "i18next";
 import { Maybe } from "@/utils/types-helper";
-
-export type $Dictionary<T = unknown> = { [key: string]: T };
-export type $SpecialObject = object | Array<string | object>;
+import { Namespaces } from "@/i18n";
 
 // Taken from: https://github.com/sapphiredev/plugins/blob/main/packages/i18next/src/lib/InternationalizationHandler.ts
-
 export type ResolvableI18nTarget = {
   guild?: Guild;
   user?: User;
@@ -38,7 +34,7 @@ export class InternationalizationHandler {
   public isLoaded = false;
 
   private namespaces = new Set<string>();
-  public languages = new Map<string, TFunction>();
+  public languages = new Map<string, TFunction<Namespaces>>();
 
   public fetchLanguage: InternationalizationOptions["fetchLanguage"];
 
@@ -49,6 +45,7 @@ export class InternationalizationHandler {
   public async init() {
     await i18next.init({
       initImmediate: false,
+      joinArrays: "\n",
       ...this.options.i18nOptions,
     });
 
@@ -67,13 +64,6 @@ export class InternationalizationHandler {
     this.isLoaded = true;
   }
 
-  /**
-   * Localizes a content given one or more keys and i18next options.
-   * @param locale The language to be used.
-   * @param key The key or keys to retrieve the content from.
-   * @param options The interpolation options.
-   * @returns The localized content.
-   */
   public format<
     const Key extends ParseKeys<Ns, TOpt, undefined>,
     const TOpt extends TOptions,
@@ -81,43 +71,10 @@ export class InternationalizationHandler {
     Ret extends TFunctionReturn<Ns, AppendKeyPrefix<Key, undefined>, TOpt>,
     const ActualOptions extends TOpt & InterpolationMap<Ret> = TOpt &
       InterpolationMap<Ret>,
-  >(
-    locale: string,
-    ...[key, defaultValueOrOptions, optionsOrUndefined]:
-      | [key: Key | Key[], options?: ActualOptions]
-      | [
-          key: string | string[],
-          options: TOpt & $Dictionary & { defaultValue: string },
-        ]
-      | [
-          key: string | string[],
-          defaultValue: string | undefined,
-          options?: TOpt & $Dictionary,
-        ]
-  ): TFunctionReturnOptionalDetails<Ret, TOpt> {
-    if (!this.isLoaded)
-      throw new Error(
-        "Cannot call this method until InternationalizationHandler#init has been called",
-      );
+  >(locale: string, key: Key | Key[], defaultValueOrOptions?: ActualOptions) {
+    const fixedT = this.getT(locale);
 
-    const fixedT = this.languages.get(locale);
-
-    if (!fixedT) {
-      throw new ReferenceError("Invalid language provided");
-    }
-
-    const defaultValue =
-      typeof defaultValueOrOptions === "string"
-        ? defaultValueOrOptions
-        : this.options.defaultMissingKey
-        ? fixedT(this.options.defaultMissingKey, { replace: { key } })
-        : "";
-
-    return fixedT<Key, TOpt, Ret, ActualOptions>(
-      key,
-      defaultValue,
-      optionsOrUndefined,
-    );
+    return fixedT(key as string, `missing-i18n-${key}`, defaultValueOrOptions);
   }
 
   public getT(locale: string) {

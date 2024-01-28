@@ -17,6 +17,7 @@ import { Colors, EmbedBuilder } from "discord.js";
 export class RankingRulesButtonInteraction extends InteractionHandler {
   public override async run(interaction: ButtonInteraction): Promise<void> {
     const rules = await resolveKey(interaction, "interactions:ranking.rules");
+
     const embed = new EmbedBuilder()
       .setColor(Colors.Blue)
       .setDescription(rules);

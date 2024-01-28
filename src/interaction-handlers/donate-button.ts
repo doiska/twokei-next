@@ -35,7 +35,7 @@ export class DonateButton extends InteractionHandler {
     const t = await fetchT(interaction);
 
     const embed = new EmbedBuilder()
-      .setDescription(t("donate.description", { ns: "common" }))
+      .setDescription(t("common:donate.description"))
       .setColor(Colors.Gold);
 
     const pixButton = new ButtonBuilder()

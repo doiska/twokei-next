@@ -9,5 +9,5 @@ export default {
     "Use o canal para controlar a fila, playlists e mais!",
     " ",
     `**Obrigado por fazer parte de nossa Vibe!** ${Icons.HanakoEating}`,
-  ],
+  ].join("\n"),
 };

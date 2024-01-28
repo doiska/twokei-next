@@ -7,7 +7,7 @@ import {
 import { container, Listener } from "@sapphire/framework";
 import { noop } from "@sapphire/utilities";
 
-import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
+import { ErrorCodes, RawErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
 import { Embed } from "@/utils/messages";
 import { resolveKey } from "@/i18n";

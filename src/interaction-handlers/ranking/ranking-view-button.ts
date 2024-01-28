@@ -70,13 +70,14 @@ export class RankingViewButtonHandler extends InteractionHandler {
       );
     }
 
-    const rankingDescription = await resolveKey(buttonInteraction, "");
-
-    const t = await fetchT(buttonInteraction.guild!);
+    const rankingDescription = await resolveKey(
+      buttonInteraction,
+      "interactions:ranking.embed.main",
+    );
 
     const refreshedAtText = await resolveKey(
       buttonInteraction,
-      "donate.buttons.paypal",
+      "interactions:ranking.embed.refreshedAt",
       {
         time: formatTime(now, TimestampStyles.RelativeTime),
       },

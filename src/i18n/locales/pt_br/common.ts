@@ -19,7 +19,7 @@ export default {
       "- Se mudar de ideia, use o comando `/setup` novamente.",
       "",
       "",
-    ],
+    ].join("\n"),
   },
   donate: {
     description: [
@@ -35,7 +35,7 @@ export default {
       "- Sincroniza suas playlists públicas do Spotify com o bot.",
       "- Assim você pode ouvir suas músicas favoritas no Discord.",
       "- E ainda pode compartilhar com seus amigos.",
-    ],
+    ].join("\n"),
     pix: {
       description: [
         "## Muito obrigado! 🥰",
@@ -46,7 +46,7 @@ export default {
         "```",
         "12321312312",
         "```",
-      ],
+      ].join("\n"),
     },
     buttons: {
       pix: "Pix (Brasil)",
@@ -63,5 +63,5 @@ export default {
     )}`,
     "Ouça música em alta qualidade no próprio Discord.",
     "Sem anúncios ou interrupções!",
-  ],
+  ].join("\n"),
 };

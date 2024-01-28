@@ -13,11 +13,14 @@ export const RawErrorCodes = {
   MISSING_MESSAGE: "missing-message",
   MISSING_SONG_CHANNEL: "missing-song-channel",
   USE_SONG_CHANNEL: "use-song-channel",
-};
+} as const;
 
-type CodeKey = keyof typeof RawErrorCodes;
-
-export const ErrorCodes = Object.entries(RawErrorCodes).reduce(
-  (acc, [key, value]) => ({ ...acc, [key]: `error:${value}` }),
-  {},
-) as Record<CodeKey, string>;
+export const ErrorCodes = Object.keys(RawErrorCodes).reduce(
+  (acc, key) => ({
+    ...acc,
+    [key]: `error:${(RawErrorCodes as any)[key]}`,
+  }),
+  {} as {
+    [K in keyof typeof RawErrorCodes]: `error:${(typeof RawErrorCodes)[K]}`;
+  },
+);

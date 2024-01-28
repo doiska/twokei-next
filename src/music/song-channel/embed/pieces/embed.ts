@@ -17,8 +17,6 @@ export const createDefaultSongEmbed = async (
     .limit(1);
 
   const description = await resolveKey(guild, "player:embed.description", {
-    joinArrays: "\n",
-    returnObjects: false,
     mention,
     artwork: {
       name: randomArt.author,

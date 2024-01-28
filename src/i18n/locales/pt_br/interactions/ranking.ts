@@ -5,7 +5,6 @@ export default {
     main: [
       `# ${Icons.Ranking} Twokei Global Ranking`,
       "### Usuários que mais ouviram músicas no Twokei.",
-      // `### Seja parte do **Top 3** e receba todos os benefícios do **${Icons.Premium} Premium**!`,
       "> Ranking atualizado a cada **15 minutos**.",
       "",
     ].join("\n"),
@@ -14,7 +13,7 @@ export default {
       `Suba no Ranking **escutando** músicas no {{- mention}}.`,
       " ",
       `Obrigado por fazer parte da nossa vibe! ${Icons.HanakoEating}`,
-    ],
+    ].join("\n"),
     refreshedAt: "**Última atualização:** {{- time}}",
   },
   rules: [
@@ -27,5 +26,5 @@ export default {
     `### Faça parte do Top 3 e seja premiado com **${Icons.Premium} Premium**!`,
     "",
     `${Icons.HanakoEating} **Obrigado por fazer parte da nossa vibe!**`,
-  ],
+  ].join("\n"),
 };

@@ -17,7 +17,7 @@ import { TwokeiClient } from "@/structures/TwokeiClient";
 import { logger } from "@/lib/logger";
 import { Xiao } from "@/music/controllers/Xiao";
 import { startCronJobs } from "@/lib/cron/cron";
-import pt_br from "@/i18n/locales/pt_br";
+import { namespaces } from "@/i18n/locales/pt_br";
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
   RegisterBehavior.BulkOverwrite,
@@ -43,7 +43,7 @@ export const Twokei = new TwokeiClient({
       fallbackLng: "pt_br",
       supportedLngs: ["pt_br", "en_us"],
       resources: {
-        pt_br,
+        pt_br: namespaces,
       },
       interpolation: {
         defaultVariables: {

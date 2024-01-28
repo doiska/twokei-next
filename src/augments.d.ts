@@ -22,3 +22,12 @@ declare module "@sapphire/framework" {
     SameVoiceChannelCondition: never;
   }
 }
+
+declare module "i18next" {
+  interface CustomTypeOptions {
+    defaultNS: "common";
+    returnNull: false;
+    returnObjects: false;
+    resources: typeof import("@/i18n/locales/pt_br").namespaces;
+  }
+}

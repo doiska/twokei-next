@@ -22,7 +22,7 @@ export default {
     "Isso ocorre devido a uma limitação do `Discord`.",
     "Para usar este canal você precisa enviar uma mensagem mencionando o bot.",
     "Ou utilize o comando ``/play``",
-  ],
+  ].join("\n"),
   [ErrorCodes.MISSING_SONG_CHANNEL]:
     "O canal de música não foi definido neste servidor, use /setup e garanta que o bot tenha as permissões necessárias.",
   [ErrorCodes.USE_SONG_CHANNEL]:
@@ -31,4 +31,4 @@ export default {
     "Você não tem permissão (administrador) para usar este comando.",
   [ErrorCodes.PLAYER_NO_TRACKS_FOUND]:
     "Nenhuma música encontrada, tente usando um link direto.",
-};
+} as const;

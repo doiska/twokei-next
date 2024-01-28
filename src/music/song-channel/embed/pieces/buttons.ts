@@ -90,7 +90,7 @@ export async function createDynamicButtons(venti: Venti) {
       style:
         venti.loop === "none" ? ButtonStyle.Secondary : ButtonStyle.Primary,
       emoji: "🔁",
-      label: t(`player:embed.buttons.loop.${venti.loop.toLowerCase()}`),
+      label: t(`player:embed.buttons.loop.${venti.loop}`),
       customId: PlayerButtons.LOOP,
     },
     {
@@ -136,7 +136,7 @@ function parseButtonLabel(
   return {
     ...button,
     label:
-      button.label ?? (t(`player:embed.buttons.${button.customId}`) as string),
+      button.label ?? t(`player:embed.buttons.${button.customId}` as never),
     style: button?.style ?? ButtonStyle.Secondary,
     type: ComponentType.Button,
   } as InteractionButtonComponentData;

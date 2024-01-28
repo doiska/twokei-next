@@ -14,7 +14,7 @@ export default {
       `- A **fila deve estar vazia** para usar ${Icons.Hanakin}`,
       "### 🎨 Arte feita por: [{{- artwork.name}}]({{- artwork.url}})",
       "- Quer ver sua arte aqui? Envie em [nosso site](https://artwork.twokei.com)!",
-    ],
+    ].join("\n"),
     buttons: {
       [PlayerButtons.STOP]: "Parar",
       [PlayerButtons.PREVIOUS]: "Anterior",
@@ -55,5 +55,5 @@ export default {
     "## :sob: Links do YouTube",
     "Você está tentando utilizar um link do **YouTube**, não permitimos **playbacks/buscas no YouTube**.",
     "**Buscaremos pelo título e autor em outra plataforma**.",
-  ],
+  ].join("\n"),
 };
