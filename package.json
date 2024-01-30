@@ -16,6 +16,7 @@
     "url": "https://doiska.dev"
   },
   "dependencies": {
+    "@napi-rs/canvas": "^0.1.44",
     "@sapphire/decorators": "^6.0.3",
     "@sapphire/discord.js-utilities": "^7.1.4",
     "@sapphire/fetch": "^3.0.1",
@@ -30,6 +31,7 @@
     "ansis": "^2.0.3",
     "croner": "^8.0.0",
     "date-fns": "^2.30.0",
+    "discord-arts": "^0.5.8",
     "discord-hybrid-sharding": "github:meister03/discord-hybrid-sharding",
     "discord.js": "^14.14.1",
     "dotenv": "^16.3.1",

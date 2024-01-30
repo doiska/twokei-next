@@ -97,8 +97,8 @@ export default {
   "hip-hop-brazil": {
     name: "Hip-Hop",
     description: [
-      "O melhor do rap nacional",
-      "Rima e poesia",
+      "O melhor do rap brasileiro",
+      "Ritmo e poesia",
       "Pra quem gosta de rimar",
     ],
     emoji: "🎤",
@@ -142,8 +142,8 @@ export default {
     name: "Funk",
     description: [
       "De RJ e SP pra todo o Brasil",
-      "Rebola esse corpinho",
       "Funkzão pesado",
+      "Ela senta, ela quica, ela rebola",
     ],
     emoji: "🇧🇷",
   },

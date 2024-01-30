@@ -15,7 +15,7 @@ import {
   type Option,
 } from "@sapphire/framework";
 
-import { EmbedButtons } from "@/constants/music/player-buttons";
+import { EmbedButtons } from "@/constants/buttons";
 
 import { fetchT } from "@/i18n";
 import { Icons } from "@/constants/icons";
@@ -26,7 +26,7 @@ import { send } from "@/lib/message-handler";
   enabled: true,
   interactionHandlerType: InteractionHandlerTypes.Button,
 })
-export class NewsButtonInteraction extends InteractionHandler {
+class NewsButtonInteraction extends InteractionHandler {
   public async run(interaction: ButtonInteraction): Promise<void> {
     const t = await fetchT(interaction);
 

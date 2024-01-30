@@ -9,7 +9,7 @@ import {
 } from "discord.js";
 
 import { getSourceLogo, Icons } from "@/constants/icons";
-import { EmbedButtons, PlayerButtons } from "@/constants/music/player-buttons";
+import { EmbedButtons, PlayerButtons } from "@/constants/buttons";
 import type { Venti } from "@/music/controllers/Venti";
 
 import { fetchT, type TFunction } from "@/i18n";
@@ -34,9 +34,9 @@ export async function createStaticButtons(guild: Guild) {
   });
 
   const viewProfileButton = new ButtonBuilder({
+    customId: EmbedButtons.VIEW_PROFILE,
     label: t(`player:embed.buttons.${EmbedButtons.VIEW_PROFILE}`),
-    style: ButtonStyle.Link,
-    url: `https://twokei.com/profile`,
+    style: ButtonStyle.Secondary,
     emoji: Icons.Premium,
   });
 

@@ -17,9 +17,8 @@ import { defer, send } from "@/lib/message-handler";
 import { resolveKey } from "@/i18n";
 import { Embed } from "@/utils/messages";
 import { noop } from "@sapphire/utilities";
-import { EmbedButtons } from "@/constants/music/player-buttons";
+import { EmbedButtons } from "@/constants/buttons";
 import { Icons } from "@/constants/icons";
-import i18next from "i18next";
 
 @ApplyOptions<Command.Options>({
   name: "setup",

@@ -8,7 +8,7 @@ import {
   type Option,
 } from "@sapphire/framework";
 
-import { PlayerButtons } from "@/constants/music/player-buttons";
+import { PlayerButtons } from "@/constants/buttons";
 import { destroyPlayerInstance } from "@/music/heizou/destroy-player-instance";
 import { pauseSong } from "@/music/heizou/pause-song";
 import { previousSong } from "@/music/heizou/previous-song";

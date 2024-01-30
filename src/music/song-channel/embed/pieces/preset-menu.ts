@@ -1,5 +1,5 @@
 import { ActionRowBuilder, Guild, StringSelectMenuBuilder } from "discord.js";
-import { Menus } from "@/constants/music/player-buttons";
+import { Menus } from "@/constants/buttons";
 import { playerPresets } from "@/db/schemas/player-presets";
 import { kil } from "@/db/Kil";
 import { fetchT } from "@/i18n";

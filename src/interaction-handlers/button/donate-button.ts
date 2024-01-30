@@ -17,7 +17,7 @@ import {
   type Option,
 } from "@sapphire/framework";
 
-import { EmbedButtons } from "@/constants/music/player-buttons";
+import { EmbedButtons } from "@/constants/buttons";
 
 import { fetchT } from "@/i18n";
 
@@ -26,7 +26,7 @@ import { fetchT } from "@/i18n";
   enabled: true,
   interactionHandlerType: InteractionHandlerTypes.Button,
 })
-export class DonateButton extends InteractionHandler {
+class DonateButton extends InteractionHandler {
   public async run(interaction: ButtonInteraction) {
     if (!interaction.guild || !isGuildMember(interaction.member)) {
       return;

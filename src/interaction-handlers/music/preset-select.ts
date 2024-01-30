@@ -10,7 +10,7 @@ import {
   InteractionHandlerTypes,
 } from "@sapphire/framework";
 
-import { Menus } from "@/constants/music/player-buttons";
+import { Menus } from "@/constants/buttons";
 import { kil } from "@/db/Kil";
 import { playerPresets } from "@/db/schemas/player-presets";
 import { eq } from "drizzle-orm";

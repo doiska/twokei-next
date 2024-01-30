@@ -8,7 +8,7 @@ import {
 } from "@sapphire/framework";
 import { type Awaitable } from "@sapphire/utilities";
 
-import { Menus } from "@/constants/music/player-buttons";
+import { Menus } from "@/constants/buttons";
 import { RateLimitManager } from "@sapphire/ratelimits";
 import { logger } from "@/lib/logger";
 

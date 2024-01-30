@@ -12,7 +12,7 @@ import {
   time as formatTime,
   TimestampStyles,
 } from "discord.js";
-import { EmbedButtons } from "@/constants/music/player-buttons";
+import { EmbedButtons } from "@/constants/buttons";
 import { Awaitable } from "@sapphire/utilities";
 import { isValidCustomId } from "@/utils/helpers";
 import { kil } from "@/db/Kil";
@@ -28,6 +28,8 @@ import { fetchT, resolveKey } from "@/i18n";
 })
 export class RankingViewButtonHandler extends InteractionHandler {
   async run(buttonInteraction: ButtonInteraction) {
+    await buttonInteraction.deferReply({ ephemeral: true, fetchReply: true });
+
     const ranking = await kil
       .select({
         userId: coreUsers.id,
@@ -91,9 +93,8 @@ export class RankingViewButtonHandler extends InteractionHandler {
       )
       .setColor(Colors.Gold);
 
-    await buttonInteraction.reply({
+    await buttonInteraction.editReply({
       embeds: [rankingEmbed],
-      ephemeral: true,
     });
   }
 

@@ -1,5 +1,5 @@
 import { Icons } from "@/constants/icons";
-import { EmbedButtons, PlayerButtons } from "@/constants/music/player-buttons";
+import { EmbedButtons, PlayerButtons } from "@/constants/buttons";
 
 export default {
   embed: {

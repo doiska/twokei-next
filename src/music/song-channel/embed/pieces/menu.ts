@@ -4,7 +4,7 @@ import {
   StringSelectMenuBuilder,
 } from "discord.js";
 
-import { Menus } from "@/constants/music/player-buttons";
+import { Menus } from "@/constants/buttons";
 import { type TrackQueue } from "@/music/structures/TrackQueue";
 import { assertMenuSizeLimits } from "@/utils/embed-utils";
 
