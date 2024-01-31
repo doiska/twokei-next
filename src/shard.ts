@@ -1,15 +1,14 @@
 import { ShardingManager } from "discord.js";
 import { env } from "@/app/env";
 import { inspect } from "node:util";
+import * as process from "node:process";
 
 const manager = new ShardingManager("./dist/init.js", {
   token: env.DISCORD_TOKEN,
   mode: "worker",
 });
 
-process.on("SIGINT", () => {
-  process.exit(1);
-});
+process.on("SIGINT", () => process.exit(1));
 
 process.on("unhandledRejection", (error) => {
   console.error("Unhandled rejection:", inspect(error, true, 1));

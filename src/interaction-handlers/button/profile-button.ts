@@ -4,12 +4,15 @@ import {
   InteractionHandler,
   InteractionHandlerTypes,
 } from "@sapphire/framework";
-import { AttachmentBuilder, ButtonInteraction } from "discord.js";
+import { ButtonInteraction, Colors } from "discord.js";
 import { isValidCustomId } from "@/utils/helpers";
 import { EmbedButtons } from "@/constants/buttons";
 import { logger } from "@/lib/logger";
-import { profileImage } from "discord-arts";
 import { createProfile } from "@/canvas/profile/base";
+
+const decimalToHex = (decimal: number) => {
+  return decimal.toString(16).padStart(2, "0");
+};
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "profile-button",
@@ -35,6 +38,32 @@ class ProfileButtonInteraction extends InteractionHandler {
     const user = await interaction.user.fetch(true);
 
     const rankCard = await createProfile({
+      outline: {
+        theme: [Colors.White.toString(16)].map((c) => `#${c}`),
+      },
+      user: {
+        name: user.username,
+        username: user.tag,
+        badges: [
+          {
+            name: "DEV",
+            color: decimalToHex(Colors.Blue),
+          },
+          {
+            name: "Premium",
+            color: decimalToHex(Colors.Gold),
+          },
+          {
+            name: "Early Supporter",
+            color: decimalToHex(Colors.Blurple),
+          },
+          {
+            name: "Top 1",
+            color: decimalToHex(Colors.Fuchsia),
+          },
+        ],
+        ranking: 1,
+      },
       background: {
         url:
           user.bannerURL({
@@ -42,8 +71,8 @@ class ProfileButtonInteraction extends InteractionHandler {
             extension: "png",
             size: 1024,
           }) ?? "",
-        blur: 5,
-        brightness: 100,
+        blur: 3,
+        brightness: 40,
       },
       avatar: user.displayAvatarURL({
         forceStatic: true,

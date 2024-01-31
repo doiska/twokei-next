@@ -17,4 +17,7 @@ export default defineConfig({
   keepNames: true,
   silent: true,
   onSuccess: "node dist/init.js",
+  loader: {
+    ".ttf": "binary",
+  },
 });

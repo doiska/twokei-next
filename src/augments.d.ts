@@ -31,3 +31,9 @@ declare module "i18next" {
     resources: typeof import("@/i18n/locales/pt_br").namespaces;
   }
 }
+
+// add .tff as module
+declare module "*.ttf" {
+  const value: string;
+  export default value;
+}
