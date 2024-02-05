@@ -10,8 +10,16 @@ import { EmbedButtons } from "@/constants/buttons";
 import { logger } from "@/lib/logger";
 import { createProfile } from "@/canvas/profile/base";
 
-const decimalToHex = (decimal: number) => {
-  return decimal.toString(16).padStart(2, "0");
+import { isBefore } from "date-fns";
+import { getCoreUser } from "@/lib/users";
+import { isGuildMember } from "@sapphire/discord.js-utilities";
+import { getExternalProfile } from "@/lib/arts/get-external-profile";
+
+const getBadge = (
+  condition: boolean,
+  badge: { name: string; color?: string; image?: string },
+) => {
+  return condition && badge;
 };
 
 @ApplyOptions<InteractionHandler.Options>({
@@ -30,6 +38,12 @@ class ProfileButtonInteraction extends InteractionHandler {
   }
 
   public async run(interaction: ButtonInteraction) {
+    if (!isGuildMember(interaction.member))
+      return interaction.reply({
+        content: "You must be in a server to use this command",
+        ephemeral: true,
+      });
+
     await interaction.deferReply({
       ephemeral: true,
       fetchReply: true,
@@ -37,32 +51,31 @@ class ProfileButtonInteraction extends InteractionHandler {
 
     const user = await interaction.user.fetch(true);
 
+    const dbUser = await getCoreUser(user);
+    const externalProfile = await getExternalProfile(user.id);
+
+    const earlySupporterBadge = getBadge(
+      isBefore(dbUser.createdAt, new Date("2024-01-01")),
+      {
+        name: "Early Supporter",
+      },
+    );
+
+    const premiumBadge = getBadge(dbUser?.role === "premium", {
+      name: "Premium",
+      color: Colors.DarkGold.toString(16),
+    });
+
     const rankCard = await createProfile({
       outline: {
-        theme: [Colors.White.toString(16)].map((c) => `#${c}`),
+        theme: externalProfile?.data.profile_theme ?? [
+          Colors.White.toString(16),
+        ],
       },
       user: {
-        name: user.username,
-        username: user.tag,
-        badges: [
-          {
-            name: "DEV",
-            color: decimalToHex(Colors.Blue),
-          },
-          {
-            name: "Premium",
-            color: decimalToHex(Colors.Gold),
-          },
-          {
-            name: "Early Supporter",
-            color: decimalToHex(Colors.Blurple),
-          },
-          {
-            name: "Top 1",
-            color: decimalToHex(Colors.Fuchsia),
-          },
-        ],
-        ranking: 1,
+        name: `Teste de nick grande`,
+        badges: [earlySupporterBadge, premiumBadge].slice(0, 3).filter(Boolean),
+        ranking: 134,
       },
       background: {
         url:
@@ -71,10 +84,10 @@ class ProfileButtonInteraction extends InteractionHandler {
             extension: "png",
             size: 1024,
           }) ?? "",
-        blur: 3,
-        brightness: 40,
+        blur: 12,
+        brightness: 20,
       },
-      avatar: user.displayAvatarURL({
+      avatar: interaction.member.displayAvatarURL({
         forceStatic: true,
         extension: "png",
       }),
