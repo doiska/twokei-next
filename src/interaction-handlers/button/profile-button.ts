@@ -4,23 +4,50 @@ import {
   InteractionHandler,
   InteractionHandlerTypes,
 } from "@sapphire/framework";
-import { ButtonInteraction, Colors } from "discord.js";
+import { ButtonInteraction, Colors, User } from "discord.js";
 import { isValidCustomId } from "@/utils/helpers";
 import { EmbedButtons } from "@/constants/buttons";
-import { logger } from "@/lib/logger";
 import { createProfile } from "@/canvas/profile/base";
 
-import { isBefore } from "date-fns";
+import { intervalToDuration, isBefore } from "date-fns";
 import { getCoreUser } from "@/lib/users";
 import { isGuildMember } from "@sapphire/discord.js-utilities";
 import { getExternalProfile } from "@/lib/arts/get-external-profile";
+import { kil } from "@/db/Kil";
+import { listeningRanking } from "@/db/schemas/analytics-track-info";
+import { eq } from "drizzle-orm";
+import { playerEmbedArts } from "@/db/schemas/player-embed-arts";
 
-const getBadge = (
-  condition: boolean,
-  badge: { name: string; color?: string; image?: string },
-) => {
-  return condition && badge;
-};
+const badges = [
+  {
+    name: "Early Supporter",
+    color: Colors.DarkRed.toString(16),
+    condition: async (user: User) => {
+      const coreUser = await getCoreUser(user);
+      return isBefore(coreUser.createdAt, new Date("2024-01-01"));
+    },
+  },
+  {
+    name: "Premium",
+    color: Colors.DarkGold.toString(16),
+    condition: async (user: User) => {
+      const coreUser = await getCoreUser(user);
+      return coreUser.role === "premium";
+    },
+  },
+  {
+    name: "Top 10",
+    color: Colors.DarkGold.toString(16),
+    condition: async (user: User) => {
+      const [ranking] = await kil
+        .select()
+        .from(listeningRanking)
+        .where(eq(listeningRanking.userId, user.id));
+
+      return Number(ranking?.position) <= 10;
+    },
+  },
+];
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "profile-button",
@@ -29,8 +56,6 @@ const getBadge = (
 })
 class ProfileButtonInteraction extends InteractionHandler {
   public parse(buttonInteraction: ButtonInteraction) {
-    logger.debug("buttonInteraction.customId", buttonInteraction.customId);
-
     return isValidCustomId(
       buttonInteraction.customId,
       EmbedButtons.VIEW_PROFILE,
@@ -38,11 +63,12 @@ class ProfileButtonInteraction extends InteractionHandler {
   }
 
   public async run(interaction: ButtonInteraction) {
-    if (!isGuildMember(interaction.member))
+    if (!isGuildMember(interaction.member)) {
       return interaction.reply({
         content: "You must be in a server to use this command",
         ephemeral: true,
       });
+    }
 
     await interaction.deferReply({
       ephemeral: true,
@@ -50,47 +76,63 @@ class ProfileButtonInteraction extends InteractionHandler {
     });
 
     const user = await interaction.user.fetch(true);
-
-    const dbUser = await getCoreUser(user);
     const externalProfile = await getExternalProfile(user.id);
 
-    const earlySupporterBadge = getBadge(
-      isBefore(dbUser.createdAt, new Date("2024-01-01")),
-      {
-        name: "Early Supporter",
-      },
-    );
+    const [ranking] = await kil
+      .select()
+      .from(listeningRanking)
+      .where(eq(listeningRanking.userId, user.id));
 
-    const premiumBadge = getBadge(dbUser?.role === "premium", {
-      name: "Premium",
-      color: Colors.DarkGold.toString(16),
+    const { hours = 0, minutes = 0 } = intervalToDuration({
+      start: 0,
+      end: Number(ranking?.listenedInMs) ?? 0,
     });
+
+    const avatar = user.displayAvatarURL({
+      extension: "webp",
+      size: 1024,
+      forceStatic: true,
+    });
+
+    const banner = user.bannerURL({
+      forceStatic: true,
+      extension: "png",
+      size: 1024,
+    });
+
+    const [art] = await kil
+      .select()
+      .from(playerEmbedArts)
+      .then((arts) => arts.sort(() => Math.random() - 0.5));
 
     const rankCard = await createProfile({
       outline: {
         theme: externalProfile?.data.profile_theme ?? [
-          Colors.White.toString(16),
+          `#${Colors.White.toString(16)}`,
         ],
       },
       user: {
-        name: `Teste de nick grande`,
-        badges: [earlySupporterBadge, premiumBadge].slice(0, 3).filter(Boolean),
-        ranking: 134,
+        name: user.displayName.slice(0, 25),
+        badges: badges
+          .filter((badge) => badge.condition(user))
+          .map((badge) => ({
+            name: badge.name,
+            color: badge.color,
+          })),
+        avatar: avatar,
       },
       background: {
-        url:
-          user.bannerURL({
-            forceStatic: true,
-            extension: "png",
-            size: 1024,
-          }) ?? "",
-        blur: 12,
-        brightness: 20,
+        url: banner ?? art.url,
+        blur: 6,
+        brightness: 30,
       },
-      avatar: interaction.member.displayAvatarURL({
-        forceStatic: true,
-        extension: "png",
-      }),
+      stats: {
+        ranking: ranking?.position.toString() ?? `+999`,
+        listenedSongs: ranking?.listenedCount.toString() ?? "0",
+        totalPlayTime: `${hours > 0 ? `${hours}h` : ""} ${
+          minutes > 0 ? `${minutes}m` : ""
+        }`,
+      },
     });
 
     await interaction.editReply({ files: [rankCard] });

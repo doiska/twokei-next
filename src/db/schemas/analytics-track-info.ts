@@ -60,6 +60,10 @@ export const listeningRanking = pgMaterializedView("ranking").as((qb) => {
   return qb
     .select({
       userId: analyticsUserListenedTracks.userId,
+      listenedCount:
+        sql<number>`SUM(${analyticsUserListenedTracks.listened})`.as(
+          "total_songs_listened",
+        ),
       listenedInMs:
         sql<number>`SUM(${analyticsTrackInfo.durationInMs} * ${analyticsUserListenedTracks.listened})`.as(
           "listened_in_ms",

@@ -1,36 +1,22 @@
-import { GuildMember, User } from "discord.js";
+import { User } from "discord.js";
 import { kil } from "@/db/Kil";
-import { coreUsers } from "@/db/schemas/core-users";
+import { CoreUser, coreUsers } from "@/db/schemas/core-users";
 import { eq } from "drizzle-orm";
-import { isGuildMember } from "@sapphire/discord.js-utilities";
 
-export async function getCoreUser(user: string | User) {
-  const id = typeof user === "string" ? user : user.id;
-
+export async function getCoreUser(user: User): Promise<CoreUser> {
   const [dbUser] = await kil
     .select()
     .from(coreUsers)
-    .where(eq(coreUsers.id, id));
+    .where(eq(coreUsers.id, user.id));
 
   if (dbUser) {
     return dbUser;
   }
 
-  if (typeof user === "string") {
-    const result = await kil
-      .insert(coreUsers)
-      .values({
-        id,
-      })
-      .returning();
-
-    return result[0];
-  }
-
   const result = await kil
     .insert(coreUsers)
     .values({
-      id,
+      id: user.id,
       name: user.username,
     })
     .returning();

@@ -20,7 +20,7 @@ import { listeningRanking } from "@/db/schemas/analytics-track-info";
 import { asc, eq } from "drizzle-orm";
 import { coreUsers } from "@/db/schemas/core-users";
 import { formatDuration, intervalToDuration } from "date-fns";
-import { fetchT, resolveKey } from "@/i18n";
+import { resolveKey } from "@/i18n";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: EmbedButtons.VIEW_RANKING,
@@ -28,7 +28,10 @@ import { fetchT, resolveKey } from "@/i18n";
 })
 export class RankingViewButtonHandler extends InteractionHandler {
   async run(buttonInteraction: ButtonInteraction) {
-    await buttonInteraction.deferReply({ ephemeral: true, fetchReply: true });
+    await buttonInteraction.deferReply({
+      ephemeral: true,
+      fetchReply: true,
+    });
 
     const ranking = await kil
       .select({
@@ -52,7 +55,6 @@ export class RankingViewButtonHandler extends InteractionHandler {
     );
 
     const now = Math.floor((Date.now() - 60000) / 1000);
-    const formattedNow = formatTime(now, TimestampStyles.RelativeTime);
 
     const formattedRanking = topTen.map((user, index) =>
       this.formatRanking({
