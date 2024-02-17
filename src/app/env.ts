@@ -5,16 +5,17 @@ import { z } from "zod";
 
 export const env = createEnv({
   server: {
+    DISCORD_TOKEN: z.string(),
     LOG_LEVEL: z
       .enum(["error", "warn", "info", "verbose", "debug", "silly"])
       .default("debug"),
     NODE_ENV: z.enum(["production", "development"]),
-    DISCORD_TOKEN: z.string(),
     DATABASE_URL: z.string().url(),
     PG_SCHEMA: z.string(),
-    RESOLVER_KEY: z.string(),
     SPOTIFY_CLIENT_SECRET: z.string(),
     SPOTIFY_CLIENT_ID: z.string(),
+    EXTERNAL_PROFILE_ENDPOINT: z.string().url().optional(),
+    LAVA_SEARCH_ENGINE: z.string(),
   },
   runtimeEnv: process.env,
 });

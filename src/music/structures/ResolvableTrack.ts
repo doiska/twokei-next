@@ -5,6 +5,7 @@ import { type Track } from "@twokei/shoukaku";
 import { playerLogger } from "@/lib/logger";
 import { cleanUpSong } from "@/music/utils/cleanup";
 import { spotifyResolver } from "@/music/resolvers/spotify";
+import { env } from "@/app/env";
 
 interface ResolvableTrackOptions {
   requester?: User;
@@ -228,7 +229,7 @@ export class ResolvableTrack {
     playerLogger.debug(`[ResolvableTrack] Searching by ISRC ${isrc}`);
 
     return container.xiao.search(isrc, {
-      engine: "dzisrc",
+      engine: env.LAVA_SEARCH_ENGINE,
       requester: this.requester,
     });
   }

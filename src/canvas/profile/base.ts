@@ -18,12 +18,16 @@ interface Badge {
 interface Props {
   user: {
     name: string;
+    avatar: string;
     badges?: Badge[];
-    ranking?: number;
   };
-  avatar: string;
+  stats: {
+    ranking: string;
+    listenedSongs: string;
+    totalPlayTime: string;
+  };
   background: {
-    url: string | Buffer;
+    url: string;
     blur?: number;
     brightness?: number;
   };
@@ -46,7 +50,6 @@ const SAFE_ZONE_HEIGHT = HEIGHT - FRAME_OUTLINE_SIZE;
 const USER_PICTURE_BORDER_RADIUS = 35;
 const USER_PICTURE_SIZE = SAFE_ZONE_HEIGHT - 50;
 
-const SAFE_ZONE_DETAILS_HEIGHT = SAFE_ZONE_HEIGHT;
 const SAFE_ZONE_DETAILS_WIDTH = USER_PICTURE_SIZE + 50;
 
 const CENTER_Y = SAFE_ZONE_HEIGHT / 2;
@@ -67,7 +70,7 @@ const Positions = {
 export async function createProfile({
   outline,
   background,
-  avatar,
+  stats,
   user,
 }: Props) {
   const canvas = createCanvas(WIDTH, HEIGHT);
@@ -84,7 +87,7 @@ export async function createProfile({
   const border = await createOutline(outline);
   ctx.drawImage(border, 0, 0);
 
-  const userPicture = await createUserPicture(avatar);
+  const userPicture = await createUserPicture(user.avatar);
   ctx.filter = "drop-shadow(0px 12px 16px rgba(0, 0, 0, 0.8))";
 
   ctx.drawImage(
@@ -97,11 +100,11 @@ export async function createProfile({
 
   ctx.filter = "none";
 
-  const userDetails = await createUserDetails(user);
+  const userDetails = await createUserDetails(user, stats.ranking);
   ctx.drawImage(userDetails, 0, 0);
 
-  const stats = createStats();
-  ctx.drawImage(stats, 0, 0);
+  const statsImage = createStats(stats);
+  ctx.drawImage(statsImage, 0, 0);
 
   return canvas.toBuffer("image/webp");
 }
@@ -110,11 +113,8 @@ async function createBase(background: Props["background"]) {
   const canvas = createCanvas(WIDTH, HEIGHT);
   const ctx = canvas.getContext("2d");
 
-  const backgroundImage = await loadImage(background.url);
-
   const filters = [];
 
-  // lower the brightness
   if (background.brightness) {
     filters.push(`brightness(${background.brightness}%)`);
   }
@@ -128,16 +128,20 @@ async function createBase(background: Props["background"]) {
   ctx.imageSmoothingEnabled = true;
   ctx.globalCompositeOperation = "source-over";
 
-  // fill the background with a solid color
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
-  ctx.drawImage(backgroundImage, 0, 0, WIDTH + 100, HEIGHT + 100);
+
+  if (background.url && background.url.startsWith("http")) {
+    const backgroundImage = await loadImage(background.url);
+    ctx.drawImage(backgroundImage, 0, 0, WIDTH + 100, HEIGHT + 100);
+  }
+
   ctx.filter = "none";
 
   return canvas;
 }
 
-async function createUserPicture(avatar: Props["avatar"]) {
+async function createUserPicture(avatar: string) {
   const canvas = createCanvas(1024, 1024);
   const ctx = canvas.getContext("2d");
 
@@ -153,11 +157,11 @@ async function createUserPicture(avatar: Props["avatar"]) {
   return canvas;
 }
 
-async function createUserDetails(user: Props["user"]) {
+async function createUserDetails(user: Props["user"], ranking: string) {
   const canvas = createCanvas(WIDTH, HEIGHT);
   const ctx = canvas.getContext("2d");
 
-  const { name, badges, ranking } = user;
+  const { name, badges } = user;
 
   const verticalCenter = (HEIGHT - 50) / 2;
   const marginLeft = SAFE_ZONE_DETAILS_WIDTH;
@@ -204,7 +208,7 @@ async function createUserDetails(user: Props["user"]) {
   ctx.font = "bold 20px Cabin";
   ctx.fillStyle = "white";
   ctx.textAlign = "right";
-  ctx.fillText(title, SAFE_ZONE_WIDTH - 10, SAFE_ZONE_HEIGHT - 10);
+  ctx.fillText(title, SAFE_ZONE_WIDTH - 5, SAFE_ZONE_HEIGHT - 10);
 
   return canvas;
 }
@@ -282,22 +286,28 @@ function createBadge(
   return canvas;
 }
 
-function createStats() {
+function createStats({
+  listenedSongs,
+  totalPlayTime,
+}: {
+  listenedSongs: string;
+  totalPlayTime: string;
+}) {
   const canvas = createCanvas(WIDTH, HEIGHT);
   const ctx = canvas.getContext("2d");
 
-  const listenedSongs = createBadge(
+  const listenedSongsBadge = createBadge(
     {
-      name: "Músicas ouvidas: 42.6K",
+      name: `Músicas ouvidas: ${listenedSongs}`,
     },
     24,
     10,
     "start",
   );
 
-  const totalPlayTime = createBadge(
+  const totalPlayTimeBadge = createBadge(
     {
-      name: "Tempo no fone: 8d 11h 15m 20s",
+      name: `Ouvindo no Twokei: ${totalPlayTime}`,
     },
     24,
     10,
@@ -308,8 +318,8 @@ function createStats() {
 
   const startAtY = centerY + 40;
 
-  ctx.drawImage(listenedSongs, SAFE_ZONE_DETAILS_WIDTH, startAtY);
-  ctx.drawImage(totalPlayTime, SAFE_ZONE_DETAILS_WIDTH, startAtY + 40);
+  ctx.drawImage(listenedSongsBadge, SAFE_ZONE_DETAILS_WIDTH, startAtY);
+  ctx.drawImage(totalPlayTimeBadge, SAFE_ZONE_DETAILS_WIDTH, startAtY + 40);
 
   return canvas;
 }

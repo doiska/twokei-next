@@ -1,0 +1,27 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1706651554725,
+      "tag": "0000_sweet_the_executioner",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1706651570354,
+      "tag": "0001_low_blizzard",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1707702759855,
+      "tag": "0002_sleepy_raider",
+      "breakpoints": true
+    }
+  ]
+}

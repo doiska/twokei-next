@@ -1,9 +1,8 @@
-import type { APIEmbed, ButtonInteraction } from "discord.js";
+import { APIEmbed, ButtonInteraction, Colors } from "discord.js";
 import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  chatInputApplicationCommandMention,
   EmbedBuilder,
 } from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
@@ -30,49 +29,36 @@ class NewsButtonInteraction extends InteractionHandler {
   public async run(interaction: ButtonInteraction): Promise<void> {
     const t = await fetchT(interaction);
 
-    const [profileCommandName, profileCommandId] = [
-      ...container.applicationCommandRegistries
-        .acquire("profile")
-        .chatInputCommands.values(),
-    ];
-    const [topCommandName, topCommandId] = [
-      ...container.applicationCommandRegistries
-        .acquire("top")
-        .chatInputCommands.values(),
-    ];
-
-    const profileCommand = chatInputApplicationCommandMention(
-      profileCommandName!,
-      profileCommandId!,
-    );
-
-    const topCommand = chatInputApplicationCommandMention(
-      topCommandName!,
-      topCommandId!,
-    );
-
     const newsText: APIEmbed = t("news:embed", {
       returnObjects: true,
-      command_profile:
-        profileCommandName && profileCommandId ? profileCommand : "/profile",
-      command_ranking: topCommandName && topCommandId ? topCommand : "/top",
     });
 
-    const newsEmbed = EmbedBuilder.from(newsText);
+    const newsEmbed = EmbedBuilder.from(newsText)
+      .setFooter({
+        text: "Obrigado por fazer parte da nossa vibe! 💖",
+      })
+      .setColor(Colors.DarkGold);
 
-    const donatorButton = new ButtonBuilder()
-      .setLabel(t("news:buttons.donator"))
-      .setStyle(ButtonStyle.Link)
-      .setURL("https://twokei.com")
-      .setEmoji(Icons.Premium);
+    const profile = new EmbedBuilder()
+      .setDescription(
+        [
+          `## ${Icons.Hanakin} Novo Perfil!`,
+          "Você tem um perfil único de acordo com seu tema do Discord!",
+          "Conta com um **novo visual** e **ranking de músicas ouvidas!**",
+          "Clique em 'Ver Perfil' para visualizar.",
+        ].join("\n"),
+      )
+      .setImage(
+        "https://cdn.discordapp.com/ephemeral-attachments/1199121261184434318/1207051822863351910/file.jpg?ex=65de3d9c&is=65cbc89c&hm=7a570e7a47e5516656d3ecbc0b96e989f7fa316d6cce275bfa135d2ae4dc981c&",
+      )
+      .setColor(Colors.DarkGold);
 
-    const row = new ActionRowBuilder<ButtonBuilder>({
-      components: [donatorButton],
-    });
+    const title = new EmbedBuilder().setDescription(
+      [`# ${Icons.Lightning} Twokei Music - Novidades`, " "].join("\n"),
+    );
 
     await send(interaction, {
-      embeds: [newsEmbed],
-      components: [row],
+      embeds: [title, newsEmbed, profile],
       ephemeral: true,
     });
   }

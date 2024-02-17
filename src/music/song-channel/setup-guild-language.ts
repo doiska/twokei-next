@@ -25,7 +25,7 @@ export async function setupGuildLanguage(channel: GuildTextBasedChannel) {
 
   const embed = new EmbedBuilder()
     .setTitle(ft("tutorial:language.title"))
-    .setDescription(ft("tutorial:language.description", { joinArrays: "\n" }))
+    .setDescription(ft("tutorial:language.description"))
     .setThumbnail(Twokei.user?.displayAvatarURL({ size: 2048 }) ?? "");
 
   const languageButtons = getLanguages().map((locale) =>

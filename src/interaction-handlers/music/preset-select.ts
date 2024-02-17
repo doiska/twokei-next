@@ -1,8 +1,4 @@
-import {
-  EmbedBuilder,
-  GuildMember,
-  type StringSelectMenuInteraction,
-} from "discord.js";
+import { EmbedBuilder, type StringSelectMenuInteraction } from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
 import {
   container,
@@ -62,11 +58,6 @@ export class PresetSelectMenuInteraction extends InteractionHandler {
     const selectedCategory = preset.categories
       .sort(() => Math.random() - Math.random())
       .at(0)!;
-
-    logger.debug(`Selected category ${selectedCategory}`, {
-      preset,
-      selectedCategory,
-    });
 
     const [playlistCategory] = await kil
       .select()

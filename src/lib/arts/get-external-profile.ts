@@ -1,27 +1,33 @@
 import { z } from "zod";
+import { logger } from "@/lib/logger";
+import { env } from "@/app/env";
 
 const schema = z.object({
+  cached: z.boolean(),
+  cache_expiry: z.number(),
   data: z.object({
-    id: z.string(),
-    username: z.string(),
-    profile_theme: z.array(z.string()),
+    profile_theme: z.array(z.string()).nullable(),
   }),
 });
 
 export async function getExternalProfile(userId: string) {
-  const response = await fetch(`https://discord-arts.asure.dev/user/${userId}`);
+  try {
+    if (!env.EXTERNAL_PROFILE_ENDPOINT) {
+      return;
+    }
 
-  if (response.status !== 200) {
-    return null;
+    const response = await fetch(
+      `${env.EXTERNAL_PROFILE_ENDPOINT}${userId}`,
+    ).then((res) => res.json());
+
+    const result = schema.safeParse(response);
+
+    if (!result.success) {
+      return;
+    }
+
+    return result.data;
+  } catch (error) {
+    logger.error(error);
   }
-
-  const data = await response.json();
-
-  const result = schema.safeParse(data);
-
-  if (!result.success) {
-    return;
-  }
-
-  return result.data;
 }

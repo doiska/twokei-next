@@ -1,9 +1,9 @@
 import { User } from "discord.js";
 import { kil } from "@/db/Kil";
-import { CoreUser, coreUsers } from "@/db/schemas/core-users";
+import { coreUsers } from "@/db/schemas/core-users";
 import { eq } from "drizzle-orm";
 
-export async function getCoreUser(user: User): Promise<CoreUser> {
+export async function getCoreUser(user: User) {
   const [dbUser] = await kil
     .select()
     .from(coreUsers)

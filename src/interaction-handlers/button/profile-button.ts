@@ -9,7 +9,7 @@ import { isValidCustomId } from "@/utils/helpers";
 import { EmbedButtons } from "@/constants/buttons";
 import { createProfile } from "@/canvas/profile/base";
 
-import { intervalToDuration, isBefore } from "date-fns";
+import { isBefore } from "date-fns";
 import { getCoreUser } from "@/lib/users";
 import { isGuildMember } from "@sapphire/discord.js-utilities";
 import { getExternalProfile } from "@/lib/arts/get-external-profile";
@@ -32,7 +32,7 @@ const badges = [
     color: Colors.DarkGold.toString(16),
     condition: async (user: User) => {
       const coreUser = await getCoreUser(user);
-      return coreUser.role === "premium";
+      return coreUser?.role === "premium";
     },
   },
   {
@@ -40,14 +40,37 @@ const badges = [
     color: Colors.DarkGold.toString(16),
     condition: async (user: User) => {
       const [ranking] = await kil
-        .select()
+        .select({ position: listeningRanking.position })
         .from(listeningRanking)
         .where(eq(listeningRanking.userId, user.id));
 
-      return Number(ranking?.position) <= 10;
+      if (!ranking?.position) {
+        return false;
+      }
+
+      return ranking.position <= 10;
     },
   },
 ];
+
+const formatPlayTime = (ms: number) => {
+  const hours = Math.floor(ms / 3.6e6);
+  const minutes = Math.floor((ms % 3.6e6) / 6e4);
+
+  if (!minutes && !hours) {
+    return "0m";
+  }
+
+  if (hours === 0) {
+    return `${minutes}m`;
+  }
+
+  if (minutes === 0) {
+    return `${hours}h`;
+  }
+
+  return `${hours}h ${minutes}m`;
+};
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "profile-button",
@@ -83,11 +106,6 @@ class ProfileButtonInteraction extends InteractionHandler {
       .from(listeningRanking)
       .where(eq(listeningRanking.userId, user.id));
 
-    const { hours = 0, minutes = 0 } = intervalToDuration({
-      start: 0,
-      end: Number(ranking?.listenedInMs) ?? 0,
-    });
-
     const avatar = user.displayAvatarURL({
       extension: "webp",
       size: 1024,
@@ -96,7 +114,7 @@ class ProfileButtonInteraction extends InteractionHandler {
 
     const banner = user.bannerURL({
       forceStatic: true,
-      extension: "png",
+      extension: "webp",
       size: 1024,
     });
 
@@ -105,21 +123,27 @@ class ProfileButtonInteraction extends InteractionHandler {
       .from(playerEmbedArts)
       .then((arts) => arts.sort(() => Math.random() - 0.5));
 
+    const userBadges = await Promise.all(
+      badges.map(async (badge) => {
+        if (await badge.condition(user)) {
+          return {
+            name: badge.name,
+            color: badge.color,
+          };
+        }
+      }),
+    );
+
     const rankCard = await createProfile({
+      user: {
+        name: user.displayName.slice(0, 25),
+        badges: userBadges.filter(Boolean),
+        avatar: avatar,
+      },
       outline: {
         theme: externalProfile?.data.profile_theme ?? [
           `#${Colors.White.toString(16)}`,
         ],
-      },
-      user: {
-        name: user.displayName.slice(0, 25),
-        badges: badges
-          .filter((badge) => badge.condition(user))
-          .map((badge) => ({
-            name: badge.name,
-            color: badge.color,
-          })),
-        avatar: avatar,
       },
       background: {
         url: banner ?? art.url,
@@ -127,13 +151,13 @@ class ProfileButtonInteraction extends InteractionHandler {
         brightness: 30,
       },
       stats: {
-        ranking: ranking?.position.toString() ?? `+999`,
+        ranking: ranking?.position.toString() ?? `999+`,
         listenedSongs: ranking?.listenedCount.toString() ?? "0",
-        totalPlayTime: `${hours > 0 ? `${hours}h` : ""} ${
-          minutes > 0 ? `${minutes}m` : ""
-        }`,
+        totalPlayTime: formatPlayTime(ranking?.listenedInMs ?? 0),
       },
     });
+
+    //TODO: cache the profile card
 
     await interaction.editReply({ files: [rankCard] });
   }
