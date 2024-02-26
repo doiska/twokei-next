@@ -16,6 +16,7 @@ export const env = createEnv({
     SPOTIFY_CLIENT_ID: z.string(),
     EXTERNAL_PROFILE_ENDPOINT: z.string().url().optional(),
     LAVA_SEARCH_ENGINE: z.string(),
+    RESET_SONG_CHANNEL: z.string().optional(),
   },
   runtimeEnv: process.env,
 });

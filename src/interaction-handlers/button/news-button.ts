@@ -53,9 +53,11 @@ class NewsButtonInteraction extends InteractionHandler {
       )
       .setColor(Colors.DarkGold);
 
-    const title = new EmbedBuilder().setDescription(
-      [`# ${Icons.Lightning} Twokei Music - Novidades`, " "].join("\n"),
-    );
+    const title = new EmbedBuilder()
+      .setDescription(
+        [`# ${Icons.Lightning} Twokei Music - Novidades`].join("\n"),
+      )
+      .setColor(Colors.DarkGold);
 
     await send(interaction, {
       embeds: [title, newsEmbed, profile],

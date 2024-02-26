@@ -6,6 +6,7 @@ import "@/i18n/register";
 import { GatewayIntentBits, Partials } from "discord.js";
 import {
   ApplicationCommandRegistries,
+  container,
   LogLevel,
   RegisterBehavior,
 } from "@sapphire/framework";
@@ -18,6 +19,8 @@ import { logger } from "@/lib/logger";
 import { Xiao } from "@/music/controllers/Xiao";
 import { startCronJobs } from "@/lib/cron/cron";
 import { namespaces } from "@/i18n/locales/pt_br";
+import { env } from "@/app/env";
+import { playerSongChannels } from "@/db/schemas/player-song-channels";
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
   RegisterBehavior.BulkOverwrite,
@@ -87,4 +90,26 @@ export const init = async () => {
 
   await Twokei.login(process.env.DISCORD_TOKEN);
   await startCronJobs();
+
+  if (env.RESET_SONG_CHANNEL) {
+    setTimeout(async () => {
+      const guilds = await kil.select().from(playerSongChannels);
+
+      try {
+        for await (const { guildId } of guilds) {
+          const guild = Twokei.guilds.cache.get(guildId);
+          logger.debug("Resetting guild", guildId);
+
+          if (!guild) {
+            continue;
+          }
+
+          await container.sc.reset(guild);
+          logger.debug("Resetted guild", guildId);
+        }
+      } catch (error) {
+        logger.error(error);
+      }
+    }, 5000);
+  }
 };

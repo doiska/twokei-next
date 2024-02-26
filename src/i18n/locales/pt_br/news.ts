@@ -1,4 +1,3 @@
-import { Icons } from "@/constants/icons";
 import { Colors } from "discord.js";
 
 export default {
@@ -7,8 +6,8 @@ export default {
       `## :art: Espaço para artistas!`,
       "Graças a visibilidade que vocês nos proporcionam,",
       "podemos oferecer um espaço para artistas independentes!",
+      "Entre em contato para saber mais!",
       "**Totalmente gratuito, sem taxas ou comissões!**",
-      "Clique no botão abaixo para saber mais.",
     ].join("\n"),
     color: Colors.DarkGold,
   },
