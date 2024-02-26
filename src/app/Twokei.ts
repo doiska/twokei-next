@@ -95,20 +95,24 @@ export const init = async () => {
     setTimeout(async () => {
       const guilds = await kil.select().from(playerSongChannels);
 
-      try {
-        for await (const { guildId } of guilds) {
+      for await (const { guildId } of guilds) {
+        try {
+          logger.debug(`Reseting guild ${guildId}...`);
+
           const guild = Twokei.guilds.cache.get(guildId);
-          logger.debug("Resetting guild", guildId);
 
           if (!guild) {
             continue;
           }
 
           await container.sc.reset(guild);
-          logger.debug("Resetted guild", guildId);
+          logger.debug(`Reseted guild ${guildId}!`);
+        } catch (error) {
+          logger.error(
+            `Error while reseting song channels for guild ${guildId}`,
+            error,
+          );
         }
-      } catch (error) {
-        logger.error(error);
       }
     }, 5000);
   }
