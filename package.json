@@ -3,9 +3,12 @@
   "version": "2.6.0",
   "main": "./dist/init.js",
   "type": "commonjs",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "build": "tsup",
-    "start": "node --env-file=.env --preserve-symlinks ./dist/init.js",
+    "start": "node --env-file=.env ./dist/init.js",
     "dev": "tsup --watch",
     "lint": "eslint --fix src --ext .ts",
     "migrations": "npx drizzle-kit generate:pg"
@@ -31,12 +34,10 @@
     "ansis": "^2.0.3",
     "croner": "^8.0.0",
     "date-fns": "^2.30.0",
-    "discord-arts": "^0.5.8",
     "discord-hybrid-sharding": "github:meister03/discord-hybrid-sharding",
     "discord.js": "^14.14.1",
     "dotenv": "^16.3.1",
     "drizzle-orm": "^0.29.0",
-    "express-router-fs": "^1.2.0",
     "i18next": "^23.7.20",
     "pg": "^8.11.3",
     "postgres": "^3.3.5",

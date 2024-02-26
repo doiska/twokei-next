@@ -21,6 +21,7 @@ import { asc, eq } from "drizzle-orm";
 import { coreUsers } from "@/db/schemas/core-users";
 import { formatDuration, intervalToDuration } from "date-fns";
 import { resolveKey } from "@/i18n";
+import { ptBR } from "date-fns/locale";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: EmbedButtons.VIEW_RANKING,
@@ -59,7 +60,7 @@ export class RankingViewButtonHandler extends InteractionHandler {
     const formattedRanking = topTen.map((user, index) =>
       this.formatRanking({
         username: user.username,
-        listenedInMs: user.listenedInMs,
+        listenedInMs: parseInt(user.listenedInMs ?? 0),
         position: index + 1,
       }),
     );
@@ -68,7 +69,7 @@ export class RankingViewButtonHandler extends InteractionHandler {
       formattedRanking.push(
         this.formatRanking({
           username: currentUserRanking.username,
-          listenedInMs: currentUserRanking.listenedInMs,
+          listenedInMs: parseInt(currentUserRanking.listenedInMs ?? 0),
           position: currentUserRanking.position,
         }),
       );
@@ -118,11 +119,12 @@ export class RankingViewButtonHandler extends InteractionHandler {
   }) {
     const timeToDuration = intervalToDuration({
       start: 0,
-      end: listenedInMs * 1000,
+      end: listenedInMs,
     });
 
     const formattedDuration = formatDuration(timeToDuration, {
-      format: ["hours", "minutes", "seconds"],
+      format: ["days", "hours", "minutes"],
+      locale: ptBR,
     });
 
     return `**${position}**. ${username} - ${formattedDuration}`;
