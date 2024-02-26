@@ -11,7 +11,7 @@ import { Events, XiaoLoadType } from "../interfaces/player.types";
 import { createPlayerInstance } from "./create-player-instance";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 import { container } from "@sapphire/framework";
-import { playerLogger } from "@/lib/logger";
+import { logger, playerLogger } from "@/lib/logger";
 
 async function createPlayer(member: GuildMember) {
   const { guild } = member;
@@ -58,9 +58,10 @@ export async function addNewSong(input: string, member: GuildMember) {
     throw new FriendlyException(ErrorCodes.PLAYER_NO_TRACKS_FOUND);
   }
 
-  const addedTracks = XiaoLoadType.PLAYLIST_LOADED
-    ? result.tracks
-    : [result.tracks?.[0]];
+  const addedTracks =
+    result.type === XiaoLoadType.PLAYLIST_LOADED
+      ? result.tracks
+      : [result.tracks?.[0]];
 
   player.queue.add(...addedTracks);
 

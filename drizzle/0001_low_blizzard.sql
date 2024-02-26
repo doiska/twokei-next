@@ -1,1 +1,0 @@
-ALTER TABLE "player_presets" DROP COLUMN IF EXISTS "popularity";

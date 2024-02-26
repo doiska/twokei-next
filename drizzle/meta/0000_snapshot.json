@@ -1,12 +1,12 @@
 {
-  "id": "d9b91fa4-2e69-4021-aae7-d796ec1d4362",
+  "id": "be470be2-8f4d-40ee-8498-2ec14d63a40e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
     "analytics_track_info": {
       "name": "analytics_track_info",
-      "schema": "",
+      "schema": "app",
       "columns": {
         "id": {
           "name": "id",
@@ -46,7 +46,7 @@
     },
     "analytics_user_added_tracks": {
       "name": "analytics_user_added_tracks",
-      "schema": "",
+      "schema": "app",
       "columns": {
         "user_id": {
           "name": "user_id",
@@ -111,7 +111,7 @@
     },
     "analytics_user_listened_tracks": {
       "name": "analytics_user_listened_tracks",
-      "schema": "",
+      "schema": "app",
       "columns": {
         "user_id": {
           "name": "user_id",
@@ -176,7 +176,7 @@
     },
     "core_guilds": {
       "name": "core_guilds",
-      "schema": "",
+      "schema": "app",
       "columns": {
         "guild_id": {
           "name": "guild_id",
@@ -219,7 +219,7 @@
     },
     "core_nodes": {
       "name": "core_nodes",
-      "schema": "",
+      "schema": "app",
       "columns": {
         "name": {
           "name": "name",
@@ -282,7 +282,7 @@
     },
     "core_scheduler": {
       "name": "core_scheduler",
-      "schema": "",
+      "schema": "app",
       "columns": {
         "name": {
           "name": "name",
@@ -331,7 +331,7 @@
     },
     "core_users": {
       "name": "core_users",
-      "schema": "",
+      "schema": "app",
       "columns": {
         "user_id": {
           "name": "user_id",
@@ -351,6 +351,12 @@
           "primaryKey": false,
           "notNull": false,
           "default": "'pt_br'"
+        },
+        "role": {
+          "name": "role",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -374,7 +380,7 @@
     },
     "player_categories": {
       "name": "player_categories",
-      "schema": "",
+      "schema": "app",
       "columns": {
         "id": {
           "name": "id",
@@ -434,7 +440,7 @@
     },
     "player_embed_arts": {
       "name": "player_embed_arts",
-      "schema": "",
+      "schema": "app",
       "columns": {
         "name": {
           "name": "name",
@@ -468,7 +474,7 @@
     },
     "player_playlists": {
       "name": "player_playlists",
-      "schema": "",
+      "schema": "app",
       "columns": {
         "id": {
           "name": "id",
@@ -529,7 +535,7 @@
     },
     "player_presets": {
       "name": "player_presets",
-      "schema": "",
+      "schema": "app",
       "columns": {
         "name": {
           "name": "name",
@@ -564,7 +570,7 @@
     },
     "player_sessions": {
       "name": "player_sessions",
-      "schema": "",
+      "schema": "app",
       "columns": {
         "guild_id": {
           "name": "guild_id",
@@ -601,7 +607,7 @@
     },
     "player_song_channels": {
       "name": "player_song_channels",
-      "schema": "",
+      "schema": "app",
       "columns": {
         "guild_id": {
           "name": "guild_id",

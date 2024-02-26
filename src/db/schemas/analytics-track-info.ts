@@ -21,7 +21,7 @@ export const analyticsTrackInfo = createTable("analytics_track_info", {
   spotify_id: varchar("spotify_id"),
   title: varchar("title"),
   artists: varchar("artists"),
-  durationInMs: integer("duration_in_ms"),
+  durationInMs: integer("duration_in_ms").notNull().default(0),
 });
 
 export const analyticsUserListenedTracks = createTable(

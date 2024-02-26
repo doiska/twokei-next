@@ -111,7 +111,7 @@ export async function trackEvent(event: SongEvent) {
       .values(insertInfo)
       .onConflictDoNothing();
 
-    await track[event.event](event);
+    await track?.[event.event](event);
   } catch (error) {
     logger.error(`Error while tracking event ${event.event}`, error);
   }

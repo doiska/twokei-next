@@ -20,7 +20,7 @@ export async function createDefaultEmbed(
 
   return {
     embeds: [newEmbed],
-    components: [staticRow, presetMenu],
+    components: [staticRow, presetMenu].filter(Boolean),
   };
 }
 

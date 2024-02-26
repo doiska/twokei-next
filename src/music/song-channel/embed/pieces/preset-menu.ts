@@ -35,6 +35,10 @@ export async function getPresetMenu(guild: Guild) {
     })
     .slice(0, 25);
 
+  if (!options.length) {
+    return;
+  }
+
   return new ActionRowBuilder<StringSelectMenuBuilder>({
     components: [
       new StringSelectMenuBuilder()

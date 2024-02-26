@@ -1,6 +1,6 @@
 {
-  "id": "8117f070-29d5-4dd9-8380-100e40cc1698",
-  "prevId": "d9b91fa4-2e69-4021-aae7-d796ec1d4362",
+  "id": "a491dabf-06eb-4e8a-a139-db040926a09e",
+  "prevId": "be470be2-8f4d-40ee-8498-2ec14d63a40e",
   "version": "5",
   "dialect": "pg",
   "tables": {
@@ -36,7 +36,8 @@
           "name": "duration_in_ms",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": 0
         }
       },
       "indexes": {},
@@ -352,6 +353,12 @@
           "notNull": false,
           "default": "'pt_br'"
         },
+        "role": {
+          "name": "role",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -540,6 +547,12 @@
         "market": {
           "name": "market",
           "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "popularity": {
+          "name": "popularity",
+          "type": "numeric",
           "primaryKey": false,
           "notNull": false
         },
