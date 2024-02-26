@@ -1,34 +1,21 @@
-import "@sapphire/plugin-logger/register";
-import "@sapphire/plugin-subcommands/register";
+import "dotenv/config";
 
-import {
-  ApplicationCommandRegistries,
-  RegisterBehavior,
-} from "@sapphire/framework";
 import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 
-ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
-  RegisterBehavior.BulkOverwrite,
-);
-
 export const env = createEnv({
   server: {
-    CLIENT_ID: z.string().optional(),
-    NODE_ENV: z.enum(["production", "staging", "development"]),
     DISCORD_TOKEN: z.string(),
+    LOG_LEVEL: z
+      .enum(["error", "warn", "info", "verbose", "debug", "silly"])
+      .default("debug"),
+    NODE_ENV: z.enum(["production", "development"]),
     DATABASE_URL: z.string().url(),
     PG_SCHEMA: z.string(),
-    RESOLVER_URL: z.string(),
-    RESOLVER_KEY: z.string(),
-    WEBSITE_URL: z.string().url(),
     SPOTIFY_CLIENT_SECRET: z.string(),
     SPOTIFY_CLIENT_ID: z.string(),
-    PORT: z.union([z.number(), z.string()]).default(3005),
-    SHARDING_MANAGER_ENABLED: z
-      .string()
-      .default("true")
-      .transform((value) => value === "true"),
+    EXTERNAL_PROFILE_ENDPOINT: z.string().url().optional(),
+    LAVA_SEARCH_ENGINE: z.string(),
   },
   runtimeEnv: process.env,
 });

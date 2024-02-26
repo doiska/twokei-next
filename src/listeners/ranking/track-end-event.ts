@@ -5,6 +5,7 @@ import type { Track } from "@twokei/shoukaku";
 import { logger } from "@/lib/logger";
 import type { Venti } from "@/music/controllers/Venti";
 import { Events } from "@/music/interfaces/player.types";
+import { trackEvent } from "@/lib/analytics/track-event";
 
 @ApplyOptions<Listener.Options>({
   name: "song-user-track-end",
@@ -26,7 +27,7 @@ export class TrackEndEvent extends Listener<typeof Events.TrackEnd> {
       return;
     }
 
-    if (current.duration && current.duration < 10000) {
+    if (!current.length || current.length < 10000) {
       return;
     }
 
@@ -50,11 +51,22 @@ export class TrackEndEvent extends Listener<typeof Events.TrackEnd> {
       return;
     }
 
-    await container.analytics.track({
+    if (!current.isrc) {
+      logger.error(`Cannot track (${current?.title}), missing ISRC`);
+      return;
+    }
+
+    await trackEvent({
       event: "heard_song",
       guild: venti.guildId,
-      users: connected.map((member) => member.id),
-      track: current.short(),
+      users: connected.map((member) => member.user),
+      tracks: [current],
     });
   }
 }
+
+void container.stores.loadPiece({
+  name: "song-user-track-end",
+  piece: TrackEndEvent,
+  store: "listeners",
+});

@@ -1,16 +1,18 @@
 import { type StringSelectMenuInteraction } from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
 import {
+  container,
   InteractionHandler,
   InteractionHandlerTypes,
   type Option,
 } from "@sapphire/framework";
 import { type Awaitable } from "@sapphire/utilities";
 
-import { Menus } from "@/constants/music/player-buttons";
-import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
-import { send } from "@/lib/message-handler";
-import { Embed } from "@/utils/messages";
+import { Menus } from "@/constants/buttons";
+import { RateLimitManager } from "@sapphire/ratelimits";
+import { logger } from "@/lib/logger";
+
+const rateLimitManager = new RateLimitManager(5000);
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "player-menu",
@@ -21,6 +23,12 @@ export class PlayerMenu extends InteractionHandler {
   public override parse(
     interaction: StringSelectMenuInteraction,
   ): Awaitable<Option<string | number>> {
+    const currentRateLimit = rateLimitManager.acquire(interaction.user.id);
+
+    if (currentRateLimit.limited) {
+      return this.none();
+    }
+
     const [value] = interaction.values ?? [];
 
     if (interaction.customId !== Menus.SelectSongMenu) {
@@ -41,6 +49,7 @@ export class PlayerMenu extends InteractionHandler {
       return this.none();
     }
 
+    currentRateLimit.consume();
     return this.some(songId);
   }
 
@@ -48,33 +57,36 @@ export class PlayerMenu extends InteractionHandler {
     interaction: StringSelectMenuInteraction,
     option: InteractionHandler.ParseResult<this>,
   ) {
-    if (!interaction.guildId) {
+    if (!interaction.guild || !interaction.guildId) {
       return;
     }
 
-    const player = this.container.xiao.getPlayer(interaction.guildId);
+    const player = this.container.xiao.getPlayer(interaction.guild.id);
 
     if (!player?.voiceId) {
       return;
     }
 
-    await interaction.deferUpdate({
-      fetchReply: true,
-    });
-
     try {
       if (option === "pause") {
-        player.pause(true);
+        player.pause();
       } else if (option === "previous" && player.queue.previous) {
-        await player.play(player.queue.previous, { replace: true });
+        await player.play(player.queue.previous, {
+          noReplace: false,
+        });
       } else if (typeof option === "number") {
         await player.skip(option + 1);
       }
     } catch (error) {
-      await send(interaction, {
-        embeds: Embed.error(getReadableException(error)),
-        ephemeral: true,
-      });
+      logger.error(error);
     }
+
+    await interaction.deferUpdate();
   }
 }
+
+void container.stores.loadPiece({
+  name: "player-menu",
+  piece: PlayerMenu,
+  store: "interaction-handlers",
+});

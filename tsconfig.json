@@ -1,19 +1,23 @@
 {
-  "extends": "@tsconfig/node18",
   "compilerOptions": {
-    "importHelpers": true,
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
       "@/*": [
         "src/*"
       ]
     },
-    "rootDir": "src",
-    "outDir": "dist",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["es2022"],
+    "importHelpers": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "skipDefaultLibCheck": true,
+    "strict": true,
+    "resolveJsonModule": true,
   },
   "include": [
     "src/**/*"
-  ],
+  ]
 }

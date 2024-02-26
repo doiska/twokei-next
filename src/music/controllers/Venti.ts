@@ -1,4 +1,4 @@
-import { type Guild, type Message, type Snowflake } from "discord.js";
+import { type Guild, type Snowflake } from "discord.js";
 import {
   type Player,
   type PlayerUpdate,
@@ -7,12 +7,10 @@ import {
   type WebSocketClosedEvent,
 } from "@twokei/shoukaku";
 
-import { type Locale } from "@/locales/i18n";
 import { logger, playerLogger } from "@/lib/logger";
 import {
   Events,
   PlayerState,
-  type PlayOptions,
   type VentiInitOptions,
 } from "../interfaces/player.types";
 import { ResolvableTrack } from "../structures/ResolvableTrack";
@@ -21,7 +19,6 @@ import type { Xiao, XiaoEvents } from "./Xiao";
 
 import { inspect } from "node:util";
 import type { Logger } from "winston";
-import type { Maybe } from "@/utils/types-helper";
 
 export enum LoopStates {
   NONE = "none",
@@ -42,10 +39,6 @@ export class Venti {
   public readonly guild: Guild;
 
   public readonly guildId: Snowflake;
-  /**
-   * The voice channel id.
-   */
-  public voiceId: Maybe<Snowflake>;
 
   /**
    * Loop state of the player.
@@ -63,21 +56,10 @@ export class Venti {
   public queue: TrackQueue;
 
   /**
-   * The locale of the player.
-   */
-  public locale: Locale;
-
-  /**
    * The Xiao instance.
    * @private
    */
   private readonly xiao: Xiao;
-
-  /**
-   * The SongChannel embed message.
-   * @private
-   */
-  public embedMessage?: Message;
 
   private readonly logger: Logger;
 
@@ -86,22 +68,11 @@ export class Venti {
     this.instance = player;
     this.guild = options.guild;
     this.guildId = options.guild.id;
-    this.voiceId = options.voiceChannel;
-    this.locale = options.lang;
-    this.embedMessage = options.embedMessage;
 
     this.queue = new TrackQueue();
 
     this.logger = logger.child({
-      defaultPrefix: "VENTI",
-    });
-
-    this.logger.debug(`Created player for guild ${this.guildId}`);
-
-    this.instance.on("start", () => {
-      if (this.queue.current) {
-        this.emit(Events.TrackStart, this, this.queue.current);
-      }
+      module: "VENTI",
     });
 
     this.instance.on("end", (data) => {
@@ -187,9 +158,11 @@ export class Venti {
     this.instance.on("resumed", () => this.emit(Events.PlayerResumed, this));
   }
 
-  public async play(track?: ResolvableTrack, userPlayOptions?: PlayOptions) {
+  public async play(
+    track?: ResolvableTrack,
+    userPlayOptions?: ShoukakuPlayOptions["options"],
+  ) {
     const playOptions = {
-      replace: false,
       ...userPlayOptions,
     };
 
@@ -201,7 +174,7 @@ export class Venti {
       throw new Error("No track provided and queue is empty");
     }
 
-    if (track && !playOptions.replace && this.queue.current) {
+    if (track && playOptions.noReplace && this.queue.current) {
       this.logger.debug(
         `Queueing track ${track.title} for guild ${this.guildId}`,
       );
@@ -231,17 +204,14 @@ export class Venti {
     }
 
     nextTrack
-      .resolve(true)
+      .resolve()
       .then((resolvedTrack) => {
         this.queue.current = resolvedTrack;
 
         const shoukakuPlayOptions: ShoukakuPlayOptions = {
           info: resolvedTrack.getRaw().info,
           ...resolvedTrack,
-          options: {
-            ...playOptions,
-            noReplace: !playOptions.replace,
-          },
+          options: playOptions,
         };
 
         this.logger.debug(
@@ -249,6 +219,8 @@ export class Venti {
         );
 
         this.instance.playTrack(shoukakuPlayOptions);
+
+        this.emit(Events.TrackStart, this, resolvedTrack);
       })
       .catch((err: Error) => {
         this.logger.error(
@@ -283,22 +255,13 @@ export class Venti {
     }
 
     if (amount > this.queue.totalSize) {
-      // eslint-disable-next-line no-param-reassign
       amount = this.queue.totalSize;
     }
 
     this.setLoop(LoopStates.NONE);
 
-    this.queue.removeAt(0, amount - 1);
-
-    this.logger.debug(
-      `Skipping ${amount} tracks for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`,
-    );
-
-    this.logger.debug(`Current track: ${this.queue.current?.title ?? "none"}`);
-    this.logger.debug(`Next track: ${this.queue[0]?.title ?? "none"}`);
-
-    this.instance.stopTrack();
+    this.queue.splice(0, amount - 1);
+    await this.instance.stopTrack();
     return this;
   }
 
@@ -347,34 +310,6 @@ export class Venti {
     return newLoopState;
   }
 
-  /**
-   * Disconnects the player from the voice channel.
-   */
-  public disconnect() {
-    if (this.state === PlayerState.DISCONNECTED || !this.voiceId) {
-      throw new Error("Player is already disconnected");
-    }
-
-    this.state = PlayerState.DISCONNECTING;
-
-    this.xiao.options.send(this.guildId, {
-      op: 4,
-      d: {
-        guild_id: this.guildId,
-        channel_id: null,
-        self_deaf: false,
-        self_mute: false,
-      },
-    });
-
-    this.voiceId = null;
-    this.state = PlayerState.DISCONNECTED;
-
-    this.emit(Events.Debug, `Player disconnected for guild ${this.guildId}`);
-
-    return this;
-  }
-
   public emit<U extends keyof XiaoEvents>(
     event: U,
     ...args: Parameters<XiaoEvents[U]>
@@ -407,5 +342,9 @@ export class Venti {
       this.state === PlayerState.CONNECTING &&
       this.queue.current
     );
+  }
+
+  public get voiceId() {
+    return this.instance?.connection?.channelId;
   }
 }

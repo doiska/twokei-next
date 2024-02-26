@@ -5,7 +5,7 @@ import { isConnectedTo } from "@/preconditions/vc-conditions";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 
 export const skipSong = async (member: GuildMember, amount = 1) => {
-  const player = container.xiao.getPlayer(member);
+  const player = container.xiao.getPlayer(member.guild.id);
 
   if (!player) {
     throw new FriendlyException("No player found.");

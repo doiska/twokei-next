@@ -9,9 +9,9 @@ import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { PlayerException } from "@/structures/exceptions/PlayerException";
 import { Events, XiaoLoadType } from "../interfaces/player.types";
 import { createPlayerInstance } from "./create-player-instance";
-import type { ResolvableTrack } from "@/music/structures/ResolvableTrack";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 import { container } from "@sapphire/framework";
+import { logger, playerLogger } from "@/lib/logger";
 
 async function createPlayer(member: GuildMember) {
   const { guild } = member;
@@ -47,10 +47,6 @@ async function createPlayer(member: GuildMember) {
 }
 
 export async function addNewSong(input: string, member: GuildMember) {
-  if (!input) {
-    throw new PlayerException(ErrorCodes.PLAYER_MISSING_INPUT);
-  }
-
   const player = await createPlayer(member);
 
   const result = await container.xiao.search(input, {
@@ -62,35 +58,17 @@ export async function addNewSong(input: string, member: GuildMember) {
     throw new FriendlyException(ErrorCodes.PLAYER_NO_TRACKS_FOUND);
   }
 
-  if (result.type === XiaoLoadType.PLAYLIST_LOADED) {
-    result.tracks.sort(() => Math.random() - 0.5);
-    player.queue.add(...result.tracks);
-  } else {
-    player.queue.add(result.tracks?.[0]);
-  }
+  const addedTracks =
+    result.type === XiaoLoadType.PLAYLIST_LOADED
+      ? result.tracks
+      : [result.tracks?.[0]];
+
+  player.queue.add(...addedTracks);
 
   if (!player.playing) {
     await player.play();
-  } else {
-    player.emit(Events.TrackAdd, player, result.tracks);
   }
 
+  player.emit(Events.TrackAdd, player, result, member);
   return result;
-}
-
-export async function addISRCSongs(
-  tracks: ResolvableTrack[],
-  member: GuildMember,
-) {
-  const player = await createPlayer(member);
-
-  player.queue.add(...tracks);
-
-  if (!player.playing) {
-    await player.play();
-  } else {
-    player.emit(Events.TrackAdd, player, tracks);
-  }
-
-  return tracks;
 }

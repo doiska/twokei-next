@@ -1,10 +1,10 @@
-import { type GuildResolvable } from "discord.js";
+import { GuildMember } from "discord.js";
 import { container } from "@sapphire/framework";
 
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 
-export const pauseSong = async (guild: GuildResolvable) => {
-  const player = container.xiao.getPlayer(guild);
+export const pauseSong = async (member: GuildMember) => {
+  const player = container.xiao.getPlayer(member.guild.id);
 
   if (!player) {
     throw new FriendlyException("No player found");

@@ -3,7 +3,6 @@ import { container } from "@sapphire/framework";
 
 import { type VentiInitOptions } from "@/music/interfaces/player.types";
 
-import { fetchLanguage } from "@sapphire/plugin-i18next";
 import { logger } from "@/lib/logger";
 import { isTextChannel } from "@sapphire/discord.js-utilities";
 import { Icons } from "@/constants/icons";
@@ -26,18 +25,17 @@ export async function createPlayerInstance({
   const playerOptions: VentiInitOptions = {
     guild,
     voiceChannel,
-    lang: (await fetchLanguage(guild)) as "pt_br",
     shardId: guild.shardId,
     deaf: true,
   };
 
+  //TODO: revisar este fluxo, é possível que o erro de canal inexiste não esteja sendo tratado
+
   const { message, channel } = (await container.sc.getEmbed(guild)) ?? {};
 
-  if (message && channel) {
-    playerOptions.embedMessage = message;
-  } else {
+  if (!message || !channel) {
     logger.warn(
-      `No message or channel found for guild ${guild.name} while creating`,
+      `No message or channel found for guild ${guild.name} while creating player instance.`,
       {
         guildId: guild.id,
         message: message?.id,
@@ -49,7 +47,7 @@ export async function createPlayerInstance({
 
     if (!songChannel) {
       logger.error(
-        `No song channelfound for guild ${guild.name} while creating`,
+        `No song channel found for guild ${guild.name} while creating player instance.`,
         {
           guildId: guild.id,
           message: message?.id,

@@ -3,8 +3,9 @@ import { container } from "@sapphire/framework";
 import { type Track } from "@twokei/shoukaku";
 
 import { playerLogger } from "@/lib/logger";
-import { spotifyTrackResolver } from "@/music/resolvers/spotify/spotify-track-resolver";
 import { cleanUpSong } from "@/music/utils/cleanup";
+import { spotifyResolver } from "@/music/resolvers/spotify";
+import { env } from "@/app/env";
 
 interface ResolvableTrackOptions {
   requester?: User;
@@ -46,19 +47,19 @@ export class ResolvableTrack {
   public author?: string;
 
   /** Track's length */
-  public duration?: number;
+  public length?: number;
 
   /** Track's position (I don't know this) */
   public position?: number;
 
   /** Track's thumbnail, if available */
-  public thumbnail?: string;
+  public artworkUrl?: string;
 
   /** The YouTube/soundcloud URI for spotify and other unsupported source */
   public realUri?: string | null;
 
   public constructor(
-    track: Omit<Track, "pluginInfo"> & { thumbnail?: string; isrc?: string },
+    track: Omit<Track, "pluginInfo">,
     options?: ResolvableTrackOptions,
   ) {
     const { info } = track;
@@ -68,37 +69,58 @@ export class ResolvableTrack {
     this.sourceName = info.sourceName ?? "Unknown";
     this.title = info.title;
     this.uri = info.uri;
-    this.isrc = track.isrc;
+    this.isrc = track.info.isrc;
     this.identifier = info.identifier;
     this.isSeekable = info.isSeekable;
     this.isStream = info.isStream;
     this.author = info.author;
-    this.duration = info.duration;
+    this.length = info.length;
     this.position = info.position;
+    this.artworkUrl = track.info.artworkUrl;
 
     if (this.identifier && this.sourceName === "youtube") {
-      this.thumbnail = `https://img.youtube.com/vi/${this.identifier}/hqdefault.jpg`;
+      this.artworkUrl = `https://img.youtube.com/vi/${this.identifier}/hqdefault.jpg`;
     }
 
-    this.thumbnail = track.thumbnail;
-    this.realUri = ["youtube"].includes(this.sourceName) ? this.uri : null;
+    this.realUri = track.info.uri;
   }
 
   get isReadyToPlay(): boolean {
+    const ready = {
+      track: !!this.track,
+      sourceName: !!this.sourceName,
+      identifier: !!this.identifier,
+      author: !!this.author,
+      length: !!this.length,
+      title: !!this.title,
+      uri: !!this.uri,
+      realUri: !!this.realUri,
+    };
+
+    const isReady = Object.values(ready).every((value) => value);
+
+    playerLogger.debug(
+      `[ResolvableTrack] Track is ${isReady ? "READY" : "NOT READY"} to play:`,
+      {
+        ...ready,
+      },
+    );
+
     return (
       !!this.track &&
       !!this.sourceName &&
       !!this.identifier &&
       !!this.author &&
-      !!this.duration &&
+      !!this.length &&
       !!this.title &&
       !!this.uri &&
       !!this.realUri
     );
   }
 
-  public async resolve(overwrite = false): Promise<ResolvableTrack> {
+  public async resolve(): Promise<ResolvableTrack> {
     if (this.isReadyToPlay) {
+      playerLogger.debug(`[ResolvableTrack] Track is already ready to play!`);
       return this;
     }
 
@@ -109,16 +131,12 @@ export class ResolvableTrack {
     }
 
     this.track = resolvedTrack.encoded;
+    this.title = resolvedTrack.info.title;
+    this.isSeekable = resolvedTrack.info.isSeekable;
+    this.author = resolvedTrack.info.author;
+    this.isStream = resolvedTrack.info.isStream;
     this.realUri = resolvedTrack.info.uri;
-    this.duration = resolvedTrack.info.duration;
-
-    if (overwrite) {
-      this.title = resolvedTrack.info.title;
-      this.isSeekable = resolvedTrack.info.isSeekable;
-      this.author = resolvedTrack.info.author;
-      this.duration = resolvedTrack.info.duration;
-      this.isStream = resolvedTrack.info.isStream;
-    }
+    this.length = resolvedTrack.info.length;
 
     return this;
   }
@@ -131,11 +149,13 @@ export class ResolvableTrack {
         isSeekable: this.isSeekable,
         uri: this.uri,
         title: this.title,
-        duration: this.duration ?? 0,
+        length: this.length ?? 0,
         author: this.author ?? "",
         isStream: this.isStream,
         position: this.position ?? 0,
         sourceName: this.sourceName,
+        isrc: this.isrc,
+        artworkUrl: this.artworkUrl,
       },
       pluginInfo: {},
     };
@@ -171,12 +191,14 @@ export class ResolvableTrack {
 
   private async resolveQuery(query: string) {
     if (this.isrc) {
+      playerLogger.debug(
+        `[ResolvableTrack] Track already has ISRC: ${this.isrc}`,
+      );
+
       return this.searchByISRC(this.isrc);
     }
 
-    const spotifyResponse = await spotifyTrackResolver.resolve(query, {
-      requester: this.requester,
-    });
+    const spotifyResponse = await spotifyResolver.resolve(query);
 
     if (!spotifyResponse.tracks?.length) {
       return spotifyResponse;
@@ -184,7 +206,7 @@ export class ResolvableTrack {
 
     const [track] = spotifyResponse.tracks;
 
-    this.thumbnail = track.thumbnail;
+    this.artworkUrl = track.artworkUrl;
 
     if (!track.isrc) {
       const newSearchQuery = cleanUpSong(track.title, track.author);
@@ -200,13 +222,14 @@ export class ResolvableTrack {
     );
 
     this.isrc = track.isrc;
-
     return this.searchByISRC(track.isrc);
   }
 
   private searchByISRC(isrc: string) {
+    playerLogger.debug(`[ResolvableTrack] Searching by ISRC ${isrc}`);
+
     return container.xiao.search(isrc, {
-      engine: "dzisrc",
+      engine: env.LAVA_SEARCH_ENGINE,
       requester: this.requester,
     });
   }
@@ -234,31 +257,11 @@ export class ResolvableTrack {
         identifier: track.identifier,
         sourceName: track.sourceName,
         author: track.author ?? "",
-        duration: track.duration ?? 0,
+        length: track.length ?? 0,
         position: track.position ?? 0,
       },
       pluginInfo: {},
     };
-  }
-
-  public short() {
-    const source = ["youtube", "spotify", "deezer"].includes(
-      this.sourceName.toLowerCase(),
-    )
-      ? (this.sourceName as "youtube" | "spotify" | "deezer")
-      : "spotify";
-
-    return {
-      title: this.title,
-      author: this.author,
-      uri: this.uri,
-      isrc: this.isrc,
-      source: source,
-    };
-  }
-
-  public dump() {
-    return this.getRaw();
   }
 
   public static from(track: Track, options?: ResolvableTrackOptions) {

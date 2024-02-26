@@ -1,37 +1,41 @@
-import { blue, type Color, cyan, green, red, reset, yellow } from "kleur";
 import {
   createLogger as createWinstonLogger,
   format,
   transports,
 } from "winston";
-import { type CliConfigSetLevels } from "winston/lib/winston/config";
+import { red, blue, cyan, green, reset, yellow } from "ansis";
+import { env } from "@/app/env";
 
-const colors: Record<keyof CliConfigSetLevels, Color> = {
+const colors = {
   error: red,
   info: blue,
   warn: yellow,
-  debug: cyan,
+  debug: green,
   verbose: green,
-};
+} as Record<string, (str: string) => string>;
+
+function getColorByLevel(level: string): (str: string) => string {
+  return colors[level] ?? blue;
+}
 
 const consoleTransportInstance = new transports.Console({
   format: format.combine(
     format.printf((info) => {
       const {
         timestamp,
-        level: uncoloredLevel,
-        message,
+        level: uncoloredLevel = "info",
+        message = "",
         stack,
-        defaultPrefix = "CORE",
+        module: group = "CORE",
         ...rest
       } = info as Record<string, string>;
 
       const content = stack || reset(message);
 
-      const color = colors[info.level] ?? blue;
+      const color = getColorByLevel(uncoloredLevel);
 
       const prefix = color(
-        `${timestamp} [${defaultPrefix}] - [${uncoloredLevel.toUpperCase()}]:`,
+        `${timestamp} [${uncoloredLevel.toUpperCase()}] [${group.toUpperCase()}]:`,
       );
 
       const trace = stack ? `\n${stack.replace(/\n/g, `\n${prefix}`)}` : "";
@@ -52,7 +56,7 @@ const consoleTransportInstance = new transports.Console({
 });
 
 const defaultLoggerOptions = {
-  level: "debug",
+  level: env.LOG_LEVEL,
   format: format.combine(
     format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
     format.errors({ stack: true }),
@@ -61,18 +65,12 @@ const defaultLoggerOptions = {
   transports: [consoleTransportInstance],
 };
 
-export const logger = createWinstonLogger({
-  ...defaultLoggerOptions,
-});
+export const logger = createWinstonLogger(defaultLoggerOptions);
 
 export const playerLogger = logger.child({
-  defaultPrefix: "PLAYER",
+  module: "PLAYER",
 });
 
 export const queryLogger = logger.child({
-  defaultPrefix: "QUERY",
-});
-
-export const ventiLogger = logger.child({
-  defaultPrefix: "VENTI",
+  module: "QUERY",
 });

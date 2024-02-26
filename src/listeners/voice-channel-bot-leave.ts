@@ -53,3 +53,9 @@ export class VoiceChannelBotLeave extends Listener {
     }
   }
 }
+
+void container.stores.loadPiece({
+  name: "voiceChannelLeave",
+  piece: VoiceChannelBotLeave,
+  store: "listeners",
+});

@@ -8,7 +8,7 @@ import {
   type Option,
 } from "@sapphire/framework";
 
-import { PlayerButtons } from "@/constants/music/player-buttons";
+import { PlayerButtons } from "@/constants/buttons";
 import { destroyPlayerInstance } from "@/music/heizou/destroy-player-instance";
 import { pauseSong } from "@/music/heizou/pause-song";
 import { previousSong } from "@/music/heizou/previous-song";
@@ -18,7 +18,7 @@ import { skipSong } from "@/music/heizou/skip-song";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
 import { send } from "@/lib/message-handler";
 import { Embed } from "@/utils/messages";
-import { resolveKey } from "@sapphire/plugin-i18next";
+import { resolveKey } from "@/i18n";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "buttons-player",
@@ -31,7 +31,7 @@ export class PlayerButtonsInteraction extends InteractionHandler {
       return;
     }
 
-    const player = container.xiao.getPlayer(interaction.guild);
+    const player = container.xiao.getPlayer(interaction.guild.id);
 
     if (!player) {
       await container.sc.reset(interaction.guild);
@@ -89,3 +89,9 @@ export class PlayerButtonsInteraction extends InteractionHandler {
     return this.none();
   }
 }
+
+void container.stores.loadPiece({
+  name: "player-buttons",
+  piece: PlayerButtonsInteraction,
+  store: "interaction-handlers",
+});

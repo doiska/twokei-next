@@ -1,12 +1,5 @@
-import {
-  type Guild,
-  type Message,
-  type Snowflake,
-  type User,
-} from "discord.js";
+import { type Guild, type Snowflake, type User } from "discord.js";
 
-import { type Locale } from "@/locales/i18n";
-import { type Maybe } from "@/utils/types-helper";
 import { type ResolvableTrack } from "../structures/ResolvableTrack";
 import { LoadType } from "@twokei/shoukaku";
 
@@ -21,17 +14,6 @@ export const XiaoLoadType = {
 export type XiaoLoadType = (typeof XiaoLoadType)[keyof typeof XiaoLoadType];
 
 export type SearchEngines = "youtube" | "soundcloud" | "youtube_music" | string;
-
-export interface XiaoInitOptions {
-  /**
-   * Default search engine if none is specified, defaults to "YouTube".
-   */
-
-  /**
-   * Send to guild's shard
-   */
-  send: (guildId: Snowflake, payload: Payload) => void;
-}
 
 export interface XiaoSearchOptions {
   requester?: User;
@@ -63,34 +45,16 @@ export type XiaoSearchResult = PlaylistLoaded | TrackLoaded;
 export interface VentiInitOptions {
   guild: Guild;
   voiceChannel: Snowflake;
-  embedMessage?: Message;
-  lang: Locale;
   deaf?: boolean;
   mute?: boolean;
   shardId?: number;
-}
-
-export interface PlayOptions {
-  pause?: boolean;
-  startTime?: number;
-  endTime?: number;
-  replace?: boolean;
-}
-
-export interface Payload {
-  op: number;
-  d: {
-    guild_id: string;
-    channel_id: Maybe<string>;
-    self_mute: Maybe<boolean>;
-    self_deaf: Maybe<boolean>;
-  };
 }
 
 export enum Events {
   PlayerDestroy = "playerDestroy",
   PlayerCreate = "playerCreate",
 
+  TrackAdd = "trackAdd",
   TrackStart = "trackStart",
   TrackPause = "trackPause",
   TrackEnd = "trackEnd",
@@ -106,7 +70,6 @@ export enum Events {
   PlayerMoved = "playerMoved",
 
   Debug = "debug",
-  TrackAdd = "trackAdd",
   TrackRemove = "trackRemove",
 
   ManualUpdate = "manualUpdate",

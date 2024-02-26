@@ -10,7 +10,7 @@ export const setLoopState = async (
   member: GuildMember,
   loopState?: LoopStates,
 ): Promise<LoopStates> => {
-  const player = container.xiao.getPlayer(member);
+  const player = container.xiao.getPlayer(member.guild.id);
 
   if (!player) {
     throw new FriendlyException("No player found");

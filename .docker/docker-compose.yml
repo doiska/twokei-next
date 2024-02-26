@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14.1-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+  lavalink:
+    tty: true
+    container_name: lavalink
+    image: ghcr.io/lavalink-devs/lavalink:4.0.0
+    restart: no
+    healthcheck:
+      test: [
+        "CMD",
+        "bash",
+        "-c",
+        "sleep 5 && echo ok || exit 1"
+      ]
+      interval: 10s
+    volumes:
+      - ./lavalink/application.yml:/opt/Lavalink/application.yml
+      - ./lavalink/plugins/:/opt/Lavalink/plugins/
+    ports:
+      - "2333:2333"

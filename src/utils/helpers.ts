@@ -13,9 +13,22 @@ export async function isValidCustomId(
     : Option.none;
 }
 
-export function createFriendlyHash() {
-  return Math.random()
-    .toString(36)
-    .toUpperCase()
-    .replace(/[^A-Z0-9]+/g, "");
+type KeyGetter<T, R> = (item: T) => R;
+
+export function groupBy<T, R extends string | number | symbol>(
+  list: T[],
+  getKey: KeyGetter<T, R>,
+) {
+  return list.reduce(
+    (map, currentItem) => {
+      const key = getKey(currentItem);
+      const current = map[key] ?? [];
+
+      current.push(currentItem);
+
+      map[key] = current;
+      return map;
+    },
+    {} as Record<ReturnType<typeof getKey>, T[]>,
+  );
 }

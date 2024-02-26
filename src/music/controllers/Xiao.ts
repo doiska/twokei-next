@@ -1,7 +1,8 @@
-import { type Guild, type GuildResolvable } from "discord.js";
-import { type Awaitable, isObject, noop } from "@sapphire/utilities";
+import { type Guild, GuildMember } from "discord.js";
+import { type Awaitable, noop } from "@sapphire/utilities";
 import {
   type Connector,
+  Connectors,
   LoadType,
   type NodeOption,
   type PlayerUpdate,
@@ -12,15 +13,14 @@ import {
   type WebSocketClosedEvent,
 } from "@twokei/shoukaku";
 
-import { eq } from "drizzle-orm";
-import { kil } from "@/db/Kil";
-import { settings } from "@/db/schemas/settings";
-
 import { logger } from "@/lib/logger";
-import { manualUpdate } from "@/music/embed/events/manual-update";
-import { handlePlayerException } from "@/music/embed/events/player-exception";
-import { playerDestroyed, queueEmpty } from "@/music/embed/events/queue-empty";
-import { youtubeTrackResolver } from "@/music/resolvers/youtube/youtube-track-resolver";
+import { refresh } from "@/music/song-channel/embed/events/manual-update";
+import { handlePlayerException } from "@/music/song-channel/embed/events/player-exception";
+import {
+  handleEmptyQueue,
+  handlePlayerDestroyed,
+} from "@/music/song-channel/embed/events/queue-empty";
+import { youtubeResolver } from "@/music/resolvers/youtube";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 import { type Maybe } from "@/utils/types-helper";
@@ -28,20 +28,29 @@ import {
   Events,
   PlayerState,
   type VentiInitOptions,
-  type XiaoInitOptions,
   XiaoLoadType,
   type XiaoSearchOptions,
   type XiaoSearchResult,
 } from "../interfaces/player.types";
-import { type TrackResolver } from "../resolvers/resolver";
 import { ResolvableTrack } from "../structures/ResolvableTrack";
 import { Venti } from "./Venti";
 
 import { EventEmitter } from "events";
 import type { Logger } from "winston";
-import { spotifyTrackResolver } from "@/music/resolvers/spotify/spotify-track-resolver";
-import { TwokeiClient } from "@/structures/TwokeiClient";
-import { onShoukakuRestore, storeSession } from "@/music/events/player-restore";
+import { container } from "@sapphire/framework";
+import { env } from "@/app/env";
+import { type TwokeiClient } from "@/structures/TwokeiClient";
+
+import { playerSessionRestored } from "@/music/sessions/player-session-restored";
+import { playerSessionStore } from "@/music/sessions/player-session-store";
+import {
+  getSessions,
+  restoreExpiredSessions,
+} from "@/music/sessions/player-session-manager";
+import { kil } from "@/db/Kil";
+import { coreNodes } from "@/db/schemas/core-nodes";
+import { eq } from "drizzle-orm";
+import { spotifyResolver } from "@/music/resolvers/spotify";
 
 export interface XiaoEvents {
   /**
@@ -57,7 +66,11 @@ export interface XiaoEvents {
   /**
    * Emitted when a track is added to the queue.
    */
-  [Events.TrackAdd]: (venti: Venti, track: ResolvableTrack[]) => void;
+  [Events.TrackAdd]: (
+    venti: Venti,
+    result: XiaoSearchResult,
+    requester?: GuildMember,
+  ) => void;
 
   /**
    * Emitted when a track starts playing.
@@ -125,7 +138,7 @@ export interface XiaoEvents {
    */
   [Events.ManualUpdate]: (
     venti: Venti,
-    update?: { embed?: boolean; components?: boolean },
+    update?: Partial<{ embed: boolean; components: boolean }>,
   ) => void;
 
   /**
@@ -162,34 +175,57 @@ export class Xiao extends EventEmitter {
    */
   public readonly players = new Map<string, Venti>();
 
-  public resolvers: TrackResolver[] = [
-    youtubeTrackResolver,
-    spotifyTrackResolver,
-  ];
+  public resolvers = [youtubeResolver, spotifyResolver];
 
   private readonly logger: Logger;
 
+  static async init(client: TwokeiClient) {
+    const nodes = await kil
+      .select()
+      .from(coreNodes)
+      .where(eq(coreNodes.enabled, true));
+
+    const sessions = await getSessions();
+
+    container.xiao = new Xiao(
+      new Connectors.DiscordJS(client),
+      nodes,
+      {
+        resume: true,
+        moveOnDisconnect: true,
+        reconnectInterval: 3000,
+        reconnectTries: 5,
+        userAgent: `Twokei (${env.NODE_ENV})`,
+      },
+      sessions.dump,
+    );
+
+    client.once("ready", async () => {
+      await restoreExpiredSessions(sessions.expired);
+    });
+  }
+
   /**
-   * @param client
-   * @param options Xiao options
    * @param nodes Shoukaku nodes
    * @param connector Shoukaku connector
    * @param optionsShoukaku Shoukaku options
    * @param dumps
    */
   constructor(
-    private readonly client: TwokeiClient,
-    public options: XiaoInitOptions,
     connector: Connector,
     nodes: NodeOption[],
     optionsShoukaku: ShoukakuOptions = {},
-    dumps: any = {},
+    dumps: any[] = [],
   ) {
     super();
 
     this.logger = logger.child({
-      defaultPrefix: "XIAO",
+      module: "XIAO",
     });
+
+    this.logger.info(
+      `Xiao is being initialized with ${nodes.length} nodes and ${dumps.length} to restore.`,
+    );
 
     this.shoukaku = new Shoukaku(connector, nodes, optionsShoukaku, dumps);
 
@@ -207,35 +243,23 @@ export class Xiao extends EventEmitter {
     );
 
     this.shoukaku.on("debug", (name: string, info: string) =>
-      this.logger.debug(`${name} ${info}`),
+      this.logger.debug(`[Shoukaku] ${name} ${info}`),
     );
 
-    this.shoukaku.on("raw", storeSession);
-
-    this.shoukaku.once("restored", onShoukakuRestore);
+    this.shoukaku.on("raw", playerSessionStore);
+    this.shoukaku.once("restored", playerSessionRestored);
 
     this.on(Events.Debug, (message) => this.logger.debug(message));
 
-    this.on(Events.TrackStart, (venti) => {
-      manualUpdate(venti, { embed: true, components: true });
-    });
+    this.on(Events.TrackStart, (venti) => refresh(venti, { components: true }));
+    this.on(Events.TrackAdd, (venti) => refresh(venti, { components: true }));
+    this.on(Events.TrackPause, (venti) => refresh(venti, { components: true }));
+    this.on(Events.ManualUpdate, refresh);
 
-    this.on(Events.TrackAdd, (venti) => {
-      manualUpdate(venti, { embed: true, components: true });
-    });
-
-    this.on(Events.TrackPause, (venti) => {
-      manualUpdate(venti, { embed: true, components: true });
-    });
-
-    this.on(Events.PlayerDestroy, playerDestroyed);
-    this.on(Events.QueueEmpty, queueEmpty);
-
-    this.on(Events.ManualUpdate, manualUpdate);
+    this.on(Events.PlayerDestroy, handlePlayerDestroyed);
+    this.on(Events.QueueEmpty, handleEmptyQueue);
 
     this.on(Events.PlayerException, handlePlayerException);
-
-    void this.loadNodes();
   }
 
   public async createPlayer<T extends Venti>(
@@ -263,14 +287,8 @@ export class Xiao extends EventEmitter {
     return venti;
   }
 
-  public getPlayer(guildId: GuildResolvable): Venti | undefined {
-    const resolvedGuildId = this.client.guilds.resolveId(guildId);
-
-    if (!resolvedGuildId) {
-      return;
-    }
-
-    return this.players.get(resolvedGuildId);
+  public getPlayer(guildId: string): Venti | undefined {
+    return this.players.get(guildId);
   }
 
   public async destroyPlayer(guild: Guild, reason = "Unknown") {
@@ -299,7 +317,7 @@ export class Xiao extends EventEmitter {
   }
 
   public async search(
-    query: string,
+    _query: string,
     options?: XiaoSearchOptions,
   ): Promise<XiaoSearchResult> {
     const node = this.shoukaku.getIdealNode();
@@ -310,7 +328,13 @@ export class Xiao extends EventEmitter {
       throw new Error("No available nodes");
     }
 
-    const isUrl = /^https?:\/\//.test(query);
+    const query = _query.trim();
+
+    if (!query) {
+      throw new Error("No query provided");
+    }
+
+    const isUrl = query.startsWith("http");
 
     if (options?.resolver ?? true) {
       const resolver = this.resolvers.find(
@@ -321,8 +345,8 @@ export class Xiao extends EventEmitter {
 
       this.logger.debug(`Resolving ${query} with ${resolver?.name ?? engine}.`);
 
-      if (resolver) {
-        return await resolver.resolve(query, options);
+      if (resolver?.resolve) {
+        return await resolver.resolve(query, options?.requester);
       }
     }
 
@@ -348,11 +372,10 @@ export class Xiao extends EventEmitter {
     if (result.loadType === LoadType.SEARCH) {
       return {
         type: XiaoLoadType.SEARCH_RESULT,
-        tracks: [
-          new ResolvableTrack(result.data[0], {
-            requester: options?.requester,
-          }),
-        ],
+        tracks: result.data.map(
+          (track) =>
+            new ResolvableTrack(track, { requester: options?.requester }),
+        ),
       };
     }
 
@@ -374,68 +397,5 @@ export class Xiao extends EventEmitter {
       type: XiaoLoadType.NO_MATCHES,
       tracks: [],
     };
-  }
-
-  public setVoiceId(guildId: string, voiceId: string) {
-    const player = this.players.get(guildId);
-
-    if (!player) {
-      return;
-    }
-
-    player.voiceId = voiceId;
-  }
-
-  public async loadNodes() {
-    await new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (!this.shoukaku.id) {
-          reject(new Error("Shoukaku could not be loaded in time."));
-        }
-      }, 30000);
-
-      const interval = setInterval(() => {
-        if (this.shoukaku.id) {
-          this.logger.info("Shoukaku is ready! Loading nodes...");
-          clearInterval(interval);
-          resolve(true);
-        }
-      }, 300);
-    });
-
-    this.shoukaku.nodes.clear();
-
-    const [rawNodes] = await kil
-      .select({ value: settings.value })
-      .from(settings)
-      .where(eq(settings.name, "Nodes"));
-
-    if (!rawNodes?.value) {
-      this.logger.error("Could not retrieve Nodes from the Database");
-      return;
-    }
-
-    rawNodes?.value.forEach((node) => {
-      if (!this.isNode(node)) {
-        this.logger.error("Trying to insert invalid Node.", { node });
-        return;
-      }
-
-      if ("active" in node && node.active === false) {
-        return;
-      }
-
-      this.shoukaku.addNode(node);
-    });
-  }
-
-  private isNode(value: unknown): value is NodeOption {
-    const requiredKeys = ["name", "url", "auth"];
-
-    if (!isObject(value)) {
-      return false;
-    }
-
-    return requiredKeys.every((key) => Object.keys(value).includes(key));
   }
 }

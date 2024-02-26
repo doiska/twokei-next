@@ -7,21 +7,15 @@ import { container } from "@sapphire/framework";
 
 import { eq } from "drizzle-orm";
 import { kil } from "@/db/Kil";
-import { type SongChannel, songChannels } from "@/db/schemas/song-channels";
+import { playerSongChannels } from "@/db/schemas/player-song-channels";
 
-import { createDefaultEmbed } from "@/music/embed/pieces";
+import { createDefaultEmbed } from "@/music/song-channel/embed/pieces";
 import { logger } from "@/lib/logger";
 
 export class SongChannelManager {
-  private readonly cache = new Map<string, SongChannel>();
-
-  public async set(
-    guildId: string,
-    channelId: string,
-    messageId: string,
-  ): Promise<SongChannel> {
+  public async set(guildId: string, channelId: string, messageId: string) {
     const [result] = await kil
-      .insert(songChannels)
+      .insert(playerSongChannels)
       .values({
         guildId,
         channelId,
@@ -32,14 +26,14 @@ export class SongChannelManager {
           channelId,
           messageId,
         },
-        target: songChannels.guildId,
+        target: playerSongChannels.guildId,
       })
       .returning();
 
     return result;
   }
 
-  public async get(guild: GuildResolvable): Promise<SongChannel | undefined> {
+  public async get(guild: GuildResolvable) {
     const guildId = container.client.guilds.resolveId(guild);
 
     if (!guildId) {
@@ -48,8 +42,8 @@ export class SongChannelManager {
 
     const [result] = await kil
       .select()
-      .from(songChannels)
-      .where(eq(songChannels.guildId, guildId));
+      .from(playerSongChannels)
+      .where(eq(playerSongChannels.guildId, guildId));
 
     return result;
   }
@@ -61,9 +55,7 @@ export class SongChannelManager {
       return;
     }
 
-    const { message } = embed;
-
-    await message.edit(await createDefaultEmbed(guild));
+    await embed.message.edit(await createDefaultEmbed(guild));
   }
 
   public async getEmbed(guild: Guild) {
@@ -73,33 +65,23 @@ export class SongChannelManager {
       return;
     }
 
-    const channel = await guild.channels
-      .fetch(songChannel.channelId, {
+    try {
+      const channel = await guild.channels.fetch(songChannel.channelId, {
         force: true,
-      })
-      .catch((e) => {
-        logger.error(e);
-        return null;
       });
 
-    if (!isGuildBasedChannel(channel) || !isTextChannel(channel)) {
-      return;
+      if (!isGuildBasedChannel(channel) || !isTextChannel(channel)) {
+        return;
+      }
+
+      const message = await channel.messages.fetch(songChannel.messageId);
+
+      return {
+        message,
+        channel,
+      };
+    } catch (e) {
+      logger.error(e);
     }
-
-    const message = await channel.messages
-      .fetch(songChannel.messageId)
-      .catch((e) => {
-        logger.error(e);
-        return null;
-      });
-
-    if (!message) {
-      return;
-    }
-
-    return {
-      message,
-      channel,
-    };
   }
 }
