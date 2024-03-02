@@ -69,7 +69,7 @@ export class PresetSelectMenuInteraction extends InteractionHandler {
         `### ${Icons.HanakoEating} Quer ver sua playlist aqui?`,
         "Entre em contato comigo em meu servidor de suporte!",
         "Contribua com a comunidade e ajude a manter a playlist atualizada!",
-        "Entre em: https://twokei.com/discord",
+        "Entre em: https://discord.twokei.com",
         " ",
       ].join("\n"),
     );
