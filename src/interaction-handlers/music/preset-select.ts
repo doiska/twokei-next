@@ -59,19 +59,7 @@ export class PresetSelectMenuInteraction extends InteractionHandler {
       .sort(() => Math.random() - Math.random())
       .at(0)!;
 
-    const [playlistCategory] = await kil
-      .select()
-      .from(playerPlaylists)
-      .where(eq(playerPlaylists.id, selectedCategory));
-
-    if (!playlistCategory) {
-      logger.error(`No playlist found for category ${selectedCategory}`, {
-        playlistCategory,
-      });
-      return;
-    }
-
-    const playlistUrl = `https://open.spotify.com/playlist/${playlistCategory.id}`;
+    const playlistUrl = `https://open.spotify.com/playlist/${selectedCategory}`;
 
     await addNewSong(playlistUrl, interaction.member);
 
