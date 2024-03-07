@@ -44,7 +44,7 @@ export const Twokei = new TwokeiClient({
     defaultLanguage: "pt_br",
     i18nOptions: {
       fallbackLng: "pt_br",
-      supportedLngs: ["pt_br", "en_us"],
+      supportedLngs: ["pt_br"],
       resources: {
         pt_br: namespaces,
       },

@@ -19,8 +19,7 @@ export class GuildSetup extends Listener<Events.GuildCreate> {
     logger.info(`Joined guild ${guild.name} (${guild.id})`);
 
     try {
-      const guildLocale =
-        guild.preferredLocale === Locale.PortugueseBR ? "pt_br" : "en_us";
+      const guildLocale = "pt_br";
 
       await kil
         .insert(coreGuilds)
