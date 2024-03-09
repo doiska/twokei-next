@@ -91,7 +91,7 @@ export const init = async () => {
   await Twokei.login(process.env.DISCORD_TOKEN);
   await startCronJobs();
 
-  if (env.RESET_SONG_CHANNEL) {
+  if (env.RESET_SONG_CHANNEL === "true") {
     setTimeout(async () => {
       const guilds = await kil.select().from(playerSongChannels);
 
