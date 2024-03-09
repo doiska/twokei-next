@@ -10,12 +10,11 @@ import { Menus } from "@/constants/buttons";
 import { kil } from "@/db/Kil";
 import { playerPresets } from "@/db/schemas/player-presets";
 import { eq } from "drizzle-orm";
-import { logger } from "@/lib/logger";
 
-import { playerPlaylists } from "@/db/schemas/player-playlists";
 import { addNewSong } from "@/music/heizou/add-new-song";
 import { isGuildMember } from "@sapphire/discord.js-utilities";
 import { Icons } from "@/constants/icons";
+import { dispose } from "@/lib/message-handler/utils";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "preset-select-menu",
@@ -74,9 +73,12 @@ export class PresetSelectMenuInteraction extends InteractionHandler {
       ].join("\n"),
     );
 
-    await interaction.reply({
-      embeds: [curatorsWarning],
-    });
+    await interaction
+      .reply({
+        embeds: [curatorsWarning],
+        fetchReply: true,
+      })
+      .then((interaction) => dispose(interaction, 10000));
   }
 }
 
