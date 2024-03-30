@@ -81,7 +81,7 @@ export async function createPlayerInstance({
   }
 
   try {
-    await container.xiao.createPlayer(playerOptions);
+    return await container.xiao.createPlayer(playerOptions);
   } catch (error) {
     logger.error(
       `Error while creating player instance for guild ${guild.name}.`,
