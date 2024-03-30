@@ -42,7 +42,7 @@ export async function resolveKey<
 
   return fixedT(key, {
     ...parsedOptions,
-    defaultValue: `missing-i18n-${key}`,
+    defaultValue: key,
   });
 }
 

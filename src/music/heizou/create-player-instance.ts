@@ -6,6 +6,7 @@ import { type VentiInitOptions } from "@/music/interfaces/player.types";
 import { logger } from "@/lib/logger";
 import { isTextChannel } from "@sapphire/discord.js-utilities";
 import { Icons } from "@/constants/icons";
+import { dispose } from "@/lib/message-handler/utils";
 
 interface InitOptions {
   guild: Guild;
@@ -79,5 +80,32 @@ export async function createPlayerInstance({
     }
   }
 
-  return await container.xiao.createPlayer(playerOptions);
+  try {
+    await container.xiao.createPlayer(playerOptions);
+  } catch (error) {
+    logger.error(
+      `Error while creating player instance for guild ${guild.name}.`,
+      {
+        guildId: guild.id,
+        error,
+      },
+    );
+
+    await channel
+      ?.send({
+        embeds: [
+          new EmbedBuilder().setDescription(
+            [
+              "## Ocorreu um erro ao criar o player de música.",
+              "### Como resolver:",
+              "- Confirme se o Twokei tem acesso a este canal de voz/texto",
+              "- Convide-o novamente para o servidor (https://twokei.com)",
+              `**${Icons.Hanakin} Sentimos pelo inconveniente.**`,
+            ].join("\n"),
+          ),
+        ],
+      })
+      .then(dispose)
+      .catch(logger.error);
+  }
 }

@@ -81,6 +81,9 @@ export class SongChannelManager {
         channel,
       };
     } catch (e) {
+      logger.error(
+        `Failed to fetch message for ${guild.id} (${guild.name}) - ${songChannel.channelId} - ${songChannel.messageId}`,
+      );
       logger.error(e);
     }
   }
