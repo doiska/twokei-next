@@ -76,7 +76,7 @@ export class SetupCommand extends Command {
             .setEmoji(Icons.News)
             .setStyle(ButtonStyle.Secondary),
           new ButtonBuilder()
-            .setURL("https://discord.gg/twokei")
+            .setURL("https://discord.twokei.com/")
             .setLabel("Preciso de ajuda")
             .setEmoji(Icons.Hanakin)
             .setStyle(ButtonStyle.Link),

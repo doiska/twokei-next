@@ -19,11 +19,11 @@ import { capitalizeFirst } from "@/utils/helpers";
 export async function createStaticButtons(guild: Guild) {
   const t = await fetchT(guild);
 
-  const newsButton = new ButtonBuilder({
-    customId: EmbedButtons.NEWS,
-    label: t(`player:embed.buttons.${EmbedButtons.NEWS}`),
+  const donateButton = new ButtonBuilder({
+    customId: EmbedButtons.DONATE,
+    label: t(`player:embed.buttons.${EmbedButtons.DONATE}`),
     style: ButtonStyle.Primary,
-    emoji: Icons.News,
+    emoji: "💖",
   });
 
   const viewRankingButton = new ButtonBuilder({
@@ -41,7 +41,7 @@ export async function createStaticButtons(guild: Guild) {
   });
 
   return new ActionRowBuilder<ButtonBuilder>({
-    components: [newsButton, viewRankingButton, viewProfileButton],
+    components: [donateButton, viewRankingButton, viewProfileButton],
   });
 }
 

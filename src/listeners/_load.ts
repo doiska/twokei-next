@@ -9,3 +9,4 @@ import "./ranking/track-start-event";
 import "./ranking/track-end-event";
 
 import "./music/song-added";
+import "./music/queue-ended";

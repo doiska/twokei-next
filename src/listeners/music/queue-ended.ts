@@ -1,37 +1,31 @@
+import { container, Listener } from "@sapphire/framework";
+import { Events } from "@/music/interfaces/player.types";
+import type { Venti } from "@/music/controllers/Venti";
+import { ApplyOptions } from "@sapphire/decorators";
 import {
   ActionRowBuilder,
   ButtonBuilder,
-  type ButtonInteraction,
   ButtonStyle,
   Colors,
-  ComponentType,
   EmbedBuilder,
 } from "discord.js";
-import { ApplyOptions } from "@sapphire/decorators";
-import { isGuildMember } from "@sapphire/discord.js-utilities";
-import {
-  container,
-  InteractionHandler,
-  InteractionHandlerTypes,
-  type None,
-  type Option,
-} from "@sapphire/framework";
-
-import { EmbedButtons } from "@/constants/buttons";
-
-import { fetchT } from "@/i18n";
-import { Icons } from "@/constants/icons";
 import { dispose } from "@/lib/message-handler/utils";
+import { Icons } from "@/constants/icons";
 import { noop } from "@sapphire/utilities";
 
-@ApplyOptions<InteractionHandler.Options>({
-  name: "donate-button",
+@ApplyOptions<Listener.Options>({
+  name: "player-destroyed-event",
+  event: Events.PlayerDestroy,
+  emitter: container.xiao,
   enabled: true,
-  interactionHandlerType: InteractionHandlerTypes.Button,
 })
-class DonateButton extends InteractionHandler {
-  public async run(interaction: ButtonInteraction) {
-    if (!interaction.guild || !isGuildMember(interaction.member)) {
+export class PlayerDestroyedEvent extends Listener<
+  typeof Events.PlayerDestroy
+> {
+  public async run(venti: Venti) {
+    const channel = await container.sc.getEmbed(venti.guild);
+
+    if (!channel) {
       return;
     }
 
@@ -76,7 +70,7 @@ class DonateButton extends InteractionHandler {
       .setDescription(
         [
           "### 💖 Obrigado por doar ao **Twokei**!",
-          "Seu apoio é muito importante para manter o projeto ativo e em constante desenvolvimento.",
+          `${Icons.Hanakin} Seu apoio é muito importante!`,
           " ",
           "Chave Pix: `462070f1-58e4-4bc8-b146-1510e5ca9fb1`",
           " ",
@@ -84,10 +78,9 @@ class DonateButton extends InteractionHandler {
       )
       .setImage("https://cdn.twokei.com/pix.png");
 
-    const donateMessage = await interaction.reply({
+    const donateMessage = await channel.channel.send({
       embeds: [donateEmbed],
       components: [buttons],
-      fetchReply: true,
     });
 
     dispose(donateMessage, 30_000);
@@ -108,20 +101,10 @@ class DonateButton extends InteractionHandler {
       })
       .catch(noop);
   }
-
-  public override parse(interaction: ButtonInteraction): Option<None> {
-    const customId = interaction.customId;
-
-    if (customId !== EmbedButtons.DONATE) {
-      return this.none();
-    }
-
-    return this.some();
-  }
 }
 
 void container.stores.loadPiece({
-  name: "donate-button",
-  piece: DonateButton,
-  store: "interaction-handlers",
+  name: "player-destroyed-event",
+  piece: PlayerDestroyedEvent,
+  store: "listeners",
 });

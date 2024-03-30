@@ -31,6 +31,7 @@ export default {
       [EmbedButtons.VIEW_PROFILE]: "Meu Perfil",
       [EmbedButtons.VIEW_RANKING]: "Ranking Global",
       [EmbedButtons.NEWS]: "Novidades",
+      [EmbedButtons.DONATE]: "Doações",
     },
   },
   play: {
