@@ -113,13 +113,11 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
 
       await this.cleanupSongChannel(songChannel);
     } catch (e) {
-      const exception = getReadableException(e);
-
-      await message.channel
-        .send({
-          embeds: Embed.error(await resolveKey(message, exception)),
-        })
-        .then(dispose);
+      logger.error(
+        `An unexpected error occurred (${message.guild?.id} - ${message.guild?.name})`,
+        e,
+      );
+      logger.error(e);
     }
   }
 
