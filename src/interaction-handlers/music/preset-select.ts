@@ -15,6 +15,7 @@ import { addNewSong } from "@/music/heizou/add-new-song";
 import { isGuildMember } from "@sapphire/discord.js-utilities";
 import { Icons } from "@/constants/icons";
 import { dispose } from "@/lib/message-handler/utils";
+import { logger } from "@/lib/logger";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: "preset-select-menu",
@@ -60,7 +61,26 @@ export class PresetSelectMenuInteraction extends InteractionHandler {
 
     const playlistUrl = `https://open.spotify.com/playlist/${selectedCategory}`;
 
-    await addNewSong(playlistUrl, interaction.member);
+    try {
+      await addNewSong(playlistUrl, interaction.member);
+    } catch (error) {
+      await interaction.channel
+        ?.send({
+          embeds: [
+            new EmbedBuilder().setDescription(
+              [
+                "## Ocorreu um erro ao criar o player de música.",
+                "### Como resolver:",
+                "- Confirme se o Twokei tem acesso a este canal de voz/texto",
+                "- Convide-o novamente para o servidor (https://twokei.com)",
+                `**${Icons.Hanakin} Sentimos pelo inconveniente.**`,
+              ].join("\n"),
+            ),
+          ],
+        })
+        .then(dispose)
+        .catch(logger.error);
+    }
 
     const curatorsWarning = new EmbedBuilder().setDescription(
       [

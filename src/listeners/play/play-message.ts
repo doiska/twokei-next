@@ -1,4 +1,4 @@
-import { Events, type Message, TextChannel } from "discord.js";
+import { EmbedBuilder, Events, type Message, TextChannel } from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
 import {
   isGuildBasedChannel,
@@ -17,6 +17,7 @@ import { addNewSong } from "@/music/heizou/add-new-song";
 
 import { logger } from "@/lib/logger";
 import { dispose, stripContent } from "@/lib/message-handler/utils";
+import { Icons } from "@/constants/icons";
 
 const errors = {
   "same-channel-no-mention": ErrorCodes.MISSING_MESSAGE,
@@ -117,7 +118,23 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
         `An unexpected error occurred (${message.guild?.id} - ${message.guild?.name})`,
         e,
       );
-      logger.error(e);
+
+      await message.channel
+        ?.send({
+          embeds: [
+            new EmbedBuilder().setDescription(
+              [
+                "## Ocorreu um erro ao criar o player de música.",
+                "### Como resolver:",
+                "- Confirme se o Twokei tem acesso a este canal de voz/texto",
+                "- Convide-o novamente para o servidor (https://twokei.com)",
+                `**${Icons.Hanakin} Sentimos pelo inconveniente.**`,
+              ].join("\n"),
+            ),
+          ],
+        })
+        .then(dispose)
+        .catch(logger.error);
     }
   }
 

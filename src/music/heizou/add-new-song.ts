@@ -1,4 +1,4 @@
-import { type GuildMember } from "discord.js";
+import { EmbedBuilder, type GuildMember } from "discord.js";
 import {
   canJoinVoiceChannel,
   isVoiceChannel,
@@ -12,6 +12,8 @@ import { createPlayerInstance } from "./create-player-instance";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 import { container } from "@sapphire/framework";
 import { logger, playerLogger } from "@/lib/logger";
+import { Icons } from "@/constants/icons";
+import { dispose } from "@/lib/message-handler/utils";
 
 async function createPlayer(member: GuildMember) {
   const { guild } = member;
@@ -34,16 +36,10 @@ async function createPlayer(member: GuildMember) {
     throw new PlayerException(ErrorCodes.MISSING_PERMISSIONS_JOIN_VC);
   }
 
-  const player = await createPlayerInstance({
+  return await createPlayerInstance({
     guild,
     voiceChannel: member.voice.channel.id,
   });
-
-  if (!player) {
-    throw new PlayerException(ErrorCodes.SOMETHING_WENT_REALLY_WRONG);
-  }
-
-  return player;
 }
 
 export async function addNewSong(input: string, member: GuildMember) {

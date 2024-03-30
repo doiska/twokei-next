@@ -80,32 +80,5 @@ export async function createPlayerInstance({
     }
   }
 
-  try {
-    return await container.xiao.createPlayer(playerOptions);
-  } catch (error) {
-    logger.error(
-      `Error while creating player instance for guild ${guild.name}.`,
-      {
-        guildId: guild.id,
-        error,
-      },
-    );
-
-    await channel
-      ?.send({
-        embeds: [
-          new EmbedBuilder().setDescription(
-            [
-              "## Ocorreu um erro ao criar o player de música.",
-              "### Como resolver:",
-              "- Confirme se o Twokei tem acesso a este canal de voz/texto",
-              "- Convide-o novamente para o servidor (https://twokei.com)",
-              `**${Icons.Hanakin} Sentimos pelo inconveniente.**`,
-            ].join("\n"),
-          ),
-        ],
-      })
-      .then(dispose)
-      .catch(logger.error);
-  }
+  return await container.xiao.createPlayer(playerOptions);
 }
