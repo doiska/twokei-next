@@ -12,6 +12,6 @@ export default {
     color: Colors.DarkGold,
   },
   buttons: {
-    donator: "Visitar Twokei.com",
+    donator: "Visitar music.twokei.com",
   },
 };

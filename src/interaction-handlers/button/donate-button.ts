@@ -64,7 +64,7 @@ class DonateButton extends InteractionHandler {
           .setLabel("Tweet sobre o Twokei")
           .setURL(
             new URL(
-              "https://twitter.com/intent/tweet?text=Ouvindo música no meu Discord pelo https://twokei.com",
+              "https://twitter.com/intent/tweet?text=Ouvindo música no meu Discord pelo https://music.twokei.com",
             ).toString(),
           )
           .setEmoji("🐦")

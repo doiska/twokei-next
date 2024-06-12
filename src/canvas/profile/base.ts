@@ -204,7 +204,7 @@ async function createUserDetails(user: Props["user"], ranking: string) {
     verticalCenter - ctx.measureText(rankText).actualBoundingBoxAscent / 2 + 5,
   );
 
-  const title = "Music bot: Twokei.com";
+  const title = "music.twokei.com";
   ctx.font = "bold 20px Cabin";
   ctx.fillStyle = "white";
   ctx.textAlign = "right";

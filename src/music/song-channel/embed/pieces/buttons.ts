@@ -100,7 +100,7 @@ export async function createDynamicButtons(venti: Venti) {
       customId: PlayerButtons.SHUFFLE,
     },
     {
-      url: venti.queue?.current?.uri ?? "https://twokei.com",
+      url: venti.queue?.current?.uri ?? "https://music.twokei.com",
       style: ButtonStyle.Link,
       emoji: sourceLogo,
       label: capitalizedSourceName,

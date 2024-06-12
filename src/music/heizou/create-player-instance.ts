@@ -69,7 +69,7 @@ export async function createPlayerInstance({
                 "### Tivemos um problema ao utilizar o canal de música.",
                 "### Como atualizar:",
                 "- Clique no perfil do bot e adicione novamente ao servidor",
-                "- Ou acesse: https://twokei.com/invite",
+                "- Ou acesse: https://music.twokei.com/invite",
                 " ",
                 `**${Icons.Hanakin} Sentimos pelo inconveniente.**`,
               ].join("\n"),

@@ -4,7 +4,7 @@ import { EmbedButtons, PlayerButtons } from "@/constants/buttons";
 export default {
   embed: {
     description: [
-      "## <a:raio:1121849523854118973> [Twokei Music](https://twokei.com)",
+      "## <a:raio:1121849523854118973> [Twokei Music](https://music.twokei.com)",
       `### ${Icons.Hanakin} Como usar?`,
       "- **Mencione** o bot com o nome/url da música para adicionar à fila.",
       '- Exemplo: "**{{- mention}} lofi hiphop**"',

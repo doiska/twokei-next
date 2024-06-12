@@ -127,7 +127,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
                 "## Ocorreu um erro ao criar o player de música.",
                 "### Como resolver:",
                 "- Confirme se o Twokei tem acesso a este canal de voz/texto",
-                "- Convide-o novamente para o servidor (https://twokei.com)",
+                "- Convide-o novamente para o servidor (https://music.twokei.com)",
                 `**${Icons.Hanakin} Sentimos pelo inconveniente.**`,
               ].join("\n"),
             ),

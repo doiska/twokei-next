@@ -57,8 +57,8 @@ export default {
   invite_embed: [
     "## Convide o Twokei para seu servidor! :)",
     `### Clique no botão ou copie o link: ${hyperlink(
-      "twokei.com",
-      "https://twokei.com/?utm_campaign=invite_button&utm_medium=discord&utm_source=bot",
+      "music.twokei.com",
+      "https://music.twokei.com/?utm_campaign=invite_button&utm_medium=discord&utm_source=bot",
       "Site do Twokei",
     )}`,
     "Ouça música em alta qualidade no próprio Discord.",

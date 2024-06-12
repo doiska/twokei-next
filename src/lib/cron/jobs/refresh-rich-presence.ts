@@ -3,8 +3,8 @@ import { container } from "@sapphire/framework";
 import { logger } from "@/lib/logger";
 
 const presences: [string, ActivityType][] = [
-  ["twokei.com", ActivityType.Listening],
-  ["⚡ Music bot: twokei.com", ActivityType.Custom],
+  ["music.twokei.com", ActivityType.Listening],
+  ["⚡ Music bot: music.twokei.com", ActivityType.Custom],
 ];
 
 const types = [
