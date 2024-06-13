@@ -3,18 +3,22 @@ import { EmbedButtons, PlayerButtons } from "@/constants/buttons";
 
 export default {
   embed: {
-    description: [
-      "## <a:raio:1121849523854118973> [Twokei Music](https://music.twokei.com)",
-      `### ${Icons.Hanakin} Como usar?`,
-      "- **Mencione** o bot com o nome/url da música para adicionar à fila.",
-      '- Exemplo: "**{{- mention}} lofi hiphop**"',
-      "- **Controle a fila no Menu de Faixas abaixo!**",
-      `### ${Icons.SpotifyLogo} Não sabe o que ouvir? Use nossos Presets!`,
-      `- **Clique no menu abaixo e escolha uma categoria**.`,
-      `- A **fila deve estar vazia** para usar ${Icons.Hanakin}`,
-      "### 🎨 Arte feita por: [{{- artwork.name}}]({{- artwork.url}})",
-      "- Quer ver sua arte aqui? Envie em [nosso site](https://artwork.twokei.com)!",
-    ].join("\n"),
+    description: {
+      default: [
+        "## <a:raio:1121849523854118973> [Twokei Music](https://music.twokei.com)",
+        `### ${Icons.Hanakin} Como usar?`,
+        "- **Mencione** o bot com o nome/url da música para adicionar à fila.",
+        '- Exemplo: "**{{- mention}} lofi hiphop**"',
+        "- **Controle a fila no Menu de Faixas abaixo!**",
+        `### ${Icons.SpotifyLogo} Não sabe o que ouvir? Use nossos Presets!`,
+        `- **Clique no menu abaixo e escolha uma categoria**.`,
+        `- A **fila deve estar vazia** para usar ${Icons.Hanakin}`,
+      ].join("\n"),
+      arts: [
+        "### 🎨 Arte feita por: [{{- artwork.name}}]({{- artwork.url}})",
+        "- Quer ver sua arte aqui? Envie em [nosso site](https://artwork.twokei.com)!",
+      ].join("\n"),
+    },
     buttons: {
       [PlayerButtons.STOP]: "Parar",
       [PlayerButtons.PREVIOUS]: "Anterior",

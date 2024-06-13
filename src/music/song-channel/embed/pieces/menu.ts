@@ -6,7 +6,7 @@ import {
 
 import { Menus } from "@/constants/buttons";
 import { type TrackQueue } from "@/music/structures/TrackQueue";
-import { assertMenuSizeLimits } from "@/utils/embed-utils";
+import { SelectMenuLimits } from "@sapphire/discord.js-utilities";
 
 export const createSelectMenu = (queue?: TrackQueue) => {
   const hasTracks = !!queue?.length || !!queue?.current;
@@ -61,5 +61,15 @@ const parseTracksToMenuItem = (tracks: TrackQueue) => {
     });
   }
 
-  return assertMenuSizeLimits(items);
+  return items.map((item) => ({
+    ...item,
+    label: item.label.substring(
+      0,
+      SelectMenuLimits.MaximumLengthOfNameOfOption,
+    ),
+    description: item.description?.substring(
+      0,
+      SelectMenuLimits.MaximumLengthOfNameOfOption,
+    ),
+  }));
 };

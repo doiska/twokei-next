@@ -1,28 +1,38 @@
 import { type APIEmbed, Colors, type Guild } from "discord.js";
 
-import { resolveKey } from "@/i18n";
+import { fetchT } from "@/i18n";
 import { kil } from "@/db/Kil";
 import { playerEmbedArts } from "@/db/schemas/player-embed-arts";
 
 export const createDefaultSongEmbed = async (
   guild: Guild,
 ): Promise<APIEmbed> => {
+  const t = await fetchT(guild);
+
   const mention = guild.members.me?.toString() ?? "@Twokei";
 
   const arts = await kil.select().from(playerEmbedArts);
-
   const randomArt = arts[Math.floor(Math.random() * arts.length)];
 
-  const description = await resolveKey(guild, "player:embed.description", {
-    mention,
-    artwork: {
-      name: randomArt.author || "",
-      url: randomArt.authorUrl || "",
-    },
-  });
+  const description = [
+    t("player:embed.description.default", {
+      mention,
+    }),
+  ];
+
+  if (randomArt) {
+    description.push(
+      t("player:embed.description.arts", {
+        artwork: {
+          name: randomArt.author || "No author",
+          url: randomArt.authorUrl || "https://twokei.com",
+        },
+      }),
+    );
+  }
 
   return {
-    description,
+    description: description.join("\n"),
     color: Colors.Blurple,
     image: {
       url: randomArt.url,
