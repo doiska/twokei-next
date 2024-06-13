@@ -6,8 +6,6 @@ export class TrackQueue extends Array<ResolvableTrack> {
   public current: Maybe<ResolvableTrack>;
   public previous: Maybe<ResolvableTrack>;
 
-  public unShuffled = new Array<ResolvableTrack>();
-
   get totalSize(): number {
     return this.length;
   }
@@ -17,7 +15,6 @@ export class TrackQueue extends Array<ResolvableTrack> {
   }
 
   shuffle(): void {
-    this.unShuffled = [...this];
     this.sort(() => Math.random() - 0.5);
   }
 

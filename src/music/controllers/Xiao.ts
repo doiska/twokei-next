@@ -50,7 +50,6 @@ import {
 import { kil } from "@/db/Kil";
 import { coreNodes } from "@/db/schemas/core-nodes";
 import { eq } from "drizzle-orm";
-import { spotifyResolver } from "@/music/resolvers/spotify";
 
 export interface XiaoEvents {
   /**
@@ -175,7 +174,7 @@ export class Xiao extends EventEmitter {
    */
   public readonly players = new Map<string, Venti>();
 
-  public resolvers = [youtubeResolver, spotifyResolver];
+  public resolvers = [youtubeResolver];
 
   private readonly logger: Logger;
 
@@ -193,8 +192,8 @@ export class Xiao extends EventEmitter {
       {
         resume: true,
         moveOnDisconnect: true,
-        reconnectInterval: 3000,
-        reconnectTries: 5,
+        reconnectInterval: 3,
+        reconnectTries: 20,
         userAgent: `Twokei (${env.NODE_ENV})`,
       },
       sessions.dump,
@@ -335,21 +334,6 @@ export class Xiao extends EventEmitter {
     }
 
     const isUrl = query.startsWith("http");
-
-    if (options?.resolver ?? true) {
-      const resolver = this.resolvers.find(
-        (trackResolver) =>
-          (!isUrl && trackResolver.name === options?.resolver) ||
-          trackResolver.matches(query),
-      );
-
-      this.logger.debug(`Resolving ${query} with ${resolver?.name ?? engine}.`);
-
-      if (resolver?.resolve) {
-        return await resolver.resolve(query, options?.requester);
-      }
-    }
-
     const search = !isUrl ? `${engine}:${query}` : query;
 
     const result = await node.rest.resolve(search);

@@ -1,11 +1,6 @@
 import { type User } from "discord.js";
-import { container } from "@sapphire/framework";
 import { type Track } from "@twokei/shoukaku";
-
 import { playerLogger } from "@/lib/logger";
-import { cleanUpSong } from "@/music/utils/cleanup";
-import { spotifyResolver } from "@/music/resolvers/spotify";
-import { env } from "@/app/env";
 
 interface ResolvableTrackOptions {
   requester?: User;
@@ -124,21 +119,11 @@ export class ResolvableTrack {
       return this;
     }
 
-    const resolvedTrack = await this.getTrack();
+    playerLogger.error(`[ResolvableTrack] Track was not ready to play!`, {
+      track: this.track,
+    });
 
-    if (!resolvedTrack) {
-      throw new Error("Track not found");
-    }
-
-    this.track = resolvedTrack.encoded;
-    this.title = resolvedTrack.info.title;
-    this.isSeekable = resolvedTrack.info.isSeekable;
-    this.author = resolvedTrack.info.author;
-    this.isStream = resolvedTrack.info.isStream;
-    this.realUri = resolvedTrack.info.uri;
-    this.length = resolvedTrack.info.length;
-
-    return this;
+    throw new Error("Track not found");
   }
 
   public getRaw(): Track {
@@ -156,109 +141,6 @@ export class ResolvableTrack {
         sourceName: this.sourceName,
         isrc: this.isrc,
         artworkUrl: this.artworkUrl,
-      },
-      pluginInfo: {},
-    };
-  }
-
-  private async getTrack() {
-    const query = cleanUpSong(this.title, this.author);
-    const response = await this.resolveQuery(query);
-
-    if (!response?.tracks?.length) {
-      return;
-    }
-
-    playerLogger.info(`[ResolvableTrack] Get Track resolved ${query}`);
-
-    const [resolved] = response.tracks;
-
-    if (!this.isrc) {
-      playerLogger.debug("[ResolvableTrack] Track does not have ISRC yet.");
-    } else {
-      playerLogger.debug(
-        `[ResolvableTrack] Track has ISRC, checking if it matches.`,
-      );
-    }
-
-    if (!this.isrc && resolved.isrc) {
-      playerLogger.debug("[ResolvableTrack] Track has ISRC, using it.");
-      this.isrc = resolved.isrc;
-    }
-
-    return this.parseResolvableToTrack(resolved);
-  }
-
-  private async resolveQuery(query: string) {
-    if (this.isrc) {
-      playerLogger.debug(
-        `[ResolvableTrack] Track already has ISRC: ${this.isrc}`,
-      );
-
-      return this.searchByISRC(this.isrc);
-    }
-
-    const spotifyResponse = await spotifyResolver.resolve(query);
-
-    if (!spotifyResponse.tracks?.length) {
-      return spotifyResponse;
-    }
-
-    const [track] = spotifyResponse.tracks;
-
-    this.artworkUrl = track.artworkUrl;
-
-    if (!track.isrc) {
-      const newSearchQuery = cleanUpSong(track.title, track.author);
-      playerLogger.debug(
-        `[ResolvableTrack] Track does not have ISRC, using search for ${newSearchQuery}`,
-      );
-
-      return this.searchByQuery(newSearchQuery);
-    }
-
-    playerLogger.debug(
-      `[ResolvableTrack] Resolved ${query} (ISRC: ${track.isrc}) in Spotify`,
-    );
-
-    this.isrc = track.isrc;
-    return this.searchByISRC(track.isrc);
-  }
-
-  private searchByISRC(isrc: string) {
-    playerLogger.debug(`[ResolvableTrack] Searching by ISRC ${isrc}`);
-
-    return container.xiao.search(isrc, {
-      engine: env.LAVA_SEARCH_ENGINE,
-      requester: this.requester,
-    });
-  }
-
-  private searchByQuery(query: string) {
-    return container.xiao.search(query, {
-      requester: this.requester,
-    });
-  }
-
-  private parseResolvableToTrack(resolvable: Track | ResolvableTrack): Track {
-    if ((resolvable as Track).info) {
-      return resolvable as Track;
-    }
-
-    const track = resolvable as ResolvableTrack;
-
-    return {
-      encoded: track.track,
-      info: {
-        isSeekable: track.isSeekable,
-        isStream: track.isStream,
-        title: track.title,
-        uri: track.uri,
-        identifier: track.identifier,
-        sourceName: track.sourceName,
-        author: track.author ?? "",
-        length: track.length ?? 0,
-        position: track.position ?? 0,
       },
       pluginInfo: {},
     };
