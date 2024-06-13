@@ -9,14 +9,14 @@
   "scripts": {
     "build": "tsup",
     "start": "node --env-file=.env ./dist/init.js",
-    "dev": "tsup --watch",
+    "dev": "tsup --watch --onSuccess \"node --env-file=.env ./dist/init.js\"",
     "lint": "eslint --fix src --ext .ts",
     "migrations": "npx drizzle-kit generate:pg"
   },
   "author": {
     "name": "Pedro Carvalho (doiská)",
     "email": "doiskka@gmail.com",
-    "url": "https://doiska.dev"
+    "url": "https://twokei.com"
   },
   "dependencies": {
     "@napi-rs/canvas": "^0.1.44",
@@ -29,7 +29,7 @@
     "@sapphire/utilities": "^3.14.0",
     "@spotify/web-api-ts-sdk": "^1.1.2",
     "@t3-oss/env-core": "^0.6.1",
-    "@twokei/shoukaku": "github:doiska/twokei-shoukaku",
+    "@twokei/shoukaku": "latest",
     "@types/node": "^20.10.6",
     "ansis": "^2.0.3",
     "croner": "^8.0.0",
@@ -62,5 +62,8 @@
     "tslib": "^2.6.2",
     "tsup": "^8.0.1",
     "typescript": "^5.2.2"
-  }
+  },
+  "trustedDependencies": [
+    "@twokei/shoukaku"
+  ]
 }
