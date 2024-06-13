@@ -22,6 +22,7 @@ import { coreUsers } from "@/db/schemas/core-users";
 import { formatDuration, intervalToDuration } from "date-fns";
 import { resolveKey } from "@/i18n";
 import { ptBR } from "date-fns/locale";
+import { coreScheduler } from "@/db/schemas/core-scheduler";
 
 @ApplyOptions<InteractionHandler.Options>({
   name: EmbedButtons.VIEW_RANKING,
@@ -45,6 +46,13 @@ export class RankingViewButtonHandler extends InteractionHandler {
       .rightJoin(coreUsers, eq(coreUsers.id, listeningRanking.userId))
       .orderBy(asc(listeningRanking.position));
 
+    const [rankingCron] = await kil
+      .select({ lastRefresh: coreScheduler.updatedAt })
+      .from(coreScheduler)
+      .where(eq(coreScheduler.service, "refresh-ranking"));
+
+    const refreshedAt = rankingCron?.lastRefresh ?? new Date();
+
     const topTen = ranking.slice(0, 9);
 
     const currentUserRanking = ranking.find(
@@ -54,8 +62,6 @@ export class RankingViewButtonHandler extends InteractionHandler {
     const isUserInTopTen = topTen.some(
       (user) => user.userId === buttonInteraction.user.id,
     );
-
-    const now = Math.floor((Date.now() - 60000) / 1000);
 
     const formattedRanking = topTen.map((user, index) =>
       this.formatRanking({
@@ -84,7 +90,7 @@ export class RankingViewButtonHandler extends InteractionHandler {
       buttonInteraction,
       "interactions:ranking.embed.refreshedAt",
       {
-        time: formatTime(now, TimestampStyles.RelativeTime),
+        time: formatTime(refreshedAt, TimestampStyles.RelativeTime),
       },
     );
 
