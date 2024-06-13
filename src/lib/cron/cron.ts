@@ -2,6 +2,7 @@ import { Cron } from "croner";
 import { kil } from "@/db/Kil";
 import { coreScheduler } from "@/db/schemas/core-scheduler";
 import { logger } from "@/lib/logger";
+import { eq, sql } from "drizzle-orm";
 
 const cronLogger = logger.child({ module: "cron" });
 
@@ -47,13 +48,25 @@ export async function startCronJobs() {
             `./jobs/${service.service}.ts`
           );
 
-          Cron(
+          const newCron = Cron(
             service.schedule,
             {
               name: service.service,
             },
-            jobFn,
+            async () => {
+              await jobFn();
+
+              await kil
+                .update(coreScheduler)
+                .set({
+                  updatedAt: sql`NOW()`,
+                })
+                .where(eq(coreScheduler.service, service.service));
+            },
           );
+          logger.info(`Started cron job ${service.service}.`);
+
+          await newCron.trigger();
         } catch (err) {
           cronLogger.error(`Failed to load cron job ${service.service}.`);
           cronLogger.error(err);
