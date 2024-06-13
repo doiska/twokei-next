@@ -38,7 +38,7 @@ export const createDefaultSongEmbed = async (
       url: randomArt.url,
     },
     footer: {
-      text: `⚡ Made by: @doiska`,
+      text: `⚡ Made by: @two2kei | doiska#0001`,
       icon_url: "https://cdn.twokei.com/doiska.png",
     },
   };
