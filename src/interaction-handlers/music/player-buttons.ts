@@ -9,12 +9,12 @@ import {
 } from "@sapphire/framework";
 
 import { PlayerButtons } from "@/constants/buttons";
-import { destroyPlayerInstance } from "@/music/heizou/destroy-player-instance";
-import { pauseSong } from "@/music/heizou/pause-song";
-import { previousSong } from "@/music/heizou/previous-song";
-import { setLoopState } from "@/music/heizou/set-loop-state";
-import { shuffleQueue } from "@/music/heizou/shuffle-queue";
-import { skipSong } from "@/music/heizou/skip-song";
+import { destroyPlayerInstance } from "@/music/functions/destroy-player-instance";
+import { pauseSong } from "@/music/functions/pause-song";
+import { previousSong } from "@/music/functions/previous-song";
+import { setLoopState } from "@/music/functions/set-loop-state";
+import { shuffleQueue } from "@/music/functions/shuffle-queue";
+import { skipSong } from "@/music/functions/skip-song";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
 import { send } from "@/lib/message-handler";
 import { Embed } from "@/utils/messages";

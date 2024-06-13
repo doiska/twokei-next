@@ -29,20 +29,21 @@ export const createSelectMenu = (queue?: TrackQueue) => {
         .setMinValues(0)
         .setMaxValues(1)
         .setDisabled(!hasTracks)
-        .setOptions(options),
+        .setOptions(options.slice(0, SelectMenuLimits.MaximumOptionsLength)),
     ],
   });
 };
 
 const parseTracksToMenuItem = (tracks: TrackQueue) => {
-  const items: SelectMenuComponentOptionData[] = tracks.map((track, index) => ({
-    label: track.title,
-    value: index.toString(),
-    description: track.author,
-  }));
+  const items: SelectMenuComponentOptionData[] = tracks
+    .slice(0, 20)
+    .map((track, index) => ({
+      label: track.title,
+      value: index.toString(),
+      description: track.author,
+    }));
 
-  const { current } = tracks;
-  const { previous } = tracks;
+  const { current, previous } = tracks;
 
   if (current) {
     items.unshift({

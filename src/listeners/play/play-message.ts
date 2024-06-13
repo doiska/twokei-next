@@ -13,7 +13,7 @@ import { Embed } from "@/utils/messages";
 import { resolveKey } from "@/i18n";
 import { isShoukakuReady } from "@/preconditions/shoukaku-ready";
 import { youtubeResolver } from "@/music/resolvers/youtube";
-import { addNewSong } from "@/music/heizou/add-new-song";
+import { addNewSong } from "@/music/functions/add-new-song";
 
 import { logger } from "@/lib/logger";
 import { dispose, stripContent } from "@/lib/message-handler/utils";

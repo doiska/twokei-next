@@ -11,7 +11,7 @@ import { kil } from "@/db/Kil";
 import { playerPresets } from "@/db/schemas/player-presets";
 import { eq } from "drizzle-orm";
 
-import { addNewSong } from "@/music/heizou/add-new-song";
+import { addNewSong } from "@/music/functions/add-new-song";
 import { isGuildMember } from "@sapphire/discord.js-utilities";
 import { Icons } from "@/constants/icons";
 import { dispose } from "@/lib/message-handler/utils";
