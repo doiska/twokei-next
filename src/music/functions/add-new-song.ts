@@ -1,4 +1,4 @@
-import { EmbedBuilder, type GuildMember } from "discord.js";
+import { type GuildMember } from "discord.js";
 import {
   canJoinVoiceChannel,
   isVoiceChannel,
@@ -11,10 +11,8 @@ import { Events, XiaoLoadType } from "../interfaces/player.types";
 import { createPlayerInstance } from "./create-player-instance";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 import { container } from "@sapphire/framework";
-import { logger, playerLogger } from "@/lib/logger";
-import { Icons } from "@/constants/icons";
-import { dispose } from "@/lib/message-handler/utils";
 
+//TODO: Unify this with add-new-song
 async function createPlayer(member: GuildMember) {
   const { guild } = member;
 
@@ -43,8 +41,6 @@ async function createPlayer(member: GuildMember) {
 }
 
 export async function addNewSong(input: string, member: GuildMember) {
-  const player = await createPlayer(member);
-
   const result = await container.xiao.search(input, {
     requester: member.user,
     resolver: "spotify",
@@ -53,6 +49,8 @@ export async function addNewSong(input: string, member: GuildMember) {
   if (!result.tracks.length) {
     throw new FriendlyException(ErrorCodes.PLAYER_NO_TRACKS_FOUND);
   }
+
+  const player = await createPlayer(member);
 
   const addedTracks =
     result.type === XiaoLoadType.PLAYLIST_LOADED
