@@ -1,4 +1,4 @@
-import { Locale, Events, type Guild } from "discord.js";
+import { Events, type Guild } from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
 import { container, Listener } from "@sapphire/framework";
 
@@ -39,6 +39,11 @@ export class GuildSetup extends Listener<Events.GuildCreate> {
       const newChannel = await setupNewChannel(guild);
       await setupSongMessage(guild, newChannel);
     } catch (e) {
+      logger.error(
+        `Error while setting up guild ${guild.name} (${guild.id})`,
+        e,
+      );
+
       const owner = await guild.fetchOwner().catch(() => null);
 
       if (!owner) {
