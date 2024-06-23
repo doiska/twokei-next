@@ -43,7 +43,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
 
       const songChannel = await container.sc.getEmbed(guild);
 
-      const validation = await this.getMessageValidation(
+      const validation = this.getMessageValidation(
         message,
         songChannel?.channel.id,
       );
@@ -156,7 +156,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
           const isRecent = duration < 60000 && isMine;
           const isSongChannelMessage = m.id === message.id;
 
-          return !isRecent && !isSongChannelMessage;
+          return m.bulkDeletable && !isRecent && !isSongChannelMessage;
         }),
         true,
       );
@@ -168,7 +168,7 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
     }
   }
 
-  async getMessageValidation(message: Message, songChannelId?: string) {
+  private getMessageValidation(message: Message, songChannelId?: string) {
     const { channel: typedChannel, guild } = message;
 
     if (!guild || !typedChannel) {
