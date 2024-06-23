@@ -1,4 +1,4 @@
-import { ChannelType, type Guild } from "discord.js";
+import { ChannelType, type Guild, PermissionFlagsBits } from "discord.js";
 import { canSendMessages } from "@sapphire/discord.js-utilities";
 import { container } from "@sapphire/framework";
 import { noop } from "@sapphire/utilities";
@@ -38,6 +38,17 @@ export const setupNewChannel = async (guild: Guild) => {
     .create({
       name: "twokei-music",
       type: ChannelType.GuildText,
+      permissionOverwrites: [
+        {
+          id: guild.members.me!.id,
+          allow: [
+            PermissionFlagsBits.ManageChannels,
+            PermissionFlagsBits.ManageMessages,
+            PermissionFlagsBits.ViewChannel,
+            PermissionFlagsBits.SendMessages,
+          ],
+        },
+      ],
     })
     .catch((e) => {
       logger.error(e);
