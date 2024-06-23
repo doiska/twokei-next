@@ -25,7 +25,7 @@ export class DebugCommand extends Listener<typeof Events.MessageCreate> {
     }
 
     if (type === "permissions") {
-      const [guildId] = args;
+      const [guildId, channelId] = args;
 
       if (!guildId) {
         return message.channel.send("Usage: !debug permissions <guildId>");
@@ -44,6 +44,29 @@ export class DebugCommand extends Listener<typeof Events.MessageCreate> {
       }
 
       const permissions = new Map<string, boolean>();
+
+      if (channelId) {
+        const channel = await guild.channels.fetch(channelId);
+
+        if (!channel) {
+          return message.channel.send("Channel not found");
+        }
+
+        const permissionsInChannel = channel.permissionsFor(self);
+
+        for (const [k, v] of Object.entries(permissionsInChannel.serialize())) {
+          permissions.set(k, v);
+        }
+
+        const readable = [...permissions.entries()]
+          .sort(([, v]) => (v ? -1 : 1))
+          .map(([key, value]) => {
+            return `${key}: ${value}`;
+          });
+
+        message.channel.send(`${channel.toString()}:\n${readable.join("\n")}`);
+        return;
+      }
 
       for (const [key, value] of Object.entries(PermissionFlagsBits)) {
         permissions.set(key, self.permissions.has(value));
