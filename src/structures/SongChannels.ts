@@ -1,4 +1,9 @@
-import { type Guild, type GuildResolvable } from "discord.js";
+import {
+  type Guild,
+  type GuildResolvable,
+  Message,
+  TextChannel,
+} from "discord.js";
 import {
   isGuildBasedChannel,
   isTextChannel,
@@ -13,6 +18,8 @@ import { createDefaultEmbed } from "@/music/song-channel/embed/pieces";
 import { logger } from "@/lib/logger";
 
 export class SongChannelManager {
+  private cache = new Map<string, { channel: TextChannel; message: Message }>();
+
   public async set(guildId: string, channelId: string, messageId: string) {
     const [result] = await kil
       .insert(playerSongChannels)
@@ -59,6 +66,10 @@ export class SongChannelManager {
   }
 
   public async getEmbed(guild: Guild) {
+    if (this.cache.has(guild.id)) {
+      return this.cache.get(guild.id);
+    }
+
     const songChannel = await this.get(guild.id);
 
     if (!songChannel) {
@@ -66,15 +77,22 @@ export class SongChannelManager {
     }
 
     try {
-      const channel = await guild.channels.fetch(songChannel.channelId, {
-        force: true,
-      });
+      const channel = await guild.channels.fetch(songChannel.channelId);
 
-      if (!isGuildBasedChannel(channel) || !isTextChannel(channel)) {
+      if (
+        !channel ||
+        !isGuildBasedChannel(channel) ||
+        !isTextChannel(channel)
+      ) {
         return;
       }
 
       const message = await channel.messages.fetch(songChannel.messageId);
+
+      this.cache.set(guild.id, {
+        channel,
+        message,
+      });
 
       return {
         message,
