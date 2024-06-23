@@ -17,6 +17,7 @@ export const env = createEnv({
     EXTERNAL_PROFILE_ENDPOINT: z.string().url().optional(),
     LAVA_SEARCH_ENGINE: z.string(),
     RESET_SONG_CHANNEL: z.string().optional(),
+    DISCORD_GUILD_ID: z.string().optional(),
   },
   runtimeEnv: process.env,
 });

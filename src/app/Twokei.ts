@@ -23,8 +23,12 @@ import { env } from "@/app/env";
 import { playerSongChannels } from "@/db/schemas/player-song-channels";
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
-  RegisterBehavior.BulkOverwrite,
+  RegisterBehavior.VerboseOverwrite,
 );
+
+if (env.DISCORD_GUILD_ID) {
+  ApplicationCommandRegistries.setDefaultGuildIds([env.DISCORD_GUILD_ID]);
+}
 
 export const Twokei = new TwokeiClient({
   caseInsensitiveCommands: true,
@@ -35,6 +39,7 @@ export const Twokei = new TwokeiClient({
     GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.Guilds,
+    GatewayIntentBits.DirectMessages,
   ],
   baseUserDirectory: null,
   partials: [Partials.Channel],
@@ -88,7 +93,12 @@ export const init = async () => {
   await import("../interaction-handlers/_load");
   await import("../commands/_load");
 
-  await Twokei.login(process.env.DISCORD_TOKEN);
+  await Twokei.login(env.DISCORD_TOKEN)
+    .then(() => logger.debug(`Logged in as ${Twokei.user?.tag}`))
+    .catch((error) => {
+      logger.error("Error while logging in", error);
+    });
+
   await startCronJobs();
 
   if (env.RESET_SONG_CHANNEL === "true") {
