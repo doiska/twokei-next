@@ -8,6 +8,10 @@ export async function getPresetMenu(guild: Guild) {
   const t = await fetchT(guild);
   const genres = await kil.select().from(playerPresets);
 
+  if (!genres.length) {
+    return;
+  }
+
   const options = genres
     .map((genre) => {
       const {

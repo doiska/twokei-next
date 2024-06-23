@@ -34,9 +34,11 @@ export const createDefaultSongEmbed = async (
   return {
     description: description.join("\n"),
     color: Colors.Blurple,
-    image: {
-      url: randomArt.url,
-    },
+    image: randomArt?.url
+      ? {
+          url: randomArt.url,
+        }
+      : undefined,
     footer: {
       text: `⚡ Made by: @two2kei | doiska#0001`,
       icon_url: "https://cdn.twokei.com/doiska.png",
