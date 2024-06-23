@@ -46,12 +46,15 @@ export class PresetSelectMenuInteraction extends InteractionHandler {
       return;
     }
 
+    await interaction.deferReply({ ephemeral: true, fetchReply: true });
+
     const [preset] = await kil
       .select()
       .from(playerPresets)
       .where(eq(playerPresets.id, option.toLowerCase()));
 
     if (!preset?.categories?.length) {
+      await interaction.editReply("Não há categorias para esse preset.");
       return;
     }
 
@@ -94,9 +97,8 @@ export class PresetSelectMenuInteraction extends InteractionHandler {
     );
 
     await interaction
-      .reply({
+      .editReply({
         embeds: [curatorsWarning],
-        fetchReply: true,
       })
       .then((interaction) => dispose(interaction, 10000));
   }
