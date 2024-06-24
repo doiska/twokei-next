@@ -19,6 +19,9 @@ function createEmbed(defaultData: APIEmbed) {
 export const Embed = {
   error: createEmbed({
     color: Colors.Red,
+    footer: {
+      text: "Suporte: https://discord.twokei.com | Discord: @doiska",
+    },
   }),
   info: createEmbed({
     color: Colors.Blue,

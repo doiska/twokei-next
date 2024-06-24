@@ -16,6 +16,7 @@ import { addNewSong } from "@/music/functions/add-new-song";
 import { logger } from "@/lib/logger";
 import { dispose, stripContent } from "@/lib/message-handler/utils";
 import { Icons } from "@/constants/icons";
+import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
 
 const errors = {
   "same-channel-no-mention": ErrorCodes.MISSING_MESSAGE,
@@ -117,24 +118,19 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
 
       await this.cleanupSongChannel(songChannel);
     } catch (e) {
-      logger.error(
-        `An unexpected error occurred (${message.guild?.id} - ${message.guild?.name})`,
-        e,
-      );
+      const readableError = await resolveKey(message, getReadableException(e));
 
       await message.channel
         ?.send({
-          embeds: [
-            new EmbedBuilder().setDescription(
-              [
-                "## Ocorreu um erro ao criar o player de música.",
-                "### Como resolver:",
-                "- Confirme se o Twokei tem acesso a este canal de voz/texto",
-                "- Convide-o novamente para o servidor (https://music.twokei.com)",
-                `**${Icons.Hanakin} Sentimos pelo inconveniente.**`,
-              ].join("\n"),
-            ),
-          ],
+          embeds: Embed.error(
+            [
+              "## Ocorreu um erro ao criar o player de música.",
+              "### Motivo:",
+              readableError,
+              " ",
+              `**${Icons.Hanakin} Foi mal!**`,
+            ].join("\n"),
+          ),
         })
         .then(dispose)
         .catch(logger.error);

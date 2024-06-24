@@ -13,7 +13,11 @@ export default {
   [ErrorCodes.NO_PLAYER_FOUND]:
     "There is no player in this server, use the `play` command to start playing music.",
   [ErrorCodes.MISSING_PERMISSIONS_JOIN_VC]:
-    "Eu não tenho permissão para entrar no canal de voz.",
+    "Não tenho permissão para **entrar** em seu canal de voz.",
+  [ErrorCodes.MISSING_PERMISSIONS_VIEW_VC]:
+    "Não tenho permissão para **visualizar** em seu canal de voz.",
+  [ErrorCodes.MISSING_PERMISSIONS_SPEAK_VC]:
+    "Não tenho permissão para **falar** em seu canal de voz.",
   [ErrorCodes.PLAYER_MISSING_INPUT]:
     "Você deve informar o nome/link da música.",
   [ErrorCodes.MISSING_MESSAGE]: [
@@ -22,7 +26,6 @@ export default {
     "",
     "Isso ocorre devido a uma limitação do `Discord`.",
     "Para usar este canal você precisa enviar uma mensagem mencionando o bot.",
-    "Ou utilize o comando ``/play``",
   ].join("\n"),
   [ErrorCodes.MISSING_SONG_CHANNEL]:
     "O canal de música não foi definido neste servidor, use /setup e garanta que o bot tenha as permissões necessárias.",
@@ -30,8 +33,9 @@ export default {
     "Envie a mensagem no {{- channel}} para que eu possa tocar a música.",
   [ErrorCodes.MISSING_ADMIN_PERMISSIONS]:
     "Você não tem permissão (administrador) para usar este comando.",
-  [ErrorCodes.PLAYER_NO_TRACKS_FOUND]:
-    "Nenhuma música encontrada, tente usando um link direto.",
+  [ErrorCodes.PLAYER_NO_TRACKS_FOUND]: [
+    "Nenhuma música encontrada. É possível que esteja limitada por região (ou idade). Tente usar um link direto.",
+  ],
   [ErrorCodes.MISSING_PERMISSIONS]: [
     `## ${Icons.Hanakin} Ocorreu um erro.`,
     "### Motivo:",

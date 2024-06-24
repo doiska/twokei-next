@@ -1,4 +1,4 @@
-import { type GuildMember } from "discord.js";
+import { type GuildMember, PermissionsBitField } from "discord.js";
 import {
   canJoinVoiceChannel,
   isVoiceChannel,
@@ -21,8 +21,20 @@ export async function addNewSong(input: string, member: GuildMember) {
     throw new PlayerException(ErrorCodes.NOT_IN_VC);
   }
 
-  if (!canJoinVoiceChannel(voiceChannel)) {
+  const currentPermissions = voiceChannel.permissionsFor(
+    member.guild.members.me!,
+  );
+
+  if (!currentPermissions.has(PermissionsBitField.Flags.ViewChannel)) {
+    throw new PlayerException(ErrorCodes.MISSING_PERMISSIONS_VIEW_VC);
+  }
+
+  if (!currentPermissions.has(PermissionsBitField.Flags.Connect)) {
     throw new PlayerException(ErrorCodes.MISSING_PERMISSIONS_JOIN_VC);
+  }
+
+  if (!currentPermissions.has(PermissionsBitField.Flags.Speak)) {
+    throw new PlayerException(ErrorCodes.MISSING_PERMISSIONS_SPEAK_VC);
   }
 
   const currentVoiceId = container.xiao.getPlayer(member.guild.id)?.voiceId;

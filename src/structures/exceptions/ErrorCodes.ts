@@ -6,6 +6,8 @@ export const RawErrorCodes = {
   NO_AVAILABLE_NODES: "no-available-nodes",
   YOUTUBE_NO_LONGER_ACTIVE: "youtube-no-longer-active",
   MISSING_PERMISSIONS_JOIN_VC: "missing-permissions-join-vc",
+  MISSING_PERMISSIONS_SPEAK_VC: "missing-permissions-speak-vc",
+  MISSING_PERMISSIONS_VIEW_VC: "missing-permissions-view-vc",
   MISSING_ADMIN_PERMISSIONS: "missing-admin-permissions",
   SOMETHING_WENT_REALLY_WRONG: "something-went-really-wrong",
   PLAYER_MISSING_INPUT: "player-missing-input",

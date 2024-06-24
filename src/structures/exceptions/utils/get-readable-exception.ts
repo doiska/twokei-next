@@ -13,5 +13,5 @@ export const getReadableException = (error: unknown) => {
   }
 
   logger.error(error);
-  return "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.";
+  return ErrorCodes.SOMETHING_WENT_REALLY_WRONG;
 };
