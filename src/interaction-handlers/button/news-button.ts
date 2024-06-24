@@ -1,10 +1,5 @@
 import { APIEmbed, ButtonInteraction, Colors } from "discord.js";
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  EmbedBuilder,
-} from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
 import {
   container,

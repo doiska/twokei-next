@@ -4,7 +4,6 @@ import {
   type ButtonInteraction,
   ButtonStyle,
   Colors,
-  ComponentType,
   EmbedBuilder,
 } from "discord.js";
 import { ApplyOptions } from "@sapphire/decorators";
@@ -19,7 +18,6 @@ import {
 
 import { EmbedButtons } from "@/constants/buttons";
 
-import { fetchT } from "@/i18n";
 import { Icons } from "@/constants/icons";
 import { dispose } from "@/lib/message-handler/utils";
 import { noop } from "@sapphire/utilities";

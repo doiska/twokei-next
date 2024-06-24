@@ -40,6 +40,7 @@ export async function resolveKey<
 
   const defaultValue = Array.isArray(key) ? key[0] : key;
 
+  //ts-expect-error skill issue
   return fixedT(key, {
     ...options,
     defaultValue,
