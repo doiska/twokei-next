@@ -7,11 +7,9 @@ import {
 import { container, Listener } from "@sapphire/framework";
 import { noop } from "@sapphire/utilities";
 
-import { ErrorCodes, RawErrorCodes } from "@/structures/exceptions/ErrorCodes";
-import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
+import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { Embed } from "@/utils/messages";
 import { resolveKey } from "@/i18n";
-import { isShoukakuReady } from "@/preconditions/shoukaku-ready";
 import { youtubeResolver } from "@/music/resolvers/youtube";
 import { addNewSong } from "@/music/functions/add-new-song";
 
@@ -32,7 +30,12 @@ export class PlayMessage extends Listener<typeof Events.MessageCreate> {
   public override async run(message: Message) {
     const { author, channel: typedChannel, member, guild } = message;
 
-    if (author.bot || !guild || !member || !isShoukakuReady()) {
+    const isShoukakuReady =
+      container.xiao &&
+      container.xiao.shoukaku.id &&
+      container.xiao.shoukaku.reconnectingPlayers.size <= 0;
+
+    if (author.bot || !guild || !member || !isShoukakuReady) {
       return;
     }
 

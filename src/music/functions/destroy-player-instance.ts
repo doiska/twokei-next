@@ -1,6 +1,6 @@
 import { type GuildMember } from "discord.js";
 
-import { isConnectedTo } from "@/preconditions/vc-conditions";
+import { isConnectedTo } from "@/music/utils/vc-conditions";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 import { container } from "@sapphire/framework";

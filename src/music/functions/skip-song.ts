@@ -1,7 +1,7 @@
 import { type GuildMember } from "discord.js";
 import { container } from "@sapphire/framework";
 
-import { isConnectedTo } from "@/preconditions/vc-conditions";
+import { isConnectedTo } from "@/music/utils/vc-conditions";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 
 export const skipSong = async (member: GuildMember, amount = 1) => {

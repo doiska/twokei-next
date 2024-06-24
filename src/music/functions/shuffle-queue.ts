@@ -1,7 +1,7 @@
 import { type GuildMember } from "discord.js";
 import { container } from "@sapphire/framework";
 
-import { isConnectedTo } from "@/preconditions/vc-conditions";
+import { isConnectedTo } from "@/music/utils/vc-conditions";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 import { PlayerException } from "@/structures/exceptions/PlayerException";

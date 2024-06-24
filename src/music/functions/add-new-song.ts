@@ -4,7 +4,7 @@ import {
   isVoiceChannel,
 } from "@sapphire/discord.js-utilities";
 
-import { isConnectedTo } from "@/preconditions/vc-conditions";
+import { isConnectedTo } from "@/music/utils/vc-conditions";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { PlayerException } from "@/structures/exceptions/PlayerException";
 import { Events, XiaoLoadType } from "../interfaces/player.types";
