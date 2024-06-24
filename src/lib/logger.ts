@@ -3,7 +3,7 @@ import {
   format,
   transports,
 } from "winston";
-import { red, blue, cyan, green, reset, yellow } from "ansis";
+import { red, blue, green, reset, yellow } from "ansis";
 import { env } from "@/app/env";
 
 const colors = {
