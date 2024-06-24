@@ -31,4 +31,14 @@ export default {
     "Você não tem permissão (administrador) para usar este comando.",
   [ErrorCodes.PLAYER_NO_TRACKS_FOUND]:
     "Nenhuma música encontrada, tente usando um link direto.",
+  [ErrorCodes.MISSING_PERMISSIONS]: [
+    "## Sem permissões",
+    " ",
+    "O Twokei precisa de permissões para funcionar corretamente.",
+    "Confira se o cargo dele tem acesso as permissões:",
+    "- Gerenciar canais",
+    "- Enviar mensagens",
+    "- Ver canais",
+    " ",
+  ].join("\n"),
 } as const;

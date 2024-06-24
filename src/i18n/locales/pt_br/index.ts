@@ -6,11 +6,13 @@ import news from "@/i18n/locales/pt_br/news";
 import player from "@/i18n/locales/pt_br/player";
 import profile from "@/i18n/locales/pt_br/profile";
 import tutorial from "@/i18n/locales/pt_br/tutorial";
-import interactions from "@/i18n/locales/pt_br/interactions";
 import genres from "@/i18n/locales/pt_br/genres";
+import ranking from "@/i18n/locales/pt_br/interactions/ranking";
 
 export const namespaces = {
-  interactions,
+  interactions: {
+    ranking,
+  },
   common,
   error,
   player,
