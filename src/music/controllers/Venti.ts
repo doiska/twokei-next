@@ -214,8 +214,8 @@ export class Venti {
           options: playOptions,
         };
 
-        this.logger.debug(
-          `Playing track ${this.queue.current.title} for guild ${this.guildId} - ${this.queue.totalSize} tracks left in queue.`,
+        this.logger.info(
+          `Playing track "${this.queue.current.title}" for guild "${this.guild.name}" (${this.guildId}) - ${this.queue.totalSize} tracks left in queue.`,
         );
 
         this.instance.playTrack(shoukakuPlayOptions);

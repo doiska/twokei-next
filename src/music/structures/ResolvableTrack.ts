@@ -81,26 +81,6 @@ export class ResolvableTrack {
   }
 
   get isReadyToPlay(): boolean {
-    const ready = {
-      track: !!this.track,
-      sourceName: !!this.sourceName,
-      identifier: !!this.identifier,
-      author: !!this.author,
-      length: !!this.length,
-      title: !!this.title,
-      uri: !!this.uri,
-      realUri: !!this.realUri,
-    };
-
-    const isReady = Object.values(ready).every((value) => value);
-
-    playerLogger.debug(
-      `[ResolvableTrack] Track is ${isReady ? "READY" : "NOT READY"} to play:`,
-      {
-        ...ready,
-      },
-    );
-
     return (
       !!this.track &&
       !!this.sourceName &&
@@ -115,7 +95,10 @@ export class ResolvableTrack {
 
   public async resolve(): Promise<ResolvableTrack> {
     if (this.isReadyToPlay) {
-      playerLogger.debug(`[ResolvableTrack] Track is already ready to play!`);
+      playerLogger.debug(
+        `[ResolvableTrack] Track "${this.title}" is already ready to play!`,
+      );
+
       return this;
     }
 
