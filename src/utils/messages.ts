@@ -2,31 +2,15 @@ import type { APIEmbed } from "discord.js";
 import { Colors } from "discord.js";
 
 function createEmbed(defaultData: APIEmbed) {
-  return function (rawContent: string | string[] | APIEmbed): [APIEmbed] {
-    const { ...defaultEmbed } = defaultData;
-
-    if (typeof rawContent === "string") {
-      return [
-        {
-          ...(rawContent !== "" && { description: rawContent }),
-          ...defaultEmbed,
-        },
-      ];
-    }
-
-    if (Array.isArray(rawContent)) {
-      return [
-        {
-          description: rawContent.join("\n"),
-          ...defaultEmbed,
-        },
-      ];
+  return function (rawContent: string): [APIEmbed] {
+    if (!rawContent.trim()) {
+      return [defaultData];
     }
 
     return [
       {
-        ...rawContent,
-        ...defaultEmbed,
+        ...defaultData,
+        description: rawContent,
       },
     ];
   };
