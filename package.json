@@ -29,7 +29,7 @@
     "@sapphire/utilities": "^3.14.0",
     "@spotify/web-api-ts-sdk": "^1.1.2",
     "@t3-oss/env-core": "^0.6.1",
-    "@twokei/shoukaku": "latest",
+    "@twokei/shoukaku": "^1.0.5",
     "@types/node": "^20.10.6",
     "ansis": "^2.0.3",
     "croner": "^8.0.0",
