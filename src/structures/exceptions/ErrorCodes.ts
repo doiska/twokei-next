@@ -13,6 +13,8 @@ export const RawErrorCodes = {
   MISSING_MESSAGE: "missing-message",
   MISSING_SONG_CHANNEL: "missing-song-channel",
   USE_SONG_CHANNEL: "use-song-channel",
+  MISSING_PERMISSIONS: "missing-permissions",
+  COULD_NOT_CREATE_CHANNEL: "could-not-create-channel",
 } as const;
 
 export const ErrorCodes = Object.keys(RawErrorCodes).reduce(

@@ -16,7 +16,9 @@ import { logger } from "@/lib/logger";
 })
 export class GuildSetup extends Listener<Events.GuildCreate> {
   public async run(guild: Guild) {
-    logger.info(`Joined guild ${guild.name} (${guild.id})`);
+    logger.info(
+      `Joined guild ${guild.name} (${guild.id}) with ${guild.memberCount} members.`,
+    );
 
     try {
       const guildLocale = "pt_br";
@@ -40,18 +42,8 @@ export class GuildSetup extends Listener<Events.GuildCreate> {
       await setupSongMessage(guild, newChannel);
     } catch (e) {
       logger.error(
-        `Error while setting up guild ${guild.name} (${guild.id})`,
+        `Error while setting up guild (on join) ${guild.name} (${guild.id})`,
         e,
-      );
-
-      const owner = await guild.fetchOwner().catch(() => null);
-
-      if (!owner) {
-        return;
-      }
-
-      await owner.send(
-        "Oi! Eu fui convidado para o servidor mas não consegui criar meu canal de música, pode por favor conferir as permissões dadas (ou adicionar como administrador)? Depois basta usar /setup novamente, obrigado!",
       );
     }
   }
