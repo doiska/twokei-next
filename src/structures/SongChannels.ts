@@ -1,4 +1,5 @@
 import {
+  DiscordAPIError,
   type Guild,
   type GuildResolvable,
   Message,
@@ -16,9 +17,14 @@ import { playerSongChannels } from "@/db/schemas/player-song-channels";
 
 import { createDefaultEmbed } from "@/music/song-channel/embed/pieces";
 import { logger } from "@/lib/logger";
+import { LRUCache } from "@/lib/lru-cache";
+import { noop } from "@sapphire/utilities";
 
 export class SongChannelManager {
-  private cache = new Map<string, { channel: TextChannel; message: Message }>();
+  private cache = new LRUCache<{
+    channel: TextChannel;
+    message: Message;
+  } | null>(20);
 
   public async set(guildId: string, channelId: string, messageId: string) {
     const [result] = await kil
@@ -55,6 +61,28 @@ export class SongChannelManager {
     return result;
   }
 
+  public async delete(guild: Guild, deleteMessage: boolean = true) {
+    try {
+      logger.info(`Deleting song channel for ${guild.id} (${guild.name})`);
+
+      if (deleteMessage) {
+        const embed = await this.getEmbed(guild);
+        if (embed) {
+          await embed?.channel.delete().catch(noop);
+        }
+      }
+
+      await kil
+        .delete(playerSongChannels)
+        .where(eq(playerSongChannels.guildId, guild.id));
+    } catch (e) {
+      logger.error(
+        `Failed to delete song channel for ${guild.id} (${guild.name})`,
+      );
+      logger.error(e);
+    }
+  }
+
   public async reset(guild: Guild) {
     const embed = await this.getEmbed(guild);
 
@@ -73,6 +101,7 @@ export class SongChannelManager {
     const songChannel = await this.get(guild.id);
 
     if (!songChannel) {
+      this.cache.set(guild.id, null);
       return;
     }
 
@@ -99,9 +128,22 @@ export class SongChannelManager {
         channel,
       };
     } catch (e) {
+      if (
+        e instanceof DiscordAPIError &&
+        [10003, 10008].includes(e.code as number)
+      ) {
+        logger.error(
+          `Failed to fetch channel for ${guild.id} (${guild.name}) - ${songChannel.channelId} - ${songChannel.messageId}`,
+        );
+
+        await this.delete(guild, false);
+        return;
+      }
+
       logger.error(
-        `Failed to fetch message for ${guild.id} (${guild.name}) - ${songChannel.channelId} - ${songChannel.messageId}`,
+        `Failed to fetch embed for ${guild.id} (${guild.name}) - ${songChannel.channelId} - ${songChannel.messageId}`,
       );
+
       logger.error(e);
     }
   }
