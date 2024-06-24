@@ -7,14 +7,18 @@ import { kil } from "@/db/Kil";
 import { coreGuilds } from "@/db/schemas/core-guilds";
 
 import { setupNewChannel } from "@/music/song-channel/setup-new-channel";
-import { setupSongMessage } from "@/music/song-channel/setup-song-message";
 import { logger } from "@/lib/logger";
 
 @ApplyOptions<Listener.Options>({
   name: "guild-setup-event",
   event: Events.GuildCreate,
+  enabled: true,
 })
 export class GuildSetup extends Listener<Events.GuildCreate> {
+  public onLoad() {
+    logger.info("Loading guild setup listener...");
+  }
+
   public async run(guild: Guild) {
     logger.info(
       `Joined guild ${guild.name} (${guild.id}) with ${guild.memberCount} members.`,
@@ -38,8 +42,7 @@ export class GuildSetup extends Listener<Events.GuildCreate> {
           },
         });
 
-      const newChannel = await setupNewChannel(guild);
-      await setupSongMessage(guild, newChannel);
+      await setupNewChannel(guild);
     } catch (e) {
       logger.error(
         `Error while setting up guild (on join) ${guild.name} (${guild.id})`,

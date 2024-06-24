@@ -26,22 +26,27 @@ export class SongChannelManager {
     message: Message;
   } | null>(20);
 
-  public async set(guildId: string, channelId: string, messageId: string) {
+  public async set(guildId: string, channel: TextChannel, message: Message) {
     const [result] = await kil
       .insert(playerSongChannels)
       .values({
         guildId,
-        channelId,
-        messageId,
+        channelId: channel.id,
+        messageId: message.id,
       })
       .onConflictDoUpdate({
         set: {
-          channelId,
-          messageId,
+          channelId: channel.id,
+          messageId: message.id,
         },
         target: playerSongChannels.guildId,
       })
       .returning();
+
+    this.cache.set(guildId, {
+      channel,
+      message,
+    });
 
     return result;
   }
@@ -66,9 +71,11 @@ export class SongChannelManager {
       logger.info(`Deleting song channel for ${guild.id} (${guild.name})`);
 
       if (deleteMessage) {
-        const embed = await this.getEmbed(guild);
-        if (embed) {
-          await embed?.channel.delete().catch(noop);
+        const songChannel = await this.get(guild);
+
+        if (songChannel) {
+          await guild.channels.delete(songChannel.channelId).catch(noop);
+          logger.info(`Old channel ${songChannel.channelId} deleted.`);
         }
       }
 
@@ -133,7 +140,7 @@ export class SongChannelManager {
         [10003, 10008].includes(e.code as number)
       ) {
         logger.error(
-          `Failed to fetch channel for ${guild.id} (${guild.name}) - ${songChannel.channelId} - ${songChannel.messageId}`,
+          `Failed to fetch channel/message for ${guild.id} (${guild.name}) - ${songChannel.channelId} - ${songChannel.messageId}`,
         );
 
         await this.delete(guild, false);

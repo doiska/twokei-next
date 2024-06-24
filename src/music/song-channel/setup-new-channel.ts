@@ -1,11 +1,12 @@
 import { ChannelType, type Guild, PermissionFlagsBits } from "discord.js";
 import { canSendMessages } from "@sapphire/discord.js-utilities";
-import { container } from "@sapphire/framework";
 
 import { Twokei } from "@/app/Twokei";
 import { logger } from "@/lib/logger";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
+import { container } from "@sapphire/framework";
+import { createDefaultEmbed } from "@/music/song-channel/embed/pieces";
 
 export async function setupNewChannel(guild: Guild) {
   const self = guild.members.me;
@@ -14,7 +15,7 @@ export async function setupNewChannel(guild: Guild) {
     throw new FriendlyException(ErrorCodes.SOMETHING_WENT_REALLY_WRONG);
   }
 
-  await container.sc.delete(guild, true);
+  await container.sc.delete(guild);
 
   logger.info(
     `Trying to create a new song channel in guild: ${guild.name} (${guild.id})`,
@@ -23,6 +24,7 @@ export async function setupNewChannel(guild: Guild) {
   const newChannel = await guild.channels
     .create({
       name: "twokei-music",
+      topic: "music.twokei.com - @Twokei <link/name>",
       type: ChannelType.GuildText,
       permissionOverwrites: [
         {
@@ -45,7 +47,7 @@ export async function setupNewChannel(guild: Guild) {
     });
 
   if (!newChannel) {
-    throw new FriendlyException(ErrorCodes.COULD_NOT_CREATE_CHANNEL);
+    throw new FriendlyException(ErrorCodes.MISSING_PERMISSIONS);
   }
 
   logger.info(
@@ -56,5 +58,11 @@ export async function setupNewChannel(guild: Guild) {
     throw new FriendlyException(ErrorCodes.MISSING_PERMISSIONS);
   }
 
-  return newChannel;
+  const message = await newChannel.send(await createDefaultEmbed(guild));
+  await container.sc.set(guild.id, newChannel, message);
+
+  return {
+    channel: newChannel,
+    message,
+  };
 }

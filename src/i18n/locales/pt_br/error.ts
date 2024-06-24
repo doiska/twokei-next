@@ -1,4 +1,5 @@
 import { RawErrorCodes as ErrorCodes } from "@/structures/exceptions/ErrorCodes";
+import { Icons } from "@/constants/icons";
 
 export default {
   [ErrorCodes.UNKNOWN]:
@@ -32,13 +33,21 @@ export default {
   [ErrorCodes.PLAYER_NO_TRACKS_FOUND]:
     "Nenhuma música encontrada, tente usando um link direto.",
   [ErrorCodes.MISSING_PERMISSIONS]: [
-    "## Sem permissões",
-    " ",
+    `## ${Icons.Hanakin} Ocorreu um erro.`,
+    "### Motivo:",
     "O Twokei precisa de permissões para funcionar corretamente.",
-    "Confira se o cargo dele tem acesso as permissões:",
-    "- Gerenciar canais",
-    "- Enviar mensagens",
-    "- Ver canais",
+    "### Confira se ele tem acesso as permissões:",
     " ",
+    "- **Gerenciar canais**: criar e editar o canal de música",
+    "- **Gerenciar mensagens**: limpar mensagens do canal de música",
+    "- **Canais de voz**: entrar e falar em canais de voz",
+    "- **Enviar mensagens**",
+    "### Soluções:",
+    "- Configure manualmente as permissões",
+    "- Convide-o novamente para o servidor [clicando aqui](https://twokei.com/invite)",
+    "- Não adicione-o em um cargo que limite as permissões mencionadas.",
+    "### Se precisar de ajuda, entre em contato:",
+    "- **Discord**: doiska",
+    "- **Comunidade**: https://discord.twokei.com",
   ].join("\n"),
 } as const;

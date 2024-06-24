@@ -4,7 +4,6 @@ import { isGuildMember } from "@sapphire/discord.js-utilities";
 import { Command, container } from "@sapphire/framework";
 
 import { setupNewChannel } from "@/music/song-channel/setup-new-channel";
-import { setupSongMessage } from "@/music/song-channel/setup-song-message";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
 import { fetchT } from "@/i18n";
 import { Embed } from "@/utils/messages";
@@ -40,14 +39,13 @@ export class SetupCommand extends Command {
     await interaction.deferReply();
 
     try {
-      const newChannel = await setupNewChannel(guild);
-      await setupSongMessage(guild, newChannel);
+      const songChannel = await setupNewChannel(guild);
 
       await interaction
         .editReply({
           embeds: Embed.success(
             t("commands:setup.success", {
-              channel: newChannel.toString(),
+              channel: songChannel.channel.toString(),
             }),
           ),
         })
