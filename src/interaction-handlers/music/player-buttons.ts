@@ -16,7 +16,6 @@ import { setLoopState } from "@/music/functions/set-loop-state";
 import { shuffleQueue } from "@/music/functions/shuffle-queue";
 import { skipSong } from "@/music/functions/skip-song";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
-import { send } from "@/lib/message-handler";
 import { Embed } from "@/utils/messages";
 import { resolveKey } from "@/i18n";
 
@@ -58,20 +57,18 @@ export class PlayerButtonsInteraction extends InteractionHandler {
       return;
     }
 
+    await interaction.deferReply({
+      ephemeral: true,
+    });
+
     try {
-      await interaction.deferReply({
-        ephemeral: true,
-      });
-
       await action(interaction.member);
-
       await interaction.deleteReply();
     } catch (e) {
-      await send(interaction, {
+      await interaction.editReply({
         embeds: Embed.error(
           await resolveKey(interaction, getReadableException(e)),
         ),
-        ephemeral: true,
       });
     }
   }
@@ -80,7 +77,7 @@ export class PlayerButtonsInteraction extends InteractionHandler {
     const customId = interaction.customId;
     const buttons = Object.keys(PlayerButtons);
 
-    const button = buttons.find((b) => b === customId);
+    const button = buttons.find((buttonId) => buttonId === customId);
 
     if (button) {
       return this.some(button as PlayerButtons);

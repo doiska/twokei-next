@@ -36,13 +36,13 @@ export async function resolveKey<
   key: Key | Key[],
   options?: ActualOptions,
 ): Promise<TFunctionReturnOptionalDetails<Ret, TOpt>> {
-  const parsedOptions = options;
-
   const fixedT = await fetchT(target);
 
+  const defaultValue = Array.isArray(key) ? key[0] : key;
+
   return fixedT(key, {
-    ...parsedOptions,
-    defaultValue: key,
+    ...options,
+    defaultValue,
   });
 }
 
