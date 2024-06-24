@@ -10,48 +10,52 @@ import { EmbedButtons } from "@/constants/buttons";
 import { createProfile } from "@/canvas/profile/base";
 
 import { isBefore } from "date-fns";
-import { getCoreUser } from "@/lib/users";
 import { isGuildMember } from "@sapphire/discord.js-utilities";
 import { getExternalProfile } from "@/lib/arts/get-external-profile";
 import { kil } from "@/db/Kil";
 import { listeningRanking } from "@/db/schemas/analytics-track-info";
 import { eq } from "drizzle-orm";
 import { playerEmbedArts } from "@/db/schemas/player-embed-arts";
+import { coreUsers } from "@/db/schemas/core-users";
 
-const badges = [
-  {
-    name: "Early Supporter",
-    color: Colors.DarkRed.toString(16),
-    condition: async (user: User) => {
-      const coreUser = await getCoreUser(user);
-      return isBefore(coreUser.createdAt, new Date("2024-01-01"));
-    },
-  },
-  {
-    name: "Premium",
-    color: Colors.DarkGold.toString(16),
-    condition: async (user: User) => {
-      const coreUser = await getCoreUser(user);
-      return coreUser?.role === "premium";
-    },
-  },
-  {
-    name: "Top 10",
-    color: Colors.DarkGold.toString(16),
-    condition: async (user: User) => {
-      const [ranking] = await kil
-        .select({ position: listeningRanking.position })
-        .from(listeningRanking)
-        .where(eq(listeningRanking.userId, user.id));
+async function getBadges(user: User) {
+  const [coreUser] = await kil
+    .insert(coreUsers)
+    .values({
+      id: user.id,
+      name: user.username,
+    })
+    .onConflictDoUpdate({
+      target: [coreUsers.id],
+      set: {
+        name: user.username,
+      },
+    })
+    .returning();
 
-      if (!ranking?.position) {
-        return false;
-      }
+  const [ranking] = await kil
+    .select({ position: listeningRanking.position })
+    .from(listeningRanking)
+    .where(eq(listeningRanking.userId, user.id));
 
-      return ranking.position <= 10;
+  return [
+    {
+      name: "Early Supporter",
+      color: Colors.DarkRed.toString(16),
+      condition: isBefore(coreUser.createdAt, new Date("2024-01-01")),
     },
-  },
-];
+    {
+      name: "Premium",
+      color: Colors.DarkGold.toString(16),
+      condition: coreUser?.role === "premium",
+    },
+    {
+      name: "Top 10",
+      color: Colors.DarkGold.toString(16),
+      condition: ranking && ranking.position <= 10,
+    },
+  ].filter((c) => c.condition);
+}
 
 const formatPlayTime = (ms: number) => {
   const hours = Math.floor(ms / 3.6e6);
@@ -123,16 +127,8 @@ class ProfileButtonInteraction extends InteractionHandler {
       .from(playerEmbedArts)
       .then((arts) => arts.sort(() => Math.random() - 0.5));
 
-    const userBadges = await Promise.all(
-      badges.map(async (badge) => {
-        if (await badge.condition(user)) {
-          return {
-            name: badge.name,
-            color: badge.color,
-          };
-        }
-      }),
-    );
+    const userBadges = await getBadges(user);
+    const listenedInMs = Number.parseInt(ranking?.listenedInMs ?? "0");
 
     const rankCard = await createProfile({
       user: {
@@ -153,12 +149,11 @@ class ProfileButtonInteraction extends InteractionHandler {
       stats: {
         ranking: ranking?.position.toString() ?? `999+`,
         listenedSongs: ranking?.listenedCount.toString() ?? "0",
-        totalPlayTime: formatPlayTime(ranking?.listenedInMs ?? 0),
+        totalPlayTime: formatPlayTime(listenedInMs),
       },
     });
 
     //TODO: cache the profile card
-
     await interaction.editReply({ files: [rankCard] });
   }
 }
