@@ -14,7 +14,7 @@ import { setupSongMessage } from "@/music/song-channel/setup-song-message";
 import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 import { getReadableException } from "@/structures/exceptions/utils/get-readable-exception";
 import { defer, send } from "@/lib/message-handler";
-import { resolveKey } from "@/i18n";
+import { fetchT, resolveKey } from "@/i18n";
 import { Embed } from "@/utils/messages";
 import { noop } from "@sapphire/utilities";
 import { EmbedButtons } from "@/constants/buttons";
@@ -30,7 +30,10 @@ import { Icons } from "@/constants/icons";
 export class SetupCommand extends Command {
   registerApplicationCommands(registry: Command.Registry) {
     registry.registerChatInputCommand((builder) =>
-      builder.setName(this.name).setDescription(this.description),
+      builder
+        .setName(this.name)
+        .setDescription(this.description)
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     );
   }
 
@@ -43,73 +46,21 @@ export class SetupCommand extends Command {
       return;
     }
 
-    const isAdmin = member.permissions.has(PermissionFlagsBits.Administrator);
-
-    if (!isAdmin) {
-      await send(interaction, {
-        embeds: Embed.error(
-          await resolveKey(interaction, ErrorCodes.MISSING_ADMIN_PERMISSIONS),
-        ),
-        ephemeral: true,
-      });
-      return;
-    }
-
-    await defer(interaction);
+    await interaction.deferReply();
 
     try {
       const newChannel = await setupNewChannel(guild);
-
-      //TODO: improve error handling here
       await setupSongMessage(guild, newChannel);
 
-      const row = new ActionRowBuilder<ButtonBuilder>({
-        components: [
-          new ButtonBuilder()
-            .setCustomId("delete-setup-message")
-            .setLabel("Entendi, valeu!")
-            .setEmoji(Icons.Lightning)
-            .setStyle(ButtonStyle.Success),
-          new ButtonBuilder()
-            .setCustomId(EmbedButtons.NEWS)
-            .setLabel("Ver novidades")
-            .setEmoji(Icons.News)
-            .setStyle(ButtonStyle.Secondary),
-          new ButtonBuilder()
-            .setURL("https://discord.twokei.com/")
-            .setLabel("Preciso de ajuda")
-            .setEmoji(Icons.Hanakin)
-            .setStyle(ButtonStyle.Link),
-        ],
-      });
-
-      //TODO: i18n
-      const setupMessage = await newChannel.send({
-        content: member.user.toString(),
-        embeds: Embed.info(
-          await resolveKey(interaction, "commands:setup.channel_created", {
-            channel: newChannel.toString(),
-            user: member.user.toString(),
-            serverName: guild.name,
-            mention: container.client.user?.toString() ?? "@Twokei",
-          }),
-        ),
-        components: [row],
-      });
-
-      setupMessage
-        .awaitMessageComponent({
-          filter: (i) => i.customId === "delete-setup-message",
-          time: 120 * 1000,
-          componentType: ComponentType.Button,
+      await interaction
+        .reply({
+          embeds: Embed.success(
+            await resolveKey(interaction, "commands:setup.success", {
+              channel: newChannel.toString(),
+            }),
+          ),
         })
-        .then(async (i) => {
-          await i.deferUpdate();
-          await setupMessage.delete();
-        })
-        .catch(() => setupMessage.delete().catch(noop));
-
-      await interaction.deleteReply().catch(noop);
+        .catch(noop);
     } catch (error) {
       await member.send({
         embeds: Embed.error(
