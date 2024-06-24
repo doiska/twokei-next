@@ -185,6 +185,7 @@ export class Xiao extends EventEmitter {
       .where(eq(coreNodes.enabled, true));
 
     const sessions = await getSessions();
+    const token = env.DISCORD_TOKEN.slice(0, 5);
 
     container.xiao = new Xiao(
       new Connectors.DiscordJS(client),
@@ -194,7 +195,7 @@ export class Xiao extends EventEmitter {
         moveOnDisconnect: true,
         reconnectInterval: 3,
         reconnectTries: 20,
-        userAgent: `Twokei (${env.NODE_ENV})`,
+        userAgent: `Twokei (${token}) (${env.NODE_ENV})`,
       },
       sessions.dump,
     );

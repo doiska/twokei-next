@@ -1,38 +1,24 @@
 import { ChannelType, type Guild, PermissionFlagsBits } from "discord.js";
 import { canSendMessages } from "@sapphire/discord.js-utilities";
 import { container } from "@sapphire/framework";
-import { noop } from "@sapphire/utilities";
 
 import { Twokei } from "@/app/Twokei";
 import { logger } from "@/lib/logger";
 import { FriendlyException } from "@/structures/exceptions/FriendlyException";
+import { ErrorCodes } from "@/structures/exceptions/ErrorCodes";
 
-export const setupNewChannel = async (guild: Guild) => {
+export async function setupNewChannel(guild: Guild) {
   const self = guild.members.me;
 
   if (!guild || !self || !Twokei.user?.id) {
-    throw new FriendlyException(
-      "I can't setup the bot in this server, check if I have the correct permissions.",
-    );
+    throw new FriendlyException(ErrorCodes.SOMETHING_WENT_REALLY_WRONG);
   }
 
-  const currentChannel = await container.sc.get(guild);
+  await container.sc.delete(guild, true);
 
-  if (currentChannel) {
-    await guild.channels
-      .fetch(currentChannel.channelId)
-      .then(async (channel) => {
-        await channel?.delete();
-      })
-      .catch(noop)
-      .finally(() =>
-        logger.info(`Deleted old ${guild.name} (${guild.id}) song channel.`),
-      );
-  }
-
-  logger.info("Creating new song channel", {
-    guild: { name: guild.name, id: guild.id },
-  });
+  logger.info(
+    `Trying to create a new song channel in guild: ${guild.name} (${guild.id})`,
+  );
 
   const newChannel = await guild.channels
     .create({
@@ -51,20 +37,24 @@ export const setupNewChannel = async (guild: Guild) => {
       ],
     })
     .catch((e) => {
+      logger.error(
+        `Something went wrong while creating a new channel at ${guild.name} (${guild.id})`,
+      );
+
       logger.error(e);
     });
 
   if (!newChannel) {
-    throw new FriendlyException("I can't create a new channel.");
+    throw new FriendlyException(ErrorCodes.COULD_NOT_CREATE_CHANNEL);
   }
 
-  logger.info(`Successfully created new song channel ${newChannel?.id}`, {
-    guild: { name: guild.name, id: guild.id },
-  });
+  logger.info(
+    `Successfully created new song channel at ${guild.name} (${guild.id})`,
+  );
 
   if (!canSendMessages(newChannel)) {
-    throw new FriendlyException("I can't send messages in the new channel.");
+    throw new FriendlyException(ErrorCodes.MISSING_PERMISSIONS);
   }
 
   return newChannel;
-};
+}
