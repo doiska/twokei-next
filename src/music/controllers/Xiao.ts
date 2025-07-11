@@ -322,7 +322,7 @@ export class Xiao extends EventEmitter {
   ): Promise<XiaoSearchResult> {
     const node = this.shoukaku.getIdealNode();
 
-    const engine = options?.engine ?? "spsearch";
+    const engine = "ytsearch";
 
     if (!node) {
       throw new Error("No available nodes");
